@@ -4,6 +4,7 @@ class TextView
   include UiBuilderHelper
 
   property file_path : Path?
+  getter? readonly = false
   getter label : String
   getter widget : Gtk::Widget
 
@@ -50,12 +51,13 @@ class TextView
   end
 
   def save
+    return if @readonly
+
     file_path = @file_path
     if file_path.nil?
       Log.warn { "Attempt to save a file without a name" }
       return
     end
-    puts "saving #{file_path}"
     text = @buffer.text(@buffer.start_iter, @buffer.end_iter, false)
     File.write(file_path, text)
     @buffer.modified = false
@@ -66,13 +68,20 @@ class TextView
 
     @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
 
-    if @file_path
-      text = File.read(@file_path.not_nil!)
+    file_path = @file_path
+    if file_path
+      text = File.read(file_path)
       @buffer.set_text(text, -1)
       @buffer.modified = false
 
       lang = GtkSource::LanguageManager.default.guess_language(@label, mimetype(@label, text))
       @buffer.language = lang
+
+      unless File.writable?(file_path)
+        @editor.editable = false
+        @file_path_label.text = "#{@label} 🔒"
+        @readonly = true
+      end
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
