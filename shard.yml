@@ -1,0 +1,30 @@
+name: tijolo
+version: 0.1.0
+
+authors:
+  - Hugo Parente Lima <hugo.pl@gmail.com>
+
+targets:
+  tijolo:
+    main: src/main.cr
+
+dependencies:
+  version_from_shard:
+    github: hugopl/version_from_shard
+    version: ~> 1.2.1
+  fzy:
+    github: hugopl/fzy
+    version: ~> 0.4.0
+  gobject:
+    github: jhass/crystal-gobject
+    commit: d87de21cbbb11628f0cc25a6bd9b6c798f4d5d83
+  malloc_pthread_shim:
+    github: jhass/crystal-malloc_pthread_shim
+    version: ~> 0.1.0
+  compiled_license:
+    github: elorest/compiled_license
+    version: ~> 0.1.3
+
+crystal: 0.35.0
+
+license: MIT

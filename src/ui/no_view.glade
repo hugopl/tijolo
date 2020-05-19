@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkScrolledWindow" id="root">
+    <property name="name">no-view</property>
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="shadow_type">in</property>
+    <child>
+      <object class="GtkViewport">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label">&lt;big&gt;&lt;b&gt;No releases were done yet&lt;/b&gt;, I know that most of these shortcuts doesn't work, so don't create any github issue about them right now.&lt;/big&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="justify">center</property>
+                <property name="wrap">True</property>
+                <property name="track_visited_links">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="margin_start">6</property>
+                <property name="margin_end">6</property>
+                <property name="margin_top">6</property>
+                <property name="margin_bottom">6</property>
+                <property name="orientation">vertical</property>
+                <property name="row_spacing">6</property>
+                <property name="column_spacing">6</property>
+                <property name="row_homogeneous">True</property>
+                <property name="column_homogeneous">True</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">start</property>
+                    <child>
+                      <object class="GtkShortcutsGroup">
+                        <property name="visible">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="title" translatable="yes">Project</property>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Ctrl&gt;N</property>
+                            <property name="title" translatable="yes">New file</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Ctrl&gt;W</property>
+                            <property name="title" translatable="yes">Close view</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">start</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkShortcutsGroup">
+                        <property name="visible">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="title" translatable="yes">Views</property>
+                        <!-- VIEW RELATED SHORRCUTS -->
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Alt&gt;&lt;Ctrl&gt;A</property>
+                            <property name="title" translatable="yes">Split current view</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Alt&gt;Left...Down</property>
+                            <property name="title" translatable="yes">Navigate visible views</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Ctrl&gt;T</property>
+                            <property name="title" translatable="yes">New terminal view</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">start</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkShortcutsGroup">
+                        <property name="visible">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="title" translatable="yes">Code Navigation</property>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;ctrl&gt;P</property>
+                            <property name="title" translatable="yes">Show locator</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;ctrl&gt;Tab</property>
+                            <property name="title" translatable="yes">Switch between open views</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Ctrl&gt;G</property>
+                            <property name="title" translatable="yes">Go to line/column</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">start</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkShortcutsGroup">
+                        <property name="visible">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="title" translatable="yes">Git</property>
+                        <!-- GIT RELATED SHORRCUTS -->
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Alt&gt;G B</property>
+                            <property name="title" translatable="yes">Git Blame</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="visible">1</property>
+                            <property name="accelerator">&lt;Alt&gt;G L</property>
+                            <property name="title" translatable="yes">Git Log</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

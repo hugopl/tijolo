@@ -1,0 +1,56 @@
+textview
+{
+    font: 9pt "Monospace";
+}
+
+popover {
+  padding: 6px;
+}
+
+#ide-window .editor-header {
+  border-bottom: 1px solid @borders;
+
+  padding: 4px 6px 4px 6px;
+  margin: 0px;
+}
+
+#ide-window treeview button {
+  border: 0px;
+}
+
+#locator entry {
+  border-width: 2px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+<%- if css_enabled -%>
+#no-view, #ide-window .editor-header {
+  color: <%= text_style_fg %>;
+  background-color: <%= bg_style_bg %>;
+}
+
+#ide-window treeview button {
+  color: <%= text_style_fg %>;
+  background-color: <%= text_style_bg %>;
+}
+
+#ide-window treeview {
+  color: <%= text_style_fg %>;
+  background-color: <%= text_style_bg %>;
+}
+
+#ide-window treeview:selected {
+  color: <%= selection_style_fg %>;
+  background: <%= selection_style_bg %>;
+}
+
+#ide-window scrollbar slider {
+  background-color: <%= selection_style_bg %>;
+}
+
+#locator entry {
+  border: 2px solid <%= selection_style_bg %>;
+}
+
+<%- end -%>

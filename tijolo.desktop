@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=tijolo %f
+Name=Tijolo
+GenericName=Lightweight, keyboard-oriented IDE for the masses
+Terminal=false
+Icon=io.github.hugopl.Tijolo
+Categories=Development;IDE
