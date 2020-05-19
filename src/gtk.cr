@@ -14,6 +14,11 @@ module Gtk
       view_model.iter(iter, path)
       view_model.value(iter, column)
     end
+
+    def set_cursor(row : Int32, start_edit : Bool = false)
+      tree_path = Gtk::TreePath.new_from_indices({row}, 1)
+      set_cursor(tree_path, nil, start_edit)
+    end
   end
 
   class TreeSelection
