@@ -68,7 +68,7 @@ class Locator
     @locator_widget.hide unless @locator_focus_is_mine
 
     @locator_focus_is_mine = false
-    true
+    false
   end
 
   macro hide_locator_on_esc!
