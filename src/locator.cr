@@ -11,7 +11,7 @@ class Locator
   SCORE_COLUMN   = 2
 
   # Number of locator matches to show in the UI
-  MAX_LOCATOR_ITEMS = 50
+  MAX_LOCATOR_ITEMS = 25
 
   @project : Project
   @locator_entry : Gtk::SearchEntry
@@ -35,7 +35,7 @@ class Locator
     @locator_entry = Gtk::SearchEntry.cast(builder["locator_entry"])
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_entry.on_activate(&->open_file(Gtk::Entry))
-    @locator_entry.on_search_changed(&->search_changed(Gtk::SearchEntry))
+    @locator_entry.connect("notify::text", &->search_changed)
     @locator_entry.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
     # Original model
@@ -139,11 +139,11 @@ class Locator
     true
   end
 
-  private def search_changed(widget : Gtk::SearchEntry)
+  private def search_changed
     time = Time.measure do
       reset_search_model
 
-      @last_results = Fzy.search(widget.text, @project_haystack)
+      @last_results = Fzy.search(@locator_entry.text, @project_haystack)
       @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
 
       # Set visible values
