@@ -123,7 +123,7 @@ class Application
   end
 
   def run
-    @application.run(0, nil)
+    @application.run(nil)
   rescue e
     Log.fatal { e.backtrace }
     abort(e.message)

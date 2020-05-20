@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.4.0
   gobject:
     github: jhass/crystal-gobject
-    commit: d87de21cbbb11628f0cc25a6bd9b6c798f4d5d83
+    commit: 43dc4628a61d34f4c9568d664c7ea873eb1844dc
   malloc_pthread_shim:
     github: jhass/crystal-malloc_pthread_shim
     version: ~> 0.1.0

@@ -16,14 +16,14 @@ module Gtk
     end
 
     def set_cursor(row : Int32, start_edit : Bool = false)
-      tree_path = Gtk::TreePath.new_from_indices({row}, 1)
+      tree_path = Gtk::TreePath.new_from_indices({row})
       set_cursor(tree_path, nil, start_edit)
     end
   end
 
   class TreeSelection
     def select_row(row) : Nil
-      tree_path = Gtk::TreePath.new_from_indices({row}, 1)
+      tree_path = Gtk::TreePath.new_from_indices({row})
       select_path(tree_path)
     end
   end
@@ -47,14 +47,14 @@ module Gtk
 
     def value(row : Int32, column : Int32)
       iter = Gtk::TreeIter.new
-      path = TreePath.new_from_indices({row}, 1)
+      path = TreePath.new_from_indices({row})
       iter(iter, path)
       value(iter, column)
     end
 
     def set(row : Int32, columns : Tuple, values : Tuple) : TreeIter
       iter = Gtk::TreeIter.new
-      tree_path = Gtk::TreePath.new_from_indices({row}, 1)
+      tree_path = Gtk::TreePath.new_from_indices({row})
       iter(iter, tree_path)
       set(iter, columns, values)
       iter
@@ -62,7 +62,7 @@ module Gtk
 
     def remove_row(row : Int32)
       iter = Gtk::TreeIter.new
-      tree_path = Gtk::TreePath.new_from_indices({row}, 1)
+      tree_path = Gtk::TreePath.new_from_indices({row})
       iter(iter, tree_path)
       remove(iter)
     end

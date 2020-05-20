@@ -23,7 +23,7 @@ class OpenFiles
   delegate empty?, to: @files
 
   def initialize(@stack : Gtk::Stack)
-    @model = Gtk::ListStore.new(3, {GObject::Type::UTF8, GObject::Type::UINT64, GObject::Type::ULONG})
+    @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UINT64, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
 

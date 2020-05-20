@@ -37,7 +37,7 @@ class Locator
     @locator_entry.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
     # Original model
-    @project_model = Gtk::ListStore.new(3, [GObject::Type::UTF8, GObject::Type::BOOLEAN, GObject::Type::DOUBLE])
+    @project_model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::BOOLEAN, GObject::Type::DOUBLE})
     fill_project_model
 
     # Original model now filtered
@@ -145,7 +145,7 @@ class Locator
       # Set visible values
       iter = Gtk::TreeIter.new
       @last_results.each do |match|
-        tree_path = Gtk::TreePath.new_from_indices({match.index}, 1)
+        tree_path = Gtk::TreePath.new_from_indices({match.index})
         @project_model.iter(iter, tree_path)
         @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {true, match.score})
       end
@@ -158,7 +158,7 @@ class Locator
   private def reset_search_model
     iter = Gtk::TreeIter.new
     @last_results.each do |match|
-      tree_path = Gtk::TreePath.new_from_indices({match.index}, 1)
+      tree_path = Gtk::TreePath.new_from_indices({match.index})
       @project_model.iter(iter, tree_path)
       @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {false, -Float64::INFINITY})
     end

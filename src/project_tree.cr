@@ -123,7 +123,7 @@ class ProjectTree
                     nil
                   else
                     iter = Gtk::TreeIter.new
-                    tree_path = Gtk::TreePath.new_from_indices(parent_tree_path, parent_tree_path.size)
+                    tree_path = Gtk::TreePath.new_from_indices(parent_tree_path)
                     @model.iter(iter, tree_path)
                     iter
                   end
