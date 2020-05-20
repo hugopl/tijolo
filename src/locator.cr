@@ -1,6 +1,8 @@
 require "fzy"
 
 class Locator
+  include UiBuilderHelper
+
   getter locator_widget : Gtk::Widget # Root widget for locator
 
   # project model columns
@@ -25,10 +27,10 @@ class Locator
 
   delegate hide, to: @locator_widget
 
-  def initialize(builder, overlay, @project, @on_open_file)
-    locator_widget = Gtk::Widget.cast(builder["locator_widget"])
-    overlay.add_overlay(locator_widget)
-    @locator_widget = locator_widget
+  def initialize(@project, @on_open_file)
+    builder = builder_for("locator")
+    @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
+    @locator_widget.ref
 
     @locator_entry = Gtk::SearchEntry.cast(builder["locator_entry"])
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
@@ -56,6 +58,8 @@ class Locator
     @locator_results.on_row_activated(&->open_file(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
     @locator_results.on_key_press_event(&->results_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_results.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
+  ensure
+    builder.try(&.unref)
   end
 
   def show

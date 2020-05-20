@@ -20,7 +20,8 @@ class IdeWindow < Window
     Config.instance.update_last_used_of(@project.root)
 
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
-    @locator = Locator.new(builder, overlay, @project, ->open_file(String))
+    @locator = Locator.new(@project, ->open_file(String))
+    overlay.add_overlay(@locator.locator_widget)
 
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files"])
