@@ -3,16 +3,6 @@
 <interface>
   <requires lib="gtk+" version="3.22"/>
   <!-- interface-css-provider-path ide_window.css -->
-  <object class="GtkTreeStore" id="project_model">
-    <columns>
-      <!-- column-name Label -->
-      <column type="gchararray"/>
-      <!-- column-name File -->
-      <column type="gchararray"/>
-      <!-- column-name Directory? -->
-      <column type="gboolean"/>
-    </columns>
-  </object>
   <object class="GtkPaned" id="root">
     <property name="name">ide-window</property>
     <property name="visible">True</property>
@@ -79,7 +69,6 @@
                     <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">project_model</property>
                     <property name="headers_clickable">False</property>
                     <property name="search_column">0</property>
                     <child internal-child="selection">

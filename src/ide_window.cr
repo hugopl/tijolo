@@ -6,6 +6,7 @@ require "./text_view"
 
 class IdeWindow < Window
   @open_files_view : Gtk::TreeView
+  @project_tree_view : Gtk::TreeView
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
 
@@ -26,8 +27,7 @@ class IdeWindow < Window
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files"])
     @open_files_view.selection.mode = :browse
-    @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
-    @open_files.on_selected_open_file_change { |row| @open_files_view.selection.select_row(row) }
+    @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]), ->open_file_changed(TextView, Bool))
     @open_files_view.model = @open_files.sorted_model
     @open_files_view.on_row_activated &->open_file_from_open_files(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
 
@@ -35,11 +35,11 @@ class IdeWindow < Window
     setup_actions
 
     # Setup Project Tree view
-    tree_view = Gtk::TreeView.cast(builder["project_tree"])
-    tree_view.selection.mode = :browse
-    tree_view.on_row_activated &->open_file_from_project_tree(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
-
-    @project_tree = ProjectTree.new(@project, Gtk::TreeStore.cast(builder["project_model"]))
+    @project_tree = ProjectTree.new(@project)
+    @project_tree_view = Gtk::TreeView.cast(builder["project_tree"])
+    @project_tree_view.model = @project_tree.model
+    @project_tree_view.selection.mode = :browse
+    @project_tree_view.on_row_activated &->open_file_from_project_tree(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
 
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
@@ -113,6 +113,22 @@ class IdeWindow < Window
     end
   rescue e : IO::Error
     application.error(e)
+  end
+
+  def open_file_changed(view, definitive)
+    @open_files_view.selection.select_row(@open_files.current_row)
+    return unless definitive
+
+    # Select file on project tree view
+    file = view.file_path
+    return if file.nil?
+
+    path = @project_tree.tree_path(file)
+    if path
+      tree_path = Gtk::TreePath.new_from_indices(path)
+      @project_tree_view.expand_to_path(tree_path)
+      @project_tree_view.set_cursor(tree_path, nil, false)
+    end
   end
 
   def save_current_view

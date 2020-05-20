@@ -11,8 +11,6 @@ class OpenFiles
   @sorted_files_index = 0        # Selected file on open files model
   @last_used_counter = 0         # Counter used to sort open files, last used first
 
-  @on_selected_open_file_change : Proc(Int32, Nil)?
-
   # Open files model columns
   OPEN_FILES_LABEL     = 0
   OPEN_FILES_VIEW_ID   = 1
@@ -22,7 +20,7 @@ class OpenFiles
 
   delegate empty?, to: @files
 
-  def initialize(@stack : Gtk::Stack)
+  def initialize(@stack : Gtk::Stack, @on_open_file_changed : Proc(TextView, Bool, Nil))
     @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UINT64, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
@@ -64,7 +62,7 @@ class OpenFiles
     @sorted_files_index = @sorted_files.size - 1
     @model.append({0, 1, 2}, {text_view.label, text_view.object_id, last_used_counter})
 
-    reveal_view(text_view)
+    reveal_view(text_view, true)
     text_view
   end
 
@@ -72,15 +70,16 @@ class OpenFiles
     @last_used_counter += 1
   end
 
-  def on_selected_open_file_change(&block : Proc(Int32, Nil))
-    @on_selected_open_file_change = block
+  def current_row
+    @sorted_files.size - (@sorted_files_index + 1)
   end
 
-  private def reveal_view(view : TextView)
+  # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
+  private def reveal_view(view : TextView, definitive : Bool)
     @stack.visible_child_name = view.id
     view.grab_focus
 
-    @on_selected_open_file_change.try(&.call(@sorted_files.size - (@sorted_files_index + 1)))
+    @on_open_file_changed.call(view, definitive)
   end
 
   private def reorder_open_files(new_selected_index)
@@ -101,7 +100,7 @@ class OpenFiles
       @sorted_files_index = @sorted_files.size - 1 if @sorted_files_index < 0
     end
 
-    reveal_view(@sorted_files[@sorted_files_index])
+    reveal_view(@sorted_files[@sorted_files_index], reorder)
   end
 
   def show_view(view : TextView)
@@ -112,7 +111,7 @@ class OpenFiles
     end
 
     reorder_open_files(idx)
-    reveal_view(view)
+    reveal_view(view, true)
   end
 
   def close_current_view
@@ -131,6 +130,6 @@ class OpenFiles
     @model.remove_row(idx)
     @stack.remove(@stack.visible_child.not_nil!)
 
-    reveal_view(@sorted_files.last) if @sorted_files.any?
+    reveal_view(@sorted_files.last, true) if @sorted_files.any?
   end
 end

@@ -10,8 +10,16 @@ class ProjectTree
     def initialize(@name : String)
     end
 
+    def index(_name)
+      nil
+    end
+
     def [](name)
       raise "Bug"
+    end
+
+    def ==(name : String)
+      @name == name
     end
 
     def to_s(io, depth)
@@ -37,6 +45,14 @@ class ProjectTree
         end
         subfolder.add(parts)
       end
+    end
+
+    def index(name) : Int32?
+      idx = @subfolders.index(name)
+      return idx unless idx.nil?
+
+      idx = @files.index(name)
+      idx += @subfolders.size unless idx.nil?
     end
 
     def []?(name)
@@ -103,14 +119,29 @@ class ProjectTree
       traverse_impl(file_parts, tree_path, &block)
     end
 
+    def tree_path(file)
+      path = [] of Int32
+      node = self
+      file.parts.each do |part|
+        idx = node.index(part)
+        return if idx.nil?
+
+        node = node[part]
+        path << idx
+      end
+      path
+    end
+
     def to_s(io : IO)
       to_s(io, 0)
     end
   end
 
-  def initialize(@project : Project, @model : Gtk::TreeStore)
+  getter model
+
+  def initialize(@project : Project)
     @root = Root.new(@project.files)
-    @model.ref
+    @model = Gtk::TreeStore.new({GObject::Type::UTF8, GObject::Type::UTF8, GObject::Type::BOOLEAN})
     populate
   end
 
@@ -135,6 +166,11 @@ class ProjectTree
     @root.traverse do |file_path, is_folder, tree_path|
       add_node_to_gtk(file_path, is_folder, tree_path)
     end
+  end
+
+  def tree_path(file : Path) : Array(Int32)?
+    path = file.relative_to(@project.root)
+    @root.tree_path(path)
   end
 
   def to_s(io : IO)

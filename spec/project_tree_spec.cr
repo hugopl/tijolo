@@ -40,4 +40,24 @@ describe ProjectTree::Node do
     dir_flags.should eq(expected_dir_flags)
     tree_paths.should eq(expected_tree_paths)
   end
+
+  it "can get the path tree" do
+    project = FakeProject.new(%w(0 1 2/0 2/1))
+    tree = ProjectTree.new(project)
+    tree.to_s.should eq("<root>\n" \
+                        "  2\n" \
+                        "    0\n" \
+                        "    1\n" \
+                        "  0\n" \
+                        "  1\n")
+    tree.tree_path("/fake/0").should eq([1])
+    tree.tree_path("0").should eq([1])
+    tree.tree_path("/fake/1").should eq([2])
+    tree.tree_path("1").should eq([2])
+    tree.tree_path("/fake/2/0").should eq([0, 0])
+    tree.tree_path("2/0").should eq([0, 0])
+    tree.tree_path("/fake/2/1").should eq([0, 1])
+    tree.tree_path("2/1").should eq([0, 1])
+    tree.tree_path("2/eita").should eq(nil)
+  end
 end
