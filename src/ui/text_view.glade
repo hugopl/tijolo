@@ -67,7 +67,8 @@
                 <property name="insert_spaces_instead_of_tabs">True</property>
                 <property name="show_right_margin">True</property>
                 <property name="right_margin_position">125</property>
-                <property name="smart_home_end">always</property>
+                <property name="smart_home_end">before</property>
+                <property name="highlight_current_line">True</property>
                 <property name="background_pattern">grid</property>
                 <property name="smart_backspace">True</property>
               </object>
