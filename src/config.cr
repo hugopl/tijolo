@@ -20,7 +20,8 @@ class Config
 
   YAML.mapping(projects: Array(ProjectEntry),
     scan_projects: {type: Bool, default: true},
-    style_scheme: String?)
+    style_scheme: String?,
+    shortcuts: Hash(String, String)?)
 
   @@instance : Config?
   getter? scan_projects
@@ -58,6 +59,19 @@ class Config
 
   def style_scheme
     @style_scheme ||= "solarized-light"
+  end
+
+  def shortcuts
+    @shortcuts ||= default_shortcuts
+  end
+
+  def default_shortcuts : Hash(String, String)
+    @default_shortcuts ||= {
+      "show_locator" => "<Control>P",
+      "new_file"     => "<Control>N",
+      "close_view"   => "<Control>W",
+      "save_view"    => "<Control>S",
+    }
   end
 
   def add_project(project_path : String)

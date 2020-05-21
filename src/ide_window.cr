@@ -65,27 +65,19 @@ class IdeWindow < Window
     false
   end
 
-  # FIXME: Get shortcuts from a config file
   private def setup_actions
-    show_locator = Gio::SimpleAction.new("show_locator", nil)
-    show_locator.on_activate { @locator.show }
-    main_window.add_action(show_locator)
-    application.set_accels_for_action("win.show_locator", {"<Control>P"})
-
-    new_file = Gio::SimpleAction.new("new_file", nil)
-    new_file.on_activate { create_text_view(nil) }
-    main_window.add_action(new_file)
-    application.set_accels_for_action("win.new_file", {"<Control>N"})
-
-    close_view = Gio::SimpleAction.new("close_view", nil)
-    close_view.on_activate { @open_files.close_current_view }
-    main_window.add_action(close_view)
-    application.set_accels_for_action("win.close_view", {"<Control>W"})
-
-    save_view = Gio::SimpleAction.new("save_view", nil)
-    save_view.on_activate { save_current_view }
-    main_window.add_action(save_view)
-    application.set_accels_for_action("win.save_view", {"<Control>S"})
+    config = Config.instance
+    actions = { {"show_locator", ->{ @locator.show }},
+               {"new_file", ->{ create_text_view(nil) }},
+               {"close_view", ->{ @open_files.close_current_view }},
+               {"save_view", ->{ save_current_view }} }
+    actions.each do |(name, closure)|
+      g_action = Gio::SimpleAction.new(name, nil)
+      g_action.on_activate { closure.call }
+      main_window.add_action(g_action)
+      shortcut = config.shortcuts[name]? || config.default_shortcuts[name]
+      application.set_accels_for_action("win.#{name}", {shortcut})
+    end
   end
 
   private def create_text_view(file : String?) : TextView
