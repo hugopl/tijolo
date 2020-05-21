@@ -140,23 +140,29 @@ class Locator
   end
 
   private def search_changed
-    time = Time.measure do
-      reset_search_model
+    start_time = Time.monotonic
 
-      @last_results = Fzy.search(@locator_entry.text, @project_haystack)
-      @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
+    reset_search_model
+    reset_time = Time.monotonic
 
-      # Set visible values
-      iter = Gtk::TreeIter.new
-      @last_results.each do |match|
-        tree_path = Gtk::TreePath.new_from_indices({match.index})
-        @project_model.iter(iter, tree_path)
-        @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {true, match.score})
-      end
+    @last_results = Fzy.search(@locator_entry.text, @project_haystack)
+    @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
+    fzy_time = Time.monotonic
+
+    # Set visible values
+    iter = Gtk::TreeIter.new
+    @last_results.each do |match|
+      tree_path = Gtk::TreePath.new_from_indices({match.index})
+      @project_model.iter(iter, tree_path)
+      @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {true, match.score})
     end
-    @locator_results.set_cursor(0)
 
-    Log.info { "Locator found #{@last_results.size} results in #{time}" }
+    @locator_results.set_cursor(0)
+    gtk_time = Time.monotonic
+    total = gtk_time - start_time
+    gtk_total = (reset_time - start_time) + (gtk_time - fzy_time)
+    fzy_total = (fzy_time - reset_time)
+    Log.debug { "Locator found #{@last_results.size} results: total: #{total} fzy: #{fzy_total}, gtk: #{gtk_total}" }
   end
 
   private def reset_search_model
