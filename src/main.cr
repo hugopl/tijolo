@@ -1,3 +1,7 @@
+# Tell
+ENV["G_SLICE"] = "always-malloc"
+ENV["G_DEBUG"] = "gc-friendly"
+
 require "log"
 require "option_parser"
 
