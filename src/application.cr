@@ -27,7 +27,7 @@ class Application
     @application.on_activate(&->activate_ui(Gio::Application))
     @style_scheme = load_scheme
 
-    @project_location = options[:location].presence
+    @project_location = Path.new(options[:location]).expand.to_s if options[:location]
   end
 
   private def load_scheme
