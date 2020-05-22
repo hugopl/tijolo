@@ -14,7 +14,7 @@ shards:
 
   malloc_pthread_shim:
     github: jhass/crystal-malloc_pthread_shim
-    version: 0.1.0
+    commit: 1aad159999077e6eb8733395d578a83ed754be33
 
   version_from_shard:
     github: hugopl/version_from_shard

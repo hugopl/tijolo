@@ -20,7 +20,7 @@ dependencies:
     commit: 43dc4628a61d34f4c9568d664c7ea873eb1844dc
   malloc_pthread_shim:
     github: jhass/crystal-malloc_pthread_shim
-    version: ~> 0.1.0
+    branch: track_alignments
   compiled_license:
     github: elorest/compiled_license
     version: ~> 0.1.3
