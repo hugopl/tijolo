@@ -114,7 +114,7 @@ class OpenFiles
     reveal_view(view, true)
   end
 
-  def close_current_view
+  def close_current_view : TextView?
     return if @files.empty?
 
     view_id = @stack.visible_child_name
@@ -131,5 +131,7 @@ class OpenFiles
     @stack.remove(@stack.visible_child.not_nil!)
 
     reveal_view(@sorted_files.last, true) if @sorted_files.any?
+
+    view
   end
 end

@@ -24,6 +24,11 @@ popover {
   border-bottom-right-radius: 0px;
 }
 
+#find-box {
+  border-top: 1px solid @borders;
+  padding: 6px;
+}
+
 <%- if css_enabled -%>
 #no-view, #ide-window .editor-header {
   color: <%= text_style_fg %>;
@@ -53,4 +58,8 @@ popover {
   border: 2px solid <%= selection_style_bg %>;
 }
 
+#find-box {
+  color: <%= text_style_fg %>;
+  background-color: <%= text_style_bg %>;
+}
 <%- end -%>

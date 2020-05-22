@@ -1,12 +1,21 @@
 require "./ui_builder_helper"
+require "./observable"
+
+module TextViewListener
+  def escape_pressed
+  end
+end
 
 class TextView
   include UiBuilderHelper
+
+  observable_by TextViewListener
 
   property file_path : Path?
   getter? readonly = false
   getter label : String
   getter widget : Gtk::Widget
+  getter! search_context : GtkSource::SearchContext?
 
   @id : String?
   @@untitled_count = -1
@@ -24,6 +33,8 @@ class TextView
     @widget = Gtk::Widget.cast(builder["root"])
     @widget.ref
     @editor = GtkSource::View.cast(builder["editor"])
+    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
+
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
     @line_column = Gtk::Label.cast(builder["line_column"])
     @file_path_label = Gtk::Label.cast(builder["file_path"])
@@ -44,6 +55,14 @@ class TextView
     else
       "Untitled #{@@untitled_count}"
     end
+  end
+
+  def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
+    if event.keyval == Gdk::KEY_Escape
+      notify_escape_pressed
+      true
+    end
+    false
   end
 
   def id : String
@@ -102,5 +121,44 @@ class TextView
     iter = Gtk::TextIter.new
     @buffer.iter_at_offset(iter, @buffer.cursor_position)
     @line_column.label = "#{iter.line + 1}:#{iter.line_offset + 1}"
+  end
+
+  def create_search_context(settings : GtkSource::SearchSettings)
+    @search_context ||= GtkSource::SearchContext.new(@buffer, settings)
+  end
+
+  def find
+    find_impl(@buffer.cursor_position, true)
+  end
+
+  def find_next
+    find_impl(@buffer.cursor_position + 1, true)
+  end
+
+  def find_prev
+    find_impl(@buffer.cursor_position, false)
+  end
+
+  private def find_impl(offset, forward)
+    search_context = @search_context
+    return if search_context.nil?
+
+    iter = Gtk::TextIter.new.tap do |iter|
+      @buffer.iter_at_offset(iter, offset)
+    end
+
+    match_start = Gtk::TextIter.new
+    match_end = Gtk::TextIter.new
+    found, wrapped_around = if forward
+                              search_context.forward(iter, match_start, match_end)
+                            else
+                              search_context.backward(iter, match_start, match_end)
+                            end
+
+    if found
+      @buffer.place_cursor(match_start)
+      @editor.scroll_to_iter(match_start, 0.0, true, 0.0, 0.5)
+      @buffer.select_range(match_start, match_end)
+    end
   end
 end

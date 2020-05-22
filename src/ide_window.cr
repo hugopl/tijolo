@@ -1,3 +1,4 @@
+require "./find_replace"
 require "./locator"
 require "./open_files"
 require "./window"
@@ -5,6 +6,8 @@ require "./project_tree"
 require "./text_view"
 
 class IdeWindow < Window
+  include TextViewListener
+
   @open_files_view : Gtk::TreeView
   @project_tree_view : Gtk::TreeView
 
@@ -12,6 +15,7 @@ class IdeWindow < Window
 
   @project_tree : ProjectTree
   @open_files : OpenFiles
+  @find_replace : FindReplace
   @locator : Locator
 
   def initialize(application : Application, @project : Project)
@@ -23,6 +27,9 @@ class IdeWindow < Window
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project, ->open_file(String))
     overlay.add_overlay(@locator.locator_widget)
+
+    # Find widget
+    @find_replace = FindReplace.new(Gtk::Revealer.cast(builder["find_revealer"]), Gtk::Entry.cast(builder["find_entry"]))
 
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files"])
@@ -68,9 +75,12 @@ class IdeWindow < Window
   private def setup_actions
     config = Config.instance
     actions = { {"show_locator", ->{ @locator.show }},
-               {"new_file", ->{ create_text_view(nil) }},
-               {"close_view", ->{ @open_files.close_current_view }},
-               {"save_view", ->{ save_current_view }} }
+               {"new_file", ->create_text_view},
+               {"close_view", ->close_current_view},
+               {"save_view", ->save_current_view},
+               {"find", ->find_in_current_view},
+               {"find_next", ->find_next_in_current_view},
+               {"find_prev", ->find_prev_in_current_view} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -80,8 +90,10 @@ class IdeWindow < Window
     end
   end
 
-  private def create_text_view(file : String?) : TextView
-    @open_files << TextView.new(file)
+  private def create_text_view(file : String? = nil) : TextView
+    view = TextView.new(file)
+    view.add_listener(self)
+    @open_files << view
   end
 
   private def open_file_from_open_files(view : Gtk::TreeView, path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
@@ -111,6 +123,7 @@ class IdeWindow < Window
     @open_files_view.selection.select_row(@open_files.current_row)
     return unless definitive
 
+    @find_replace.hide
     # Select file on project tree view
     file = view.file_path
     return if file.nil?
@@ -144,5 +157,28 @@ class IdeWindow < Window
     view.save unless view.file_path.nil?
   rescue e : IO::Error
     application.error(e)
+  end
+
+  def close_current_view
+    view = @open_files.close_current_view
+    view.try(&.remove_listener(self))
+  end
+
+  def find_in_current_view
+    view = @open_files.current_view
+    @find_replace.show(view) unless view.nil?
+  end
+
+  def find_next_in_current_view
+    @find_replace.find_next
+  end
+
+  def find_prev_in_current_view
+    @find_replace.find_prev
+  end
+
+  # from TextViewListener
+  def escape_pressed
+    @find_replace.hide
   end
 end

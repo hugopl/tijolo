@@ -71,6 +71,9 @@ class Config
       "new_file"     => "<Control>N",
       "close_view"   => "<Control>W",
       "save_view"    => "<Control>S",
+      "find"         => "<Control>F",
+      "find_next"    => "F3",
+      "find_prev"    => "<Shift>F3",
     }
   end
 
