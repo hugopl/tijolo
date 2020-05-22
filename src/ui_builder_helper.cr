@@ -3,7 +3,7 @@ require "ecr"
 module UiBuilderHelper
   macro builder_for(file)
     {% if flag?(:release) %}
-    Gtk::Builder.new_from_string({{ `cat "#{__DIR__}/ui/#{file}.glade"`.stringify }}, -1)
+    Gtk::Builder.new_from_string({{ read_file("#{__DIR__}/ui/" + file + ".glade") }}, -1)
     {% else %}
     Gtk::Builder.new_from_file("#{__DIR__}/ui/" + {{ file }} + ".glade")
     {% end %}
