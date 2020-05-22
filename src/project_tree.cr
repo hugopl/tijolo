@@ -168,6 +168,10 @@ class ProjectTree
     end
   end
 
+  def tree_path(file : String)
+    tree_path(Path.new(file))
+  end
+
   def tree_path(file : Path) : Array(Int32)?
     path = file.relative_to(@project.root)
     @root.tree_path(path)

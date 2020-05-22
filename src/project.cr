@@ -82,7 +82,7 @@ class Project
       if info.symlink?
         next
       elsif info.file?
-        files << Path.new(path.to_s[(@root.to_s.size + 1)..-1])
+        files << path.relative_to(@root)
       elsif info.directory? && entry[0] != '.' && !IGNORED_DIRS.includes?(entry)
         scan_dir(path, files)
       end

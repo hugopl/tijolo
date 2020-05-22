@@ -24,4 +24,14 @@ describe Project do
     project.add_file(me)
     project.files.select { |path| path == me }.size.should eq(1)
   end
+
+  it "accept project root with/without ending slash" do
+    project = Project.new(".")
+    str_files = project.files.map(&.to_s)
+    str_files.should contain("spec/project_spec.cr")
+
+    project = Project.new("./")
+    str_files = project.files.map(&.to_s)
+    str_files.should contain("spec/project_spec.cr")
+  end
 end
