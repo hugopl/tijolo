@@ -1,6 +1,3 @@
-require "./ui_builder_helper"
-require "./observable"
-
 module TextViewListener
   def escape_pressed
   end

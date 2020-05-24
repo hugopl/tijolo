@@ -7,6 +7,7 @@ require "./text_view"
 
 class IdeWindow < Window
   include TextViewListener
+  include OpenFilesListener
 
   @open_files_view : Gtk::TreeView
   @project_tree_view : Gtk::TreeView
@@ -34,7 +35,7 @@ class IdeWindow < Window
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files"])
     @open_files_view.selection.mode = :browse
-    @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]), ->open_file_changed(TextView, Bool))
+    @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
     @open_files_view.model = @open_files.sorted_model
     @open_files_view.on_row_activated &->open_file_from_open_files(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
 
@@ -52,6 +53,8 @@ class IdeWindow < Window
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
 
     builder.unref
+
+    @open_files.add_listener(self)
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
@@ -119,7 +122,7 @@ class IdeWindow < Window
     application.error(e)
   end
 
-  def open_file_changed(view, definitive)
+  def open_file_view_revealed(view, definitive)
     @open_files_view.selection.select_row(@open_files.current_row)
     return unless definitive
 

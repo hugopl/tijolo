@@ -8,6 +8,9 @@ require "option_parser"
 require "compiled_license"
 require "malloc_pthread_shim"
 
+require "./ui_builder_helper"
+require "./observable"
+
 require "./application"
 require "./helper"
 

@@ -1,5 +1,11 @@
+module OpenFilesListener
+  abstract def open_file_view_revealed(view : TextView, definitive : Bool)
+end
+
 class OpenFiles
   include UiBuilderHelper
+
+  observable_by OpenFilesListener
 
   getter model : Gtk::ListStore
   getter sorted_model : Gtk::TreeModelSort
@@ -20,7 +26,7 @@ class OpenFiles
 
   delegate empty?, to: @files
 
-  def initialize(@stack : Gtk::Stack, @on_open_file_changed : Proc(TextView, Bool, Nil))
+  def initialize(@stack : Gtk::Stack)
     @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UINT64, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
@@ -79,7 +85,7 @@ class OpenFiles
     @stack.visible_child_name = view.id
     view.grab_focus
 
-    @on_open_file_changed.call(view, definitive)
+    notify_open_file_view_revealed(view, definitive)
   end
 
   private def reorder_open_files(new_selected_index)
