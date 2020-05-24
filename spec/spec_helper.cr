@@ -2,9 +2,10 @@ require "spec"
 require "gobject/gtk"
 
 require "../src/config"
-require "../src/gtk"
-require "../src/project"
 require "../src/error"
+require "../src/gtk"
+require "../src/helper"
+require "../src/project"
 require "../src/project_tree"
 
 class FakeProject < Project
