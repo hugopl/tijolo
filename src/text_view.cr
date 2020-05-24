@@ -158,4 +158,12 @@ class TextView
       @buffer.select_range(match_start, match_end)
     end
   end
+
+  def goto(line, column)
+    iter = Gtk::TextIter.new
+    @buffer.iter_at_line(iter, line)
+    iter.forward_chars(column)
+    @buffer.place_cursor(iter)
+    @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+  end
 end

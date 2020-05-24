@@ -77,13 +77,14 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = { {"show_locator", ->{ @locator.show }},
+    actions = { {"show_locator", ->{ @locator.show(true) }},
                {"new_file", ->create_text_view},
                {"close_view", ->close_current_view},
                {"save_view", ->save_current_view},
                {"find", ->find_in_current_view},
                {"find_next", ->find_next_in_current_view},
-               {"find_prev", ->find_prev_in_current_view} }
+               {"find_prev", ->find_prev_in_current_view},
+               {"goto_line", ->show_goto_line_locator} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -115,13 +116,27 @@ class IdeWindow < Window
     open_file(file)
   end
 
+  def locator_goto_line_col(line : Int32, column : Int32)
+    view = @open_files.current_view
+    return if view.nil?
+
+    view.goto(line, column)
+    view.grab_focus
+  end
+
+  def show_goto_line_locator
+    @locator.text = "l "
+    @locator.show(false)
+  end
+
   def open_file(file : String)
     text_view = @open_files.view(file)
     if text_view.nil?
-      create_text_view(file)
+      text_view = create_text_view(file)
     else
       @open_files.show_view(text_view)
     end
+    text_view.grab_focus
   rescue e : IO::Error
     application.error(e)
   end

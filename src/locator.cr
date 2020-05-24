@@ -2,9 +2,11 @@ require "fzy"
 
 require "./locator_provider"
 require "./file_locator"
+require "./line_locator"
 
 module LocatorListener
   abstract def locator_open_file(file : String)
+  abstract def locator_goto_line_col(line : Int32, column : Int32)
 end
 
 class Locator
@@ -54,12 +56,23 @@ class Locator
   end
 
   def init_locators
+    locator = LineLocator.new
+    @locator_providers[locator.shortcut] = locator
   end
 
-  def show
+  def show(select_text : Bool)
     @locator_widget.show
-    @locator_entry.grab_focus
+    if select_text
+      @locator_entry.grab_focus
+    else
+      @locator_entry.grab_focus_without_selecting
+    end
     @locator_results.set_cursor(0)
+  end
+
+  def text=(text : String)
+    @locator_entry.text = text
+    @locator_entry.position = text.size
   end
 
   private def focus_out_event(widget, event : Gdk::EventFocus) : Bool

@@ -74,6 +74,7 @@ class Config
       "find"         => "<Control>F",
       "find_next"    => "F3",
       "find_prev"    => "<Shift>F3",
+      "goto_line"    => "<Control>G",
     }
   end
 
