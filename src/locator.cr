@@ -1,7 +1,16 @@
 require "fzy"
 
+require "./locator_provider"
+require "./file_locator"
+
+module LocatorListener
+  abstract def locator_open_file(file : String)
+end
+
 class Locator
   include UiBuilderHelper
+
+  observable_by LocatorListener
 
   getter locator_widget : Gtk::Widget # Root widget for locator
 
@@ -10,56 +19,41 @@ class Locator
   VISIBLE_COLUMN = 1
   SCORE_COLUMN   = 2
 
-  # Number of locator matches to show in the UI
-  MAX_LOCATOR_ITEMS = 25
-
   @project : Project
   @locator_entry : Gtk::SearchEntry
-  @project_model : Gtk::ListStore
   @locator_results : Gtk::TreeView
   @locator_focus_is_mine = false # True when focus is on locator entry or locator results, used to hide locator on focus lost
 
-  @project_haystack : Fzy::PreparedHaystack
-  @last_results = [] of Fzy::Match
-
-  # callbacks
-  @on_open_file : Proc(String, Nil)
+  @locator_providers = Hash(Char, LocatorProvider).new
+  @default_locator_provider : LocatorProvider
+  @current_locator_provider : LocatorProvider
 
   delegate hide, to: @locator_widget
 
-  def initialize(@project, @on_open_file)
+  def initialize(@project)
     builder = builder_for("locator")
     @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
     @locator_widget.ref
 
     @locator_entry = Gtk::SearchEntry.cast(builder["locator_entry"])
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
-    @locator_entry.on_activate(&->open_file(Gtk::Entry))
+    @locator_entry.on_activate(&->activated(Gtk::Entry))
     @locator_entry.connect("notify::text", &->search_changed)
     @locator_entry.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
-    # Original model
-    @project_model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::BOOLEAN, GObject::Type::DOUBLE})
-    fill_project_model
-
-    # Original model now filtered
-    project_filter_model = Gtk::TreeModelFilter.new(child_model: @project_model)
-    project_filter_model.visible_column = 1
-
-    # Original model now filtered and sorted by search score
-    sorted_model = Gtk::TreeModelSort.new(model: project_filter_model)
-    sorted_model.set_sort_column_id(SCORE_COLUMN, :descending)
-
-    @project_haystack = Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
-
+    @current_locator_provider = @default_locator_provider = FileLocator.new(@project)
+    init_locators
     @locator_results = Gtk::TreeView.cast(builder["locator_results"])
     @locator_results.selection.mode = :browse
-    @locator_results.model = sorted_model
-    @locator_results.on_row_activated(&->open_file(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
+    @locator_results.model = @default_locator_provider.sorted_model
+    @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
     @locator_results.on_key_press_event(&->results_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_results.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
   ensure
     builder.try(&.unref)
+  end
+
+  def init_locators
   end
 
   def show
@@ -89,7 +83,7 @@ class Locator
     if event.keyval == Gdk::KEY_Up
       return true
     elsif event.keyval == Gdk::KEY_Down
-      return true if @last_results.size < 2 # First item is already selected...
+      return true if @current_locator_provider.results_size < 2 # First item is already selected...
 
       @locator_results.set_cursor(1)
       @locator_focus_is_mine = true
@@ -116,61 +110,37 @@ class Locator
     false
   end
 
-  private def open_file(widget : Gtk::Entry)
-    file = @last_results.first?
-    open_file(file.value) unless file.nil?
-  end
-
-  private def open_file(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    open_file(widget.value(tree_path, PATH_COLUMN).string)
-  end
-
-  private def open_file(file : String)
-    @on_open_file.call(@project.root.join(file).to_s)
-    @locator_widget.hide
-  end
-
-  private def fill_project_model
-    iter = Gtk::TreeIter.new
-    @project.files.each do |file|
-      @project_model.append(iter)
-      @project_model.set(iter, {PATH_COLUMN, VISIBLE_COLUMN}, {file.to_s, false})
-    end
-    true
-  end
-
   private def search_changed
-    start_time = Time.monotonic
-
-    reset_search_model
-    reset_time = Time.monotonic
-
-    @last_results = Fzy.search(@locator_entry.text, @project_haystack)
-    @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
-    fzy_time = Time.monotonic
-
-    # Set visible values
-    iter = Gtk::TreeIter.new
-    @last_results.each do |match|
-      tree_path = Gtk::TreePath.new_from_indices({match.index})
-      @project_model.iter(iter, tree_path)
-      @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {true, match.score})
+    text = @locator_entry.text
+    locator = find_locator(text)
+    if @current_locator_provider != locator
+      @current_locator_provider = locator
+      @locator_results.model = @current_locator_provider.sorted_model
     end
 
+    text = text[2..-1] if @current_locator_provider != @default_locator_provider
+
+    @current_locator_provider.search_changed(text)
     @locator_results.set_cursor(0)
-    gtk_time = Time.monotonic
-    total = gtk_time - start_time
-    gtk_total = (reset_time - start_time) + (gtk_time - fzy_time)
-    fzy_total = (fzy_time - reset_time)
-    Log.debug { "Locator found #{@last_results.size} results: total: #{total} fzy: #{fzy_total}, gtk: #{gtk_total}" }
   end
 
-  private def reset_search_model
-    iter = Gtk::TreeIter.new
-    @last_results.each do |match|
-      tree_path = Gtk::TreePath.new_from_indices({match.index})
-      @project_model.iter(iter, tree_path)
-      @project_model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {false, -Float64::INFINITY})
-    end
+  private def find_locator(text)
+    return @default_locator_provider if text.size < 2 || !text[1].whitespace?
+
+    @locator_providers[text[0]]? || @default_locator_provider
+  end
+
+  private def activated(widget : Gtk::Entry)
+    text = @current_locator_provider.best_result
+    activated(text) if text
+  end
+
+  private def activated(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
+    activated(widget.value(tree_path, LocatorProvider::LABEL_COLUMN).string)
+  end
+
+  private def activated(entry : String)
+    @current_locator_provider.activate(self, entry)
+    @locator_widget.hide
   end
 end

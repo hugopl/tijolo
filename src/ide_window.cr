@@ -8,6 +8,7 @@ require "./text_view"
 class IdeWindow < Window
   include TextViewListener
   include OpenFilesListener
+  include LocatorListener
 
   @open_files_view : Gtk::TreeView
   @project_tree_view : Gtk::TreeView
@@ -26,7 +27,7 @@ class IdeWindow < Window
     Config.instance.update_last_used_of(@project.root)
 
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
-    @locator = Locator.new(@project, ->open_file(String))
+    @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)
 
     # Find widget
@@ -39,9 +40,6 @@ class IdeWindow < Window
     @open_files_view.model = @open_files.sorted_model
     @open_files_view.on_row_activated &->open_file_from_open_files(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
 
-    # Setup accelerators
-    setup_actions
-
     # Setup Project Tree view
     @project_tree = ProjectTree.new(@project)
     @project_tree_view = Gtk::TreeView.cast(builder["project_tree"])
@@ -52,9 +50,11 @@ class IdeWindow < Window
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
 
-    builder.unref
-
     @open_files.add_listener(self)
+    @locator.add_listener(self)
+
+    setup_actions
+    builder.unref
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
@@ -109,6 +109,10 @@ class IdeWindow < Window
     return if view.value(path, ProjectTree::PROJECT_TREE_IS_DIR).boolean
 
     open_file(view.value(path, ProjectTree::PROJECT_TREE_PATH).string)
+  end
+
+  def locator_open_file(file : String)
+    open_file(file)
   end
 
   def open_file(file : String)
