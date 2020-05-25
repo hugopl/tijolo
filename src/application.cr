@@ -23,7 +23,7 @@ class Application
 
   def initialize(options)
     GtkSource.init
-    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo")
+    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
     @style_scheme = load_scheme
 
