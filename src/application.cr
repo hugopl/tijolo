@@ -33,7 +33,12 @@ class Application
 
   private def load_scheme
     manager = GtkSource::StyleSchemeManager.default
-    @style_scheme = manager.scheme(Config.instance.style_scheme) || GtkSource::StyleScheme.new
+    # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
+    @style_scheme = begin
+      manager.scheme(Config.instance.style_scheme)
+    rescue
+      GtkSource::StyleScheme.new
+    end
   end
 
   private def activate_ui(g_app)

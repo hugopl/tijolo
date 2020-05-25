@@ -9,7 +9,7 @@ class Project
   getter root : Path
 
   def initialize(location : String)
-    @root = find_root(Path.new(location))
+    @root = find_root(Path.new(location)).normalize
 
     Log.info { "Project root: #{@root}" }
     scan_files

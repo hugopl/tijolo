@@ -20,7 +20,7 @@ class Config
 
   YAML.mapping(projects: Array(ProjectEntry),
     scan_projects: {type: Bool, default: true},
-    style_scheme: String?,
+    style_scheme: {type: String, default: "solarized-light"},
     shortcuts: Hash(String, String)?)
 
   @@instance : Config?
@@ -55,10 +55,6 @@ class Config
     @projects = [] of ProjectEntry
     @scan_projects = true
     @style_scheme = ""
-  end
-
-  def style_scheme
-    @style_scheme ||= "solarized-light"
   end
 
   def shortcuts
