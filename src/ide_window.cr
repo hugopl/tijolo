@@ -84,7 +84,8 @@ class IdeWindow < Window
                {"find", ->find_in_current_view},
                {"find_next", ->find_next_in_current_view},
                {"find_prev", ->find_prev_in_current_view},
-               {"goto_line", ->show_goto_line_locator} }
+               {"goto_line", ->show_goto_line_locator},
+               {"comment_code", ->comment_code} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -197,6 +198,11 @@ class IdeWindow < Window
 
   def find_prev_in_current_view
     @find_replace.find_prev
+  end
+
+  def comment_code
+    view = @open_files.current_view
+    view.try(&.comment_action)
   end
 
   # from TextViewListener

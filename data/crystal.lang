@@ -29,6 +29,7 @@
   <metadata>
     <property name="mimetypes">text/x-crystal</property>
     <property name="globs">*.cr</property>
+    <property name="line-comment-start">#</property>
   </metadata>
 
   <styles>

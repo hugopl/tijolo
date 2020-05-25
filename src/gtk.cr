@@ -86,5 +86,57 @@ module Gtk
         end_iter(iter)
       end
     end
+
+    def iter_at_line_offset(line : Int32, offset : Int32)
+      Gtk::TextIter.new.tap do |iter|
+        iter_at_line_offset(iter, line, offset)
+      end
+    end
+
+    def iter_at_line(line : Int32)
+      Gtk::TextIter.new.tap do |iter|
+        iter_at_line(iter, line)
+      end
+    end
+
+    def text
+      text(start_iter, end_iter)
+    end
+
+    def each_line(from, to, &block) : Nil
+      return if to < from
+
+      from_iter = TextIter.new
+      iter_at_line(from_iter, from)
+      to_iter = TextIter.new
+      iter_at_line(to_iter, to)
+
+      to_line = to_iter.line
+      while from_iter.line < to_line
+        yield(from_iter)
+        from_iter.forward_line
+      end
+      yield(to_iter)
+    end
+
+    def select_lines(from : Int32, to : Int32)
+      select_range(iter_at_line(from), iter_at_line(to))
+    end
+
+    def lines(from, to)
+      return [] of String if to < from
+
+      lines = Array(String).new(to - from)
+      end_line_iter = TextIter.new
+      each_line(from, to) do |iter|
+        iter_at_line_offset(end_line_iter, iter.line, Int32::MAX)
+        lines << iter.text(end_line_iter)
+      end
+      lines
+    end
+
+    def insert(iter : TextIter, text : String)
+      insert(iter, text, text.size)
+    end
   end
 end

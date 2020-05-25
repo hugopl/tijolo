@@ -1,3 +1,7 @@
+require "./language_manager"
+require "./ui_builder_helper"
+require "./observable"
+
 module TextViewListener
   def escape_pressed
   end
@@ -18,14 +22,16 @@ class TextView
   @@untitled_count = -1
 
   @editor : GtkSource::View
-  @buffer : GtkSource::Buffer
+  getter buffer : GtkSource::Buffer
   @file_path_label : Gtk::Label
+
+  getter language : Language?
 
   Log = ::Log.for("TextView")
 
   delegate grab_focus, to: @editor
 
-  def initialize(file_path : String?)
+  def initialize(file_path : String? = nil)
     builder = builder_for("text_view")
     @widget = Gtk::Widget.cast(builder["root"])
     @widget.ref
@@ -54,6 +60,32 @@ class TextView
     end
   end
 
+  def text
+    @buffer.text(@buffer.start_iter, @buffer.end_iter, false)
+  end
+
+  def text=(text)
+    @buffer.set_text(text, -1)
+  end
+
+  def language=(lang_id : String)
+    language = LanguageManager.find(lang_id)
+    if language
+      @language = language
+      @buffer.language = language.gtk_language
+    end
+  end
+
+  def readonly=(value)
+    @readonly = value
+    @editor.editable = !value
+    if value
+      @file_path_label.text = "#{@label} 🔒"
+    else
+      @file_path_label.text = "#{@label}"
+    end
+  end
+
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
       notify_escape_pressed
@@ -74,7 +106,6 @@ class TextView
       Log.warn { "Attempt to save a file without a name" }
       return
     end
-    text = @buffer.text(@buffer.start_iter, @buffer.end_iter, false)
     File.write(file_path, text)
     @buffer.modified = false
   end
@@ -90,14 +121,10 @@ class TextView
       @buffer.set_text(text, -1)
       @buffer.modified = false
 
-      lang = GtkSource::LanguageManager.default.guess_language(@label, mimetype(@label, text))
-      @buffer.language = lang
+      @language = language = LanguageManager.guess_language(@label, mimetype(@label, text))
+      @buffer.language = language.gtk_language unless language.nil?
 
-      unless File.writable?(file_path)
-        @editor.editable = false
-        @file_path_label.text = "#{@label} 🔒"
-        @readonly = true
-      end
+      self.readonly = !File.writable?(file_path)
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
@@ -165,5 +192,82 @@ class TextView
     iter.forward_chars(column)
     @buffer.place_cursor(iter)
     @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+  end
+
+  def comment_action
+    return if readonly? || @language.nil?
+
+    @buffer.begin_user_action
+    if @buffer.has_selection
+      comment_selection_action
+    else
+      comment_current_line_action
+    end
+    @buffer.end_user_action
+  end
+
+  private def comment_regex
+    @comment_regex ||= /\A\s*(#{Regex.escape(@language.not_nil!.line_comment)}\s?)/
+  end
+
+  private def comment_current_line_action
+    iter = Gtk::TextIter.new
+    @buffer.iter_at_offset(iter, @buffer.cursor_position)
+
+    iter.line_index = 0
+    end_iter = @buffer.iter_at_line_offset(iter.line, Int32::MAX)
+    line = iter.text(end_iter)
+    match = comment_regex.match(line)
+
+    if match
+      uncomment_line(iter, match)
+    else
+      iter.line_offset = line.index(/[^\s]/) || 0
+      comment_line(iter)
+    end
+  end
+
+  # iter should be at start of the line
+  private def uncomment_line(iter, comment_match, comment_length = nil)
+    end_comment_iter = Gtk::TextIter.new
+    end_comment_iter.assign(iter)
+
+    removal_offset = comment_match.begin(1) || 0
+    removal_length = comment_length || comment_match.end(1).not_nil! - removal_offset
+
+    iter.line_offset = removal_offset
+    end_comment_iter.line_offset = removal_offset + removal_length
+    @buffer.delete(iter, end_comment_iter)
+  end
+
+  private def comment_line(iter)
+    line_comment = language.not_nil!.line_comment
+    @buffer.insert(iter, "#{line_comment} ")
+  end
+
+  # This always comment lines using line comment, /* hey */ isn't supported.
+  private def comment_selection_action
+    start_iter = Gtk::TextIter.new
+    end_iter = Gtk::TextIter.new
+    @buffer.selection_bounds(start_iter, end_iter)
+    start_iter.line_index = 0
+
+    lines = @buffer.lines(start_iter.line, end_iter.line)
+    matches = lines.map(&.match(comment_regex))
+
+    if matches.all? # uncoment
+      comment_length = matches.map(&.not_nil![1].size).min
+      matches.each do |match|
+        uncomment_line(start_iter, match.not_nil!, comment_length)
+        start_iter.forward_line
+      end
+    else # comment
+      comment_offset = lines.map { |line| line.index(/[^\s]/) || 0 }.min
+      lines.size.times do
+        start_iter.line_offset = comment_offset
+        comment_line(start_iter)
+        start_iter.forward_line
+      end
+    end
   end
 end
