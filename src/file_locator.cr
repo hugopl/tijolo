@@ -44,7 +44,7 @@ class FileLocator < LocatorProvider
     @last_results.each do |match|
       tree_path = Gtk::TreePath.new_from_indices({match.index})
       @model.iter(iter, tree_path)
-      @model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {true, match.score})
+      @model.set(iter, {LABEL_COLUMN, VISIBLE_COLUMN, SCORE_COLUMN}, {markup(match), true, match.score})
     end
 
     gtk_time = Time.monotonic
@@ -52,6 +52,23 @@ class FileLocator < LocatorProvider
     gtk_total = (reset_time - start_time) + (gtk_time - fzy_time)
     fzy_total = (fzy_time - reset_time)
     Log.debug { "Locator found #{@last_results.size} results: total: #{total} fzy: #{fzy_total}, gtk: #{gtk_total}" }
+  end
+
+  def markup(match)
+    value = match.value
+    str_size = value.bytesize + match.positions.size * 7 # 7 is the size of the extra markup
+    pos_iter = match.positions.each
+    next_pos = pos_iter.next
+    String.build(str_size) do |str|
+      value.each_char_with_index do |char, i|
+        if i == next_pos
+          str << "<b>#{char}</b>"
+          next_pos = pos_iter.next
+        else
+          str << char
+        end
+      end
+    end
   end
 
   protected def populate_model : Nil
@@ -68,7 +85,7 @@ class FileLocator < LocatorProvider
     @last_results.each do |match|
       tree_path = Gtk::TreePath.new_from_indices({match.index})
       @model.iter(iter, tree_path)
-      @model.set(iter, {VISIBLE_COLUMN, SCORE_COLUMN}, {false, -Float64::INFINITY})
+      @model.set(iter, {LABEL_COLUMN, VISIBLE_COLUMN, SCORE_COLUMN}, {match.value, false, -Float64::INFINITY})
     end
   end
 end
