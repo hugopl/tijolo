@@ -16,6 +16,18 @@ class Config
     def name
       Project.name(@path)
     end
+
+    def <=>(other)
+      if @last_used == other.last_used
+        @path <=> other.path
+      elsif @last_used.nil?
+        1
+      elsif other.last_used.nil?
+        -1
+      else
+        other.last_used.not_nil! <=> @last_used.not_nil!
+      end
+    end
   end
 
   YAML.mapping(projects: Array(ProjectEntry),
@@ -91,17 +103,7 @@ class Config
 
   protected def filter_projects!
     @projects.select!(&.exists?)
-    @projects.sort! do |a, b|
-      if a.last_used == b.last_used
-        a.path <=> b.path
-      elsif a.last_used.nil?
-        1
-      elsif b.last_used.nil?
-        -1
-      else
-        b.last_used.not_nil! <=> a.last_used.not_nil!
-      end
-    end
+    @projects.sort!
   end
 
   def save

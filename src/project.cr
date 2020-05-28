@@ -44,6 +44,7 @@ class Project
         scan_projects(path, projects) if info.directory?
       end
     end
+    projects.sort!
     return projects
   end
 
