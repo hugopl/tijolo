@@ -1,10 +1,15 @@
 require "yaml"
 
 class Config
+  include YAML::Serializable
+
   PATH = ".config/tijolo/tijolo.yaml"
 
   class ProjectEntry
-    YAML.mapping(path: String, last_used: Time?)
+    include YAML::Serializable
+
+    property path : String
+    property last_used : Time?
 
     def initialize(@path : String, @last_used : Time? = nil)
     end
@@ -30,13 +35,12 @@ class Config
     end
   end
 
-  YAML.mapping(projects: Array(ProjectEntry),
-    scan_projects: {type: Bool, default: true},
-    style_scheme: {type: String, default: "solarized-light"},
-    shortcuts: Hash(String, String)?)
-
   @@instance : Config?
-  getter? scan_projects
+
+  property projects = [] of Config::ProjectEntry
+  property style_scheme = "solarized-light"
+  property? scan_projects = true
+  property shortcuts : Hash(String, String)?
 
   def self.instance
     @@instance ||= load_yaml
@@ -64,9 +68,6 @@ class Config
   end
 
   def initialize
-    @projects = [] of ProjectEntry
-    @scan_projects = true
-    @style_scheme = ""
   end
 
   def shortcuts
