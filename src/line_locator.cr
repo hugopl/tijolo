@@ -4,12 +4,8 @@ class LineLocator < LocatorProvider
 
   DEFAULT_TEXT = "Type the line number and column separated by \":\"."
 
-  def activate(locator, _data)
+  def activate(locator, _index)
     locator.notify_locator_goto_line_col(@line - 1, @col - 1) if @line > 0
-  end
-
-  def best_result : String?
-    ""
   end
 
   def results_size : Int32

@@ -3,6 +3,8 @@ require "fzy"
 require "./locator_provider"
 require "./file_locator"
 require "./line_locator"
+require "./observable"
+require "./ui_builder_helper"
 
 module LocatorListener
   abstract def locator_open_file(file : String)
@@ -144,16 +146,16 @@ class Locator
   end
 
   private def activated(widget : Gtk::Entry)
-    text = @current_locator_provider.best_result
-    activated(text) if text
+    activated(0)
   end
 
   private def activated(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    activated(widget.value(tree_path, LocatorProvider::LABEL_COLUMN).string)
+    indices, _depth = tree_path.indices
+    activated(indices.first)
   end
 
-  private def activated(entry : String)
-    @current_locator_provider.activate(self, entry)
+  private def activated(index : Int32)
+    @current_locator_provider.activate(self, index)
     @locator_widget.hide
   end
 end

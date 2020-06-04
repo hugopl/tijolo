@@ -14,18 +14,17 @@ class FileLocator < LocatorProvider
   end
 
   def shortcut : Char
-    'f' # not user, this is the default locator provider.
-  end
-
-  def best_result : String?
-    @last_results.first?.try(&.value)
+    'f' # not used, this is the default locator provider.
   end
 
   def results_size : Int32
     @last_results.size
   end
 
-  def activate(locator, file : String)
+  def activate(locator, index : Int32)
+    return if index >= @last_results.size
+
+    file = @last_results[index].value
     locator.notify_locator_open_file(@project.root.join(file).to_s)
   end
 

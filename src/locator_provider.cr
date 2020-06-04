@@ -18,8 +18,8 @@ abstract class LocatorProvider
     @sorted_model.set_sort_column_id(SCORE_COLUMN, :descending)
   end
 
-  abstract def activate(locator, data : String)
-  abstract def best_result : String?
+  # index is the index of the entry in the provided model.
+  abstract def activate(locator, index : Int32)
   abstract def results_size : Int32
   protected abstract def populate_model : Nil
   abstract def shortcut : Char
