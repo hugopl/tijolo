@@ -17,6 +17,10 @@ def create_text_view(text = SAMPLE_CODE, language = "crystal")
 end
 
 describe TextView do
+  it "responst true for modified? when the file isn't saved" do
+    TextView.new.modified?.should eq(true)
+  end
+
   context "when commenting current line" do
     it "simple generic case works" do
       view = create_text_view(SAMPLE_CODE)

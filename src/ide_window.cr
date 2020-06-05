@@ -1,3 +1,4 @@
+require "./confirm_save_dialog"
 require "./find_replace"
 require "./locator"
 require "./open_files"
@@ -49,6 +50,7 @@ class IdeWindow < Window
 
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
+    main_window.on_delete_event(&->about_to_quit(Gtk::Widget, Gdk::Event))
 
     @open_files.add_listener(self)
     @locator.add_listener(self)
@@ -161,10 +163,13 @@ class IdeWindow < Window
 
   def save_current_view
     view = @open_files.current_view
-    return if view.nil?
+    save_view(view) if view
+  end
 
+  def save_view(view)
     if view.file_path.nil?
       dlg = Gtk::FileChooserDialog.new(title: "Save file", action: :save, local_only: true, modal: true, do_overwrite_confirmation: true)
+      dlg.current_name = view.label
       dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.to_i)
       dlg.add_button("Save", Gtk::ResponseType::ACCEPT.to_i)
       res = dlg.run
@@ -208,5 +213,17 @@ class IdeWindow < Window
   # from TextViewListener
   def escape_pressed
     @find_replace.hide
+  end
+
+  def about_to_quit(_widget, event) : Bool
+    return false if @open_files.all_saved?
+
+    dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
+    return true unless dlg.run
+
+    dlg.selected_views.each do |view|
+      save_view(view)
+    end
+    false
   end
 end

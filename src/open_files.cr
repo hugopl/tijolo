@@ -9,10 +9,10 @@ class OpenFiles
 
   getter model : Gtk::ListStore
   getter sorted_model : Gtk::TreeModelSort
+  getter files = [] of TextView
 
   @stack : Gtk::Stack
 
-  @files = [] of TextView
   @sorted_files = [] of TextView # Files reverse sorted by last used
   @sorted_files_index = 0        # Selected file on open files model
   @last_used_counter = 0         # Counter used to sort open files, last used first
@@ -74,6 +74,10 @@ class OpenFiles
 
   def last_used_counter
     @last_used_counter += 1
+  end
+
+  def all_saved?
+    !@files.any?(&.modified?)
   end
 
   def current_row

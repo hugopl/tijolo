@@ -44,9 +44,9 @@ class TextView
 
     @file_path = Path.new(file_path).expand unless file_path.nil?
     @label = @file_path.nil? ? untitled_name : File.basename(@file_path.not_nil!)
-    @file_path_label.text = @label
 
     setup_editor
+    modified_changed(@buffer)
   ensure
     builder.try(&.unref)
   end
@@ -84,6 +84,10 @@ class TextView
     else
       @file_path_label.text = "#{@label}"
     end
+  end
+
+  def modified? : Bool
+    @buffer.modified
   end
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
@@ -125,15 +129,19 @@ class TextView
       @buffer.language = language.gtk_language unless language.nil?
 
       self.readonly = !File.writable?(file_path)
+    else
+      @buffer.modified = true
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.on_modified_changed do
-      @file_path_label.text = @buffer.modified ? "#{@label} ✱" : @label
-    end
+    @buffer.on_modified_changed(&->modified_changed(Gtk::TextBuffer))
     @buffer.place_cursor(0)
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  private def modified_changed(buffer)
+    @file_path_label.text = buffer.modified ? "#{@label} ✱" : @label
   end
 
   private def mimetype(file_name, file_contents)
