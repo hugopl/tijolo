@@ -1,4 +1,4 @@
-<img src="./icons/tijolo.svg" width="100" height="100" />
+<img align="left" src="./icons/tijolo.svg" width="100" height="100" />
 
 # Tijolo
 
