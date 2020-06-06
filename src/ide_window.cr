@@ -147,7 +147,7 @@ class IdeWindow < Window
     application.error(e)
   end
 
-  def open_file_view_revealed(view, definitive)
+  def open_files_view_revealed(view, definitive)
     @open_files_view.selection.select_row(@open_files.current_row)
     return unless definitive
 

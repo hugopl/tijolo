@@ -1,5 +1,5 @@
 module OpenFilesListener
-  abstract def open_file_view_revealed(view : TextView, definitive : Bool)
+  abstract def open_files_view_revealed(view : TextView, definitive : Bool)
 end
 
 class OpenFiles
@@ -91,7 +91,7 @@ class OpenFiles
     @stack.visible_child_name = view.id
     view.grab_focus
 
-    notify_open_file_view_revealed(view, definitive)
+    notify_open_files_view_revealed(view, definitive)
   end
 
   private def reorder_open_files(new_selected_index)

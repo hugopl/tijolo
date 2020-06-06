@@ -2,49 +2,47 @@ require "./spec_helper"
 require "../src/observable"
 
 module Foo
-  module TextChangeListener
-    def text_changed
-    end
+  module TextListener
+    abstract def text_value_changed
   end
 end
 
-module NumberChangeListener
-  def number_changed(n : Int32)
-  end
+module NumberListener
+  abstract def number_value_changed(n : Int32)
 end
 
 class TextSubject
-  observable_by Foo::TextChangeListener
+  observable_by Foo::TextListener
 
-  @text = ""
+  @value = ""
 
-  def text=(@text : String)
-    notify_text_changed
+  def text=(@value)
+    notify_text_value_changed
   end
 end
 
 class NumberSubject
-  observable_by NumberChangeListener
+  observable_by NumberListener
 
-  @number = 0
+  @value = 0
 
-  def number=(@number)
-    notify_number_changed(@number)
+  def number=(@value)
+    notify_number_value_changed(@value)
   end
 end
 
 class Listener
-  include Foo::TextChangeListener
-  include NumberChangeListener
+  include Foo::TextListener
+  include NumberListener
 
   getter text_changes = 0
   getter number_changes = 0
 
-  def text_changed
+  def text_value_changed
     @text_changes += 1
   end
 
-  def number_changed(n)
+  def number_value_changed(n)
     @number_changes += n
   end
 end
