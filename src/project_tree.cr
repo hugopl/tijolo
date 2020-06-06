@@ -1,10 +1,9 @@
-class ProjectTree
-  # Project tree model columns
-  PROJECT_TREE_LABEL  = 0
-  PROJECT_TREE_PATH   = 1
-  PROJECT_TREE_IS_DIR = 2
+require "./project"
 
+class ProjectTree
   class Node
+    include Comparable(Node)
+
     getter name
 
     def initialize(@name : String)
@@ -14,12 +13,21 @@ class ProjectTree
       nil
     end
 
+    def []?(name)
+      raise "Bug"
+    end
+
     def [](name)
       raise "Bug"
     end
 
-    def ==(name : String)
-      @name == name
+    def <=>(other)
+      @name <=> other.name
+    end
+
+    # Implemented so we can do Array(Node).index("name")
+    def ==(other_name : String)
+      @name == other_name
     end
 
     def to_s(io, depth)
@@ -31,19 +39,38 @@ class ProjectTree
     getter files = [] of Node
     getter subfolders = [] of FolderNode
 
-    protected def add(parts : Array(String))
-      part = parts.shift
-      if parts.empty? # A file
-        @files << Node.new(part) unless @files.includes?(part)
+    private def insert_node(collection, node, indices, model)
+      idx = collection.index { |obj| obj >= node } || collection.size
+      collection.insert(idx, node)
+
+      if indices.any?
+        parent_iter = Gtk::TreeIter.new
+        tree_path = Gtk::TreePath.new_from_indices(indices)
+        model.iter(parent_iter, tree_path)
+      end
+
+      is_folder = node.is_a?(FolderNode)
+      idx += @subfolders.size unless is_folder
+      model.insert(parent_iter, {0, 1}, {node.name, is_folder}, idx)
+
+      idx
+    end
+
+    protected def add(path_parts : Array(String), model : Gtk::TreeStore, indices : Array(Int32))
+      part = path_parts.shift
+      if path_parts.empty? # A file
+        insert_node(@files, Node.new(part), indices, model) unless @files.includes?(part)
       else # A subfolder
-        subfolder = @subfolders.find do |node|
-          node.name == part
-        end
-        if subfolder.nil?
-          subfolder = FolderNode.new(part)
-          @subfolders << subfolder
-        end
-        subfolder.add(parts)
+        index = @subfolders.index { |node| node.name == part }
+        subfolder = if index
+                      @subfolders[index]
+                    else
+                      folder = FolderNode.new(part)
+                      index = insert_node(@subfolders, folder, indices, model)
+                      folder
+                    end
+        indices << index
+        subfolder.add(path_parts, model, indices)
       end
     end
 
@@ -55,32 +82,22 @@ class ProjectTree
       idx += @subfolders.size unless idx.nil?
     end
 
-    def []?(name)
+    def []?(index : Int32) : Node?
+      if index < @subfolders.size
+        return @subfolders[index]
+      else
+        index -= @subfolders.size
+        @files[index]?
+      end
+    end
+
+    def []?(name : String)
       @subfolders.find { |node| node.name == name } ||
         @files.find { |node| node.name == name }
     end
 
-    def [](name)
+    def [](name : String)
       self[name]?.not_nil!
-    end
-
-    alias TraverseBlock = Proc(Array(String), Bool, Array(Int32), Nil)
-
-    protected def traverse_impl(file_parts, tree_path, &block : TraverseBlock)
-      @subfolders.each_with_index do |subfolder, i|
-        file_parts.push(subfolder.name)
-        yield(file_parts, true, tree_path)
-
-        tree_path.push(i)
-        subfolder.traverse_impl(file_parts, tree_path, &block)
-        tree_path.pop
-        file_parts.pop
-      end
-      @files.each_with_index(@subfolders.size) do |file, i|
-        file_parts.push(file.name)
-        yield(file_parts, false, tree_path)
-        file_parts.pop
-      end
     end
 
     def to_s(io, depth)
@@ -97,26 +114,18 @@ class ProjectTree
   end
 
   class Root < FolderNode
-    def initialize(files)
+    getter model = Gtk::TreeStore.new({GObject::Type::UTF8, GObject::Type::BOOLEAN})
+
+    def initialize(@project : Project)
       super("<root>")
-      files.each do |file|
+      @project.files.each do |file|
         add(file)
       end
     end
 
-    def initialize(files : Array(String))
-      initialize(files.map { |f| Path.new(f) })
-    end
-
     def add(path : Path)
-      add(path.parts)
-    end
-
-    def traverse(&block : TraverseBlock) : Nil
-      file_parts = [] of String
-      tree_path = [] of Int32
-
-      traverse_impl(file_parts, tree_path, &block)
+      relative_path = path.relative_to(@project.root)
+      add(relative_path.parts, @model, [] of Int32)
     end
 
     def tree_path(file)
@@ -132,40 +141,31 @@ class ProjectTree
       path
     end
 
+    def file_path(tree_path_indices)
+      node = self
+      tree_path_indices.map do |index|
+        node = node[index]?
+        return if node.nil?
+
+        node.name
+      end
+    end
+
     def to_s(io : IO)
       to_s(io, 0)
     end
   end
 
-  getter model
+  include ProjectListener
+  # Project tree model columns
+  PROJECT_TREE_LABEL  = 0
+  PROJECT_TREE_IS_DIR = 1
+
+  delegate model, to: @root
 
   def initialize(@project : Project)
-    @root = Root.new(@project.files)
-    @model = Gtk::TreeStore.new({GObject::Type::UTF8, GObject::Type::UTF8, GObject::Type::BOOLEAN})
-    populate
-  end
-
-  def add_node(path : Path)
-    @root.add(path)
-  end
-
-  private def add_node_to_gtk(path_parts : Array(String), is_folder : Bool, parent_tree_path : Array(Int32))
-    parent_iter = if parent_tree_path.empty?
-                    nil
-                  else
-                    iter = Gtk::TreeIter.new
-                    tree_path = Gtk::TreePath.new_from_indices(parent_tree_path)
-                    @model.iter(iter, tree_path)
-                    iter
-                  end
-    @model.append(parent_iter, {0, 1, 2}, {path_parts.last, @project.root.join(Path[path_parts]).to_s, is_folder})
-  end
-
-  private def populate
-    # Traverse tree creating GTK nodes
-    @root.traverse do |file_path, is_folder, tree_path|
-      add_node_to_gtk(file_path, is_folder, tree_path)
-    end
+    @root = Root.new(@project)
+    @project.add_listener(self)
   end
 
   def tree_path(file : String)
@@ -175,6 +175,30 @@ class ProjectTree
   def tree_path(file : Path) : Array(Int32)?
     path = file.relative_to(@project.root)
     @root.tree_path(path)
+  end
+
+  def file_path(tree_path_indices : Enumerable(Int32)) : String?
+    path_parts = @root.file_path(tree_path_indices)
+    return if path_parts.nil?
+
+    @project.root.join(Path.new(path_parts)).to_s
+  end
+
+  def file_path(tree_path : Gtk::TreePath) : String?
+    # FIXME: Gtk::TreePath.indices returns a tuple with a crashing pointer iterator.
+    # So I use this slow workaround
+    indices = tree_path.to_string
+    file_path(indices.split(":").map(&.to_i))
+  end
+
+  def project_file_added(path : Path)
+    @root.add(path)
+  end
+
+  def project_file_removed(path : Path)
+  end
+
+  def project_file_renamed(old : Path, new : Path)
   end
 
   def to_s(io : IO)

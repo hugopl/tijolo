@@ -35,6 +35,20 @@ module Gtk
         set(iter, columns, values)
       end
     end
+
+    def insert(parent : TreeIter?, columns : Tuple, values : Tuple, position : Int32)
+      TreeIter.new.tap do |iter|
+        insert(iter, parent, position)
+        set(iter, columns, values)
+      end
+    end
+
+    def value(indices : Enumerable(Int32), column : Int32)
+      path = TreePath.new_from_indices(indices)
+      iter = Gtk::TreeIter.new
+      self.iter(iter, path)
+      value(iter, column)
+    end
   end
 
   class ListStore

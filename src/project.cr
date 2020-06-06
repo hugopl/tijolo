@@ -1,8 +1,16 @@
 require "log"
 
+module ProjectListener
+  abstract def project_file_added(path : Path)
+  abstract def project_file_removed(path : Path)
+  abstract def project_file_renamed(old : Path, new : Path)
+end
+
 class Project
   # FIXME this should be configurable
   IGNORED_DIRS = %w(node_modules)
+
+  observable_by ProjectListener
 
   # All paths here should be relative to `root`.
   getter files = Set(Path).new
@@ -28,7 +36,10 @@ class Project
     file_path = file_path.expand
     return false if file_path.parts[0...@root.parts.size] != @root.parts
 
-    @files.add?(file_path.relative_to(@root))
+    relative_path = file_path.relative_to(@root)
+    @files.add?(relative_path).tap do
+      notify_project_file_added(relative_path)
+    end
   end
 
   def self.scan_projects(dir : Path, projects = [] of Path)

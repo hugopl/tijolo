@@ -112,10 +112,11 @@ class IdeWindow < Window
     @open_files.show_view(view) unless view.nil?
   end
 
-  private def open_file_from_project_tree(view : Gtk::TreeView, path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    return if view.value(path, ProjectTree::PROJECT_TREE_IS_DIR).boolean
+  private def open_file_from_project_tree(view : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
+    return if view.value(tree_path, ProjectTree::PROJECT_TREE_IS_DIR).boolean
 
-    open_file(view.value(path, ProjectTree::PROJECT_TREE_PATH).string)
+    file_path = @project_tree.file_path(tree_path)
+    open_file(file_path) if file_path
   end
 
   def locator_open_file(file : String)
