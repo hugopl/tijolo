@@ -75,12 +75,12 @@ class Config
   end
 
   def default_shortcuts : Hash(String, String)
-    @[YAML::Field(ignore: true)]
-    @default_shortcuts ||= {
+    {
       "show_locator" => "<Control>P",
       "new_file"     => "<Control>N",
       "close_view"   => "<Control>W",
       "save_view"    => "<Control>S",
+      "save_view_as" => "<Control><Shift>S",
       "find"         => "<Control>F",
       "find_next"    => "F3",
       "find_prev"    => "<Shift>F3",

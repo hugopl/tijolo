@@ -3,7 +3,10 @@ require "./ui_builder_helper"
 require "./observable"
 
 module TextViewListener
-  def escape_pressed
+  def text_view_escape_pressed
+  end
+
+  def text_view_file_path_changed(view : TextView)
   end
 end
 
@@ -12,7 +15,7 @@ class TextView
 
   observable_by TextViewListener
 
-  property file_path : Path?
+  getter file_path : Path?
   getter? readonly = false
   getter label : String
   getter widget : Gtk::Widget
@@ -46,7 +49,7 @@ class TextView
     @label = @file_path.nil? ? untitled_name : File.basename(@file_path.not_nil!)
 
     setup_editor
-    modified_changed(@buffer)
+    update_header
   ensure
     builder.try(&.unref)
   end
@@ -58,6 +61,16 @@ class TextView
     else
       "Untitled #{@@untitled_count}"
     end
+  end
+
+  def file_path=(file_path : Path) : Nil
+    @file_path = file_path
+    self.label = File.basename(file_path.not_nil!)
+    notify_text_view_file_path_changed(self)
+  end
+
+  private def label=(@label : String)
+    update_header
   end
 
   def text
@@ -92,7 +105,7 @@ class TextView
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
-      notify_escape_pressed
+      notify_text_view_escape_pressed
       true
     end
     false
@@ -134,14 +147,14 @@ class TextView
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.on_modified_changed(&->modified_changed(Gtk::TextBuffer))
+    @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
     @buffer.place_cursor(0)
   ensure
     @buffer.end_not_undoable_action
   end
 
-  private def modified_changed(buffer)
-    @file_path_label.text = buffer.modified ? "#{@label} ✱" : @label
+  private def update_header(_buffer = nil)
+    @file_path_label.text = @buffer.modified ? "#{@label} ✱" : @label
   end
 
   private def mimetype(file_name, file_contents)

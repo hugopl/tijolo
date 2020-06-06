@@ -1,3 +1,5 @@
+require "uri"
+
 require "./confirm_save_dialog"
 require "./find_replace"
 require "./locator"
@@ -83,6 +85,7 @@ class IdeWindow < Window
                {"new_file", ->create_text_view},
                {"close_view", ->close_current_view},
                {"save_view", ->save_current_view},
+               {"save_view_as", ->save_current_view_as},
                {"find", ->find_in_current_view},
                {"find_next", ->find_next_in_current_view},
                {"find_prev", ->find_prev_in_current_view},
@@ -166,10 +169,19 @@ class IdeWindow < Window
     save_view(view) if view
   end
 
-  def save_view(view)
-    if view.file_path.nil?
+  def save_current_view_as
+    view = @open_files.current_view
+    if view
+      path = view.file_path
+      save_view(view, path)
+    end
+  end
+
+  def save_view(view, path : Path? = nil)
+    if view.file_path.nil? || path
       dlg = Gtk::FileChooserDialog.new(title: "Save file", action: :save, local_only: true, modal: true, do_overwrite_confirmation: true)
       dlg.current_name = view.label
+      dlg.uri = path.to_uri.to_s unless path.nil?
       dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.to_i)
       dlg.add_button("Save", Gtk::ResponseType::ACCEPT.to_i)
       res = dlg.run
@@ -180,6 +192,7 @@ class IdeWindow < Window
       end
 
       dlg.destroy
+      return if res == Gtk::ResponseType::CANCEL.to_i
     end
 
     view.save unless view.file_path.nil?
@@ -210,8 +223,7 @@ class IdeWindow < Window
     view.try(&.comment_action)
   end
 
-  # from TextViewListener
-  def escape_pressed
+  def text_view_escape_pressed
     @find_replace.hide
   end
 
