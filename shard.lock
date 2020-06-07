@@ -10,7 +10,7 @@ shards:
 
   gobject:
     github: jhass/crystal-gobject
-    version: 0.8.0
+    commit: beb162d80ced85a79cbb90694714dc4a1af2f7f9
 
   malloc_pthread_shim:
     github: jhass/crystal-malloc_pthread_shim

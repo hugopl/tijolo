@@ -42,6 +42,23 @@ class Project
     end
   end
 
+  def each_directory
+    dirs = @files.map(&.dirname).select!(&.index('/')).uniq!
+    uniq_dirs = Set(String).new(dirs)
+
+    # Get the inner this
+    while dirs.any?
+      dirs = dirs.map! { |dir| File.dirname(dir) }.uniq!
+      dirs.delete(".")
+      dirs.each { |dir| uniq_dirs << dir }
+    end
+
+    yield @root.to_s
+    uniq_dirs.each do |dir|
+      yield(@root.join(dir))
+    end
+  end
+
   def self.scan_projects(dir : Path, projects = [] of Path)
     if File.exists?(dir.join(".git"))
       projects << dir

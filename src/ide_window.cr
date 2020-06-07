@@ -5,6 +5,7 @@ require "./find_replace"
 require "./locator"
 require "./open_files"
 require "./window"
+require "./project_monitor"
 require "./project_tree"
 require "./text_view"
 
@@ -29,6 +30,7 @@ class IdeWindow < Window
 
     Config.instance.update_last_used_of(@project.root)
 
+    @project_monitor = ProjectMonitor.new(@project)
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)

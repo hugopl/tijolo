@@ -34,4 +34,13 @@ describe Project do
     str_files = project.files.map(&.to_s)
     str_files.should contain("spec/project_spec.cr")
   end
+
+  it "can iterate over project directories" do
+    project = FakeProject.new(%w(file1 file2 dir1/dir2/dir3/file3 dir1/dir4/file4))
+    dirs = [] of String
+    project.each_directory do |dir|
+      dirs << dir.to_s
+    end
+    dirs.sort.should eq(%w(/fake /fake/dir1 /fake/dir1/dir2 /fake/dir1/dir2/dir3 /fake/dir1/dir4))
+  end
 end
