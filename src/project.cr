@@ -32,14 +32,27 @@ class Project
     Project.name(@root)
   end
 
-  def add_file(file_path : Path) : Bool
-    file_path = file_path.expand
-    return false if file_path.parts[0...@root.parts.size] != @root.parts
+  def under_project?(path : Path)
+    file_path = path.expand
+    file_path.parts[0...@root.parts.size] == @root.parts
+  end
 
-    relative_path = file_path.relative_to(@root)
+  def add_file(file_path : Path) : Bool
+    return false unless under_project?(file_path)
+
+    relative_path = file_path.expand.relative_to(@root)
     @files.add?(relative_path).tap do
       notify_project_file_added(relative_path)
     end
+  end
+
+  def remove_file(file_path : Path) : Bool
+    relative_path = file_path.relative_to(@root)
+    return false unless @files.includes?(relative_path)
+
+    @files.delete(relative_path)
+    notify_project_file_removed(relative_path)
+    true
   end
 
   def each_directory

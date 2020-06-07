@@ -109,5 +109,25 @@ describe ProjectTree do
   end
 
   pending "can have files renamed"
-  pending "can have files removed"
+
+  it "can have files removed" do
+    project = FakeProject.new(%w(file1 dir1/dir2/dir3/file2 dir1/file3))
+    tree = ProjectTree.new(project)
+    tree.to_s.should eq("<root>\n" \
+                        "  dir1\n" \
+                        "    dir2\n" \
+                        "      dir3\n" \
+                        "        file2\n" \
+                        "    file3\n" \
+                        "  file1\n")
+    tree.tree_path("dir1/file3").should eq([0, 1])
+    project.remove_file(Path.new("/fake/dir1/dir2/dir3/file2")).should eq(true)
+    project.remove_file(Path.new("/fake/dir1/dir2/dir3/file2")).should eq(false)
+
+    tree.tree_path("dir1/dir2/dir3/file2").should eq(nil)
+    tree.tree_path("dir1/dir2/dir3").should eq(nil)
+    tree.tree_path("dir1/dir2").should eq(nil)
+    tree.tree_path("dir1/file3").should eq([0, 0])
+    tree.model.value(tree.tree_path("dir1/file3").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file3")
+  end
 end

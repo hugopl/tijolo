@@ -61,7 +61,7 @@ class ProjectTree
       if path_parts.empty? # A file
         insert_node(@files, Node.new(part), indices, model) unless @files.includes?(part)
       else # A subfolder
-        index = @subfolders.index { |node| node.name == part }
+        index = @subfolders.index(part)
         subfolder = if index
                       @subfolders[index]
                     else
@@ -72,6 +72,50 @@ class ProjectTree
         indices << index
         subfolder.add(path_parts, model, indices)
       end
+    end
+
+    private def remove_file_node(name, indices, model)
+      remove_node(@files, name, indices, model)
+    end
+
+    private def remove_folder_node(name, indices, model)
+      remove_node(@subfolders, name, indices, model)
+    end
+
+    private def remove_node(collection, name, indices, model) : Bool
+      idx = collection.index(name)
+      return false if idx.nil?
+
+      collection.delete_at(idx)
+
+      indices << idx
+      iter = Gtk::TreeIter.new
+      tree_path = Gtk::TreePath.new_from_indices(indices)
+      model.iter(iter, tree_path)
+      model.remove(iter)
+      indices.pop
+      true
+    end
+
+    # returns true if some file or directory was removed
+    protected def remove(path_parts : Array(String), model : Gtk::TreeStore, indices : Array(Int32)) : Bool
+      part = path_parts.shift
+      return remove_file_node(part, indices, model) if path_parts.empty? # A file
+
+      index = @subfolders.index(part)
+      return false if index.nil?
+
+      indices << index
+      subfolder = @subfolders[index]
+      if subfolder.remove(path_parts, model, indices)
+        indices.pop
+        return remove_folder_node(subfolder.name, indices, model) && empty?
+      end
+      false
+    end
+
+    def empty?
+      @files.empty? && @subfolders.empty?
     end
 
     def index(name) : Int32?
@@ -124,8 +168,11 @@ class ProjectTree
     end
 
     def add(path : Path)
-      relative_path = path.relative_to(@project.root)
-      add(relative_path.parts, @model, [] of Int32)
+      add(path.parts, @model, [] of Int32)
+    end
+
+    def remove(path)
+      remove(path.parts, @model, [] of Int32)
     end
 
     def tree_path(file)
@@ -196,6 +243,7 @@ class ProjectTree
   end
 
   def project_file_removed(path : Path)
+    @root.remove(path)
   end
 
   def project_file_renamed(old : Path, new : Path)

@@ -43,4 +43,12 @@ describe Project do
     end
     dirs.sort.should eq(%w(/fake /fake/dir1 /fake/dir1/dir2 /fake/dir1/dir2/dir3 /fake/dir1/dir4))
   end
+
+  it "know if a file is under the project" do
+    project = FakeProject.new(%w(file1 dir/file2))
+    project.under_project?(Path.new("whatever")).should eq(false) # Since we aren't on /fake/
+    project.under_project?(Path.new("/fake/whatever")).should eq(true)
+    project.under_project?(Path.new("/fake")).should eq(true)
+    project.under_project?(Path.new("/hey")).should eq(false)
+  end
 end
