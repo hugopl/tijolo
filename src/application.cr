@@ -64,13 +64,13 @@ class Application
     # Hamburguer menu
     preferences = Gio::SimpleAction.new("preferences", nil)
     main_window.add_action(preferences)
-    preferences.on_activate(&->show_preferences_dlg(Gio::SimpleAction, GLib::Variant))
+    preferences.on_activate { show_preferences_dlg }
     about = Gio::SimpleAction.new("about", nil)
-    about.on_activate(&->show_about_dlg(Gio::SimpleAction, GLib::Variant))
+    about.on_activate { show_about_dlg }
     main_window.add_action(about)
   end
 
-  def show_preferences_dlg(_action, _variant)
+  def show_preferences_dlg
     config = Config.instance
 
     builder = builder_for("preferences")
@@ -88,7 +88,7 @@ class Application
     dialog.run
   end
 
-  def show_about_dlg(_action, _variant)
+  def show_about_dlg
     dialog = Gtk::AboutDialog.new(application: @application,
       copyright: "© 2020 Hugo Parente Lima",
       version: VERSION,

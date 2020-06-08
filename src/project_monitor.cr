@@ -15,14 +15,13 @@ class ProjectMonitor
     return if @monitors.has_key?(dir)
 
     @monitors[dir] = monitor = Gio::File.new_for_path(dir).monitor_directory(:watch_moves, nil)
-    # Depends on https://github.com/jhass/crystal-gobject/issues/67
-    # monitor.on_changed(&->file_changed(Gio::FileMonitor, Gio::File, Gio::File, Gio::FileMonitorEvent))
+    monitor.on_changed(&->file_changed(Gio::FileMonitor, Gio::File, Gio::File?, Gio::FileMonitorEvent))
   end
 
   private def destroy_monitor
   end
 
-  private def file_changed(monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File, event : Gio::FileMonitorEvent)
+  private def file_changed(monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
     case event
     when .changes_done_hint?
       puts "done hint!"
