@@ -87,7 +87,7 @@ describe ProjectTree do
   it "can have files added" do
     project = FakeProject.new(%w(0 1 2/0 2/1))
     tree = ProjectTree.new(project)
-    project.add_file(Path.new("/fake/2/2/0"))
+    project.add_file("/fake/2/2/0")
     tree.to_s.should eq("<root>\n" \
                         "  2\n" \
                         "    2\n" \
@@ -121,13 +121,66 @@ describe ProjectTree do
                         "    file3\n" \
                         "  file1\n")
     tree.tree_path("dir1/file3").should eq([0, 1])
-    project.remove_file(Path.new("/fake/dir1/dir2/dir3/file2")).should eq(true)
-    project.remove_file(Path.new("/fake/dir1/dir2/dir3/file2")).should eq(false)
+    project.remove_file("/fake/dir1/dir2/dir3/file2").should eq(true)
+    project.remove_file("/fake/dir1/dir2/dir3/file2").should eq(false)
+
+    tree.to_s.should eq("<root>\n" \
+                        "  dir1\n" \
+                        "    file3\n" \
+                        "  file1\n")
 
     tree.tree_path("dir1/dir2/dir3/file2").should eq(nil)
     tree.tree_path("dir1/dir2/dir3").should eq(nil)
     tree.tree_path("dir1/dir2").should eq(nil)
     tree.tree_path("dir1/file3").should eq([0, 0])
     tree.model.value(tree.tree_path("dir1/file3").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file3")
+  end
+
+  it "can have files removed (2)" do
+    project = FakeProject.new(%w(file1 file2 dir1/file3))
+    tree = ProjectTree.new(project)
+
+    tree.to_s.should eq("<root>\n" \
+                        "  dir1\n" \
+                        "    file3\n" \
+                        "  file1\n" \
+                        "  file2\n")
+
+    project.remove_file("file2").should eq(true)
+
+    tree.to_s.should eq("<root>\n" \
+                        "  dir1\n" \
+                        "    file3\n" \
+                        "  file1\n")
+
+    tree.model.value(tree.tree_path("/fake/dir1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("dir1")
+    tree.file_path({0}).should eq("/fake/dir1")
+
+    tree.model.value(tree.tree_path("dir1/file3").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file3")
+    tree.file_path({0, 0}).should eq("/fake/dir1/file3")
+
+    tree.model.value(tree.tree_path("file1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file1")
+    tree.file_path({1}).should eq("/fake/file1")
+  end
+
+  it "can have files removed (3)" do
+    project = FakeProject.new(%w(file1 dir/file2 dir/file3))
+    tree = ProjectTree.new(project)
+
+    tree.to_s.should eq("<root>\n" \
+                        "  dir\n" \
+                        "    file2\n" \
+                        "    file3\n" \
+                        "  file1\n")
+    project.remove_file("dir/file3").should eq(true)
+    tree.to_s.should eq("<root>\n" \
+                        "  dir\n" \
+                        "    file2\n" \
+                        "  file1\n")
+    tree.model.value(tree.tree_path("dir/file2").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file2")
+    tree.file_path({0, 0}).should eq("/fake/dir/file2")
+
+    tree.model.value(tree.tree_path("file1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file1")
+    tree.file_path({1}).should eq("/fake/file1")
   end
 end

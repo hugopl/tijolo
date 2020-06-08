@@ -37,6 +37,10 @@ class Project
     file_path.parts[0...@root.parts.size] == @root.parts
   end
 
+  def add_file(file_path : String)
+    add_file(Path.new(file_path))
+  end
+
   def add_file(file_path : Path) : Bool
     return false unless under_project?(file_path)
 
@@ -44,6 +48,10 @@ class Project
     @files.add?(relative_path).tap do
       notify_project_file_added(relative_path)
     end
+  end
+
+  def remove_file(file_path : String)
+    remove_file(Path.new(file_path))
   end
 
   def remove_file(file_path : Path) : Bool

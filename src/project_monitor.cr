@@ -18,23 +18,35 @@ class ProjectMonitor
     monitor.on_changed(&->file_changed(Gio::FileMonitor, Gio::File, Gio::File?, Gio::FileMonitorEvent))
   end
 
-  private def destroy_monitor
+  private def destroy_monitor(dir : String)
+    monitor = @monitors.delete(dir)
+    monitor.unref if monitor
   end
 
   private def file_changed(monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
-    case event
-    when .changes_done_hint?
-      puts "done hint!"
-    when .changed?
-      puts "changed"
-    when .deleted?
-      puts "deleted"
-    when .created?
-      puts "created"
-    when .renamed?
-      puts "renamed"
-    when .attribute_changed? # change readonly
-      puts "attr changed"
+    file_path = file.parse_name
+    if File.directory?(file_path)
+      case event
+      when .created?
+        create_monitor(file_path)
+      when .deleted?
+        destroy_monitor(file_path)
+      when .renamed?
+        destroy_monitor(file_path)
+        create_monitor(other_file.parse_name) if other_file
+      end
+    else
+      case event
+      when .changed?
+        # FIXME: tell project file changed.. then IDE ask user to load modifications
+      when .created? then @project.add_file(Path.new(file_path))
+      when .deleted? then @project.remove_file(Path.new(file_path))
+      when .renamed?
+        if other_file
+          @project.remove_file(Path.new(file.parse_name))
+          @project.add_file(Path.new(other_file.parse_name))
+        end
+      end
     end
   end
 end

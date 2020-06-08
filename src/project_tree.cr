@@ -75,20 +75,20 @@ class ProjectTree
     end
 
     private def remove_file_node(name, indices, model)
-      remove_node(@files, name, indices, model)
+      remove_node(@files, name, indices, model, @subfolders.size)
     end
 
     private def remove_folder_node(name, indices, model)
       remove_node(@subfolders, name, indices, model)
     end
 
-    private def remove_node(collection, name, indices, model) : Bool
+    private def remove_node(collection, name, indices, model, idx_offset = 0) : Bool
       idx = collection.index(name)
       return false if idx.nil?
 
       collection.delete_at(idx)
 
-      indices << idx
+      indices << idx + idx_offset
       iter = Gtk::TreeIter.new
       tree_path = Gtk::TreePath.new_from_indices(indices)
       model.iter(iter, tree_path)
@@ -109,7 +109,7 @@ class ProjectTree
       subfolder = @subfolders[index]
       if subfolder.remove(path_parts, model, indices)
         indices.pop
-        return remove_folder_node(subfolder.name, indices, model) && empty?
+        return remove_folder_node(subfolder.name, indices, model) if subfolder.empty?
       end
       false
     end
