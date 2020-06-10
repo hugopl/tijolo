@@ -3,7 +3,7 @@ require "log"
 module ProjectListener
   abstract def project_file_added(path : Path)
   abstract def project_file_removed(path : Path)
-  abstract def project_file_renamed(old : Path, new : Path)
+  abstract def project_folder_renamed(old_path : Path, new_path : Path)
 end
 
 class Project
@@ -61,6 +61,30 @@ class Project
     @files.delete(relative_path)
     notify_project_file_removed(relative_path)
     true
+  end
+
+  def rename_folder(old_path : String, new_path : String)
+    rename_folder(Path.new(old_path), Path.new(new_path))
+  end
+
+  # Both paths must be at same level.. or weird things will happen
+  def rename_folder(old_path : Path, new_path : Path) : Nil
+    old_path = old_path.relative_to(@root)
+    new_path = new_path.relative_to(@root)
+
+    old_path_str = "#{old_path}/"
+    new_path_str = new_path.to_s
+    files_to_remove = [] of Path
+    files_to_add = [] of Path
+    @files.each do |file|
+      if file.to_s.starts_with?(old_path_str)
+        files_to_add << Path.new(file.to_s.sub(old_path.to_s, new_path_str))
+        files_to_remove << file
+      end
+    end
+    files_to_remove.each { |f| @files.delete(f) }
+    files_to_add.each { |f| @files << f }
+    notify_project_folder_renamed(old_path, new_path) if files_to_remove.any?
   end
 
   def each_directory

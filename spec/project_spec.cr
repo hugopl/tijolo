@@ -51,4 +51,12 @@ describe Project do
     project.under_project?(Path.new("/fake")).should eq(true)
     project.under_project?(Path.new("/hey")).should eq(false)
   end
+
+  it "can rename folders" do
+    project = FakeProject.new(%w(file1 dir1/file1 dir2/file2 dir2/dir3/file3))
+    project.rename_folder("dir2", "hey")
+    dirs = [] of String
+    str_files = project.files.map(&.to_s).sort!
+    str_files.should eq(%w(dir1/file1 file1 hey/dir3/file3 hey/file2))
+  end
 end

@@ -4,7 +4,7 @@ class ProjectTree
   class Node
     include Comparable(Node)
 
-    getter name
+    property name
 
     def initialize(@name : String)
     end
@@ -114,6 +114,52 @@ class ProjectTree
       false
     end
 
+    protected def rename_node(new_name, model, indices)
+      iter = Gtk::TreeIter.new
+      tree_path = Gtk::TreePath.new_from_indices(indices)
+      model.iter(iter, tree_path)
+      model.set(iter, {PROJECT_TREE_LABEL}, {new_name})
+    end
+
+    protected def sort_children_nodes(model, indices)
+      old_order = @subfolders.map(&.object_id)
+      @subfolders.sort!
+
+      order_map = Array(Int32).new(@subfolders.size + @files.size)
+      @subfolders.each_with_index do |node, i|
+        order_map << old_order.index(node.object_id).not_nil!
+      end
+      @files.size.times do |i|
+        order_map << @subfolders.size + i
+      end
+
+      if indices.any?
+        iter = Gtk::TreeIter.new
+        tree_path = Gtk::TreePath.new_from_indices(indices)
+        model.iter(iter, tree_path)
+      end
+      model.reorder(iter, order_map)
+    end
+
+    protected def rename_folder(path_parts : Array(String), new_name : String, model : Gtk::TreeStore, indices : Array(Int32))
+      part = path_parts.shift
+      index = @subfolders.index(part)
+      return if index.nil?
+
+      subfolder = @subfolders[index]
+
+      if path_parts.empty?
+        subfolder.name = new_name
+        indices << index
+        rename_node(new_name, model, indices)
+        indices.pop
+        sort_children_nodes(model, indices)
+      else
+        indices << index
+        subfolder.rename_folder(path_parts, new_name, model, indices)
+      end
+    end
+
     def empty?
       @files.empty? && @subfolders.empty?
     end
@@ -173,6 +219,11 @@ class ProjectTree
 
     def remove(path)
       remove(path.parts, @model, [] of Int32)
+    end
+
+    def rename_folder(old_path, new_path)
+      new_name = new_path.basename
+      rename_folder(old_path.parts, new_name, @model, [] of Int32)
     end
 
     def tree_path(file)
@@ -246,7 +297,8 @@ class ProjectTree
     @root.remove(path)
   end
 
-  def project_file_renamed(old : Path, new : Path)
+  def project_folder_renamed(old_path : Path, new_path : Path)
+    @root.rename_folder(old_path, new_path)
   end
 
   def to_s(io : IO)

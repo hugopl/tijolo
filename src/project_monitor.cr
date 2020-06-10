@@ -19,10 +19,11 @@ class ProjectMonitor
   end
 
   private def destroy_monitor(dir : String)
+    @monitors[dir]?.try(&.cancel)
     @monitors.delete(dir)
   end
 
-  private def file_changed(monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
+  private def file_changed(_monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
     file_path = file.parse_name
     if File.directory?(file_path)
       case event
@@ -30,20 +31,28 @@ class ProjectMonitor
         create_monitor(file_path)
       when .deleted?
         destroy_monitor(file_path)
-      when .renamed?
-        destroy_monitor(file_path)
-        create_monitor(other_file.parse_name) if other_file
       end
     else
       case event
-      when .changed?
+      when .changes_done_hint?
         # FIXME: tell project file changed.. then IDE ask user to load modifications
-      when .created? then @project.add_file(Path.new(file_path))
-      when .deleted? then @project.remove_file(Path.new(file_path))
+      when .created? then @project.add_file(file_path)
+      when .deleted? then @project.remove_file(file_path)
+      when .moved_in?
+        Log.warn { "MOVED IN event not yet supported." }
+      when .moved_out?
+        Log.warn { "MOVED OUT event not yet supported." }
       when .renamed?
-        if other_file
-          @project.remove_file(Path.new(file.parse_name))
-          @project.add_file(Path.new(other_file.parse_name))
+        return if other_file.nil?
+
+        other_file_path = other_file.parse_name
+        if File.directory?(other_file_path)
+          destroy_monitor(file_path)
+          create_monitor(other_file_path)
+          @project.rename_folder(file_path, other_file_path)
+        else
+          @project.remove_file(file_path)
+          @project.add_file(other_file_path)
         end
       end
     end

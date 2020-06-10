@@ -1,3 +1,7 @@
+lib LibGtk
+  fun tree_store_reorder = gtk_tree_store_reorder(this : TreeStore*, iter : LibGtk::TreeIter*, new_order : Int32*) : Void
+end
+
 module Gio
   def self.content_type_guess(filename : ::String, data : ::String)
     __return_value = LibGio.content_type_guess(filename, data, data.size, out result_uncertain)
@@ -48,6 +52,11 @@ module Gtk
       iter = Gtk::TreeIter.new
       self.iter(iter, path)
       value(iter, column)
+    end
+
+    def reorder(parent : TreeIter?, new_order : Array(Int32))
+      LibGtk.tree_store_reorder(@pointer.as(LibGtk::TreeStore*), parent ? parent.to_unsafe.as(LibGtk::TreeIter*) : nil, new_order)
+      nil
     end
   end
 

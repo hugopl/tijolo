@@ -108,8 +108,6 @@ describe ProjectTree do
     tree.file_path({0, 0, 0}).should eq("/fake/2/2/0")
   end
 
-  pending "can have files renamed"
-
   it "can have files removed" do
     project = FakeProject.new(%w(file1 dir1/dir2/dir3/file2 dir1/file3))
     tree = ProjectTree.new(project)
@@ -182,5 +180,61 @@ describe ProjectTree do
 
     tree.model.value(tree.tree_path("file1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file1")
     tree.file_path({1}).should eq("/fake/file1")
+  end
+
+  it "can rename directories" do
+    project = FakeProject.new(%w(root/A/file1 root/B/B/file2 root/C/file3 root/file4))
+    tree = ProjectTree.new(project)
+
+    tree.to_s.should eq("<root>\n" \
+                        "  root\n" \
+                        "    A\n" \
+                        "      file1\n" \
+                        "    B\n" \
+                        "      B\n" \
+                        "        file2\n" \
+                        "    C\n" \
+                        "      file3\n" \
+                        "    file4\n")
+    project.rename_folder("/fake/root/C/", "/fake/root/AA")
+    tree.to_s.should eq("<root>\n" \
+                        "  root\n" \
+                        "    A\n" \
+                        "      file1\n" \
+                        "    AA\n" \
+                        "      file3\n" \
+                        "    B\n" \
+                        "      B\n" \
+                        "        file2\n" \
+                        "    file4\n")
+    tree.model.value(tree.tree_path("root/A/file1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file1")
+    tree.file_path({0, 0, 0}).should eq("/fake/root/A/file1")
+
+    tree.model.value(tree.tree_path("root/AA/file3").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file3")
+    tree.file_path({0, 1, 0}).should eq("/fake/root/AA/file3")
+
+    tree.model.value(tree.tree_path("root/B/B/file2").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file2")
+    tree.file_path({0, 2, 0, 0}).should eq("/fake/root/B/B/file2")
+  end
+
+  it "can rename directories (2)" do
+    project = FakeProject.new(%w(aaa/file1 bbb/file2 ccc/file3))
+    tree = ProjectTree.new(project)
+    project.rename_folder("/fake/aaa/", "/fake/zzz")
+    tree.to_s.should eq("<root>\n" \
+                        "  bbb\n" \
+                        "    file2\n" \
+                        "  ccc\n" \
+                        "    file3\n" \
+                        "  zzz\n" \
+                        "    file1\n")
+    tree.model.value(tree.tree_path("bbb/file2").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file2")
+    tree.file_path({0, 0}).should eq("/fake/bbb/file2")
+
+    tree.model.value(tree.tree_path("ccc/file3").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file3")
+    tree.file_path({1, 0}).should eq("/fake/ccc/file3")
+
+    tree.model.value(tree.tree_path("zzz/file1").not_nil!, ProjectTree::PROJECT_TREE_LABEL).string.should eq("file1")
+    tree.file_path({2, 0}).should eq("/fake/zzz/file1")
   end
 end
