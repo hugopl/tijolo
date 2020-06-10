@@ -53,8 +53,6 @@ class Locator
     @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
     @locator_results.on_key_press_event(&->results_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_results.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
-  ensure
-    builder.try(&.unref)
   end
 
   def init_locators

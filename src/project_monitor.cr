@@ -19,8 +19,7 @@ class ProjectMonitor
   end
 
   private def destroy_monitor(dir : String)
-    monitor = @monitors.delete(dir)
-    monitor.unref if monitor
+    @monitors.delete(dir)
   end
 
   private def file_changed(monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)

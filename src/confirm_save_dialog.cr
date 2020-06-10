@@ -27,8 +27,6 @@ class ConfirmSaveDialog
 
     @dialog.default_response = BTN_SAVE
     @dialog.ref
-
-    builder.unref
   end
 
   # Return true if should do something, false on cancel

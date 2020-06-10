@@ -48,7 +48,6 @@ class Application
     builder = builder_for("header_bar")
     @header_bar = Gtk::HeaderBar.cast(builder["root"])
     main_window.titlebar = header_bar
-    builder.unref
 
     apply_css(@style_scheme)
 

@@ -60,7 +60,6 @@ class IdeWindow < Window
     @locator.add_listener(self)
 
     setup_actions
-    builder.unref
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)

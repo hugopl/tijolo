@@ -50,8 +50,6 @@ class TextView
 
     setup_editor
     update_header
-  ensure
-    builder.try(&.unref)
   end
 
   private def untitled_name

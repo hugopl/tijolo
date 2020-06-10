@@ -15,7 +15,6 @@ class WelcomeWindow < Window
 
     projects_model = Gtk::ListStore.cast(builder["projects_model"])
     fill_projects_model(projects_model)
-    builder.unref
   end
 
   private def fill_projects_model(model)

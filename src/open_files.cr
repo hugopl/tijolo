@@ -39,7 +39,6 @@ class OpenFiles
     builder = builder_for("no_view")
     editor = Gtk::Widget.cast(builder["root"])
     @stack.add(editor)
-    builder.unref
   end
 
   def view(id : UInt64) : TextView?
