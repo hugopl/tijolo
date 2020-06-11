@@ -6,7 +6,7 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-**Feature imcomplete**, not yet released, it doesn't have the enough minimum planned features implemented yet.
+**Feature incomplete**, not yet released, it doesn't have the enough minimum planned features implemented yet.
 
 ## Project goals
 
