@@ -1,12 +1,7 @@
-# Try to make glib and Boehm-CG friends
-ENV["G_SLICE"] = "always-malloc"
-ENV["G_DEBUG"] = "gc-friendly"
-
 require "log"
 require "option_parser"
 
 require "compiled_license"
-require "malloc_pthread_shim"
 
 require "./ui_builder_helper"
 require "./observable"
@@ -14,5 +9,22 @@ require "./observable"
 require "./application"
 require "./helper"
 
-app = Application.new(parse_args(ARGV))
+options = parse_args(ARGV)
+
+# Yes, always leak memory...
+#
+# Crystal GC has several problems with GTK (and probably other C libraries as well), causing several
+# crashes. This project is written in Crystal because it's a pleasure to write Crystal code, and pet
+# projects should be pleasent to write, but these GC related issues made me think if it's resonable
+# to port all this to C++... or learn Rust, but C++ has a horrible standard library and Rust feels
+# ugly at first sight.
+#
+# When the project get more mature... if these crashes doesn't get solved I may try to compile my own
+# GTK version BoehmGC aware and static link it to tijolo.
+unless options[:gc_enabled]
+  GC.collect
+  GC.disable
+end
+
+app = Application.new(options)
 app.run
