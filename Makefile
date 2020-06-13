@@ -1,7 +1,9 @@
 .PHONY: all install uninstall
 
 all:
-	shards build
+	shards build --release -Dpreview_mt
+debug:
+	shards build -Dpreview_mt
 install:
 	install -D -m 0755 bin/tijolo $(DESTDIR)$(PREFIX)/bin/tijolo
 	install -D -m 0444 tijolo.desktop $(DESTDIR)$(PREFIX)/share/applications/io.github.hugopl.Tijolo.desktop

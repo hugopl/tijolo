@@ -210,6 +210,10 @@ class ProjectTree
 
     def initialize(@project : Project)
       super("<root>")
+      populate if @project.load_finished?
+    end
+
+    def populate
       @project.files.each do |file|
         add(file)
       end
@@ -301,6 +305,10 @@ class ProjectTree
 
   def project_folder_renamed(old_path : Path, new_path : Path)
     @root.rename_folder(old_path, new_path)
+  end
+
+  def project_load_finished
+    @root.populate
   end
 
   def to_s(io : IO)

@@ -1,15 +1,40 @@
 require "./locator_provider"
+require "./project"
 
 class FileLocator < LocatorProvider
+  include ProjectListener
+
   # Number of file locator matches to show in the UI
   MAX_LOCATOR_ITEMS = 25
 
   getter model
 
   @last_results = [] of Fzy::Match
+  @project_haystack : Fzy::PreparedHaystack
 
   def initialize(@project : Project)
     super()
+    @project_haystack = if @project.load_finished?
+                          Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
+                        else
+                          Fzy::PreparedHaystack.new([] of String)
+                        end
+    @project.add_listener(self)
+  end
+
+  def project_file_added(_path : Path)
+    project_load_finished # Lazy way... just reload all the things
+  end
+
+  def project_file_removed(_path : Path)
+    project_load_finished # Lazy way... just reload all the things
+  end
+
+  def project_folder_renamed(_old_path : Path, _new_path : Path)
+    project_load_finished # Lazy way... just reload all the things
+  end
+
+  def project_load_finished
     @project_haystack = Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
   end
 
@@ -29,6 +54,8 @@ class FileLocator < LocatorProvider
   end
 
   def search_changed(search_text : String) : Nil
+    return if @project_haystack.haystack.empty?
+
     start_time = Time.monotonic
     @model.clear
 

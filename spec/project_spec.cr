@@ -27,10 +27,16 @@ describe Project do
 
   it "accept project root with/without ending slash" do
     project = Project.new(".")
+    while !project.load_finished?
+      sleep(0.1)
+    end
     str_files = project.files.map(&.to_s)
     str_files.should contain("spec/project_spec.cr")
 
     project = Project.new("./")
+    while !project.load_finished?
+      sleep(0.1)
+    end
     str_files = project.files.map(&.to_s)
     str_files.should contain("spec/project_spec.cr")
   end

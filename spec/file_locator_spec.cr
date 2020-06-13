@@ -25,15 +25,16 @@ end
 
 describe Locator do
   it "can open a project file" do
-    project = Project.new(".")
+    project = FakeProject.new(%w(spec/locator_spec.cr))
+
     locator = TestLocator.new(project)
     listener = TestLocatorListener.new
     locator.add_listener(listener)
-    locator.text = "spec/locator_spec.cr"
+    locator.text = "locator"
 
     locator.locator_results.row_activated(Gtk::TreePath.new_first, Gtk::TreeViewColumn.new)
 
-    listener.files.should eq([__FILE__])
+    listener.files.should eq(["/fake/spec/locator_spec.cr"])
   end
 
   it "do nothing if can't find a file" do

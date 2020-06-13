@@ -15,6 +15,7 @@ class FakeProject < Project
   def initialize(files)
     @files = Set.new(files.map { |f| Path.new(f) })
     @root = Path.new("/fake")
+    @load_finished = true
   end
 end
 

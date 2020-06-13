@@ -1,9 +1,11 @@
 require "log"
+require "./observable"
 
 module ProjectListener
   abstract def project_file_added(path : Path)
   abstract def project_file_removed(path : Path)
   abstract def project_folder_renamed(old_path : Path, new_path : Path)
+  abstract def project_load_finished
 end
 
 class Project
@@ -12,15 +14,19 @@ class Project
 
   observable_by ProjectListener
 
-  # All paths here should be relative to `root`.
-  getter files = Set(Path).new
   getter root : Path
+  getter? load_finished = false
+
+  @files_mutex = Mutex.new
 
   def initialize(location : String)
     @root = find_root(Path.new(location)).normalize
 
-    Log.info { "Project root: #{@root}" }
+    # All paths here should be relative to `root`.
+    @files = Set(Path).new
+
     scan_files
+    Log.info { "Project root: #{@root}" }
     Dir.cd(@root)
   end
 
@@ -37,6 +43,12 @@ class Project
     file_path.parts[0...@root.parts.size] == @root.parts
   end
 
+  def files : Set(Path)
+    @files_mutex.synchronize do
+      @files.dup
+    end
+  end
+
   def add_file(file_path : String)
     add_file(Path.new(file_path))
   end
@@ -45,9 +57,12 @@ class Project
     return false unless under_project?(file_path)
 
     relative_path = file_path.expand.relative_to(@root)
-    @files.add?(relative_path).tap do
-      notify_project_file_added(relative_path)
+    added = false
+    @files_mutex.synchronize do
+      added = @files.add?(relative_path)
     end
+    notify_project_file_added(relative_path)
+    added
   end
 
   def remove_file(file_path : String)
@@ -58,7 +73,9 @@ class Project
     relative_path = file_path.relative_to(@root)
     return false unless @files.includes?(relative_path)
 
-    @files.delete(relative_path)
+    @files_mutex.synchronize do
+      @files.delete(relative_path)
+    end
     notify_project_file_removed(relative_path)
     true
   end
@@ -139,10 +156,20 @@ class Project
 
   private def scan_files
     # TODO: scan files in another thread
-    start_t = Time.monotonic
-    scan_dir(@root, @files)
-    @files = files
-    Log.info { "files scan: #{Time.monotonic - start_t}" }
+    spawn do
+      start_t = Time.monotonic
+      files = Set(Path).new
+      scan_dir(@root, files)
+      @files_mutex.synchronize do
+        @files = files
+      end
+      @load_finished = true
+      Log.info { "files scan: #{Time.monotonic - start_t}" }
+      GLib.timeout(0) do
+        notify_project_load_finished
+        false
+      end
+    end
   end
 
   private def scan_dir(dir : Path, files)
