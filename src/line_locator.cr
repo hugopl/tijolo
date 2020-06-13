@@ -4,16 +4,17 @@ class LineLocator < LocatorProvider
 
   DEFAULT_TEXT = "Type the line number and column separated by \":\"."
 
+  def initialize
+    super
+    @model.append({LABEL_COLUMN}, {DEFAULT_TEXT})
+  end
+
   def activate(locator, _index)
     locator.notify_locator_goto_line_col(@line - 1, @col - 1) if @line > 0
   end
 
   def results_size : Int32
     1
-  end
-
-  protected def populate_model : Nil
-    @model.append({LABEL_COLUMN, VISIBLE_COLUMN}, {DEFAULT_TEXT, true})
   end
 
   def shortcut : Char

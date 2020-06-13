@@ -30,27 +30,20 @@ class FileLocator < LocatorProvider
 
   def search_changed(search_text : String) : Nil
     start_time = Time.monotonic
-
-    reset_search_model
-    reset_time = Time.monotonic
+    @model.clear
 
     @last_results = Fzy.search(search_text, @project_haystack)
     @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
-    fzy_time = Time.monotonic
 
-    # Set visible values
     iter = Gtk::TreeIter.new
     @last_results.each do |match|
-      tree_path = Gtk::TreePath.new_from_indices({match.index})
-      @model.iter(iter, tree_path)
-      @model.set(iter, {LABEL_COLUMN, VISIBLE_COLUMN, SCORE_COLUMN}, {markup(match), true, match.score})
+      @model.append(iter)
+      @model.set(iter, {LABEL_COLUMN}, {markup(match)})
     end
 
-    gtk_time = Time.monotonic
-    total = gtk_time - start_time
-    gtk_total = (reset_time - start_time) + (gtk_time - fzy_time)
-    fzy_total = (fzy_time - reset_time)
-    Log.debug { "Locator found #{@last_results.size} results: total: #{total} fzy: #{fzy_total}, gtk: #{gtk_total}" }
+    end_time = Time.monotonic
+    total = end_time - start_time
+    Log.debug { "Locator found #{@last_results.size} in #{total}" }
   end
 
   def markup(match)
@@ -67,24 +60,6 @@ class FileLocator < LocatorProvider
           str << char
         end
       end
-    end
-  end
-
-  protected def populate_model : Nil
-    iter = Gtk::TreeIter.new
-    @project.files.each do |file|
-      @model.append(iter)
-      @model.set(iter, {LABEL_COLUMN, VISIBLE_COLUMN}, {file.to_s, false})
-    end
-    true
-  end
-
-  private def reset_search_model
-    iter = Gtk::TreeIter.new
-    @last_results.each do |match|
-      tree_path = Gtk::TreePath.new_from_indices({match.index})
-      @model.iter(iter, tree_path)
-      @model.set(iter, {LABEL_COLUMN, VISIBLE_COLUMN, SCORE_COLUMN}, {match.value, false, -Float64::INFINITY})
     end
   end
 end

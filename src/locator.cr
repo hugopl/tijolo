@@ -49,7 +49,7 @@ class Locator
     init_locators
     @locator_results = Gtk::TreeView.cast(builder["locator_results"])
     @locator_results.selection.mode = :browse
-    @locator_results.model = @default_locator_provider.sorted_model
+    @locator_results.model = @default_locator_provider.model
     @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
     @locator_results.on_key_press_event(&->results_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_results.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
@@ -128,7 +128,7 @@ class Locator
     locator = find_locator(text)
     if @current_locator_provider != locator
       @current_locator_provider = locator
-      @locator_results.model = @current_locator_provider.sorted_model
+      @locator_results.model = @current_locator_provider.model
     end
 
     text = text[2..-1] if @current_locator_provider != @default_locator_provider
