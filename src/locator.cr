@@ -43,7 +43,7 @@ class Locator
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_entry.on_activate(&->activated(Gtk::Entry))
     @locator_entry.connect("notify::text", &->search_changed)
-    @locator_entry.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
+    @locator_entry.after_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
     @current_locator_provider = @default_locator_provider = FileLocator.new(@project)
     init_locators

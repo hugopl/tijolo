@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.4.0
   gobject:
     github: jhass/crystal-gobject
-    commit: bca9f46060c73f3af35e104d4023b162413148a4
+    commit: 24125934a6d22f6e7004c482b3fd0a67b47c91be
   malloc_pthread_shim:
     github: jhass/crystal-malloc_pthread_shim
     branch: track_alignments
