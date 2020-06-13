@@ -118,7 +118,6 @@ class Project
       end
     end
     projects.sort!
-    return projects
   end
 
   private def find_root(location : Path) : Path

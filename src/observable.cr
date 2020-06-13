@@ -10,7 +10,7 @@ macro observable_by(lst)
   end
 
   {% for method in lst.resolve.methods %}
-  
+
   def notify_{{method.name}}(*args : *U) forall U
     @listeners.each do |listener|
       listener.{{method.name}}(*args)

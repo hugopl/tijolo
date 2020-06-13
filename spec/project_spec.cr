@@ -22,7 +22,7 @@ describe Project do
 
     me = Path.new(__FILE__).relative_to(project.root)
     project.add_file(me)
-    project.files.select { |path| path == me }.size.should eq(1)
+    project.files.count { |path| path == me }.should eq(1)
   end
 
   it "accept project root with/without ending slash" do
@@ -55,7 +55,6 @@ describe Project do
   it "can rename folders" do
     project = FakeProject.new(%w(file1 dir1/file1 dir2/file2 dir2/dir3/file3))
     project.rename_folder("dir2", "hey")
-    dirs = [] of String
     str_files = project.files.map(&.to_s).sort!
     str_files.should eq(%w(dir1/file1 file1 hey/dir3/file3 hey/file2))
   end

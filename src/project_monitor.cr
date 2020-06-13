@@ -43,18 +43,19 @@ class ProjectMonitor
       when .moved_out?
         Log.warn { "MOVED OUT event not yet supported." }
       when .renamed?
-        return if other_file.nil?
-
-        other_file_path = other_file.parse_name
-        if File.directory?(other_file_path)
-          destroy_monitor(file_path)
-          create_monitor(other_file_path)
-          @project.rename_folder(file_path, other_file_path)
-        else
-          @project.remove_file(file_path)
-          @project.add_file(other_file_path)
-        end
+        handle_rename(file_path, other_file.parse_name) if other_file
       end
+    end
+  end
+
+  private def handle_rename(old_path : String, new_path : String)
+    if File.directory?(new_path)
+      destroy_monitor(old_path)
+      create_monitor(new_path)
+      @project.rename_folder(old_path, new_path)
+    else
+      @project.remove_file(old_path)
+      @project.add_file(new_path)
     end
   end
 end

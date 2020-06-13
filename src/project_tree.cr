@@ -126,7 +126,7 @@ class ProjectTree
       @subfolders.sort!
 
       order_map = Array(Int32).new(@subfolders.size + @files.size)
-      @subfolders.each_with_index do |node, i|
+      @subfolders.each do |node|
         order_map << old_order.index(node.object_id).not_nil!
       end
       @files.size.times do |i|
@@ -169,12 +169,14 @@ class ProjectTree
       return idx unless idx.nil?
 
       idx = @files.index(name)
-      idx += @subfolders.size unless idx.nil?
+      return if idx.nil?
+
+      idx + @subfolders.size
     end
 
     def []?(index : Int32) : Node?
       if index < @subfolders.size
-        return @subfolders[index]
+        @subfolders[index]
       else
         index -= @subfolders.size
         @files[index]?

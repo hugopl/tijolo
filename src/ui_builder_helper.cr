@@ -18,20 +18,20 @@ module UiBuilderHelper
   end
 
   private def css_for(scheme)
-    css_enabled = true
+    css_enabled = true # ameba:disable Lint/UselessAssign
     begin
       bg_style = load_style(scheme, "background-pattern")
       text_style = load_style(scheme, "text")
       selection_style = load_style(scheme, "selection")
 
-      text_style_fg = text_style.foreground
-      text_style_bg = text_style.background
-      bg_style_bg = bg_style.background
-      selection_style_fg = selection_style.foreground
-      selection_style_bg = selection_style.background
+      text_style_fg = text_style.foreground           # ameba:disable Lint/UselessAssign
+      text_style_bg = text_style.background           # ameba:disable Lint/UselessAssign
+      bg_style_bg = bg_style.background               # ameba:disable Lint/UselessAssign
+      selection_style_fg = selection_style.foreground # ameba:disable Lint/UselessAssign
+      selection_style_bg = selection_style.background # ameba:disable Lint/UselessAssign
     rescue e
       Log.warn { e.message }
-      css_enabled = false
+      css_enabled = false # ameba:disable Lint/UselessAssign
     end
 
     ECR.render("#{__DIR__}/ui/application.css.ecr")
