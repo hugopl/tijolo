@@ -91,7 +91,9 @@ class IdeWindow < Window
                {"find_next", ->find_next_in_current_view},
                {"find_prev", ->find_prev_in_current_view},
                {"goto_line", ->show_goto_line_locator},
-               {"comment_code", ->comment_code} }
+               {"comment_code", ->comment_code},
+               {"move_text_up", ->move_text_up},
+               {"move_text_down", ->move_text_down} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -220,9 +222,20 @@ class IdeWindow < Window
     @find_replace.find_prev
   end
 
+  # TODO: Write a macro to do this repeated code when we get more text views shortcuts
   def comment_code
     view = @open_files.current_view
     view.comment_action if view && view.focus?
+  end
+
+  def move_text_up
+    view = @open_files.current_view
+    view.move_text_up_action if view && view.focus?
+  end
+
+  def move_text_down
+    view = @open_files.current_view
+    view.move_text_down_action if view && view.focus?
   end
 
   def text_view_escape_pressed

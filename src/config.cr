@@ -76,16 +76,18 @@ class Config
 
   def default_shortcuts : Hash(String, String)
     {
-      "show_locator" => "<Control>P",
-      "new_file"     => "<Control>N",
-      "close_view"   => "<Control>W",
-      "save_view"    => "<Control>S",
-      "save_view_as" => "<Control><Shift>S",
-      "find"         => "<Control>F",
-      "find_next"    => "F3",
-      "find_prev"    => "<Shift>F3",
-      "goto_line"    => "<Control>G",
-      "comment_code" => "<Control>slash",
+      "show_locator"   => "<Control>P",
+      "new_file"       => "<Control>N",
+      "close_view"     => "<Control>W",
+      "save_view"      => "<Control>S",
+      "save_view_as"   => "<Control><Shift>S",
+      "find"           => "<Control>F",
+      "find_next"      => "F3",
+      "find_prev"      => "<Shift>F3",
+      "goto_line"      => "<Control>G",
+      "comment_code"   => "<Control>slash",
+      "move_text_up"   => "<Control><Shift>Up",
+      "move_text_down" => "<Control><Shift>Down",
     }
   end
 

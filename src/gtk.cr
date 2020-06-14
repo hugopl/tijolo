@@ -110,10 +110,20 @@ module Gtk
       end
     end
 
+    def iter_at_offset(offset : Int32)
+      Gtk::TextIter.new.tap do |iter|
+        iter_at_offset(iter, offset)
+      end
+    end
+
     def iter_at_line_offset(line : Int32, offset : Int32)
       Gtk::TextIter.new.tap do |iter|
         iter_at_line_offset(iter, line, offset)
       end
+    end
+
+    def cursor_iter
+      iter_at_offset(cursor_position)
     end
 
     def iter_at_line(line : Int32)
@@ -160,6 +170,12 @@ module Gtk
 
     def insert(iter : TextIter, text : String)
       insert(iter, text, text.size)
+    end
+  end
+
+  class TextIter
+    def forward_to_after_line_end
+      self.line_index = bytes_in_line
     end
   end
 end
