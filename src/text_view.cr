@@ -33,6 +33,7 @@ class TextView
   Log = ::Log.for("TextView")
 
   delegate grab_focus, to: @editor
+  delegate focus?, to: @editor
 
   def initialize(file_path : String? = nil)
     builder = builder_for("text_view")

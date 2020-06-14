@@ -222,7 +222,7 @@ class IdeWindow < Window
 
   def comment_code
     view = @open_files.current_view
-    view.try(&.comment_action)
+    view.comment_action if view && view.focus?
   end
 
   def text_view_escape_pressed
