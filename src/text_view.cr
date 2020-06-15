@@ -276,9 +276,7 @@ class TextView
 
   # This always comment lines using line comment, /* hey */ isn't supported.
   private def comment_selection_action
-    start_iter = Gtk::TextIter.new
-    end_iter = Gtk::TextIter.new
-    @buffer.selection_bounds(start_iter, end_iter)
+    start_iter, end_iter = @buffer.selection_bounds
     start_iter.line_index = 0
 
     lines = @buffer.lines(start_iter.line, end_iter.line)

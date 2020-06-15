@@ -156,6 +156,13 @@ module Gtk
       select_range(iter_at_line(from), iter_at_line(to))
     end
 
+    def selection_bounds
+      start_iter = Gtk::TextIter.new
+      end_iter = Gtk::TextIter.new
+      selection_bounds(start_iter, end_iter)
+      {start_iter, end_iter}
+    end
+
     def lines(from, to)
       return [] of String if to < from
 
