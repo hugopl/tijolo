@@ -1,3 +1,20 @@
+/* Unset key bindings */
+@binding-set TextViewKeyBindings
+{
+  unbind "<Alt>Right";
+  unbind "<Alt>Left";
+  unbind "<Alt>Up";
+  unbind "<Alt>Down";
+
+  bind "<Ctrl><Shift>Up" { "move-lines" (0) };
+  bind "<Ctrl><Shift>Down" { "move-lines" (1) };
+}
+
+textview
+{
+  -gtk-key-bindings: TextViewKeyBindings;
+}
+
 textview
 {
     font: 9pt "Monospace";

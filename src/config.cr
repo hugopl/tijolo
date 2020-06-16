@@ -85,9 +85,7 @@ class Config
       "find_next"      => "F3",
       "find_prev"      => "<Shift>F3",
       "goto_line"      => "<Control>G",
-      "comment_code"   => "<Control>slash",
-      "move_text_up"   => "<Control><Shift>Up",
-      "move_text_down" => "<Control><Shift>Down",
+      "comment_code"   => "<Control>slash"
     }
   end
 

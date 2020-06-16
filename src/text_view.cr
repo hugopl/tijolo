@@ -15,11 +15,6 @@ class TextView
 
   observable_by TextViewListener
 
-  private enum Direction
-    Up
-    Down
-  end
-
   getter file_path : Path?
   getter? readonly = false
   getter label : String
@@ -296,74 +291,5 @@ class TextView
         start_iter.forward_line
       end
     end
-  end
-
-  def move_text_up_action : Nil
-    return if @buffer.has_selection
-
-    lines_to_move = 1
-    # Get cursor iterators
-    start_iter = @buffer.cursor_iter
-    cursor_line_index = start_iter.line_index
-    start_iter.line_index = 0
-    end_iter = start_iter.copy
-    end_iter.forward_to_after_line_end
-
-    text = start_iter.text(end_iter)
-    no_new_line = end_iter.end?
-    text = "#{text}\n" if no_new_line
-
-    @buffer.begin_user_action
-    @buffer.delete(start_iter, end_iter)
-    if no_new_line
-      end_iter.backward_char
-      @buffer.delete(end_iter, start_iter)
-      start_iter.line_index = 0
-    else
-      start_iter.backward_lines(lines_to_move)
-    end
-
-    @buffer.insert(start_iter, text, text.bytesize)
-    start_iter.backward_lines(lines_to_move)
-    start_iter.line_index = cursor_line_index
-    @buffer.place_cursor(start_iter)
-
-    @buffer.end_user_action
-  end
-
-  def move_text_down_action : Nil
-    return if @buffer.has_selection
-
-    lines_to_move = 1
-    # Get cursor iterators
-    start_iter = @buffer.cursor_iter
-    cursor_line_index = start_iter.line_index
-    start_iter.line_index = 0
-    end_iter = start_iter.copy
-    end_iter.forward_to_after_line_end
-
-    return if end_iter.end?
-
-    # Move line
-    text = start_iter.text(end_iter)
-    @buffer.begin_user_action
-    @buffer.delete(start_iter, end_iter)
-
-    if start_iter.forward_lines(lines_to_move)
-      @buffer.insert(start_iter, text, text.bytesize)
-      start_iter.backward_lines(lines_to_move)
-    else                             # End of file, take care if the file ends with \n or not
-      start_iter.forward_to_line_end # this will end in \0
-      start_iter.backward_char       # This single backward means Tijolo doesn't support file using \r\n.
-      no_new_line = start_iter.char.chr != '\n'
-      text = text.sub(/(.*)([\r\n])$/, "\\2\\1") if no_new_line
-      start_iter.forward_char
-      @buffer.insert(start_iter, text, text.bytesize)
-      start_iter.backward_line unless no_new_line
-    end
-
-    start_iter.line_index = cursor_line_index
-    @buffer.place_cursor(start_iter)
-    @buffer.end_user_action
   end
 end
