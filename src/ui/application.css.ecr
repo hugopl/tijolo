@@ -51,9 +51,17 @@ popover {
 }
 
 <%- if css_enabled -%>
+
+paned separator {
+  background-color: alpha(<%= bg_style_bg %>, 0.8);
+  background-image: linear-gradient(transparent, transparent 1px, #999 1px, #999 4px, transparent 4px);
+}
+
 #no-view, #ide-window .editor-header {
   color: <%= text_style_fg %>;
-  background-color: <%= bg_style_bg %>;
+  background-color: <%= text_style_bg %>;
+
+  border-bottom: 1px solid alpha(<%= bg_style_bg %>, 0.8);
 }
 
 #ide-window treeview button {

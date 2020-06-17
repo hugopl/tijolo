@@ -38,7 +38,7 @@ class Config
   @@instance : Config?
 
   property projects = [] of Config::ProjectEntry
-  property style_scheme = "solarized-light"
+  property style_scheme = "monokai"
   property? scan_projects = true
   property shortcuts : Hash(String, String)?
 
@@ -76,16 +76,16 @@ class Config
 
   def default_shortcuts : Hash(String, String)
     {
-      "show_locator"   => "<Control>P",
-      "new_file"       => "<Control>N",
-      "close_view"     => "<Control>W",
-      "save_view"      => "<Control>S",
-      "save_view_as"   => "<Control><Shift>S",
-      "find"           => "<Control>F",
-      "find_next"      => "F3",
-      "find_prev"      => "<Shift>F3",
-      "goto_line"      => "<Control>G",
-      "comment_code"   => "<Control>slash"
+      "show_locator" => "<Control>P",
+      "new_file"     => "<Control>N",
+      "close_view"   => "<Control>W",
+      "save_view"    => "<Control>S",
+      "save_view_as" => "<Control><Shift>S",
+      "find"         => "<Control>F",
+      "find_next"    => "F3",
+      "find_prev"    => "<Shift>F3",
+      "goto_line"    => "<Control>G",
+      "comment_code" => "<Control>slash",
     }
   end
 

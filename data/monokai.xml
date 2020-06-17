@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme id="monokai" _name="Monokai" version="1.0">
+  <author>Hugo Parente Lima</author>
+  <_description>Color scheme using monokai pallete</_description>
+
+  <color name="yellow"  value="#E3D671"/>
+  <color name="orange"  value="#E38821"/>
+  <color name="red"     value="#E2246B"/>
+  <color name="magenta" value="#AC80FD"/>
+  <color name="violet"  value="#AC80FF"/>
+  <color name="blue"    value="#268BD2"/>
+  <color name="cyan"    value="#62C6D8"/>
+  <color name="green"   value="#A1D82B"/>
+  <color name="white"   value="#EBEBE5" />
+
+  <color name="bg-shadow"     value="#F8F8F8"/>
+  <color name="bg"            value="#282923"/>
+  <color name="comment"       value="#6D6855" />
+  <color name="current-line" value="#3A392F" />
+
+  <color name="line-number" value="#848782" />
+  <color name="bg-pattern" value="#303029"/>
+
+  <!-- Global Settings -->
+  <style name="text"                        foreground="white" background="bg"/>
+  <style name="selection"                   foreground="bg" background="white"/>
+  <style name="cursor"                      foreground="white" bold="true" />
+  <style name="current-line"                background="current-line"/>
+  <style name="line-numbers"                foreground="line-number" background="bg"/>
+  <style name="background-pattern"          background="bg-pattern"/>
+
+  <!-- Bracket Matching -->
+  <style name="bracket-match"               bold="true" />
+  <style name="bracket-mismatch"            foreground="red" background="bg"/>
+
+  <!-- Right Margin -->
+  <style name="right-margin"                background="bg-shadow"/>
+
+  <!-- Search Matching -->
+  <style name="search-match"                foreground="bg" background="yellow"/>
+
+  <!-- Comments -->
+  <style name="def:comment"                 foreground="comment"/>
+  <style name="def:shebang"                 foreground="comment" italic="true"/>
+  <style name="def:doc-comment-element"     italic="true"/>
+
+  <!-- Constants -->
+  <style name="def:constant"                foreground="yellow"/>
+  <style name="def:special-char"            foreground="green"/>
+
+  <!-- Identifiers -->
+  <style name="def:identifier"              foreground="text" italic="true" />
+
+  <!-- Statements -->
+  <style name="def:statement"               foreground="orange"/>
+
+  <!-- Types -->
+  <style name="def:type"                    foreground="cyan" italic="true" />
+  <style name="def:string"                  foreground="yellow" />
+  <style name="def:boolean"                 foreground="magenta" />
+  <style name="def:keyword"                 foreground="red" />
+  <style name="def:floating-point"          foreground="magenta" />
+  <style name="def:decimal"                 foreground="magenta" />
+  <style name="def:base-n-integer"          foreground="magenta" />
+  <style name="def:base-n-integer"          foreground="magenta" />
+
+  <!-- Markup -->
+  <style name="def:emphasis"                italic="true"/>
+  <style name="def:strong-emphasis"         bold="true" foreground="orange"/>
+  <style name="def:inline-code"             foreground="cyan"/>
+  <style name="def:insertion"               underline="single"/>
+  <style name="def:deletion"                strikethrough="true"/>
+  <style name="def:link-text"               foreground="text" underline="true"/>
+  <style name="def:link-symbol"             foreground="text" bold="true"/>
+  <style name="def:link-destination"        italic="true" underline="single"/>
+  <style name="def:heading"                 foreground="yellow"/>
+  <style name="def:thematic-break"          foreground="yellow"/>
+  <style name="def:preformatted-section"    foreground="cyan"/>
+  <style name="def:list-marker"             foreground="orange"/>
+
+  <!-- Operators -->
+  <style name="def:operator"                foreground="red"/>
+
+  <!-- Others -->
+  <style name="def:preprocessor"            foreground="red"/>
+  <style name="def:error"                   foreground="red" bold="true"/>
+  <style name="def:note"                    foreground="magenta" bold="true"/>
+  <style name="def:net-address"             italic="true" underline="single"/>
+</style-scheme>
