@@ -56,6 +56,7 @@
     <style id="here-doc"             name="Heredoc"               map-to="def:string" />
     <style id="here-doc-bound"       name="Heredoc Bound"         map-to="def:string"/>
     <style id="regex"                name="Regular Expression"    map-to="def:identifier"/>
+    <style id="operator"             name="Operator"              map-to="def:operator"/>
   </styles>
   <definitions>
     <define-regex id="simple-escape" extended="true">
@@ -95,7 +96,7 @@
       <match>\%{escape}</match>
     </context>
 
-    <context id="object-macros" style-ref="object-macros">
+    <context id="object-macros" style-ref="keyword">
       <!-- Ugly union regexp because this doesn't work: <keyword>getter[?!]?</keyword> -->
       <match>(class_)?getter[!\?]?|(class_)?property[!\?]?|(class_)?setter|def_clone|def_equals|def_equals_and_hash|def_hash|delegate|forward_missing_to</match>
     </context>
@@ -503,6 +504,10 @@
       </include>
     </context>
 
+    <context id="operators" style-ref="operator" extend-parent="false">
+      <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
+    </context>
+
     <context id="crystal" class="no-spell-check">
       <include>
         <context ref="def:shebang"/>
@@ -524,6 +529,7 @@
         <context ref="symbols"/>
         <context ref="regexp-variables"/>
         <context ref="constants"/>
+        <context ref="operators"/>
         <context ref="nil-value"/>
         <context ref="boolean"/>
         <context ref="float"/>
