@@ -4,17 +4,20 @@ class FindReplace
   @settings : GtkSource::SearchSettings
 
   def initialize(@revealer : Gtk::Revealer, @entry : Gtk::Entry)
-    entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
-    entry.connect("notify::text") { find }
-    entry.on_activate { on_entry_activated }
+    @entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
+    @entry.connect("notify::text") { find }
+    @entry.on_activate { on_entry_activated }
 
     @settings = GtkSource::SearchSettings.new
     @settings.wrap_around = true
   end
 
   def show(text_view : TextView)
+    return if @revealer.reveal_child
+
     @text_view = text_view
     @revealer.reveal_child = true
+    @entry.text = text_view.selected_text
     @entry.grab_focus
 
     text_view.create_search_context(@settings)
@@ -27,6 +30,7 @@ class FindReplace
     else
       remove_highlighting
     end
+    @text_view.try(&.grab_focus)
   end
 
   private def on_entry_activated

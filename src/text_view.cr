@@ -171,6 +171,13 @@ class TextView
     @line_column.label = "#{line + 1}:#{col + 1}"
   end
 
+  def selected_text : String
+    return "" unless @buffer.has_selection
+
+    start_iter, end_iter = @buffer.selection_bounds
+    @buffer.text(start_iter, end_iter, false)
+  end
+
   def create_search_context(settings : GtkSource::SearchSettings)
     @search_context ||= GtkSource::SearchContext.new(@buffer, settings)
   end
