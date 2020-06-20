@@ -141,6 +141,10 @@
       <keyword>while</keyword>
       <keyword>yield</keyword>
       <!-- FIXME: This makes the code `new = 42` highlight the new word -->
+    </context>
+
+    <context id="new-keyword" style-ref="keyword">
+      <prefix>(?&lt;=\.)</prefix>
       <keyword>new</keyword>
     </context>
 
@@ -522,6 +526,7 @@
         <context ref="definitions"/>
         <context ref="module-handlers"/>
         <context ref="keywords"/>
+        <context ref="new-keyword"/>
         <context ref="special-variables"/>
         <context ref="predefined-variables"/>
         <context ref="class-variables"/>
