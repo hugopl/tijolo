@@ -38,7 +38,6 @@ class Config
   @@instance : Config?
 
   property projects = [] of Config::ProjectEntry
-  property style_scheme = "monokai"
   property? scan_projects = true
   property shortcuts : Hash(String, String)?
 
@@ -68,6 +67,10 @@ class Config
   end
 
   def initialize
+  end
+
+  def style_scheme
+    "monokai"
   end
 
   def shortcuts

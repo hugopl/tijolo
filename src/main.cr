@@ -26,5 +26,10 @@ unless options[:gc_enabled]
   GC.disable
 end
 
-app = Application.new(options)
-app.run
+begin
+  app = Application.new(options)
+  app.run
+rescue e : AppError
+  Log.fatal { e.message }
+  abort
+end

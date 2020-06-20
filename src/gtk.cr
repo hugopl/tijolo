@@ -186,3 +186,14 @@ module Gtk
     end
   end
 end
+
+module GtkSource
+  class StyleSchemeManager
+    # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
+    def scheme2(name : String) : StyleScheme?
+      scheme(name)
+    rescue
+      nil
+    end
+  end
+end

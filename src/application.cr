@@ -31,14 +31,13 @@ class Application
     @project_location = Path.new(location).expand.to_s if location
   end
 
-  private def load_scheme
+  private def load_scheme : GtkSource::StyleScheme
     manager = GtkSource::StyleSchemeManager.default
     # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
-    @style_scheme = begin
-      manager.scheme(Config.instance.style_scheme)
-    rescue
-      GtkSource::StyleScheme.new
-    end
+    scheme = manager.scheme2(Config.instance.style_scheme)
+    raise AppError.new("Failed to open style scheme #{Config.instance.style_scheme}.") if scheme.nil?
+
+    scheme
   end
 
   private def activate_ui(g_app)
@@ -62,6 +61,7 @@ class Application
   def setup_actions
     # Hamburguer menu
     preferences = Gio::SimpleAction.new("preferences", nil)
+    preferences.enabled = false
     main_window.add_action(preferences)
     preferences.on_activate { show_preferences_dlg }
     about = Gio::SimpleAction.new("about", nil)
@@ -70,21 +70,6 @@ class Application
   end
 
   def show_preferences_dlg
-    config = Config.instance
-
-    builder = builder_for("preferences")
-    dialog = Gtk::Dialog.cast(builder["root"])
-    scheme_chooser = GtkSource::StyleSchemeChooserWidget.cast(builder["scheme_chooser"])
-
-    style_scheme = GtkSource::StyleSchemeManager.default.scheme("solarized-light")
-    scheme_chooser.style_scheme = style_scheme unless style_scheme.nil?
-    dialog.on_response do
-      # TODO: Update scheme of all running text views, probably at click time, not after close dialog
-      style_scheme = scheme_chooser.style_scheme
-      config.style_scheme = style_scheme.id
-      dialog.close
-    end
-    dialog.run
   end
 
   def show_about_dlg
