@@ -33,32 +33,34 @@
   </metadata>
 
   <styles>
-    <style id="escape"               name="Escaped Character"     map-to="def:special-char"/>
-    <style id="comment"              name="Comment"               map-to="def:comment"/>
-    <style id="object-macros"        name="Object macros"         map-to="def:statement"/>
-    <style id="module-handler"       name="Module handler"        map-to="def:preprocessor"/>
-    <style id="keyword"              name="Keyword"               map-to="def:keyword"/>
-    <style id="nil-value"            name="Nil Constant"          map-to="def:special-constant"/>
-    <style id="boolean"              name="Boolean value"         map-to="def:boolean"/>
-    <style id="floating-point"       name="Floating point number" map-to="def:floating-point"/>
-    <style id="decimal"              name="Decimal number"        map-to="def:decimal"/>
     <style id="base-n-integer"       name="Base-N number"         map-to="def:base-n-integer"/>
-    <style id="numeric-literal"      name="Numeric literal"       map-to="def:base-n-integer"/>
-    <style id="character-literal"    name="Character literal"     map-to="def:string"/>
-    <style id="string"               name="String"                map-to="def:string"/>
-    <style id="literal"              name="Literal"               map-to="def:special-char"/>
+    <style id="boolean"              name="Boolean value"         map-to="def:boolean"/>
     <style id="builtin"              name="Builtin"               map-to="def:type"/>
+    <style id="character-literal"    name="Character literal"     map-to="def:string"/>
+    <style id="comment"              name="Comment"               map-to="def:comment"/>
     <style id="constant"             name="Constant"              map-to="def:type"/>
-    <style id="symbol"               name="Symbol"                map-to="def:string"/>
-    <style id="special-variable"     name="Special Variable"      map-to="def:identifier"/>
-    <style id="predefined-variable"  name="Predefined Variable"   map-to="def:identifier"/>
-    <style id="variable"             name="Variable"              map-to="def:identifier"/>
+    <style id="decimal"              name="Decimal number"        map-to="def:decimal"/>
+    <style id="escape"               name="Escaped Character"     map-to="def:special-char"/>
+    <style id="floating-point"       name="Floating point number" map-to="def:floating-point"/>
+    <style id="function-name"        name="Function Name"         map-to="def:function"/>
     <style id="here-doc"             name="Heredoc"               map-to="def:string" />
     <style id="here-doc-bound"       name="Heredoc Bound"         map-to="def:string"/>
-    <style id="regex"                name="Regular Expression"    map-to="def:identifier"/>
+    <style id="keyword"              name="Keyword"               map-to="def:keyword"/>
+    <style id="literal"              name="Literal"               map-to="def:special-char"/>
+    <style id="module-handler"       name="Module handler"        map-to="def:preprocessor"/>
+    <style id="nil-value"            name="Nil Constant"          map-to="def:special-constant"/>
+    <style id="numeric-literal"      name="Numeric literal"       map-to="def:base-n-integer"/>
+    <style id="object-macros"        name="Object macros"         map-to="def:statement"/>
     <style id="operator"             name="Operator"              map-to="def:operator"/>
+    <style id="predefined-variable"  name="Predefined Variable"   map-to="def:identifier"/>
+    <style id="regex"                name="Regular Expression"    map-to="def:identifier"/>
+    <style id="special-variable"     name="Special Variable"      map-to="def:identifier"/>
+    <style id="string"               name="String"                map-to="def:string"/>
+    <style id="symbol"               name="Symbol"                map-to="def:decimal"/>
+    <style id="variable"             name="Variable"              map-to="def:identifier"/>
   </styles>
   <definitions>
+    <define-regex id="identifier">[_a-zA-Z][_a-zA-Z0-9]*</define-regex>
     <define-regex id="simple-escape" extended="true">
       \\ (?: [0-7]{1,3} | x[0-9A-Fa-f]{1,2} | [^cuxCM] )
     </define-regex>
@@ -116,6 +118,7 @@
     </context>
 
     <context id="keywords" style-ref="keyword">
+      <keyword>abstract</keyword>
       <keyword>begin</keyword>
       <keyword>break</keyword>
       <keyword>case</keyword>
@@ -140,7 +143,6 @@
       <keyword>when</keyword>
       <keyword>while</keyword>
       <keyword>yield</keyword>
-      <!-- FIXME: This makes the code `new = 42` highlight the new word -->
     </context>
 
     <context id="new-keyword" style-ref="keyword">
@@ -512,6 +514,32 @@
       <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
     </context>
 
+    <!-- 'def' is also present in the 'keyword' context, but has a lower
+         priority, so 'def' is highlighted even if the function name doesn't match. -->
+    <context id="function-definition">
+      <match extended="true">
+        (def)
+        \s+
+        (\%{identifier})
+      </match>
+      <include>
+        <context sub-pattern="1" style-ref="keyword"/>
+        <context sub-pattern="2" style-ref="function-name"/>
+      </include>
+    </context>
+
+    <context id="type-definition">
+      <match extended="true">
+        (class|module)
+        \s+
+        (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
+      </match>
+      <include>
+        <context sub-pattern="1" style-ref="keyword"/>
+        <context sub-pattern="2" style-ref="function-name"/>
+      </include>
+    </context>
+
     <context id="crystal" class="no-spell-check">
       <include>
         <context ref="def:shebang"/>
@@ -523,6 +551,8 @@
         <context ref="double-quoted-string"/>
         <context ref="backtick-quoted-string"/>
         <context ref="object-macros"/>
+        <context ref="function-definition"/>
+        <context ref="type-definition"/>
         <context ref="definitions"/>
         <context ref="module-handlers"/>
         <context ref="keywords"/>

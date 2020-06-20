@@ -53,6 +53,7 @@
 
   <!-- Statements -->
   <style name="def:statement"               foreground="orange"/>
+  <style name="def:function"                foreground="green"/>
 
   <!-- Types -->
   <style name="def:type"                    foreground="cyan" italic="true" />
