@@ -130,6 +130,7 @@
       <keyword>for</keyword>
       <keyword>if</keyword>
       <keyword>in</keyword>
+      <keyword>macro</keyword>
       <keyword>next</keyword>
       <keyword>private</keyword>
       <keyword>protected</keyword>
@@ -518,7 +519,7 @@
          priority, so 'def' is highlighted even if the function name doesn't match. -->
     <context id="function-definition">
       <match extended="true">
-        (def)
+        (def|macro)
         \s+
         (\%{identifier})
       </match>
