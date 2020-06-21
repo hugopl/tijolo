@@ -93,6 +93,7 @@ class IdeWindow < Window
                {"find_prev", ->find_prev_in_current_view},
                {"goto_line", ->show_goto_line_locator},
                {"comment_code", ->comment_code},
+               {"sort_lines", ->sort_lines},
                {"fullscreen", ->fullscreen} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
@@ -226,6 +227,11 @@ class IdeWindow < Window
   def comment_code
     view = @open_files.current_view
     view.comment_action if view && view.focus?
+  end
+
+  def sort_lines
+    view = @open_files.current_view
+    view.sort_lines_action if view && view.focus?
   end
 
   def text_view_escape_pressed

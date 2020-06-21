@@ -225,6 +225,17 @@ class TextView
     @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
   end
 
+  def sort_lines_action
+    return unless @buffer.has_selection
+
+    start_iter, end_iter = @buffer.selection_bounds
+    return if start_iter.line == end_iter.line
+
+    @buffer.begin_user_action
+    @buffer.sort_lines(start_iter, end_iter, :case_sensitive, 0)
+    @buffer.end_user_action
+  end
+
   def comment_action
     return if readonly? || @language.nil?
 
