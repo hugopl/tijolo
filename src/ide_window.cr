@@ -18,6 +18,7 @@ class IdeWindow < Window
   @project_tree_view : Gtk::TreeView
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
+  @fullscreen = false
 
   @project_tree : ProjectTree
   @open_files : OpenFiles
@@ -91,7 +92,8 @@ class IdeWindow < Window
                {"find_next", ->find_next_in_current_view},
                {"find_prev", ->find_prev_in_current_view},
                {"goto_line", ->show_goto_line_locator},
-               {"comment_code", ->comment_code} }
+               {"comment_code", ->comment_code},
+               {"fullscreen", ->fullscreen} }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -228,6 +230,15 @@ class IdeWindow < Window
 
   def text_view_escape_pressed
     @find_replace.hide
+  end
+
+  def fullscreen
+    if @fullscreen
+      main_window.unfullscreen
+    else
+      main_window.fullscreen
+    end
+    @fullscreen = !@fullscreen
   end
 
   def about_to_quit(_widget, event) : Bool

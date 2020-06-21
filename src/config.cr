@@ -89,6 +89,7 @@ class Config
       "find_prev"    => "<Shift>F3",
       "goto_line"    => "<Control>G",
       "comment_code" => "<Control>slash",
+      "fullscreen"   => "F11",
     }
   end
 
