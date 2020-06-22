@@ -109,7 +109,7 @@ class Config
     project.last_used = Time.utc
   end
 
-  protected def filter_projects!
+  def filter_projects!
     @projects.select!(&.exists?)
     @projects.sort!
   end
