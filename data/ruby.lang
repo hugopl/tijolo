@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
- This file is based on Ruby syntax definition part of GtkSourceView
+ This file was part of GtkSourceView
 
  Author: Archit Baweja <bighead@users.sourceforge.net>
  Copyright (C) 2004 Archit Baweja <bighead@users.sourceforge.net>
@@ -25,40 +25,40 @@
  along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<language id="crystal" name="Crystal" version="2.0" _section="Source">
+<language id="ruby" name="Ruby" version="2.0" _section="Script">
   <metadata>
-    <property name="mimetypes">text/x-crystal</property>
-    <property name="globs">*.cr</property>
+    <property name="mimetypes">application/x-ruby;text/x-ruby</property>
+    <property name="globs">*.rb;*.rake;*.gemspec;Rakefile;Capfile;Gemfile</property>
     <property name="line-comment-start">#</property>
   </metadata>
 
   <styles>
-    <style id="base-n-integer"       name="Base-N number"         map-to="def:base-n-integer"/>
-    <style id="boolean"              name="Boolean value"         map-to="def:boolean"/>
-    <style id="builtin"              name="Builtin"               map-to="def:type"/>
-    <style id="character-literal"    name="Character literal"     map-to="def:string"/>
-    <style id="comment"              name="Comment"               map-to="def:comment"/>
-    <style id="constant"             name="Constant"              map-to="def:type"/>
-    <style id="decimal"              name="Decimal number"        map-to="def:decimal"/>
     <style id="escape"               name="Escaped Character"     map-to="def:special-char"/>
-    <style id="floating-point"       name="Floating point number" map-to="def:floating-point"/>
+    <style id="comment"              name="Comment"               map-to="def:comment"/>
+    <style id="attribute-definition" name="Attribute Definition"  map-to="def:statement"/>
+    <style id="module-handler"       name="Module handler"        map-to="def:preprocessor"/>
+    <style id="keyword"              name="Keyword"               map-to="def:keyword"/>
     <style id="function-definition"  name="Function Definition"   map-to="def:function"/>
     <style id="type-definition"      name="Type Definition"       map-to="def:function"/>
+    <style id="nil-value"            name="Nil Constant"          map-to="def:special-constant"/>
+    <style id="boolean"              name="Boolean value"         map-to="def:boolean"/>
+    <style id="floating-point"       name="Floating point number" map-to="def:floating-point"/>
+    <style id="decimal"              name="Decimal number"        map-to="def:decimal"/>
+    <style id="base-n-integer"       name="Base-N number"         map-to="def:base-n-integer"/>
+    <style id="numeric-literal"      name="Numeric literal"       map-to="def:base-n-integer"/>
+    <style id="character-literal"    name="Character literal"     map-to="def:string"/>
+    <style id="string"               name="String"                map-to="def:string"/>
+    <style id="literal"              name="Literal"               map-to="def:special-char"/>
+    <style id="builtin"              name="Builtin"               map-to="def:type"/>
+    <style id="constant"             name="Constant"              map-to="def:type"/>
+    <style id="symbol"               name="Symbol"                map-to="def:decimal"/>
+    <style id="predefined-variable"  name="Predefined Variable"   map-to="def:identifier"/>
+    <style id="variable"             name="Variable"              map-to="def:identifier"/>
     <style id="here-doc"             name="Heredoc"               map-to="def:string" />
     <style id="here-doc-bound"       name="Heredoc Bound"         map-to="def:string"/>
-    <style id="keyword"              name="Keyword"               map-to="def:keyword"/>
-    <style id="literal"              name="Literal"               map-to="def:special-char"/>
-    <style id="module-handler"       name="Module handler"        map-to="def:preprocessor"/>
-    <style id="nil-value"            name="Nil Constant"          map-to="def:special-constant"/>
-    <style id="numeric-literal"      name="Numeric literal"       map-to="def:base-n-integer"/>
-    <style id="object-macros"        name="Object macros"         map-to="def:statement"/>
-    <style id="operator"             name="Operator"              map-to="def:operator"/>
-    <style id="predefined-variable"  name="Predefined Variable"   map-to="def:identifier"/>
-    <style id="regex"                name="Regular Expression"    map-to="def:string"/>
-    <style id="string"               name="String"                map-to="def:string"/>
-    <style id="symbol"               name="Symbol"                map-to="def:decimal"/>
-    <style id="variable"             name="Variable"              map-to="def:identifier"/>
+    <style id="regex"                name="Regular Expression"    map-to="def:identifier"/>
   </styles>
+
   <definitions>
     <define-regex id="identifier">[\._a-zA-Z0-9=\&lt;\&gt;\[\]\!\?]+</define-regex>
     <define-regex id="simple-escape" extended="true">
@@ -98,9 +98,20 @@
       <match>\%{escape}</match>
     </context>
 
-    <context id="object-macros" style-ref="keyword">
-      <!-- Ugly union regexp because this doesn't work: <keyword>getter[?!]?</keyword> -->
-      <match>(class_)?getter[!\?]?|(class_)?property[!\?]?|(class_)?setter|def_clone|def_equals|def_equals_and_hash|def_hash|delegate|forward_missing_to</match>
+    <context id="multiline-comment" style-ref="comment" class="comment" class-disabled="no-spell-check">
+      <start>^=begin</start>
+      <end>^=end</end>
+      <include>
+        <context ref="escape"/>
+        <context ref="def:in-comment"/>
+      </include>
+    </context>
+
+    <context id="attribute-definitions" style-ref="attribute-definition">
+      <keyword>attr</keyword>
+      <keyword>attr_writer</keyword>
+      <keyword>attr_reader</keyword>
+      <keyword>attr_accessor</keyword>
     </context>
 
     <context id="definitions" style-ref="keyword">
@@ -110,38 +121,45 @@
       <keyword>class</keyword>
       <keyword>module</keyword>
       <keyword>def</keyword>
+      <keyword>undef</keyword>
     </context>
 
     <context id="module-handlers" style-ref="module-handler">
       <keyword>require</keyword>
       <keyword>include</keyword>
+      <keyword>load</keyword>
     </context>
 
     <context id="keywords" style-ref="keyword">
-      <keyword>abstract</keyword>
+      <keyword>BEGIN</keyword>
+      <keyword>END</keyword>
+      <keyword>and</keyword>
       <keyword>begin</keyword>
       <keyword>break</keyword>
       <keyword>case</keyword>
+      <keyword>catch</keyword>
+      <keyword>defined?</keyword>
       <keyword>do</keyword>
       <keyword>else</keyword>
       <keyword>elsif</keyword>
       <keyword>end</keyword>
       <keyword>ensure</keyword>
       <keyword>for</keyword>
-      <keyword>forall</keyword>
       <keyword>if</keyword>
       <keyword>in</keyword>
-      <keyword>macro</keyword>
       <keyword>next</keyword>
-      <keyword>of</keyword>
+      <keyword>not</keyword>
+      <keyword>or</keyword>
       <keyword>private</keyword>
       <keyword>protected</keyword>
+      <keyword>public</keyword>
       <keyword>redo</keyword>
       <keyword>rescue</keyword>
       <keyword>retry</keyword>
       <keyword>return</keyword>
       <keyword>super</keyword>
       <keyword>then</keyword>
+      <keyword>throw</keyword>
       <keyword>unless</keyword>
       <keyword>until</keyword>
       <keyword>when</keyword>
@@ -149,21 +167,31 @@
       <keyword>yield</keyword>
     </context>
 
-    <context id="new-keyword" style-ref="keyword">
-      <prefix>(?&lt;=\.)</prefix>
-      <keyword>new</keyword>
+    <context id="builtins" style-ref="builtin">
+      <keyword>ARGF</keyword>
+      <keyword>ARGV</keyword>
+      <keyword>RUBY_PLATFORM</keyword>
+      <keyword>RUBY_RELEASE_DATE</keyword>
+      <keyword>RUBY_VERSION</keyword>
+      <keyword>STDERR</keyword>
+      <keyword>STDIN</keyword>
+      <keyword>STDOUT</keyword>
+      <keyword>__FILE__</keyword>
+      <keyword>__LINE__</keyword>
     </context>
 
     <context id="predefined-variables" style-ref="predefined-variable">
-      <keyword>__DIR__</keyword>
-      <keyword>__FILE__</keyword>
-      <keyword>__LINE__</keyword>
-      <keyword>ARGC_UNSAFE</keyword>
-      <keyword>ARGV_UNSAFE</keyword>
-      <keyword>PROGRAM_NAME</keyword>
-      <keyword>self</keyword>
-      <keyword>STDERR</keyword>
-      <keyword>STDOUT</keyword>
+      <match extended="true">
+        \$([!$&amp;"'*+,./0:;&lt;=&gt;?@\`~1-9]|
+           -[0FIKadilpvw]|
+           (self|deferr|defout|stderr|stdin|stdout|
+            DEBUG|FILENAME|KCODE|LOADED_FEATURES|LOAD_PATH|
+            PROGRAM_NAME|SAFE|VERBOSE)\b)
+      </match>
+    </context>
+
+    <context id="global-variables" style-ref="variable">
+      <match>\$[a-zA-Z_][a-zA-Z0-9_]*</match>
     </context>
 
     <context id="class-variables" style-ref="variable">
@@ -224,8 +252,7 @@
     </context>
 
     <context id="character-literal" style-ref="character-literal">
-      <!-- FIXME: Support unicode escapes -->
-      <match>'\\?.?'</match>
+      <match>(?&lt;!\w)\?(\%{escape}|[^\\\s])(?!\w)</match>
     </context>
 
     <!-- in double quotes and backticks -->
@@ -235,15 +262,18 @@
       <include>
         <context ref="class-variables"/>
         <context ref="instance-variables"/>
+        <context ref="global-variables"/>
       </include>
     </context>
 
     <!-- in double quotes and backticks -->
+    <!-- FIXME: really would like for the syntax highlight to go back
+         to none here, as any ruby code could go here -->
     <context id="complex-interpolation">
       <start>#{</start>
       <end>}</end>
       <include>
-        <context ref="crystal:*"/>
+        <context ref="ruby:*"/>
       </include>
     </context>
 
@@ -256,7 +286,7 @@
       </include>
     </context>
 
-    <!-- crystal strings do not end at line end,
+    <!-- ruby strings do not end at line end,
          so we cannot use def:string
          (parts lifted from perl.lang) -->
     <context id="double-quoted-string" style-ref="string" class="string" class-disabled="no-spell-check">
@@ -264,6 +294,16 @@
       <end>"</end>
       <include>
         <context ref="inside-interpolated-string"/>
+      </include>
+    </context>
+
+    <context id="single-quoted-string" style-ref="string" class="string" class-disabled="no-spell-check">
+      <start>'</start>
+      <end>'</end>
+      <include>
+        <context style-ref="escape">
+          <match>\\['\\]</match>
+        </context>
       </include>
     </context>
 
@@ -284,7 +324,7 @@
     </context>
 
     <context id="here-doc-indented-string" style-ref="here-doc" style-inside="true">
-      <start>&lt;&lt;-([a-zA-Z_]\w*)</start>
+      <start>&lt;&lt;[-~]([a-zA-Z_]\w*)</start>
       <end>^\s*\%{1@start}</end>
       <include>
         <context ref="inside-interpolated-string"/>
@@ -511,10 +551,6 @@
       </include>
     </context>
 
-    <context id="operators" style-ref="operator" extend-parent="false">
-      <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
-    </context>
-
     <!-- 'def' is also present in the 'keyword' context, but has a lower
          priority, so 'def' is highlighted even if the function name doesn't match. -->
     <context id="function-definition">
@@ -541,31 +577,33 @@
       </include>
     </context>
 
-    <context id="crystal" class="no-spell-check">
+    <context id="ruby" class="no-spell-check">
       <include>
         <context ref="def:shebang"/>
         <context ref="def:shell-like-comment"/>
+        <context ref="multiline-comment"/>
         <context ref="here-doc-single-quoted-string"/>
         <context ref="here-doc-double-quoted-string"/>
         <context ref="here-doc-string"/>
         <context ref="here-doc-indented-string"/>
         <context ref="double-quoted-string"/>
+        <context ref="single-quoted-string"/>
         <context ref="backtick-quoted-string"/>
-        <context ref="object-macros"/>
+        <context ref="attribute-definitions"/>
         <context ref="function-definition"/>
         <context ref="type-definition"/>
         <context ref="definitions"/>
         <context ref="module-handlers"/>
         <context ref="keywords"/>
-        <context ref="new-keyword"/>
-        <context ref="nil-value"/>
+        <context ref="builtins"/>
         <context ref="predefined-variables"/>
+        <context ref="global-variables"/>
         <context ref="class-variables"/>
         <context ref="instance-variables"/>
         <context ref="symbols"/>
         <context ref="regexp-variables"/>
         <context ref="constants"/>
-        <context ref="operators"/>
+        <context ref="nil-value"/>
         <context ref="boolean"/>
         <context ref="float"/>
         <context ref="decimal"/>
@@ -579,5 +617,6 @@
         <context ref="interpolated-literal"/>
       </include>
     </context>
+
   </definitions>
 </language>

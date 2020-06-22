@@ -47,9 +47,10 @@
   <!-- Constants -->
   <style name="def:constant"                foreground="yellow"/>
   <style name="def:special-char"            foreground="green"/>
+  <style name="def:special-constant"        foreground="magenta"/>
 
   <!-- Identifiers -->
-  <style name="def:identifier"              foreground="text" italic="true" />
+  <style name="def:identifier"              foreground="orange" italit="true" />
 
   <!-- Statements -->
   <style name="def:statement"               foreground="orange"/>
