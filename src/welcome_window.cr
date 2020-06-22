@@ -63,18 +63,18 @@ class WelcomeWindow < Window
       # Execute this in main thread
       GLib.timeout(0, &->scan_projects_finished)
     end
+    Fiber.yield # Let Crystal start the Fiber before we back to Glib mainloop.
   end
 
-  private def scan_projects_finished : Bool
+  private def scan_projects_finished
     @projects_model.clear
     fill_projects_model
     @rescan_btn.sensitive = true
     @tree_view.sensitive = true
-    @scanning_projects = false
     @spinner.hide
     @tree_view.grab_focus
+    @scanning_projects = false
 
-    Log.info { "FIXME: Remove this message once https://github.com/jhass/crystal-gobject/issues/70 gets fixed." }
     false
   end
 
