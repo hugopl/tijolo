@@ -1,18 +1,18 @@
-version: 1.0
+version: 2.0
 shards:
   compiled_license:
-    github: elorest/compiled_license
+    git: https://github.com/elorest/compiled_license.git
     version: 0.1.3
 
   fzy:
-    github: hugopl/fzy
+    git: https://github.com/hugopl/fzy.git
     version: 0.4.0
 
   gobject:
-    github: jhass/crystal-gobject
-    commit: 2296ff6b1b2222b83e262c38555fc9eaa8f0b847
+    git: https://github.com/jhass/crystal-gobject.git
+    version: 0.8.0+git.commit.2296ff6b1b2222b83e262c38555fc9eaa8f0b847
 
   version_from_shard:
-    github: hugopl/version_from_shard
+    git: https://github.com/hugopl/version_from_shard.git
     version: 1.2.1
 
