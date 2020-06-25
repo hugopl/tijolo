@@ -40,7 +40,8 @@ class Config
 
   property projects = [] of Config::ProjectEntry
   property? scan_projects = true
-  property shortcuts : Hash(String, String)?
+  setter shortcuts : Hash(String, String)?
+  setter language_servers : Hash(String, String)?
 
   def self.instance
     @@instance ||= load_yaml
@@ -80,18 +81,30 @@ class Config
 
   def default_shortcuts : Hash(String, String)
     {
-      "show_locator" => "<Control>P",
-      "new_file"     => "<Control>N",
-      "close_view"   => "<Control>W",
-      "save_view"    => "<Control>S",
-      "save_view_as" => "<Control><Shift>S",
-      "find"         => "<Control>F",
-      "find_next"    => "F3",
-      "find_prev"    => "<Shift>F3",
-      "goto_line"    => "<Control>G",
-      "comment_code" => "<Control>slash",
-      "sort_lines"   => "F9",
-      "fullscreen"   => "F11",
+      "show_locator"    => "<Control>P",
+      "new_file"        => "<Control>N",
+      "close_view"      => "<Control>W",
+      "save_view"       => "<Control>S",
+      "save_view_as"    => "<Control><Shift>S",
+      "find"            => "<Control>F",
+      "find_next"       => "F3",
+      "find_prev"       => "<Shift>F3",
+      "goto_line"       => "<Control>G",
+      "comment_code"    => "<Control>slash",
+      "sort_lines"      => "F9",
+      "fullscreen"      => "F11",
+      "goto_definition" => "F2",
+    }
+  end
+
+  def language_servers
+    @language_servers ||= default_language_servers
+  end
+
+  def default_language_servers
+    {
+      "crystal" => "scry",
+      "ruby"    => "solargraph stdio",
     }
   end
 

@@ -94,7 +94,9 @@ class IdeWindow < Window
                {"goto_line", ->show_goto_line_locator},
                {"comment_code", ->comment_code},
                {"sort_lines", ->sort_lines},
-               {"fullscreen", ->fullscreen} }
+               {"fullscreen", ->fullscreen},
+               {"goto_definition", ->goto_definition},
+    }
     actions.each do |(name, closure)|
       g_action = Gio::SimpleAction.new(name, nil)
       g_action.on_activate { closure.call }
@@ -113,6 +115,11 @@ class IdeWindow < Window
     view = TextView.new(file)
     view.add_view_listener(self)
     @open_files << view
+
+    path = view.file_path
+    view.language.file_opened(path, view.text) if path
+
+    view
   end
 
   private def open_file_from_open_files(view : Gtk::TreeView, path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
@@ -213,7 +220,13 @@ class IdeWindow < Window
 
   def close_current_view
     view = @open_files.close_current_view
-    view.try(&.remove_view_listener(self))
+    if view
+      view.remove_view_listener(self)
+
+      path = view.file_path
+      text_view = view.as?(TextView)
+      text_view.language.file_closed(path) if text_view && path
+    end
   end
 
   def find_in_current_view
@@ -238,6 +251,19 @@ class IdeWindow < Window
   def sort_lines
     view = @open_files.current_view
     view.sort_lines_action if view && view.focus?
+  end
+
+  def goto_definition
+    text_view = @open_files.current_view.as?(TextView)
+    return if text_view.nil? || !text_view.focus?
+
+    path = text_view.file_path
+    return if path.nil?
+
+    text_view.language.goto_definition(path, *text_view.cursor_pos) do |file, line, col|
+      view = open_file(file).as?(TextView)
+      view.goto(line, col) if view
+    end
   end
 
   def view_escape_pressed(_view)
