@@ -24,7 +24,8 @@ class Config
 
     def <=>(other)
       if @last_used == other.last_used
-        @path <=> other.path
+        name_sort = name <=> other.name
+        name_sort.zero? ? @path <=> other.path : name_sort
       elsif @last_used.nil?
         1
       elsif other.last_used.nil?
