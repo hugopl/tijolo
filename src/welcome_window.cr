@@ -35,10 +35,34 @@ class WelcomeWindow < Window
   private def fill_projects_model
     config = Config.instance
     home = Path.home.to_s
+
     config.projects.each do |project|
       project_dir = project.path.sub(home, "~")
-      @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_dir}</small></i>", project.path})
+      last_used = format_last_used(project)
+      @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_dir}#{last_used}</small></i>",
+                                      project.path})
     end
+  end
+
+  private def format_last_used(project)
+    last_used = project.last_used
+    return if last_used.nil?
+
+    ago = Time.local - last_used
+    ago_str = if ago.total_weeks > 1.0
+                "#{ago.total_weeks.to_i} weeks ago"
+              elsif ago.days > 1
+                "#{ago.days} days ago"
+              elsif ago.hours > 1
+                "#{ago.hours} hours ago"
+              elsif ago.minutes > 1
+                "#{ago.minutes} minutes ago"
+              elsif ago.seconds > 1
+                "#{ago.seconds} seconds ago"
+              else
+                "just now"
+              end
+    "  -  last used #{ago_str}."
   end
 
   private def scan_projects(_button = nil)
