@@ -12,7 +12,7 @@ class ConfirmSaveDialog
   MODIFIED_FILES_VIEW_ID  = 1
   MODIFIED_FILES_LABEL    = 2
 
-  def initialize(@views : Array(TextView))
+  def initialize(@views : Array(View))
     builder = builder_for("confirm_save_dialog")
     builder.connect_signals
     @dialog = Gtk::MessageDialog.cast(builder["root"])

@@ -5,13 +5,9 @@ require "./view"
 class TextView < View
   include UiBuilderHelper
 
-  getter? readonly = false
   getter label : String
   getter widget : Gtk::Widget
   getter! search_context : GtkSource::SearchContext?
-
-  @id : String?
-  @@untitled_count = -1
 
   @editor : GtkSource::View
   getter buffer : GtkSource::Buffer
@@ -62,7 +58,7 @@ class TextView < View
   end
 
   def readonly=(value)
-    @readonly = value
+    super
     @editor.editable = !value
     if value
       @file_path_label.text = "#{@label} 🔒"
@@ -77,7 +73,7 @@ class TextView < View
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
-      notify_view_escape_pressed
+      notify_view_escape_pressed(self)
       true
     end
     false

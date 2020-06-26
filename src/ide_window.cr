@@ -128,7 +128,7 @@ class IdeWindow < Window
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)
-    view = @open_files.current_view
+    view = @open_files.current_view.as?(TextView)
     return if view.nil?
 
     view.goto(line, column)
@@ -182,7 +182,7 @@ class IdeWindow < Window
     end
   end
 
-  def save_view(view, path : Path? = nil)
+  def save_view(view : View, path : Path? = nil)
     if view.file_path.nil? || path
       dlg = Gtk::FileChooserDialog.new(title: "Save file", action: :save, local_only: true, modal: true, do_overwrite_confirmation: true)
       dlg.current_name = view.label
@@ -234,7 +234,7 @@ class IdeWindow < Window
     view.sort_lines_action if view && view.focus?
   end
 
-  def text_view_escape_pressed
+  def view_escape_pressed(_view)
     @find_replace.hide
   end
 

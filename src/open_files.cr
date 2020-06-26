@@ -1,5 +1,5 @@
 module OpenFilesListener
-  abstract def open_files_view_revealed(view : TextView, definitive : Bool)
+  abstract def open_files_view_revealed(view : View, definitive : Bool)
 end
 
 class OpenFiles
@@ -10,13 +10,13 @@ class OpenFiles
 
   getter model : Gtk::ListStore
   getter sorted_model : Gtk::TreeModelSort
-  getter files = [] of TextView
+  getter files = [] of View
 
   @stack : Gtk::Stack
 
-  @sorted_files = [] of TextView # Files reverse sorted by last used
-  @sorted_files_index = 0        # Selected file on open files model
-  @last_used_counter = 0         # Counter used to sort open files, last used first
+  @sorted_files = [] of View # Files reverse sorted by last used
+  @sorted_files_index = 0    # Selected file on open files model
+  @last_used_counter = 0     # Counter used to sort open files, last used first
 
   # Open files model columns
   OPEN_FILES_LABEL     = 0
@@ -41,36 +41,36 @@ class OpenFiles
     @stack.add(editor)
   end
 
-  def view(id : UInt64) : TextView?
+  def view(id : UInt64) : View?
     @files.each do |view|
       return view if view.object_id == id
     end
     nil
   end
 
-  def view(file_path : String) : TextView?
+  def view(file_path : String) : View?
     @files.each do |view|
       return view if view.file_path.to_s == file_path
     end
     nil
   end
 
-  def current_view : TextView?
+  def current_view : View?
     view_id = @stack.visible_child_name
     @files.find { |view| view.id == view_id }
   end
 
-  def <<(text_view : TextView) : TextView
-    @stack.add_named(text_view.widget, text_view.id)
+  def <<(view : View) : View
+    @stack.add_named(view.widget, view.id)
 
-    @files << text_view
-    @sorted_files << text_view
+    @files << view
+    @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
-    @model.append({0, 1, 2}, {text_view.label, text_view.object_id, last_used_counter})
+    @model.append({0, 1, 2}, {view.label, view.object_id, last_used_counter})
 
-    reveal_view(text_view, true)
-    text_view.add_view_listener(self)
-    text_view
+    reveal_view(view, true)
+    view.add_view_listener(self)
+    view
   end
 
   def last_used_counter
@@ -86,7 +86,7 @@ class OpenFiles
   end
 
   # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
-  private def reveal_view(view : TextView, definitive : Bool)
+  private def reveal_view(view : View, definitive : Bool)
     @stack.visible_child_name = view.id
     view.grab_focus
 
@@ -114,7 +114,7 @@ class OpenFiles
     reveal_view(@sorted_files[@sorted_files_index], reorder)
   end
 
-  def show_view(view : TextView)
+  def show_view(view : View)
     idx = @sorted_files.index(view)
     if idx.nil?
       Log.warn { "Unknow view: #{view.label}" }
@@ -125,7 +125,7 @@ class OpenFiles
     reveal_view(view, true)
   end
 
-  def close_current_view : TextView?
+  def close_current_view : View?
     return if @files.empty?
 
     view_id = @stack.visible_child_name
@@ -147,7 +147,7 @@ class OpenFiles
     view
   end
 
-  def text_view_file_path_changed(view)
+  def view_file_path_changed(view)
     row = files.index(view)
     @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?
   end
