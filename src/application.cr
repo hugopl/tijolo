@@ -96,7 +96,7 @@ class Application
     ide_window.open_file(project_path) unless Dir.exists?(project_path)
 
     header_bar.title = project.name
-    header_bar.subtitle = Path.new(project_path).expand.relative_to(Path.home).to_s
+    header_bar.subtitle = project.root.relative_to(Path.home).to_s
 
     child = main_window.child
     main_window.remove(child) unless child.nil?
