@@ -57,8 +57,8 @@ class IdeWindow < Window
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_delete_event(&->about_to_quit(Gtk::Widget, Gdk::Event))
 
-    @open_files.add_listener(self)
-    @locator.add_listener(self)
+    @open_files.add_open_files_listener(self)
+    @locator.add_locator_listener(self)
 
     setup_actions
   end
@@ -106,7 +106,7 @@ class IdeWindow < Window
 
   private def create_text_view(file : String? = nil) : TextView
     view = TextView.new(file)
-    view.add_listener(self)
+    view.add_text_view_listener(self)
     @open_files << view
   end
 
@@ -207,7 +207,7 @@ class IdeWindow < Window
 
   def close_current_view
     view = @open_files.close_current_view
-    view.try(&.remove_listener(self))
+    view.try(&.remove_text_view_listener(self))
   end
 
   def find_in_current_view

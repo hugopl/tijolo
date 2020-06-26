@@ -29,7 +29,7 @@ describe Locator do
 
     locator = TestLocator.new(project)
     listener = TestLocatorListener.new
-    locator.add_listener(listener)
+    locator.add_locator_listener(listener)
     locator.text = "locator"
 
     locator.locator_results.row_activated(Gtk::TreePath.new_first, Gtk::TreeViewColumn.new)
@@ -41,7 +41,7 @@ describe Locator do
     project = Project.new(".")
     locator = TestLocator.new(project)
     listener = TestLocatorListener.new
-    locator.add_listener(listener)
+    locator.add_locator_listener(listener)
     locator.text = "*&*&%*&%*&"
 
     locator.locator_results.row_activated(Gtk::TreePath.new_first, Gtk::TreeViewColumn.new)

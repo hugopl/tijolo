@@ -19,7 +19,7 @@ class FileLocator < LocatorProvider
                         else
                           Fzy::PreparedHaystack.new([] of String)
                         end
-    @project.add_listener(self)
+    @project.add_project_listener(self)
   end
 
   def project_file_added(_path : Path)

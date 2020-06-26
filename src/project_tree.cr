@@ -269,7 +269,7 @@ class ProjectTree
 
   def initialize(@project : Project)
     @root = Root.new(@project)
-    @project.add_listener(self)
+    @project.add_project_listener(self)
   end
 
   def tree_path(file : String)
