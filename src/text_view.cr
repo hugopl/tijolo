@@ -1,21 +1,10 @@
 require "./language_manager"
 require "./ui_builder_helper"
-require "./observable"
+require "./view"
 
-module TextViewListener
-  def text_view_escape_pressed
-  end
-
-  def text_view_file_path_changed(view : TextView)
-  end
-end
-
-class TextView
+class TextView < View
   include UiBuilderHelper
 
-  observable_by TextViewListener
-
-  getter file_path : Path?
   getter? readonly = false
   getter label : String
   getter widget : Gtk::Widget
@@ -36,6 +25,7 @@ class TextView
   delegate focus?, to: @editor
 
   def initialize(file_path : String? = nil)
+    super
     builder = builder_for("text_view")
     @widget = Gtk::Widget.cast(builder["root"])
     @widget.ref
@@ -46,29 +36,12 @@ class TextView
     @line_column = Gtk::Label.cast(builder["line_column"])
     @file_path_label = Gtk::Label.cast(builder["file_path"])
 
-    @file_path = Path.new(file_path).expand unless file_path.nil?
-    @label = @file_path.nil? ? untitled_name : File.basename(@file_path.not_nil!)
-
     setup_editor
     update_header
   end
 
-  private def untitled_name
-    @@untitled_count += 1
-    if @@untitled_count.zero?
-      "Untitled"
-    else
-      "Untitled #{@@untitled_count}"
-    end
-  end
-
-  def file_path=(file_path : Path) : Nil
-    @file_path = file_path
-    self.label = File.basename(file_path.not_nil!)
-    notify_text_view_file_path_changed(self)
-  end
-
-  private def label=(@label : String)
+  def label=(label : String)
+    super
     update_header
   end
 
@@ -104,14 +77,10 @@ class TextView
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
-      notify_text_view_escape_pressed
+      notify_view_escape_pressed
       true
     end
     false
-  end
-
-  def id : String
-    @id ||= object_id.to_s
   end
 
   def save

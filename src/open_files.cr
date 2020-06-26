@@ -4,7 +4,7 @@ end
 
 class OpenFiles
   include UiBuilderHelper
-  include TextViewListener
+  include ViewListener
 
   observable_by OpenFilesListener
 
@@ -69,7 +69,7 @@ class OpenFiles
     @model.append({0, 1, 2}, {text_view.label, text_view.object_id, last_used_counter})
 
     reveal_view(text_view, true)
-    text_view.add_text_view_listener(self)
+    text_view.add_view_listener(self)
     text_view
   end
 
@@ -134,7 +134,7 @@ class OpenFiles
     return if idx.nil?
 
     view = @files[idx]
-    view.remove_text_view_listener(self)
+    view.remove_view_listener(self)
     @files.delete(view)
     @sorted_files.delete(view)
     @sorted_files_index = @sorted_files.size - 1

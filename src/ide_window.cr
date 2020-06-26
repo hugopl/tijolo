@@ -10,7 +10,7 @@ require "./project_tree"
 require "./text_view"
 
 class IdeWindow < Window
-  include TextViewListener
+  include ViewListener
   include OpenFilesListener
   include LocatorListener
 
@@ -106,7 +106,7 @@ class IdeWindow < Window
 
   private def create_text_view(file : String? = nil) : TextView
     view = TextView.new(file)
-    view.add_text_view_listener(self)
+    view.add_view_listener(self)
     @open_files << view
   end
 
@@ -207,7 +207,7 @@ class IdeWindow < Window
 
   def close_current_view
     view = @open_files.close_current_view
-    view.try(&.remove_text_view_listener(self))
+    view.try(&.remove_view_listener(self))
   end
 
   def find_in_current_view
