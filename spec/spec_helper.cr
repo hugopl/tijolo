@@ -23,9 +23,7 @@ class Config
   @@load_yaml : Config?
 
   def self.load_yaml
-    @@load_yaml ||= Config.new.tap do |config|
-      config.style_scheme = "solarized-light"
-    end
+    @@load_yaml ||= Config.new
   end
 end
 
