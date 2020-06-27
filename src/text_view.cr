@@ -122,8 +122,8 @@ class TextView < View
   end
 
   private def mimetype(file_name, file_contents)
-    contents, uncertain = Gio.content_type_guess(file_name, file_contents)
-    uncertain ? nil : contents
+    contents, _uncertain = Gio.content_type_guess(file_name, file_contents)
+    contents
   end
 
   def cursor_pos
