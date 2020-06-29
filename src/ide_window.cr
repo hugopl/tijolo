@@ -104,6 +104,11 @@ class IdeWindow < Window
     end
   end
 
+  private def create_view(file : String) : View
+    # TODO: check file mime type and create the right view.
+    create_text_view(file)
+  end
+
   private def create_text_view(file : String? = nil) : TextView
     view = TextView.new(file)
     view.add_view_listener(self)
@@ -140,14 +145,15 @@ class IdeWindow < Window
     @locator.show(false)
   end
 
-  def open_file(file : String)
-    text_view = @open_files.view(file)
-    if text_view.nil?
-      text_view = create_text_view(file)
+  def open_file(file : String) : View?
+    view = @open_files.view(file)
+    if view.nil?
+      view = create_view(file)
     else
-      @open_files.show_view(text_view)
+      @open_files.show_view(view)
     end
-    text_view.grab_focus
+    view.grab_focus
+    view
   rescue e : IO::Error
     application.error(e)
   end

@@ -119,7 +119,7 @@ class Application
     abort(e.message)
   end
 
-  def error(exception : Exception)
+  def error(exception : Exception) : Nil
     message = exception.message || exception.class.name
     Log.warn { message }
     dialog = Gtk::MessageDialog.new(text: message, message_type: :error, buttons: :ok)
