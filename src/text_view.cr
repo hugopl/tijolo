@@ -13,7 +13,7 @@ class TextView < View
   getter buffer : GtkSource::Buffer
   @file_path_label : Gtk::Label
 
-  getter language : Language?
+  getter language : Language
 
   Log = ::Log.for("TextView")
 
@@ -32,6 +32,7 @@ class TextView < View
     @line_column = Gtk::Label.cast(builder["line_column"])
     @file_path_label = Gtk::Label.cast(builder["file_path"])
 
+    @language = Language.new
     setup_editor
     update_header
   end
@@ -102,8 +103,8 @@ class TextView < View
       @buffer.set_text(text, -1)
       @buffer.modified = false
 
-      @language = language = LanguageManager.guess_language(@label, mimetype(@label, text))
-      @buffer.language = language.gtk_language unless language.nil?
+      @language = LanguageManager.guess_language(@label, mimetype(@label, text))
+      @buffer.language = @language.gtk_language
 
       self.readonly = !File.writable?(file_path)
     else
@@ -202,7 +203,7 @@ class TextView < View
   end
 
   def comment_action
-    return if readonly? || @language.nil?
+    return if readonly? || @language.none?
 
     @buffer.begin_user_action
     if @buffer.has_selection
@@ -214,7 +215,7 @@ class TextView < View
   end
 
   private def comment_regex
-    @comment_regex ||= /\A\s*(#{Regex.escape(@language.not_nil!.line_comment)}\s?)/
+    @comment_regex ||= /\A\s*(#{Regex.escape(@language.line_comment)}\s?)/
   end
 
   private def comment_current_line_action
@@ -248,7 +249,7 @@ class TextView < View
   end
 
   private def comment_line(iter)
-    line_comment = language.not_nil!.line_comment
+    line_comment = language.line_comment
     @buffer.insert(iter, "#{line_comment} ")
   end
 
