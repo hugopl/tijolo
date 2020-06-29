@@ -29,6 +29,15 @@ class Application
 
     location = options[:location]
     @project_location = Path.new(location).expand.to_s if location
+
+    log_memory_usage unless options[:gc_enabled]
+  end
+
+  private def log_memory_usage
+    GLib.timeout(60) do # each 60 seconds...
+      Log.info { "memory usage: #{GC.stats.heap_size.humanize_bytes}" }
+      true
+    end
   end
 
   private def load_scheme : GtkSource::StyleScheme
