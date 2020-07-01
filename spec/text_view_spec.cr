@@ -21,6 +21,44 @@ describe TextView do
     TextView.new.modified?.should eq(true)
   end
 
+  context "when stripping trailing whitespaces" do
+    it "strips all trailing whitespaces" do
+      text = "Hey\n   \n Ho! \r\nLet's Go   \n"
+      tempfile = File.tempfile("foo")
+      tempfile.print(text)
+      tempfile.flush
+
+      view = TextView.new(tempfile.path.to_s)
+      view.goto(1, 2)
+      view.save
+      view.text.should eq("Hey\n\n Ho!\r\nLet's Go\n")
+      view.cursor_pos.should eq({1,0})
+
+      text = "Hey\n   \n Ho! \r\nLet's Go  "
+      tempfile = File.tempfile("foo")
+      tempfile.print(text)
+      tempfile.flush
+      view = TextView.new(tempfile.path.to_s)
+      view.save
+      view.text.should eq("Hey\n\n Ho!\r\nLet's Go")
+    end
+
+    it "strips nothing if configured to" do
+      Config.instance.trailing_whitespace = false
+      text = "Hey\n   \n Ho! \r\nLet's Go   \n"
+      tempfile = File.tempfile("foo")
+      tempfile.print(text)
+      tempfile.flush
+
+      view = TextView.new(tempfile.path.to_s)
+      view.goto(1, 2)
+      view.save
+      view.text.should eq(text)
+    ensure
+      Config.instance.trailing_whitespace = true
+    end
+  end
+
   context "when commenting current line" do
     it "simple generic case works" do
       view = create_text_view(SAMPLE_CODE)

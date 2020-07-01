@@ -42,6 +42,7 @@ class Config
   property? scan_projects = true
   setter shortcuts : Hash(String, String)?
   setter language_servers : Hash(String, String)?
+  property? trailing_whitespace = true
 
   def self.instance
     @@instance ||= load_yaml

@@ -136,6 +136,10 @@ module Gtk
       text(start_iter, end_iter)
     end
 
+    def text=(text : String)
+      set_text(text, text.bytesize)
+    end
+
     def each_line(from, to, &block) : Nil
       return if to < from
 

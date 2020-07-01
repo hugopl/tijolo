@@ -84,12 +84,32 @@ class TextView < View
     return if @readonly
 
     file_path = @file_path
-    if file_path.nil?
-      Log.warn { "Attempt to save a file without a name" }
-      return
-    end
+    raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
+
+    remove_all_trailing_spaces! if Config.instance.trailing_whitespace?
     File.write(file_path, text)
     @buffer.modified = false
+  end
+
+  private def remove_all_trailing_spaces!
+    line, col = cursor_pos
+    original_text = self.text
+    text_modified = false
+    start_iter = Gtk::TextIter.new
+    end_iter = Gtk::TextIter.new
+
+    @buffer.begin_user_action
+    original_text.split("\n").each_with_index do |line, line_index|
+      next if line.empty? || !line[-1].whitespace?
+
+      match = line.match(/([ \t]+)\r?\z/)
+      next if match.nil?
+
+      @buffer.iter_at_line_offset(start_iter, line_index, match.begin(1).not_nil!)
+      @buffer.iter_at_line_offset(end_iter, line_index, match.end(1).not_nil!)
+      @buffer.delete(start_iter, end_iter)
+    end
+    @buffer.end_user_action
   end
 
   private def setup_editor
@@ -100,7 +120,7 @@ class TextView < View
     file_path = @file_path
     if file_path
       text = File.read(file_path)
-      @buffer.set_text(text, -1)
+      @buffer.text = text
       @buffer.modified = false
 
       @language = LanguageManager.guess_language(@label, mimetype(@label, text))
