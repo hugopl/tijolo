@@ -14,7 +14,7 @@ shards:
 
   lsp:
     git: https://github.com/hugopl/lsp.git
-    version: 0.1.0+git.commit.194f9bc354724f3d3c6754f66d0fa1f209f24419
+    version: 0.1.0+git.commit.587da6ccfce553524669821be5402e741b19af34
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git

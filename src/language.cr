@@ -48,15 +48,29 @@ class Language
   def file_opened(path : Path, text : String)
     return if lsp_disabled?
 
-    params = Protocol::DidOpenTextDocumentParams.new(uri: path.to_uri.to_s, language_id: @id, version: 0, text: text)
-    lsp_client.notify("didOpen", params)
+    params = Protocol::DidOpenTextDocumentParams.new(uri: uri(path), language_id: @id, version: 1, text: text)
+    lsp_client.notify("textDocument/didOpen", params)
   end
 
   def file_closed(path : Path)
     return if lsp_disabled?
 
     params = Protocol::DidCloseTextDocumentParams.new(uri: uri(path))
-    lsp_client.notify("didClose", params)
+    lsp_client.notify("textDocument/didClose", params)
+  end
+
+  def file_changed_by_insertion(path : Path, version : Int32, line : Int32, col : Int32, text : String)
+    return if lsp_disabled?
+
+    params = Protocol::DidChangeTextDocumentParams.new(uri(path), version, line, col, text)
+    lsp_client.notify("textDocument/didChange", params)
+  end
+
+  def file_changed_by_deletion(path : Path, version : Int32, start_line, start_col, end_line, end_col)
+    return if lsp_disabled?
+
+    params = Protocol::DidChangeTextDocumentParams.new(uri(path), version, start_line, start_col, end_line, end_col)
+    lsp_client.notify("textDocument/didChange", params)
   end
 
   def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))

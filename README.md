@@ -24,7 +24,7 @@ Lightweight, keyboard-oriented IDE for the masses.
  - [ ] Custom language identers.
  - [ ] Easy Split Screen inspired by Tilix.
  - [ ] Language Server support for auto completion.
- - [ ] Language Server Protocol support for class/method navigation.
+ - [x] Language Server Protocol support for class/method navigation.
  - [ ] Language Server Protocol support for class/method fuzzy search.
  - [ ] Basic git commands support (log/blame).
 

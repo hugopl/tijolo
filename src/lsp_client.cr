@@ -11,7 +11,7 @@ class LspClient
 
   @server : Process
   # Next request ID
-  @next_id = -1
+  @next_id = 0
   @response_handlers = Hash(Int32, Proc(ResponseMessage, Nil)).new
 
   def initialize(command : String)
@@ -30,39 +30,143 @@ class LspClient
   end
 
   def request(method : String, params : RequestType, &block : Proc(ResponseMessage, Nil))
-    return unless initialized? || params.is_a?(InitializeParams)
+    return unless initialized?
 
     id = next_id
+    payload = RequestMessage.new(id, method, params).to_json
+    request(id, payload, &block)
+  end
+
+  private def request(id : Int32, payload : String, &block : Proc(ResponseMessage, Nil))
     @response_handlers[id] = block
-    send(RequestMessage.new(id, method, params))
+    send(payload)
   end
 
   def notify(method : String, params : NotificationType)
     return unless initialized?
 
-    send(NotificationMessage.new(method, params))
+    payload = NotificationMessage.new(method, params).to_json
+    send(payload)
   end
 
   private def initialize_request(&block : ResponseCallback)
-    capabilities = ClientCapabilities.new
-    capabilities.text_document = TextDocumentClientCapabilities.new(definition: DefinitionClientCapabilities.new(false, true))
+    request(0, initialize_request_payload, &block)
+  end
 
-    params = InitializeParams.new(process_id: Process.pid,
-      root_uri: "file://#{Dir.current}",
-      client_info: ClientInfo.new("tijolo", VERSION),
-      capabilities: capabilities)
-
-    request("initialize", params, &block)
+  private def initialize_request_payload : String
+    root_path = Dir.current
+    root_uri = "file://#{root_path}"
+    {
+      "jsonrpc" => "2.0",
+      "id"      => 0,
+      "method"  => "initialize",
+      "params"  => {
+        "processId"    => Process.pid,
+        "rootPath"     => root_path,
+        "rootUri"      => root_uri,
+        "capabilities" => {
+          "workspace" => {
+            "applyEdit"     => true,
+            "workspaceEdit" => {
+              "documentChanges" => true,
+            },
+            "didChangeConfiguration" => {
+              "dynamicRegistration" => false,
+            },
+            "didChangeWatchedFiles" => {
+              "dynamicRegistration" => false,
+            },
+            #   "symbol" => {
+            #     "dynamicRegistration" => true,
+            #     "symbolKind"          => {"valueSet" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]},
+            #   },
+            #   "executeCommand"   => {"dynamicRegistration" => true},
+            #   "configuration"    => true,
+            "workspaceFolders" => true,
+          },
+          "textDocument" => {
+            # "publishDiagnostics" => {
+            #   "relatedInformation" => true,
+            # },
+            "synchronization" => {
+              "dynamicRegistration" => true,
+              "willSave"            => true,
+              "willSaveWaitUntil"   => false,
+              "didSave"             => true,
+            },
+            # "completion" => {
+            #   "dynamicRegistration" => true,
+            #   "contextSupport"      => true,
+            #   "completionItem"      => {
+            #     "snippetSupport"          => true,
+            #     "commitCharactersSupport" => true,
+            #     "documentationFormat"     => ["markdown", "plaintext"],
+            #     "deprecatedSupport"       => true,
+            #     "preselectSupport"        => true,
+            #   },
+            #   "completionItemKind" => {
+            #     "valueSet" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+            #   },
+            # },
+            # "hover" => {
+            #   "dynamicRegistration" => true,
+            #   "contentFormat"       => ["markdown", "plaintext"],
+            # },
+            # "signatureHelp" => {
+            #   "dynamicRegistration"  => true,
+            #   "signatureInformation" => {
+            #     "documentationFormat" => ["markdown", "plaintext"],
+            #   },
+            # },
+            "definition" => {
+              "dynamicRegistration" => false,
+            },
+            # "references" => {
+            #   "dynamicRegistration" => true,
+            # },
+            "documentHighlight" => {
+              "dynamicRegistration" => false,
+            },
+            # "documentSymbol" => {
+            #   "dynamicRegistration" => true,
+            #   "symbolKind"          => {
+            #     "valueSet" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+            #   },
+            #   "hierarchicalDocumentSymbolSupport" => true,
+            # },
+            # "codeAction" => {
+            #   "dynamicRegistration"      => true,
+            #   "codeActionLiteralSupport" => {
+            #     "codeActionKind" => {
+            #       "valueSet" => ["", "quickfix", "refactor", "refactor.extract", "refactor.inline", "refactor.rewrite", "source", "source.organizeImports"],
+            #     },
+            #   },
+            # },
+            # "codeLens"         => {"dynamicRegistration" => true},
+            # "formatting"       => {"dynamicRegistration" => true},
+            # "rangeFormatting"  => {"dynamicRegistration" => true},
+            # "onTypeFormatting" => {"dynamicRegistration" => true},
+            # "rename"           => {"dynamicRegistration" => true},
+            # "documentLink"     => {"dynamicRegistration" => true},
+            # "typeDefinition"   => {"dynamicRegistration" => true},
+            # "implementation"   => {"dynamicRegistration" => true},
+            # "colorProvider"    => {"dynamicRegistration" => true},
+            # "foldingRange"     => {"dynamicRegistration" => true, "rangeLimit" => 5000, "lineFoldingOnly" => true},
+          },
+        },
+        "trace"            => "off",
+        "workspaceFolders" => [{"uri" => root_uri, "name" => "project"}],
+      },
+    }.to_json
   end
 
   private def next_id
     @next_id += 1
   end
 
-  private def send(message : RequestMessage | NotificationMessage) : Nil
+  private def send(payload : String) : Nil
     return Log.fatal { "Server died" } unless @server.exists?
 
-    payload = message.to_json
     output = @server.input
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 

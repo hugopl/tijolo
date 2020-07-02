@@ -11,6 +11,7 @@ class TextView < View
 
   @editor : GtkSource::View
   getter buffer : GtkSource::Buffer
+  @version = 1
   @file_path_label : Gtk::Label
 
   getter language : Language
@@ -132,10 +133,31 @@ class TextView < View
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
+    @buffer.on_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.on_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
     @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
     @buffer.place_cursor(0)
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  private def next_version
+    @version += 1
+  end
+
+  private def sync_lsp_on_insert(buffer, start_iter, text, _len)
+    file_path = @file_path
+    return if file_path.nil?
+
+    language.file_changed_by_insertion(file_path, next_version, start_iter.line, start_iter.line_offset, text)
+  end
+
+  private def sync_lsp_on_delete(buffer, start_iter, end_iter)
+    file_path = @file_path
+    return if file_path.nil?
+
+    language.file_changed_by_deletion(file_path, next_version,
+      start_iter.line, start_iter.line_offset, end_iter.line, end_iter.line_offset)
   end
 
   private def update_header(_buffer = nil)
