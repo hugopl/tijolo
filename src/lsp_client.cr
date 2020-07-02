@@ -20,6 +20,7 @@ class LspClient
 
     initialize_request do |_response|
       @initialized = true
+      notify("initialized", VoidParams.new)
     end
 
     spawn do
