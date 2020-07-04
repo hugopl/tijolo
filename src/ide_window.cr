@@ -261,6 +261,8 @@ class IdeWindow < Window
       view = open_file(file).as?(TextView)
       view.goto(line, col) if view
     end
+  rescue e : AppError
+    application.error(e)
   end
 
   def view_escape_pressed(_view)

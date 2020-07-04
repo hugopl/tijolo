@@ -20,7 +20,9 @@ class LspClient
   # Next request ID
   @next_id = 0
   @response_handlers = Hash(Int32, Proc(ResponseMessage, Nil)).new
-  @server_capabilities = ServerCapabilities.new
+  getter server_capabilities = ServerCapabilities.new
+
+  delegate definition_provider?, to: @server_capabilities
 
   def initialize(command : String)
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)

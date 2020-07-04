@@ -30,6 +30,10 @@ class Language
     @lsp_client.nil?
   end
 
+  private def require_lsp!
+    raise AppError.new("This feature requires a Language Server, but #{@id} doesn't seems to have one.") if lsp_disabled?
+  end
+
   def gtk_language : GtkSource::Language?
     return if none?
 
@@ -107,7 +111,9 @@ class Language
   end
 
   def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))
-    return if lsp_disabled?
+    require_lsp!
+    return unless lsp_client.initialized?
+    raise AppError.new("#{@id} Language Server doesn't support Go To Definition") unless lsp_client.definition_provider?
 
     params = Protocol::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
     lsp_client.request("textDocument/definition", params) do |response|
