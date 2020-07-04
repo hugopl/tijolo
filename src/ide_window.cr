@@ -116,9 +116,7 @@ class IdeWindow < Window
     view.add_view_listener(self)
     @open_files << view
 
-    path = view.file_path
-    view.language.file_opened(path, view.text) if path
-
+    view.language.file_opened(view)
     view
   end
 
@@ -223,9 +221,8 @@ class IdeWindow < Window
     if view
       view.remove_view_listener(self)
 
-      path = view.file_path
       text_view = view.as?(TextView)
-      text_view.language.file_closed(path) if text_view && path
+      text_view.language.file_closed(text_view) if text_view
     end
   end
 

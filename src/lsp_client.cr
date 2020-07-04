@@ -1,7 +1,14 @@
 require "lsp"
+require "./observable"
+
+module LspClientListener
+  abstract def lsp_client_initialized
+end
 
 class LspClient
   include LSP::Protocol
+
+  observable_by LspClientListener
 
   alias ResponseCallback = Proc(ResponseMessage, Nil)
 
@@ -13,14 +20,20 @@ class LspClient
   # Next request ID
   @next_id = 0
   @response_handlers = Hash(Int32, Proc(ResponseMessage, Nil)).new
+  @server_capabilities = ServerCapabilities.new
 
   def initialize(command : String)
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
     Log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
 
-    initialize_request do |_response|
+    initialize_request do |response|
       @initialized = true
+
+      result = response.result.as?(InitializeResult)
+      @server_capabilities = result.capabilities if result
+
       notify("initialized", VoidParams.new)
+      notify_lsp_client_initialized
     end
 
     spawn do

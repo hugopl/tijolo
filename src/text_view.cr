@@ -11,7 +11,7 @@ class TextView < View
 
   @editor : GtkSource::View
   getter buffer : GtkSource::Buffer
-  @version = 1
+  getter version = 1
   @file_path_label : Gtk::Label
 
   getter language : Language

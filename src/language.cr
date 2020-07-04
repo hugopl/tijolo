@@ -2,13 +2,15 @@ require "./lsp_client.cr"
 
 class Language
   include LSP
+  include LspClientListener
+
+  NONE = "none"
 
   getter line_comment : String
   getter id : String
-
   getter! lsp_client : LspClient?
 
-  NONE = "none"
+  @views_to_open : Array(TextView)?
 
   def initialize
     @id = NONE
@@ -35,10 +37,22 @@ class Language
   end
 
   def start_lsp(cmd)
-    LspClient.new(cmd)
+    lsp = LspClient.new(cmd)
+    lsp.add_lsp_client_listener(self)
+    lsp
   rescue
     Log.fatal { "Failed to start language server for #{@id}: #{cmd}" }
     nil
+  end
+
+  def lsp_client_initialized
+    views_to_open = @views_to_open
+    return if views_to_open.nil?
+
+    views_to_open.each do |view|
+      file_opened(view)
+    end
+    @views_to_open = nil
   end
 
   def shutdown
@@ -49,18 +63,33 @@ class Language
     "file://#{path}"
   end
 
-  def file_opened(path : Path, text : String)
-    return if lsp_disabled?
+  def file_opened(text_view : TextView)
+    return if lsp_disabled? || text_view.file_path.nil?
 
-    params = Protocol::DidOpenTextDocumentParams.new(uri: uri(path), language_id: @id, version: 1, text: text)
-    lsp_client.notify("textDocument/didOpen", params)
+    if lsp_client.initialized?
+      path = text_view.file_path.not_nil!
+      params = Protocol::DidOpenTextDocumentParams.new(
+        uri: uri(path),
+        language_id: @id,
+        version: text_view.version,
+        text: text_view.text)
+      lsp_client.notify("textDocument/didOpen", params)
+    else
+      @views_to_open ||= Array(TextView).new
+      @views_to_open.not_nil! << text_view
+    end
   end
 
-  def file_closed(path : Path)
-    return if lsp_disabled?
+  def file_closed(text_view : TextView)
+    return if lsp_disabled? || text_view.file_path.nil?
 
-    params = Protocol::DidCloseTextDocumentParams.new(uri: uri(path))
-    lsp_client.notify("textDocument/didClose", params)
+    if lsp_client.initialized?
+      path = text_view.file_path.not_nil!
+      params = Protocol::DidCloseTextDocumentParams.new(uri: uri(path))
+      lsp_client.notify("textDocument/didClose", params)
+    else
+      @views_to_open.try(&.delete(text_view))
+    end
   end
 
   def file_changed_by_insertion(path : Path, version : Int32, line : Int32, col : Int32, text : String)
