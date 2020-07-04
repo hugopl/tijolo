@@ -280,14 +280,15 @@ class IdeWindow < Window
   end
 
   def about_to_quit(_widget, event) : Bool
-    return false if @open_files.all_saved?
+    unless @open_files.all_saved?
+      dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
+      return true unless dlg.run
 
-    dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
-    return true unless dlg.run
-
-    dlg.selected_views.each do |view|
-      save_view(view)
+      dlg.selected_views.each do |view|
+        save_view(view)
+      end
     end
+    LanguageManager.shutdown
     false
   end
 end

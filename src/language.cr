@@ -41,6 +41,10 @@ class Language
     nil
   end
 
+  def shutdown
+    lsp_client.shutdown unless lsp_disabled?
+  end
+
   private def uri(path : Path)
     "file://#{path}"
   end

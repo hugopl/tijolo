@@ -14,6 +14,10 @@ class LanguageManager
     @@languages[id]? || create_lang(gtk_lang)
   end
 
+  def self.shutdown
+    @@languages.each_value(&.shutdown)
+  end
+
   private def self.create_lang(gtk_lang)
     lang = if gtk_lang.nil?
              Language.new(Language::NONE, "")

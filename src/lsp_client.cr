@@ -173,6 +173,14 @@ class LspClient
     Log.info { "> #{payload}" }
   end
 
+  def shutdown
+    # FIXME: Need to block the thread to give time to the server to answer before we quit, breaking the server pipe.
+    #        The way it's written now, the exit notify is never sent.
+    request("shutdown", nil) do
+      notify("exit", nil)
+    end
+  end
+
   # All code bellow runs in a separete thread
   ###########################################
 
