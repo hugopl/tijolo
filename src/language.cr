@@ -68,7 +68,7 @@ class Language
   end
 
   def file_opened(text_view : TextView)
-    return if lsp_disabled? || text_view.file_path.nil?
+    return if lsp_disabled? || text_view.file_path.nil? || !lsp_client.server_capabilities.open_close?
 
     if lsp_client.initialized?
       path = text_view.file_path.not_nil!
@@ -85,7 +85,7 @@ class Language
   end
 
   def file_closed(text_view : TextView)
-    return if lsp_disabled? || text_view.file_path.nil?
+    return if lsp_disabled? || text_view.file_path.nil? || !lsp_client.server_capabilities.open_close?
 
     if lsp_client.initialized?
       path = text_view.file_path.not_nil!
