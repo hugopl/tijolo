@@ -96,17 +96,37 @@ class Language
     end
   end
 
-  def file_changed_by_insertion(path : Path, version : Int32, line : Int32, col : Int32, text : String)
-    return if lsp_disabled?
+  def file_changed_by_insertion(text_view : TextView, line : Int32, col : Int32, text : String)
+    return if lsp_disabled? || text_view.file_path.nil?
 
-    params = Protocol::DidChangeTextDocumentParams.new(uri(path), version, line, col, text)
-    lsp_client.notify("textDocument/didChange", params)
+    document_sync =lsp_client.server_capabilities.text_document_sync
+    if document_sync.full?
+      file_changed_full_sync(text_view)
+    elsif document_sync.incremental?
+      uri = uri(text_view.file_path.not_nil!)
+      params = Protocol::DidChangeTextDocumentParams.new(uri, text_view.next_version, line, col, text)
+      lsp_client.notify("textDocument/didChange", params)
+    end
   end
 
-  def file_changed_by_deletion(path : Path, version : Int32, start_line, start_col, end_line, end_col)
-    return if lsp_disabled?
+  def file_changed_by_deletion(text_view : TextView, start_line, start_col, end_line, end_col)
+    return if lsp_disabled? || text_view.file_path.nil?
 
-    params = Protocol::DidChangeTextDocumentParams.new(uri(path), version, start_line, start_col, end_line, end_col)
+    document_sync =lsp_client.server_capabilities.text_document_sync
+    if document_sync.full?
+      file_changed_full_sync(text_view)
+    elsif document_sync.incremental?
+      uri = uri(text_view.file_path.not_nil!)
+      version = text_view.next_version
+      params = Protocol::DidChangeTextDocumentParams.new(uri, version, start_line, start_col, end_line, end_col)
+      lsp_client.notify("textDocument/didChange", params)
+    end
+  end
+
+  private def file_changed_full_sync(text_view : TextView)
+    uri = uri(text_view.file_path.not_nil!)
+    version = text_view.next_version
+    params = Protocol::DidChangeTextDocumentParams.new(uri, version, text_view.text)
     lsp_client.notify("textDocument/didChange", params)
   end
 
