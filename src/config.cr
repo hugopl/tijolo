@@ -84,6 +84,7 @@ class Config
     {
       "show_locator"    => "<Control>P",
       "new_file"        => "<Control>N",
+      "open_file"       => "<Control>O",
       "close_view"      => "<Control>W",
       "save_view"       => "<Control>S",
       "save_view_as"    => "<Control><Shift>S",

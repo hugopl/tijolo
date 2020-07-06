@@ -85,6 +85,7 @@ class IdeWindow < Window
     config = Config.instance
     actions = { {"show_locator", ->{ @locator.show(true) }},
                {"new_file", ->create_text_view},
+               {"open_file", ->open_file_dlg},
                {"close_view", ->close_current_view},
                {"save_view", ->save_current_view},
                {"save_view_as", ->save_current_view_as},
@@ -214,6 +215,20 @@ class IdeWindow < Window
     view.save unless view.file_path.nil?
   rescue e : IO::Error
     application.error(e)
+  end
+
+  private def open_file_dlg
+    dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true)
+    dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
+    dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
+    dlg.current_folder_uri = @project.root.to_uri.to_s
+
+    if dlg.run == Gtk::ResponseType::ACCEPT.value
+      uri = dlg.uri
+      open_file(URI.parse(uri).full_path) if uri
+    end
+  ensure
+    dlg.try(&.destroy)
   end
 
   def close_current_view
