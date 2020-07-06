@@ -21,6 +21,26 @@ describe TextView do
     TextView.new.modified?.should eq(true)
   end
 
+  context "when inserting around selection" do
+    it "insert chars" do
+      view = TextView.new
+      view.text = "123456"
+      view.buffer.select_range(2, 4)
+
+      view.insert_char_around_selection(Gdk::KEY_parenleft).should eq(true)
+      view.text.should eq("12(34)56")
+      view.selected_text.should eq("34")
+
+      view.insert_char_around_selection(Gdk::KEY_bracketleft).should eq(true)
+      view.text.should eq("12([34])56")
+      view.selected_text.should eq("34")
+
+      view.insert_char_around_selection(Gdk::KEY_braceleft).should eq(true)
+      view.text.should eq("12([{34}])56")
+      view.selected_text.should eq("34")
+    end
+  end
+
   context "when stripping trailing whitespaces" do
     it "strips all trailing whitespaces" do
       text = "Hey\n   \n Ho! \r\nLet's Go   \n"

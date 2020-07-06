@@ -160,6 +160,10 @@ module Gtk
       select_range(iter_at_line(from), iter_at_line(to))
     end
 
+    def select_range(start_offset : Int32, end_offset : Int32)
+      select_range(iter_at_offset(start_offset), iter_at_offset(end_offset))
+    end
+
     def selection_bounds
       start_iter = Gtk::TextIter.new
       end_iter = Gtk::TextIter.new

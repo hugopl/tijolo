@@ -76,9 +76,34 @@ class TextView < View
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
       notify_view_escape_pressed(self)
-      true
+      return true
+    elsif event.keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
+      return insert_char_around_selection(event.keyval)
     end
-    false
+    return false
+  end
+
+  def insert_char_around_selection(keyval) : Bool
+    return false unless has_selection?
+
+    start_chr, end_chr = case(keyval)
+            when Gdk::KEY_bracketleft then {"[","]"}
+            when Gdk::KEY_parenleft then {"(",")"}
+            when Gdk::KEY_braceleft then {"{","}"}
+            else
+              return false
+            end
+
+    start_iter, end_iter = @buffer.selection_bounds
+    end_offset = end_iter.offset
+    @buffer.begin_user_action
+    @buffer.insert(start_iter, start_chr)
+    start_iter.offset = end_offset + 1
+    @buffer.insert(start_iter, end_chr)
+    start_iter.backward_char
+    @buffer.move_mark_by_name("selection_bound", start_iter)
+    @buffer.end_user_action
+    return true
   end
 
   def save
@@ -172,8 +197,12 @@ class TextView < View
     @line_column.label = "#{line + 1}:#{col + 1}"
   end
 
+  def has_selection?
+    @buffer.has_selection
+  end
+
   def selected_text : String
-    return "" unless @buffer.has_selection
+    return "" unless has_selection?
 
     start_iter, end_iter = @buffer.selection_bounds
     @buffer.text(start_iter, end_iter, false)
@@ -227,7 +256,7 @@ class TextView < View
   end
 
   def sort_lines_action
-    return unless @buffer.has_selection
+    return unless has_selection?
 
     start_iter, end_iter = @buffer.selection_bounds
     return if start_iter.line == end_iter.line
@@ -241,7 +270,7 @@ class TextView < View
     return if readonly? || @language.none?
 
     @buffer.begin_user_action
-    if @buffer.has_selection
+    if has_selection?
       comment_selection_action
     else
       comment_current_line_action
