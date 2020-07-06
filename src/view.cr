@@ -41,6 +41,10 @@ abstract class View
     end
   end
 
+  def modified? : Bool
+    false
+  end
+
   abstract def grab_focus
   abstract def modified? : Bool
   abstract def save

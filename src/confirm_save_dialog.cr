@@ -4,20 +4,30 @@ require "./ui_builder_helper"
 class ConfirmSaveDialog
   include UiBuilderHelper
 
-  BTN_CANCEL  = 0
-  BTN_SAVE    = 1
-  BTN_NO_SAVE = 2
-
   MODIFIED_FILES_SELECTED = 0
   MODIFIED_FILES_VIEW_ID  = 1
   MODIFIED_FILES_LABEL    = 2
+
+  enum Result
+    Cancel
+    Save
+    NoSave
+  end
 
   def initialize(@views : Array(View))
     builder = builder_for("confirm_save_dialog")
     builder.connect_signals
     @dialog = Gtk::MessageDialog.cast(builder["root"])
-    contents = Gtk::Box.cast(builder["contents"])
-    Gtk::Box.cast(@dialog.message_area).add(contents)
+
+    if @views.size < 2
+      text = "Save changes to document “#{@views.first.label}” before closing?"
+      @dialog.secondary_text = "If you don't save, changes will be permanently lost."
+    else
+      text = "There are files with unsaved changes. Save changes before closing?"
+      contents = Gtk::Box.cast(builder["contents"])
+      Gtk::Box.cast(@dialog.message_area).add(contents)
+    end
+    @dialog.text = "<span size='larger' weight='bold'>#{text}</span>"
 
     @model = Gtk::ListStore.cast(builder["model"])
     toggle = Gtk::CellRendererToggle.cast(builder["toggle"])
@@ -25,18 +35,19 @@ class ConfirmSaveDialog
     fill_model
     @toogle_status = Array(Bool).new(@views.size, true)
 
-    @dialog.default_response = BTN_SAVE
+    @dialog.default_response = Result::Save.value
     @dialog.ref
   end
 
   # Return true if should do something, false on cancel
   # can be called only once.
-  def run : Bool
-    res = @dialog.run
-    return false if res < 0 || res == BTN_CANCEL
+  def run : Result
+    return Result::NoSave if @views.empty?
 
-    @toogle_status.fill(false) if res == BTN_NO_SAVE
-    true
+    res = @dialog.run
+    return Result::Cancel if res < 0 || res == Result::Cancel.value
+    return Result::NoSave if res == Result::NoSave.value
+    return Result::Save
   ensure
     @dialog.destroy
     @dialog.unref

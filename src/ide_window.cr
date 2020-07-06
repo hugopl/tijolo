@@ -217,8 +217,19 @@ class IdeWindow < Window
   end
 
   def close_current_view
-    view = @open_files.close_current_view
+    view = @open_files.current_view
+    return if view.nil?
+
     if view
+      if view.modified?
+        dlg = ConfirmSaveDialog.new([view])
+        result = dlg.run
+        return if result.cancel?
+
+        Log.info { "SAVE!" }
+        save_view(view) if result.save?
+      end
+      @open_files.close_current_view
       view.remove_view_listener(self)
 
       text_view = view.as?(TextView)
@@ -281,10 +292,13 @@ class IdeWindow < Window
   def about_to_quit(_widget, event) : Bool
     unless @open_files.all_saved?
       dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
-      return true unless dlg.run
-
-      dlg.selected_views.each do |view|
-        save_view(view)
+      result = dlg.run
+      if result.cancel?
+        return true
+      elsif result.save?
+        dlg.selected_views.each do |view|
+          save_view(view)
+        end
       end
     end
     LanguageManager.shutdown
