@@ -68,16 +68,16 @@
 
   <!-- Markup -->
   <style name="def:emphasis"                italic="true"/>
-  <style name="def:strong-emphasis"         bold="true" foreground="orange"/>
-  <style name="def:inline-code"             foreground="cyan"/>
+  <style name="def:strong-emphasis"         bold="true" foreground="yellow"/>
+  <style name="def:inline-code"             foreground="green"/>
   <style name="def:insertion"               underline="single"/>
   <style name="def:deletion"                strikethrough="true"/>
-  <style name="def:link-text"               foreground="text" underline="true"/>
-  <style name="def:link-symbol"             foreground="text" bold="true"/>
+  <style name="def:link-text"               foreground="white" underline="true"/>
+  <style name="def:link-symbol"             foreground="white" bold="true"/>
   <style name="def:link-destination"        italic="true" underline="single"/>
-  <style name="def:heading"                 foreground="yellow"/>
+  <style name="def:heading"                 foreground="orange"/>
   <style name="def:thematic-break"          foreground="yellow"/>
-  <style name="def:preformatted-section"    foreground="cyan"/>
+  <style name="def:preformatted-section"    foreground="green"/>
   <style name="def:list-marker"             foreground="orange"/>
 
   <!-- Operators -->
