@@ -67,16 +67,16 @@ class IdeWindow < Window
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = true
       @open_files.switch_current_view(false)
-      true
+      return true
     end
     false
   end
 
   def key_release_event(widget : Gtk::Widget, event : Gdk::EventKey)
     if @switching_open_files && event.keyval != Gdk::KEY_Tab && event.state.control_mask?
-      @open_files.switch_current_view(true)
       @switching_open_files = false
-      true
+      @open_files.switch_current_view(true)
+      return true
     end
     false
   end
