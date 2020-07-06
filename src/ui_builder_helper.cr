@@ -1,5 +1,3 @@
-require "ecr"
-
 module UiBuilderHelper
   macro builder_for(file)
     {% if flag?(:release) %}
@@ -9,35 +7,19 @@ module UiBuilderHelper
     {% end %}
   end
 
-  protected def apply_css(scheme : GtkSource::StyleScheme)
+  protected def apply_css
     display = Gdk::Display.default.not_nil!
     screen = display.default_screen
     css_provider = Gtk::CssProvider.new
-    css_provider.load_from_data(css_for(scheme))
+    css_provider.load_from_data(application_css)
     Gtk::StyleContext.add_provider_for_screen(screen, css_provider, Gtk::STYLE_PROVIDER_PRIORITY_APPLICATION)
   end
 
-  private def css_for(scheme)
-    css_enabled = true # ameba:disable Lint/UselessAssign
-    begin
-      bg_style = load_style(scheme, "background-pattern")
-      text_style = load_style(scheme, "text")
-      selection_style = load_style(scheme, "selection")
-
-      text_style_fg = text_style.foreground           # ameba:disable Lint/UselessAssign
-      text_style_bg = text_style.background           # ameba:disable Lint/UselessAssign
-      bg_style_bg = bg_style.background               # ameba:disable Lint/UselessAssign
-      selection_style_fg = selection_style.foreground # ameba:disable Lint/UselessAssign
-      selection_style_bg = selection_style.background # ameba:disable Lint/UselessAssign
-    rescue e
-      Log.warn { e.message }
-      css_enabled = false # ameba:disable Lint/UselessAssign
-    end
-
-    ECR.render("#{__DIR__}/ui/application.css.ecr")
-  end
-
-  private def load_style(scheme, style)
-    scheme.style(style) || raise "Failed to load style #{style} on #{scheme.name}."
+  private def application_css
+    {% if flag?(:release) %}
+      {{ read_file("#{__DIR__}/ui/application.css") }}
+    {% else %}
+      File.read("#{__DIR__}/ui/application.css")
+    {% end %}
   end
 end

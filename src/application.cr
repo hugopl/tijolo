@@ -57,7 +57,7 @@ class Application
     @header_bar = Gtk::HeaderBar.cast(builder["root"])
     main_window.titlebar = header_bar
 
-    apply_css(@style_scheme)
+    apply_css
 
     project_loaded = @project_location && open_project(project_location)
     if !project_loaded
