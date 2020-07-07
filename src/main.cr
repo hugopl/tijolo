@@ -12,13 +12,13 @@ require "./helper"
 options = parse_args(ARGV)
 
 if options[:logfile]
-  ::Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w+"))
+  ::Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w"))
 end
 
-if options[:lsp_logfile]
+if options[:debug]
   lsp_logger = ::Log.for("LSP")
   lsp_logger.level = :debug
-  lsp_logger.backend = Log::IOBackend.new(File.open(options[:lsp_logfile].to_s, "w+"))
+  lsp_logger.backend = Log::IOBackend.new(File.open("#{Dir.tempdir}/tijolo-lsp.log", "w"))
 end
 
 
@@ -32,13 +32,22 @@ end
 #
 # When the project get more mature... if these crashes doesn't get solved I may try to compile my own
 # GTK version BoehmGC aware and static link it to tijolo.
-unless options[:gc_enabled]
+if options[:gc_disabled]
   GC.collect
   GC.disable
 end
 
 begin
-  app = Application.new(options)
+  flags = options[:debug] ? Gio::ApplicationFlags::NON_UNIQUE : Gio::ApplicationFlags::None
+  app = Application.new(options[:location], flags)
+
+  if options[:gc_disabled] || options[:debug]
+    GLib.timeout(60) do # each 60 seconds...
+      Log.info { "NonGTK memory usage: #{GC.stats.heap_size.humanize_bytes}" }
+      true
+    end
+  end
+
   app.run
 rescue e : AppError
   Log.fatal { e.message }

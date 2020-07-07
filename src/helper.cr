@@ -3,9 +3,9 @@ require "version_from_shard"
 VersionFromShard.declare
 
 def parse_args(argv)
-  gc_enabled = false
+  gc_disabled = true # Leak all the things! See main.cr
   logfile = nil
-  lsp_logfile = nil
+  debug = false
 
   OptionParser.parse(argv) do |parser|
     parser.banner = "Usage: tijolo [OPTIONS] [FILE|DIRECTORY]..."
@@ -19,8 +19,8 @@ def parse_args(argv)
       exit
     end
     parser.on("--logfile=FILE", "Where to save log, default to STDOUT.") { |file| logfile = file }
-    parser.on("--lsp-logfile=FILE", "Where to save LSP log, default is not log.") { |file| lsp_logfile = file }
-    parser.on("--enable-gc", "Enable garbage collector and hope to not crash.") { gc_enabled = true }
+    parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { debug = true }
+    parser.on("--disable-gc", "Disable garbage collector (yes, leak memory).") { gc_disabled = true }
     parser.invalid_option do |flag|
       STDERR.puts "ERROR: #{flag} is not a valid option."
       STDERR.puts parser
@@ -28,8 +28,8 @@ def parse_args(argv)
     end
   end
 
-  {location: argv.first?,
-   gc_enabled: gc_enabled,
-   logfile: logfile,
-   lsp_logfile: lsp_logfile}
+  {location:   argv.first?,
+   gc_disabled: gc_disabled,
+   logfile:    logfile,
+   debug:      debug}
 end

@@ -21,23 +21,14 @@ class Application
 
   delegate set_accels_for_action, to: @application
 
-  def initialize(options)
+  def initialize(location, flags)
     GtkSource.init
-    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
+    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: flags)
     @application.on_activate(&->activate_ui(Gio::Application))
     @style_scheme = load_scheme
 
-    location = options[:location]
     @project_location = Path.new(location).expand.to_s if location
 
-    log_memory_usage unless options[:gc_enabled]
-  end
-
-  private def log_memory_usage
-    GLib.timeout(60) do # each 60 seconds...
-      Log.info { "memory usage: #{GC.stats.heap_size.humanize_bytes}" }
-      true
-    end
   end
 
   private def load_scheme : GtkSource::StyleScheme
