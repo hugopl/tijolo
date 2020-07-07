@@ -11,6 +11,17 @@ require "./helper"
 
 options = parse_args(ARGV)
 
+if options[:logfile]
+  ::Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w+"))
+end
+
+if options[:lsp_logfile]
+  lsp_logger = ::Log.for("LSP")
+  lsp_logger.level = :debug
+  lsp_logger.backend = Log::IOBackend.new(File.open(options[:lsp_logfile].to_s, "w+"))
+end
+
+
 # Yes, always leak memory...
 #
 # Crystal GC has several problems with GTK (and probably other C libraries as well), causing several

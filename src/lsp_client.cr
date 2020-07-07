@@ -185,7 +185,7 @@ class LspClient
     output = @server.input
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 
-    Log.info { "> #{payload}" }
+    Log.debug { "> #{payload}" }
   end
 
   def shutdown
@@ -225,7 +225,7 @@ class LspClient
     handler = @response_handlers[msg_id]?
     return if handler.nil?
 
-    Log.info { "< #{data}" }
+    Log.debug { "< #{data}" }
     # TODO: Handle server requets
     message = ResponseMessage.from_json(data)
     GLib.timeout(0) do
