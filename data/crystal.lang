@@ -108,6 +108,7 @@
       <prefix>(?&lt;![\w\.])</prefix>
       <keyword>alias</keyword>
       <keyword>class</keyword>
+      <keyword>struct</keyword>
       <keyword>module</keyword>
       <keyword>def</keyword>
     </context>
@@ -531,7 +532,7 @@
 
     <context id="type-definition">
       <match extended="true">
-        (class|module)
+        (class|module|struct)
         \s+
         (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
       </match>
