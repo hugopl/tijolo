@@ -12,9 +12,7 @@ class FindReplace
     @settings.wrap_around = true
   end
 
-  def show(text_view : TextView)
-    return if @revealer.reveal_child
-
+  def show(text_view : TextView) : Nil
     @text_view = text_view
     @revealer.reveal_child = true
     @entry.text = text_view.selected_text
