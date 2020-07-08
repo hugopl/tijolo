@@ -147,6 +147,8 @@ class IdeWindow < Window
   end
 
   def show_goto_line_locator
+    return if @open_files.empty?
+
     @locator.text = "l "
     @locator.show(false)
   end
