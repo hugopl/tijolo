@@ -59,6 +59,7 @@ class Locator
   end
 
   def show(*, select_text : Bool, view : View?)
+    self.results_cursor = 0
     if view != @current_view
       @current_locator_provider.unselected
       @current_locator_provider.selected(view)
@@ -71,7 +72,6 @@ class Locator
     else
       @locator_entry.grab_focus_without_selecting
     end
-    @locator_results.set_cursor(0)
   end
 
   def hide
@@ -140,7 +140,7 @@ class Locator
   end
 
   private def activated(widget : Gtk::Entry)
-    activated(0)
+    activated(@results_cursor)
   end
 
   private def activated(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
