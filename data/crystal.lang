@@ -108,9 +108,10 @@
       <prefix>(?&lt;![\w\.])</prefix>
       <keyword>alias</keyword>
       <keyword>class</keyword>
-      <keyword>struct</keyword>
-      <keyword>module</keyword>
       <keyword>def</keyword>
+      <keyword>enum</keyword>
+      <keyword>module</keyword>
+      <keyword>struct</keyword>
     </context>
 
     <context id="module-handlers" style-ref="module-handler">
@@ -532,7 +533,7 @@
 
     <context id="type-definition">
       <match extended="true">
-        (class|module|struct)
+        (class|module|struct|enum)
         \s+
         (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
       </match>
