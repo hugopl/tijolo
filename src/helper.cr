@@ -28,8 +28,8 @@ def parse_args(argv)
     end
   end
 
-  {location:   argv.first?,
+  {location:    argv.first?,
    gc_disabled: gc_disabled,
-   logfile:    logfile,
-   debug:      debug}
+   logfile:     logfile,
+   debug:       debug}
 end

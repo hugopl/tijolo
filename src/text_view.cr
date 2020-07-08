@@ -86,13 +86,13 @@ class TextView < View
   def insert_char_around_selection(keyval) : Bool
     return false unless has_selection?
 
-    start_chr, end_chr = case(keyval)
-            when Gdk::KEY_bracketleft then {"[","]"}
-            when Gdk::KEY_parenleft then {"(",")"}
-            when Gdk::KEY_braceleft then {"{","}"}
-            else
-              return false
-            end
+    start_chr, end_chr = case (keyval)
+                         when Gdk::KEY_bracketleft then {"[", "]"}
+                         when Gdk::KEY_parenleft   then {"(", ")"}
+                         when Gdk::KEY_braceleft   then {"{", "}"}
+                         else
+                           return false
+                         end
 
     start_iter, end_iter = @buffer.selection_bounds
     end_offset = end_iter.offset

@@ -28,7 +28,6 @@ class Application
     @style_scheme = load_scheme
 
     @project_location = Path.new(location).expand.to_s if location
-
   end
 
   private def load_scheme : GtkSource::StyleScheme

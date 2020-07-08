@@ -52,7 +52,7 @@ describe TextView do
       view.goto(1, 2)
       view.save
       view.text.should eq("Hey\n\n Ho!\r\nLet's Go\n")
-      view.cursor_pos.should eq({1,0})
+      view.cursor_pos.should eq({1, 0})
 
       text = "Hey\n   \n Ho! \r\nLet's Go  "
       tempfile = File.tempfile("foo")

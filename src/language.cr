@@ -99,7 +99,7 @@ class Language
   def file_changed_by_insertion(text_view : TextView, line : Int32, col : Int32, text : String)
     return if lsp_disabled? || text_view.file_path.nil?
 
-    document_sync =lsp_client.server_capabilities.text_document_sync
+    document_sync = lsp_client.server_capabilities.text_document_sync
     if document_sync.full?
       file_changed_full_sync(text_view)
     elsif document_sync.incremental?
@@ -112,7 +112,7 @@ class Language
   def file_changed_by_deletion(text_view : TextView, start_line, start_col, end_line, end_col)
     return if lsp_disabled? || text_view.file_path.nil?
 
-    document_sync =lsp_client.server_capabilities.text_document_sync
+    document_sync = lsp_client.server_capabilities.text_document_sync
     if document_sync.full?
       file_changed_full_sync(text_view)
     elsif document_sync.incremental?

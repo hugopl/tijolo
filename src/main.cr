@@ -21,7 +21,6 @@ if options[:debug]
   lsp_logger.backend = Log::IOBackend.new(File.open("#{Dir.tempdir}/tijolo-lsp.log", "w"))
 end
 
-
 # Yes, always leak memory...
 #
 # Crystal GC has several problems with GTK (and probably other C libraries as well), causing several
