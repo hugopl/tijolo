@@ -19,6 +19,8 @@ class DocumentSymbolLocator < FuzzyLocator
       @symbols = symbols
       @project_haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
     end
+  rescue e : AppError
+    self.error_message = e.message || "Unknow error"
   end
 
   def unselected

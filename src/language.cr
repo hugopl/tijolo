@@ -32,7 +32,7 @@ class Language
 
   private def lsp_ready?(feature : String, &proc : Proc(LspClient, Bool)) : Bool
     lsp_client = @lsp_client
-    raise AppError.new("This feature requires a Language Server, but #{@id} doesn't seems to have one.") if lsp_client.nil?
+    raise AppError.new("This feature requires a Language Server.") if lsp_client.nil?
 
     return false unless lsp_client.initialized?
 

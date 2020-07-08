@@ -5,6 +5,7 @@ abstract class FuzzyLocator < LocatorProvider
   MAX_LOCATOR_ITEMS = 25
 
   @last_results = [] of Fzy::Match
+  getter? error_message : String?
   property project_haystack : Fzy::PreparedHaystack
 
   def initialize
@@ -16,20 +17,33 @@ abstract class FuzzyLocator < LocatorProvider
     super()
   end
 
+  def selected(current_view : View?)
+    super
+    @error_message = nil
+  end
+
   def results_size : Int32
-    @last_results.size
+    error_message? ? 1 : @last_results.size
   end
 
   def activate(locator : Locator, index : Int32)
-    return if index >= @last_results.size
+    return if index >= @last_results.size || error_message?
 
     activate(locator, @last_results[index])
   end
 
   abstract def activate(locator : Locator, match : Fzy::Match)
 
+  def error_message=(message : String)
+    @error_message = message
+    @model.clear
+    iter = Gtk::TreeIter.new
+    @model.append(iter)
+    @model.set(iter, {LABEL_COLUMN}, {message})
+  end
+
   def search_changed(search_text : String) : Nil
-    return if @project_haystack.haystack.empty?
+    return if @project_haystack.haystack.empty? || error_message?
 
     start_time = Time.monotonic
     @model.clear
