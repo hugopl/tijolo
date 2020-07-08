@@ -27,7 +27,7 @@ class Locator
   @project : Project
   @locator_entry : Gtk::SearchEntry
   @locator_results : Gtk::TreeView
-  @locator_focus_is_mine = false # True when focus is on locator entry or locator results, used to hide locator on focus lost
+  private getter results_cursor = 0
 
   @locator_providers = Hash(Char, LocatorProvider).new
   @default_locator_provider : LocatorProvider
@@ -50,8 +50,6 @@ class Locator
     @locator_results.selection.mode = :browse
     @locator_results.model = @default_locator_provider.model
     @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
-    @locator_results.on_key_press_event(&->results_key_pressed(Gtk::Widget, Gdk::EventKey))
-    @locator_results.on_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
   end
 
   def init_locators
@@ -87,15 +85,12 @@ class Locator
   end
 
   private def focus_out_event(widget, event : Gdk::EventFocus) : Bool
-    hide unless @locator_focus_is_mine
-
-    @locator_focus_is_mine = false
+    hide
     false
   end
 
   macro hide_locator_on_esc!
     if event.keyval == Gdk::KEY_Escape
-      @locator_focus_is_mine = false
       hide
       return true
     end
@@ -105,32 +100,14 @@ class Locator
     hide_locator_on_esc!
 
     if event.keyval == Gdk::KEY_Up
+      self.results_cursor -= 1
       return true
     elsif event.keyval == Gdk::KEY_Down
       return true if @current_locator_provider.results_size < 2 # First item is already selected...
 
-      @locator_results.set_cursor(1)
-      @locator_focus_is_mine = true
-      @locator_results.grab_focus
+      self.results_cursor += 1
       return true
     end
-    false
-  end
-
-  private def results_key_pressed(_widget, event : Gdk::EventKey)
-    hide_locator_on_esc!
-
-    if event.keyval == Gdk::KEY_Up
-      # Check if we are on first row.
-      iter = Gtk::TreeIter.new
-      return false unless @locator_results.model.not_nil!.iter_first(iter)
-      return false unless @locator_results.selection.iter_is_selected(iter)
-
-      @locator_focus_is_mine = true
-      @locator_entry.grab_focus
-      return true
-    end
-
     false
   end
 
@@ -147,7 +124,13 @@ class Locator
     text = text[2..-1] if @current_locator_provider != @default_locator_provider
 
     @current_locator_provider.search_changed(text)
-    @locator_results.set_cursor(0)
+    self.results_cursor = 0
+  end
+
+  def results_cursor=(row : Int32)
+    row = 0 if row < 0
+    @results_cursor = row
+    @locator_results.set_cursor(row)
   end
 
   private def find_locator(text)
