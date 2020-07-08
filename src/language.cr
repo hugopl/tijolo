@@ -30,8 +30,15 @@ class Language
     @lsp_client.nil?
   end
 
-  private def require_lsp!
-    raise AppError.new("This feature requires a Language Server, but #{@id} doesn't seems to have one.") if lsp_disabled?
+  private def lsp_ready?(feature : String, &proc : Proc(LspClient, Bool)) : Bool
+    lsp_client = @lsp_client
+    raise AppError.new("This feature requires a Language Server, but #{@id} doesn't seems to have one.") if lsp_client.nil?
+
+    return false unless lsp_client.initialized?
+
+    has_feature = proc.call(lsp_client)
+    raise AppError.new("#{@id} Language Server doesn't support #{feature}.") unless has_feature
+    true
   end
 
   def gtk_language : GtkSource::Language?
@@ -131,9 +138,7 @@ class Language
   end
 
   def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))
-    require_lsp!
-    return unless lsp_client.initialized?
-    raise AppError.new("#{@id} Language Server doesn't support Go To Definition") unless lsp_client.definition_provider?
+    return unless lsp_ready?("Go To Definition", &.definition_provider?)
 
     params = Protocol::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
     lsp_client.request("textDocument/definition", params) do |response|
@@ -145,6 +150,16 @@ class Language
       line = location.range.start.line
       col = location.range.start.character
       block.call(uri, line, col)
+    end
+  end
+
+  def document_symbols(path : Path, &block : Proc(Array(Protocol::SymbolInformation), Nil))
+    return unless lsp_ready?("Document Symbols", &.document_symbol_provider?)
+
+    params = Protocol::DocumentSymbolParams.new(uri: uri(path))
+    lsp_client.request("textDocument/documentSymbol", params) do |response|
+      result = response.result.as?(Array(Protocol::SymbolInformation))
+      block.call(result) if result
     end
   end
 end

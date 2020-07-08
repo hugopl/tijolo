@@ -23,6 +23,7 @@ class LspClient
   getter server_capabilities = ServerCapabilities.new
 
   delegate definition_provider?, to: @server_capabilities
+  delegate document_symbol_provider?, to: @server_capabilities
 
   def initialize(command : String)
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
@@ -142,13 +143,13 @@ class LspClient
             "documentHighlight" => {
               "dynamicRegistration" => false,
             },
-            # "documentSymbol" => {
-            #   "dynamicRegistration" => true,
-            #   "symbolKind"          => {
-            #     "valueSet" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
-            #   },
-            #   "hierarchicalDocumentSymbolSupport" => true,
-            # },
+            "documentSymbol" => {
+              "dynamicRegistration" => false,
+              "symbolKind"          => {
+                "valueSet" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+              },
+              "hierarchicalDocumentSymbolSupport" => false,
+            },
             # "codeAction" => {
             #   "dynamicRegistration"      => true,
             #   "codeActionLiteralSupport" => {
@@ -208,7 +209,7 @@ class LspClient
         content_length = $1.to_i
       elsif line.empty?
         bytes = Bytes.new(content_length)
-        input.read(bytes)
+        input.read_fully(bytes)
         decode_server_message(String.new(bytes))
       end
     end
@@ -233,5 +234,7 @@ class LspClient
       false
     end
     @response_handlers.delete(msg_id)
+  rescue e : JSON::ParseException
+    Log.fatal { "Bad message from server (#{e.message}):\n\n#{data}\n\n" }
   end
 end

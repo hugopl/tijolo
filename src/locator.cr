@@ -1,6 +1,7 @@
 require "fzy"
 
 require "./locator_provider"
+require "./document_symbol_locator"
 require "./file_locator"
 require "./line_locator"
 require "./observable"
@@ -32,8 +33,6 @@ class Locator
   @default_locator_provider : LocatorProvider
   @current_locator_provider : LocatorProvider
 
-  delegate hide, to: @locator_widget
-
   def initialize(@project)
     builder = builder_for("locator")
     @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
@@ -56,11 +55,18 @@ class Locator
   end
 
   def init_locators
-    locator = LineLocator.new
-    @locator_providers[locator.shortcut] = locator
+    [LineLocator.new, DocumentSymbolLocator.new].each do |locator|
+      @locator_providers[locator.shortcut] = locator
+    end
   end
 
-  def show(select_text : Bool)
+  def show(*, select_text : Bool, view : View?)
+    if view != @current_view
+      @current_locator_provider.unselected
+      @current_locator_provider.selected(view)
+    end
+
+    @current_view = view
     @locator_widget.show
     if select_text
       @locator_entry.grab_focus
@@ -70,13 +76,18 @@ class Locator
     @locator_results.set_cursor(0)
   end
 
+  def hide
+    @current_view = nil
+    @locator_widget.hide
+  end
+
   def text=(text : String)
     @locator_entry.text = text
     @locator_entry.position = text.size
   end
 
   private def focus_out_event(widget, event : Gdk::EventFocus) : Bool
-    @locator_widget.hide unless @locator_focus_is_mine
+    hide unless @locator_focus_is_mine
 
     @locator_focus_is_mine = false
     false
@@ -85,7 +96,7 @@ class Locator
   macro hide_locator_on_esc!
     if event.keyval == Gdk::KEY_Escape
       @locator_focus_is_mine = false
-      @locator_widget.hide
+      hide
       return true
     end
   end
@@ -127,6 +138,8 @@ class Locator
     text = @locator_entry.text
     locator = find_locator(text)
     if @current_locator_provider != locator
+      @current_locator_provider.unselected
+      locator.selected(@current_view)
       @current_locator_provider = locator
       @locator_results.model = @current_locator_provider.model
     end
@@ -154,6 +167,6 @@ class Locator
 
   private def activated(index : Int32)
     @current_locator_provider.activate(self, index)
-    @locator_widget.hide
+    hide
   end
 end

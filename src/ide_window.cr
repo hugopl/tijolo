@@ -83,7 +83,7 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = { {"show_locator", ->{ @locator.show(true) }},
+    actions = { {"show_locator", ->show_locator},
                {"new_file", ->create_text_view},
                {"open_file", ->open_file_dlg},
                {"close_view", ->close_current_view},
@@ -105,6 +105,10 @@ class IdeWindow < Window
       shortcut = config.shortcuts[name]? || config.default_shortcuts[name]
       application.set_accels_for_action("win.#{name}", {shortcut})
     end
+  end
+
+  private def show_locator
+    @locator.show(select_text: true, view: @open_files.current_view)
   end
 
   private def create_view(file : String) : View
@@ -150,7 +154,7 @@ class IdeWindow < Window
     return if @open_files.empty?
 
     @locator.text = "l "
-    @locator.show(false)
+    @locator.show(select_text: false, view: @open_files.current_view)
   end
 
   def open_file(file : String) : View?
