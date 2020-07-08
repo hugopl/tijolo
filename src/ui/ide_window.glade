@@ -26,7 +26,7 @@
                 <child>
                   <object class="GtkTreeView" id="open_files">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="headers_clickable">False</property>
                     <property name="enable_search">False</property>
                     <property name="search_column">0</property>
@@ -71,7 +71,7 @@
                   <object class="GtkTreeView" id="project_tree">
                     <property name="width_request">200</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="headers_clickable">False</property>
                     <property name="search_column">0</property>
                     <child internal-child="selection">
