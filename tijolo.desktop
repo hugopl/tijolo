@@ -1,8 +1,13 @@
 [Desktop Entry]
 Type=Application
-Exec=tijolo %f
+Exec=tijolo %F
 Name=Tijolo
 GenericName=Lightweight, keyboard-oriented IDE for the masses
 Terminal=false
 Icon=io.github.hugopl.Tijolo
-Categories=Development;IDE
+Categories=Development;IDE;
+Actions=new-window;
+
+[Desktop Action new-window]
+Name=New Window
+Exec=tijolo

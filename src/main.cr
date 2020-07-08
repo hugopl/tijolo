@@ -37,8 +37,7 @@ if options[:gc_disabled]
 end
 
 begin
-  flags = options[:debug] ? Gio::ApplicationFlags::NON_UNIQUE : Gio::ApplicationFlags::None
-  app = Application.new(options[:location], flags)
+  app = Application.new(options[:location])
 
   if options[:gc_disabled] || options[:debug]
     GLib.timeout(60) do # each 60 seconds...

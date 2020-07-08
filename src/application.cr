@@ -21,9 +21,9 @@ class Application
 
   delegate set_accels_for_action, to: @application
 
-  def initialize(location, flags)
+  def initialize(location)
     GtkSource.init
-    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: flags)
+    @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
     @style_scheme = load_scheme
 
