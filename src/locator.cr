@@ -14,6 +14,7 @@ end
 
 class Locator
   include UiBuilderHelper
+  include LocatorProviderListener
 
   observable_by LocatorListener
 
@@ -45,16 +46,20 @@ class Locator
     @locator_entry.after_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
     @current_locator_provider = @default_locator_provider = FileLocator.new(@project)
-    init_locators
     @locator_results = Gtk::TreeView.cast(builder["locator_results"])
     @locator_results.selection.mode = :browse
     @locator_results.model = @default_locator_provider.model
     @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
+
+    init_locators
   end
 
   def init_locators
+    @default_locator_provider.add_locator_provider_listener(self)
+
     [LineLocator.new, DocumentSymbolLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
+      locator.add_locator_provider_listener(self)
     end
   end
 
@@ -119,16 +124,21 @@ class Locator
       locator.selected(@current_view)
       @current_locator_provider = locator
       @locator_results.model = @current_locator_provider.model
+      self.results_cursor = 0 # Reset the cursor just in case the new provider do nothing, e.g. waiting language server
     end
 
     text = text[2..-1] if @current_locator_provider != @default_locator_provider
 
     @current_locator_provider.search_changed(text)
-    self.results_cursor = 0
+  end
+
+  def locator_provider_model_changed(provider : LocatorProvider)
+    self.results_cursor = 0 if provider == @current_locator_provider
   end
 
   def results_cursor=(row : Int32)
-    row = 0 if row < 0
+    row = row.clamp(0, @current_locator_provider.results_size - 1)
+
     @results_cursor = row
     @locator_results.set_cursor(row)
   end

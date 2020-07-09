@@ -5,11 +5,8 @@ class FileLocator < FuzzyLocator
   include ProjectListener
 
   def initialize(@project : Project)
-    if @project.load_finished?
-      super(Fzy::PreparedHaystack.new(@project.files.map(&.to_s)))
-    else
-      super()
-    end
+    super("Waiting project load to finish...")
+    project_load_finished if @project.load_finished?
     @project.add_project_listener(self)
   end
 
@@ -26,7 +23,7 @@ class FileLocator < FuzzyLocator
   end
 
   def project_load_finished
-    self.project_haystack = Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
+    self.haystack = Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
   end
 
   def shortcut : Char

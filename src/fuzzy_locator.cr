@@ -5,50 +5,55 @@ abstract class FuzzyLocator < LocatorProvider
   MAX_LOCATOR_ITEMS = 25
 
   @last_results = [] of Fzy::Match
-  getter? error_message : String?
-  property project_haystack : Fzy::PreparedHaystack
+  @search_text = ""
 
-  def initialize
-    super
-    @project_haystack = Fzy::PreparedHaystack.new(Array(String).new(0))
-  end
+  # A message to show if haystack is empty.
+  getter? place_holder : String
+  getter haystack = Fzy::PreparedHaystack.new(Array(String).new(0))
 
-  def initialize(@project_haystack)
+  def initialize(@place_holder : String)
     super()
+    self.place_holder = @place_holder
   end
 
-  def selected(current_view : View?)
-    super
-    @error_message = nil
+  def place_holder=(@place_holder)
+    @model.clear
+    iter = Gtk::TreeIter.new
+    @model.append(iter)
+    @model.set(iter, {LABEL_COLUMN}, {@place_holder})
+    notify_locator_provider_model_changed(self)
   end
 
   def results_size : Int32
-    error_message? ? 1 : @last_results.size
+    if @haystack.haystack.empty? && @place_holder
+      1
+    else
+      @last_results.size
+    end
   end
 
   def activate(locator : Locator, index : Int32)
-    return if index >= @last_results.size || error_message?
+    return if index >= @last_results.size
 
     activate(locator, @last_results[index])
   end
 
   abstract def activate(locator : Locator, match : Fzy::Match)
 
-  def error_message=(message : String)
-    @error_message = message
-    @model.clear
-    iter = Gtk::TreeIter.new
-    @model.append(iter)
-    @model.set(iter, {LABEL_COLUMN}, {message})
+  def haystack=(@haystack : Fzy::PreparedHaystack)
+    fuzzy_search(@search_text)
   end
 
   def search_changed(search_text : String) : Nil
-    return if @project_haystack.haystack.empty? || error_message?
+    @search_text = search_text
+    return if @haystack.haystack.empty?
 
-    start_time = Time.monotonic
+    fuzzy_search(search_text)
+  end
+
+  private def fuzzy_search(text)
     @model.clear
-
-    @last_results = Fzy.search(search_text, @project_haystack)
+    @last_results = Fzy.search(text, @haystack)
     @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
 
     iter = Gtk::TreeIter.new
@@ -56,10 +61,7 @@ abstract class FuzzyLocator < LocatorProvider
       @model.append(iter)
       @model.set(iter, {LABEL_COLUMN}, {markup(match)})
     end
-
-    end_time = Time.monotonic
-    total = end_time - start_time
-    Log.debug { "Locator found #{@last_results.size} in #{total}" }
+    notify_locator_provider_model_changed(self)
   end
 
   def markup(match)

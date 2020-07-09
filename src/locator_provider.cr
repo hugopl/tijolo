@@ -1,4 +1,10 @@
+module LocatorProviderListener
+  abstract def locator_provider_model_changed(provider : LocatorProvider)
+end
+
 abstract class LocatorProvider
+  observable_by LocatorProviderListener
+
   LABEL_COLUMN = 0
 
   getter model : Gtk::ListStore

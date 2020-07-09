@@ -4,7 +4,7 @@ class DocumentSymbolLocator < FuzzyLocator
   @symbols : Array(LSP::Protocol::SymbolInformation)?
 
   def initialize
-    super
+    super("Waiting for language server...")
   end
 
   def shortcut : Char
@@ -17,10 +17,10 @@ class DocumentSymbolLocator < FuzzyLocator
 
     current_view.language.document_symbols(current_view.file_path.not_nil!) do |symbols|
       @symbols = symbols
-      @project_haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
+      self.haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
     end
   rescue e : AppError
-    self.error_message = e.message || "Unknow error"
+    self.place_holder = e.message || "Unknow error"
   end
 
   def unselected
