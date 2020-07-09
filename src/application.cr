@@ -32,11 +32,12 @@ class Application
 
   private def load_scheme : GtkSource::StyleScheme
     manager = GtkSource::StyleSchemeManager.default
+    manager.search_path = usr_share_paths("styles", manager.search_path.to_a)
     # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
     scheme = manager.scheme2(Config.instance.style_scheme)
-    raise AppError.new("Failed to open style scheme #{Config.instance.style_scheme}.") if scheme.nil?
+    return scheme unless scheme.nil?
 
-    scheme
+    raise AppError.new("Failed to open style scheme #{Config.instance.style_scheme}, looked at: #{manager.search_path}")
   end
 
   private def activate_ui(g_app)

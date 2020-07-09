@@ -44,7 +44,7 @@ class Language
   def gtk_language : GtkSource::Language?
     return if none?
 
-    GtkSource::LanguageManager.default.language(@id)
+    LanguageManager.find_gtk_lang(@id)
   end
 
   def start_lsp(cmd)

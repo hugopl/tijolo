@@ -2,6 +2,15 @@ require "version_from_shard"
 
 VersionFromShard.declare
 
+def usr_share_paths(dir : String, paths = [] of String)
+  usr_path = Path[File.readlink("/proc/self/exe"), "../../"]
+
+  paths.unshift(usr_path.join("./share/tijolo/#{dir}/").expand.to_s)
+  paths.unshift(usr_path.join("./local/share/tijolo/#{dir}/").expand.to_s)
+  paths.unshift(Path.home.join(".local/share/tijolo/#{dir}/").expand.to_s)
+  paths
+end
+
 def parse_args(argv)
   gc_disabled = true # Leak all the things! See main.cr
   logfile = nil

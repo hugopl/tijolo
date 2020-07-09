@@ -29,4 +29,5 @@ end
 
 LibGtk.init(pointerof(ARGC_UNSAFE), pointerof(ARGV_UNSAFE))
 GtkSource.init
-GtkSource::LanguageManager.default.search_path = GtkSource::LanguageManager.default.search_path.to_a.unshift("#{__DIR__}/../data")
+GtkSource::LanguageManager.default.search_path =
+  GtkSource::LanguageManager.default.search_path.to_a.unshift("#{__DIR__}/../share/tijolo/language-specs")
