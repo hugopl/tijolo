@@ -1,3 +1,5 @@
+require "./observable"
+
 module LocatorProviderListener
   abstract def locator_provider_model_changed(provider : LocatorProvider)
 end
