@@ -37,7 +37,7 @@ if options[:gc_disabled]
 end
 
 begin
-  app = Application.new(options[:location])
+  app = Application.new(options[:locations])
 
   if options[:gc_disabled] || options[:debug]
     GLib.timeout(60) do # each 60 seconds...

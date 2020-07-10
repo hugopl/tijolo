@@ -15,19 +15,15 @@ class Application
 
   getter! main_window : Gtk::ApplicationWindow?
   getter! header_bar : Gtk::HeaderBar?
-  getter! project_location : String?
-
   getter style_scheme : GtkSource::StyleScheme
 
   delegate set_accels_for_action, to: @application
 
-  def initialize(location)
+  def initialize(@argv_files : Array(String))
     GtkSource.init
     @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
     @style_scheme = load_scheme
-
-    @project_location = Path.new(location).expand.to_s if location
   end
 
   private def load_scheme : GtkSource::StyleScheme
@@ -50,8 +46,8 @@ class Application
 
     apply_css
 
-    project_loaded = @project_location && open_project(project_location)
-    if !project_loaded
+
+    if !open_project(@argv_files)
       welcome = WelcomeWindow.new(self)
       main_window.add(welcome.root)
     end
@@ -90,10 +86,23 @@ class Application
     dialog.run
   end
 
-  def open_project(project_path : String) : Bool
+  def open_project(files : Array(String)) : Bool
+    ide = nil
+    files.each do |file|
+      ide = open_project(file)
+      break unless ide.nil?
+    end
+    return false if ide.nil?
+
+    files.each do |file|
+      ide.open_file(file) unless Dir.exists?(file)
+    end
+    true
+  end
+
+  def open_project(project_path : String) : IdeWindow?
     project = Project.new(project_path)
     ide_window = IdeWindow.new(self, project)
-    ide_window.open_file(project_path) unless Dir.exists?(project_path)
 
     header_bar.title = project.name
     header_bar.subtitle = project.root.relative_to(Path.home).to_s
@@ -104,12 +113,12 @@ class Application
     {% if flag?(:release) %}
       main_window.maximize
     {% end %}
-    true
+    ide_window
   rescue e
     dialog = Gtk::MessageDialog.new(text: e.message, message_type: :error, buttons: :ok)
     dialog.on_response { dialog.close }
     dialog.run
-    false
+    nil
   end
 
   def run
