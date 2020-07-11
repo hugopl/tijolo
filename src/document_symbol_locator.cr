@@ -3,8 +3,10 @@ require "./fuzzy_locator"
 class DocumentSymbolLocator < FuzzyLocator
   @symbols : Array(LSP::Protocol::SymbolInformation)?
 
+  PLACEHOLDER = "Waiting for language server..."
+
   def initialize
-    super("Waiting for language server...")
+    super(PLACEHOLDER)
   end
 
   def shortcut : Char
@@ -20,11 +22,13 @@ class DocumentSymbolLocator < FuzzyLocator
       self.haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
     end
   rescue e : AppError
-    self.place_holder = e.message || "Unknow error"
+    self.placeholder = e.message || "Unknow error"
   end
 
   def unselected
+    self.placeholder = PLACEHOLDER
     @symbols = nil
+    self.haystack = nil
   end
 
   def activate(locator : Locator, match : Fzy::Match)

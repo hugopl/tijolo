@@ -37,7 +37,7 @@ def parse_args(argv)
     end
   end
 
-  {locations:    argv,
+  {locations:   argv,
    gc_disabled: gc_disabled,
    logfile:     logfile,
    debug:       debug}

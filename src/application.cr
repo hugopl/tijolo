@@ -46,7 +46,6 @@ class Application
 
     apply_css
 
-
     if !open_project(@argv_files)
       welcome = WelcomeWindow.new(self)
       main_window.add(welcome.root)

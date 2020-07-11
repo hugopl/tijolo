@@ -8,24 +8,31 @@ abstract class FuzzyLocator < LocatorProvider
   @search_text = ""
 
   # A message to show if haystack is empty.
-  getter? place_holder : String
-  getter haystack = Fzy::PreparedHaystack.new(Array(String).new(0))
+  getter placeholder : String
+  getter haystack : Fzy::PreparedHaystack?
 
-  def initialize(@place_holder : String)
+  def initialize(@placeholder : String)
     super()
-    self.place_holder = @place_holder
+    install_placeholder
   end
 
-  def place_holder=(@place_holder)
+  def placeholder=(@placeholder)
+    install_placeholder
+  end
+
+  private def install_placeholder
+    return if @placeholder.blank?
+
     @model.clear
     iter = Gtk::TreeIter.new
     @model.append(iter)
-    @model.set(iter, {LABEL_COLUMN}, {@place_holder})
+    @model.set(iter, {LABEL_COLUMN}, {@placeholder})
     notify_locator_provider_model_changed(self)
   end
 
   def results_size : Int32
-    if @haystack.haystack.empty? && @place_holder
+    haystack = @haystack
+    if !haystack.nil? && haystack.empty? && !@placeholder.blank?
       1
     else
       @last_results.size
@@ -40,20 +47,22 @@ abstract class FuzzyLocator < LocatorProvider
 
   abstract def activate(locator : Locator, match : Fzy::Match)
 
-  def haystack=(@haystack : Fzy::PreparedHaystack)
+  def haystack=(@haystack : Fzy::PreparedHaystack?)
+    install_placeholder if @haystack.nil?
     fuzzy_search(@search_text)
   end
 
   def search_changed(search_text : String) : Nil
     @search_text = search_text
-    return if @haystack.haystack.empty?
-
     fuzzy_search(search_text)
   end
 
   private def fuzzy_search(text)
+    haystack = @haystack
+    return if haystack.nil? || haystack.empty?
+
     @model.clear
-    @last_results = Fzy.search(text, @haystack)
+    @last_results = Fzy.search(text, haystack)
     @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
 
     iter = Gtk::TreeIter.new

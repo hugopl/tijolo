@@ -241,21 +241,19 @@ class IdeWindow < Window
     view = @open_files.current_view
     return if view.nil?
 
-    if view
-      if view.modified?
-        dlg = ConfirmSaveDialog.new([view])
-        result = dlg.run
-        return if result.cancel?
+    @locator.hide
+    if view.modified?
+      dlg = ConfirmSaveDialog.new([view])
+      result = dlg.run
+      return if result.cancel?
 
-        Log.info { "SAVE!" }
-        save_view(view) if result.save?
-      end
-      @open_files.close_current_view
-      view.remove_view_listener(self)
-
-      text_view = view.as?(TextView)
-      text_view.language.file_closed(text_view) if text_view
+      save_view(view) if result.save?
     end
+    @open_files.close_current_view
+    view.remove_view_listener(self)
+
+    text_view = view.as?(TextView)
+    text_view.language.file_closed(text_view) if text_view
   end
 
   def find_in_current_view
