@@ -16,14 +16,19 @@ abstract class View
   @@untitled_count = -1
 
   getter file_path : Path?
+  getter project_path : Path?
   getter id : String
   property label : String
   property? readonly = false
 
-  def initialize(file_path : String? = nil)
+  def initialize(file_path : Path? = nil, @project_path = nil)
     @id = object_id.to_s
-    @file_path = Path.new(file_path).expand unless file_path.nil?
-    @label = @file_path.nil? ? untitled_name : File.basename(@file_path.not_nil!)
+    if file_path
+      @file_path = file_path.expand
+      @label = File.basename(file_path)
+    else
+      @label = untitled_name
+    end
   end
 
   def file_path=(file_path : Path) : Nil
@@ -39,6 +44,19 @@ abstract class View
     else
       "Untitled #{@@untitled_count}"
     end
+  end
+
+  def header_text : String
+    project_path = @project_path
+    file_path = @file_path
+
+    modified = modified? ? " ✱" : ""
+    path = if project_path && file_path
+             "#{file_path.relative_to(project_path)}"
+           else
+             file_path.to_s
+           end
+    "#{path}#{modified}"
   end
 
   def modified? : Bool

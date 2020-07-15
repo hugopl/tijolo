@@ -21,7 +21,7 @@ class TextView < View
   delegate grab_focus, to: @editor
   delegate focus?, to: @editor
 
-  def initialize(file_path : String? = nil)
+  def initialize(file_path : Path? = nil, project_path : Path? = nil)
     super
     builder = builder_for("text_view")
     @widget = Gtk::Widget.cast(builder["root"])
@@ -179,7 +179,7 @@ class TextView < View
   end
 
   private def update_header(_buffer = nil)
-    @file_path_label.text = @buffer.modified ? "#{@label} ✱" : @label
+    @file_path_label.text = header_text
   end
 
   private def mimetype(file_name, file_contents)

@@ -117,7 +117,11 @@ class IdeWindow < Window
   end
 
   private def create_text_view(file : String? = nil) : TextView
-    view = TextView.new(file)
+    if file
+      file_path = Path.new(file)
+      project_path = @project.root if @project.under_project?(file_path)
+    end
+    view = TextView.new(file_path, project_path)
     view.add_view_listener(self)
     @open_files << view
 

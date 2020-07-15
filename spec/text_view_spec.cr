@@ -48,7 +48,7 @@ describe TextView do
       tempfile.print(text)
       tempfile.flush
 
-      view = TextView.new(tempfile.path.to_s)
+      view = TextView.new(Path.new(tempfile.path))
       view.goto(1, 2)
       view.save
       view.text.should eq("Hey\n\n Ho!\r\nLet's Go\n")
@@ -58,7 +58,7 @@ describe TextView do
       tempfile = File.tempfile("foo")
       tempfile.print(text)
       tempfile.flush
-      view = TextView.new(tempfile.path.to_s)
+      view = TextView.new(Path.new(tempfile.path))
       view.save
       view.text.should eq("Hey\n\n Ho!\r\nLet's Go")
     end
@@ -70,7 +70,7 @@ describe TextView do
       tempfile.print(text)
       tempfile.flush
 
-      view = TextView.new(tempfile.path.to_s)
+      view = TextView.new(Path.new(tempfile.path))
       view.goto(1, 2)
       view.save
       view.text.should eq(text)
