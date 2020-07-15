@@ -37,7 +37,17 @@ Lightweight, keyboard-oriented IDE for the masses.
 - Printing support.
 - Support for specific build systems.
 
-## Compiling
+## Installing
+
+If you use Archlinux, there's a AUR package available for latest git version.
+
+```
+$ yay -S tijolo-git
+```
+
+More packages (for e.g. Ubuntu) only when first version get released.
+
+## Compiling from source
 
 You need the Crystal 0.35 compiler, GTK3 and GTKSourceView4 installed.
 
