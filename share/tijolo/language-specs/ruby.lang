@@ -57,6 +57,7 @@
     <style id="here-doc"             name="Heredoc"               map-to="def:string" />
     <style id="here-doc-bound"       name="Heredoc Bound"         map-to="def:string"/>
     <style id="regex"                name="Regular Expression"    map-to="def:identifier"/>
+    <style id="operator"             name="Operator"              map-to="def:operator"/>
   </styles>
 
   <definitions>
@@ -577,6 +578,10 @@
       </include>
     </context>
 
+    <context id="operators" style-ref="operator" extend-parent="false">
+      <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
+    </context>
+
     <context id="ruby" class="no-spell-check">
       <include>
         <context ref="def:shebang"/>
@@ -604,6 +609,7 @@
         <context ref="regexp-variables"/>
         <context ref="constants"/>
         <context ref="nil-value"/>
+        <context ref="operators"/>
         <context ref="boolean"/>
         <context ref="float"/>
         <context ref="decimal"/>
