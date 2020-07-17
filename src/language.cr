@@ -137,6 +137,14 @@ class Language
     lsp_client.notify("textDocument/didChange", params)
   end
 
+  def notify_did_save(text_view : TextView)
+    return if lsp_disabled? || text_view.file_path.nil?
+
+    uri = uri(text_view.file_path.not_nil!)
+    params = Protocol::DidSaveTextDocumentParams.new(uri)
+    lsp_client.notify("textDocument/didSave", params)
+  end
+
   def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))
     return unless lsp_ready?("Go To Definition", &.definition_provider?)
 

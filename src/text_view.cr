@@ -115,6 +115,8 @@ class TextView < View
     remove_all_trailing_spaces! if Config.instance.trailing_whitespace?
     File.write(file_path, text)
     @buffer.modified = false
+
+    language.notify_did_save(self)
   end
 
   private def remove_all_trailing_spaces!

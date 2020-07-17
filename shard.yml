@@ -24,7 +24,7 @@ dependencies:
     version: ~> 0.1.3
   lsp:
     github: hugopl/lsp
-    commit: 705e3ba08f9494aaf45fbdf8d85d3addf952770a
+    commit: f2ac63aeaeea8965a391026c45c2770764b6645f
     # path: /home/hugo/src/lsp
 
 crystal: 0.35.0
