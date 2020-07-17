@@ -40,6 +40,7 @@ class Config
 
   property projects = [] of Config::ProjectEntry
   property? scan_projects = true
+  property? lazy_start_language_servers = false
   setter shortcuts : Hash(String, String)?
   setter language_servers : Hash(String, String)?
   property? trailing_whitespace = true

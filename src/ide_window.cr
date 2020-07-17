@@ -13,6 +13,7 @@ class IdeWindow < Window
   include ViewListener
   include OpenFilesListener
   include LocatorListener
+  include ProjectListener
 
   @open_files_view : Gtk::TreeView
   @project_tree_view : Gtk::TreeView
@@ -59,8 +60,23 @@ class IdeWindow < Window
 
     @open_files.add_open_files_listener(self)
     @locator.add_locator_listener(self)
-
+    @project.add_project_listener(self)
     setup_actions
+  end
+
+  def project_file_added(path : Path)
+  end
+
+  def project_file_removed(path : Path)
+  end
+
+  def project_folder_renamed(old_path : Path, new_path : Path)
+  end
+
+  def project_load_finished
+    return if Config.instance.lazy_start_language_servers?
+
+    LanguageManager.start_languages_for(@project.files)
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
