@@ -1,29 +1,6 @@
 require "./spec_helper"
 
-class TestLocatorListener
-  include LocatorListener
-
-  property files = [] of String
-
-  def locator_open_file(file : String)
-    @files << file
-  end
-
-  def locator_goto_line_col(line : Int32, column : Int32)
-  end
-end
-
-# Just to make things accessible for testing
-class TestLocator < Locator
-  getter locator_entry
-  getter locator_results
-
-  def activated(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    super
-  end
-end
-
-describe Locator do
+describe FileLocator do
   it "can open a project file" do
     project = FakeProject.new(%w(spec/locator_spec.cr))
 

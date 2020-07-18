@@ -10,7 +10,9 @@ class LineLocator < LocatorProvider
   end
 
   def activate(locator, _index)
-    locator.notify_locator_goto_line_col(@line - 1, @col - 1) if @line > 0
+    col = @col - 1
+    col = 0 if col < 0
+    locator.notify_locator_goto_line_col(@line - 1, col) if @line > 0
   end
 
   def results_size : Int32
