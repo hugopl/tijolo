@@ -2,7 +2,7 @@ class LineLocator < LocatorProvider
   @line : Int32 = 0
   @col : Int32 = 0
 
-  DEFAULT_TEXT = "Type the line number and column separated by \":\"."
+  DEFAULT_TEXT = "Type the line number and column separated by \":\""
 
   def initialize
     super
