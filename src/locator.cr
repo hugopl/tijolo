@@ -3,6 +3,7 @@ require "fzy"
 require "./locator_provider"
 require "./document_symbol_locator"
 require "./file_locator"
+require "./help_locator"
 require "./line_locator"
 require "./observable"
 require "./ui_builder_helper"
@@ -45,10 +46,12 @@ class Locator
     @locator_entry.connect("notify::text", &->search_changed)
     @locator_entry.after_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
 
-    @current_locator_provider = @default_locator_provider = FileLocator.new(@project)
+    @default_locator_provider = FileLocator.new(@project)
+    @current_locator_provider = @help_locator_provider = HelpLocator.new
+
     @locator_results = Gtk::TreeView.cast(builder["locator_results"])
     @locator_results.selection.mode = :browse
-    @locator_results.model = @default_locator_provider.model
+    @locator_results.model = @help_locator_provider.model
     @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
 
     init_locators
@@ -57,9 +60,10 @@ class Locator
   def init_locators
     @default_locator_provider.add_locator_provider_listener(self)
 
-    [LineLocator.new, DocumentSymbolLocator.new].each do |locator|
+    [DocumentSymbolLocator.new, LineLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
       locator.add_locator_provider_listener(self)
+      @help_locator_provider.add(locator)
     end
   end
 
@@ -127,9 +131,10 @@ class Locator
       self.results_cursor = 0 # Reset the cursor just in case the new provider do nothing, e.g. waiting language server
     end
 
-    text = text[2..-1] if @current_locator_provider != @default_locator_provider
-
-    @current_locator_provider.search_changed(text)
+    if text.size > 0
+      text = text[2..-1] if @current_locator_provider != @default_locator_provider
+      @current_locator_provider.search_changed(text)
+    end
   end
 
   def locator_provider_model_changed(provider : LocatorProvider)
@@ -144,6 +149,7 @@ class Locator
   end
 
   private def find_locator(text)
+    return @help_locator_provider if text.empty?
     return @default_locator_provider if text.size < 2 || !text[1].whitespace?
 
     @locator_providers[text[0]]? || @default_locator_provider
@@ -159,7 +165,6 @@ class Locator
   end
 
   private def activated(index : Int32)
-    @current_locator_provider.activate(self, index)
-    hide
+    hide if @current_locator_provider.activate(self, index)
   end
 end

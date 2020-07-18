@@ -9,10 +9,13 @@ class LineLocator < LocatorProvider
     @model.append({LABEL_COLUMN}, {DEFAULT_TEXT})
   end
 
-  def activate(locator, _index)
+  def activate(locator, _index) : Bool
+    return false if @line <= 0
+
     col = @col - 1
     col = 0 if col < 0
-    locator.notify_locator_goto_line_col(@line - 1, col) if @line > 0
+    locator.notify_locator_goto_line_col(@line - 1, col)
+    true
   end
 
   def results_size : Int32
@@ -21,6 +24,10 @@ class LineLocator < LocatorProvider
 
   def shortcut : Char
     'l'
+  end
+
+  def description : String
+    "Line in Current Document"
   end
 
   def search_changed(search_text : String) : Nil

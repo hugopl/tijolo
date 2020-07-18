@@ -22,8 +22,10 @@ abstract class LocatorProvider
   end
 
   # index is the index of the entry in the provided model.
-  abstract def activate(locator : Locator, index : Int32)
+  # This must return true if the locator should hide after activation
+  abstract def activate(locator : Locator, index : Int32) : Bool
   abstract def results_size : Int32
   abstract def shortcut : Char
+  abstract def description : String
   abstract def search_changed(search_text : String) : Nil
 end

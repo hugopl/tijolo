@@ -13,6 +13,10 @@ class DocumentSymbolLocator < FuzzyLocator
     '.'
   end
 
+  def description : String
+    "Symbols in Current Document"
+  end
+
   def selected(current_view : View?)
     super
     return if current_view.nil? || current_view.file_path.nil?

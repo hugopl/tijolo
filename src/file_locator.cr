@@ -30,6 +30,10 @@ class FileLocator < FuzzyLocator
     'f' # not used, this is the default locator provider.
   end
 
+  def description : String
+    ""  # not used, this is the default locator provider.
+  end
+
   def activate(locator : Locator, match : Fzy::Match)
     file = match.value
     locator.notify_locator_open_file(@project.root.join(file).to_s)

@@ -39,10 +39,11 @@ abstract class FuzzyLocator < LocatorProvider
     end
   end
 
-  def activate(locator : Locator, index : Int32)
-    return if index >= @last_results.size
+  def activate(locator : Locator, index : Int32) : Bool
+    return false if index >= @last_results.size
 
     activate(locator, @last_results[index])
+    true
   end
 
   abstract def activate(locator : Locator, match : Fzy::Match)
