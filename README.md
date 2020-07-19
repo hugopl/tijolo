@@ -8,16 +8,17 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-**Feature incomplete**, not yet released, it doesn't have the enough minimum planned features implemented yet.
+**Pre Alpha or something**, not yet released. I'm already using it in my daily work and also to write itself, however it
+doesn't have the enough minimum planned features to be released yet. The [TODO](./TODO.md) file list things I'm working on.
 
 ## Project goals
 
-- It must be fast.
-- Fast and easy source code navigation using fuzzy search.
+- Run fast, something you don't see very often in new desktop applicaitons.
+- Fuzzy search powered locator for a simple and pleasant code navigation.
 - Keyboard focused user interface.
-- In-editor Git support for things like git blame and git log.
+- Git support without hide git, so you can trust it.
 - Support Language Server Protocol.
-- Keep the UI plain simple.
+- Plain simple UI, distraction free.
 
 ## Features
 
