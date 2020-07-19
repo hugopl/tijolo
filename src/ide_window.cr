@@ -115,12 +115,27 @@ class IdeWindow < Window
                {"goto_definition", ->goto_definition},
     }
     actions.each do |(name, closure)|
-      g_action = Gio::SimpleAction.new(name, nil)
-      g_action.on_activate { closure.call }
-      main_window.add_action(g_action)
-      shortcut = config.shortcuts[name]? || config.default_shortcuts[name]
-      application.set_accels_for_action("win.#{name}", {shortcut})
+      action = Gio::SimpleAction.new(name, nil)
+      action.on_activate { closure.call }
+      main_window.add_action(action)
+
+      shortcut = config.shortcuts[name]? || config.default_shortcuts[name]?
+      application.set_accels_for_action("win.#{name}", {shortcut}) if shortcut
     end
+
+    # View related actions
+    uint64 = GLib::VariantType.new("t")
+    action = Gio::SimpleAction.new("copy_full_path", uint64)
+    action.on_activate(&->copy_view_full_path(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(action)
+
+    action = Gio::SimpleAction.new("copy_path_and_line", uint64)
+    action.on_activate(&->copy_view_path_and_line(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(action)
+
+    action = Gio::SimpleAction.new("copy_file_name", uint64)
+    action.on_activate(&->copy_view_file_name(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(action)
   end
 
   private def show_locator
@@ -313,6 +328,43 @@ class IdeWindow < Window
     end
   rescue e : AppError
     application.error(e)
+  end
+
+  private def clipboard
+    Gtk::Clipboard.default(Gdk::Display.default.not_nil!)
+  end
+
+  private def copy_view_full_path(_action, view_id : GLib::Variant?)
+    view = @open_files.view(view_id.uint64) unless view_id.nil?
+    return if view.nil?
+
+    path = view.file_path
+    return if path.nil?
+
+    text = path.to_s
+    clipboard.set_text(text, text.bytesize)
+  end
+
+  private def copy_view_path_and_line(_action, view_id : GLib::Variant?)
+    view = @open_files.view(view_id.uint64) unless view_id.nil?
+    return if view.nil?
+
+    path = view.file_path
+    return if path.nil?
+
+    text = "#{path}:#{view.cursor_pos[0] + 1}"
+    clipboard.set_text(text, text.bytesize)
+  end
+
+  private def copy_view_file_name(_action, view_id : GLib::Variant?)
+    view = @open_files.view(view_id.uint64) unless view_id.nil?
+    return if view.nil?
+
+    path = view.file_path
+    return if path.nil?
+
+    text = path.basename.to_s
+    clipboard.set_text(text, text.bytesize)
   end
 
   def view_escape_pressed(_view)

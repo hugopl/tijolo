@@ -12,7 +12,7 @@ class TextView < View
   @editor : GtkSource::View
   getter buffer : GtkSource::Buffer
   getter version = 1
-  @file_path_label : Gtk::Label
+  @file_path_label : Gtk::MenuButton
 
   getter language : Language
 
@@ -31,11 +31,20 @@ class TextView < View
 
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
     @line_column = Gtk::Label.cast(builder["line_column"])
-    @file_path_label = Gtk::Label.cast(builder["file_path"])
+    @file_path_label = Gtk::MenuButton.cast(builder["file_path"])
+    @file_path_label.on_button_press_event do |_widget, _event|
+      @file_path_label.clicked
+      true
+    end
 
     @language = Language.new
     setup_editor
     update_header
+
+    variant_self = GLib::Variant.new_uint64(self.object_id)
+    Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
   end
 
   def label=(label : String)
@@ -63,9 +72,9 @@ class TextView < View
     super
     @editor.editable = !value
     if value
-      @file_path_label.text = "#{@label} 🔒"
+      @file_path_label.label = "#{@label} 🔒"
     else
-      @file_path_label.text = "#{@label}"
+      @file_path_label.label = "#{@label}"
     end
   end
 
@@ -181,7 +190,7 @@ class TextView < View
   end
 
   private def update_header(_buffer = nil)
-    @file_path_label.text = header_text
+    @file_path_label.label = header_text
   end
 
   private def mimetype(file_name, file_contents)

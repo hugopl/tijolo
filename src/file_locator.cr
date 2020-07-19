@@ -31,7 +31,7 @@ class FileLocator < FuzzyLocator
   end
 
   def description : String
-    ""  # not used, this is the default locator provider.
+    "" # not used, this is the default locator provider.
   end
 
   def activate(locator : Locator, match : Fzy::Match)

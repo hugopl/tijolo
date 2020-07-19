@@ -11,7 +11,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] :no_entry: Warn about files changed on mainwindow focus in.
 - [ ] Open files with cursor position where it was when closed last time.
 - [ ] Separate config file from rc file.
-- [ ] Double click on editor-header copies the file path to clipboard
+- [x] Click on editor-header show options to copy file path to clipboard.
 - [x] Show locator helper when more locators exists.
 - [ ] LSP
   - [x] Start language servers when opening a project.

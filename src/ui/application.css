@@ -54,7 +54,7 @@ paned separator {
   background-image: linear-gradient(transparent, transparent 1px, #999 1px, #999 4px, transparent 4px);
 }
 
-#no-view, #ide-window .editor-header {
+#no-view {
   padding: 4px 6px 4px 6px;
   margin: 0px;
   color: @tijolo_orange1;
@@ -64,6 +64,17 @@ paned separator {
 #ide-window .editor-header {
   color: @tijolo_black;
   background-color: @tijolo_orange2;
+}
+
+
+.editor-header button {
+  color: @tijolo_black;
+  padding: 0;
+  margin: 0px;
+}
+.editor-header .text-button:hover, .editor-header .text-button:checked {
+  color: @tijolo_black;
+  background-color: transparent;
 }
 
 #ide-window .tijolo-title {
