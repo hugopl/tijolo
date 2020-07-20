@@ -19,7 +19,13 @@ class DocumentSymbolLocator < FuzzyLocator
 
   def selected(current_view : View?)
     super
-    return if current_view.nil? || current_view.file_path.nil?
+    if current_view.nil?
+      self.placeholder = "Open a file to use this locator"
+      return
+    elsif current_view.file_path.nil?
+      self.placeholder = "Save this file first to use this locator"
+      return
+    end
 
     current_view.language.document_symbols(current_view.file_path.not_nil!) do |symbols|
       @symbols = symbols
