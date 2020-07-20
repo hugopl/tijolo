@@ -40,6 +40,7 @@ class Config
 
   property projects = [] of Config::ProjectEntry
   property? scan_projects = true
+  property ignored_dirs : Array(Path)?
   property? lazy_start_language_servers = false
   setter shortcuts : Hash(String, String)?
   setter language_servers : Hash(String, String)?
@@ -109,6 +110,10 @@ class Config
       "crystal" => "scry",
       "ruby"    => "solargraph stdio",
     }
+  end
+
+  def ignored_dirs : Array(Path)
+    @ignored_dirs ||= [Path.new("node_modules"), Path.new("tmp/cache")]
   end
 
   def add_project(project_path : String)

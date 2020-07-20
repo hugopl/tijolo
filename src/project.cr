@@ -9,19 +9,17 @@ module ProjectListener
 end
 
 class Project
-  # FIXME this should be configurable
-  IGNORED_DIRS = %w(node_modules)
-
   observable_by ProjectListener
 
   getter root : Path
   getter? load_finished = false
 
   @files_mutex = Mutex.new
+  @ignored_dirs : Array(Path)
 
   def initialize(location : String)
     @root = find_root(Path.new(location)).normalize
-
+    @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: @root))
     # All paths here should be relative to `root`.
     @files = Set(Path).new
 
@@ -155,7 +153,6 @@ class Project
   end
 
   private def scan_files
-    # TODO: scan files in another thread
     spawn do
       start_t = Time.monotonic
       files = Set(Path).new
@@ -164,7 +161,7 @@ class Project
         @files = files
       end
       @load_finished = true
-      Log.info { "files scan: #{Time.monotonic - start_t}" }
+      Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
       GLib.timeout(0) do
         notify_project_load_finished
         false
@@ -172,7 +169,13 @@ class Project
     end
   end
 
+  private def should_ignore_dir?(path) : Bool
+    @ignored_dirs.any?(path)
+  end
+
   private def scan_dir(dir : Path, files)
+    return if should_ignore_dir?(dir)
+
     entries = Dir.open(dir, &.entries)
     entries.each do |entry|
       next if entry == "." || entry == ".."
@@ -183,7 +186,7 @@ class Project
         next
       elsif info.file?
         files << path.relative_to(@root)
-      elsif info.directory? && entry[0] != '.' && !IGNORED_DIRS.includes?(entry)
+      elsif info.directory? && entry[0] != '.'
         scan_dir(path, files)
       end
     end
