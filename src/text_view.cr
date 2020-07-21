@@ -169,8 +169,8 @@ class TextView < View
     end
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.on_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.on_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
     @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
     @buffer.place_cursor(0)
   ensure

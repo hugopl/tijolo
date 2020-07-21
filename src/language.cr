@@ -130,11 +130,12 @@ class Language
     end
   end
 
-  private def file_changed_full_sync(text_view : TextView)
-    uri = uri(text_view.file_path.not_nil!)
-    version = text_view.next_version
-    params = Protocol::DidChangeTextDocumentParams.new(uri, version, text_view.text)
-    lsp_client.notify("textDocument/didChange", params)
+  private def file_changed_full_sync(_text_view : TextView)
+    # FIXME: Calling text_view.text too many times is very slow... so I'm disabling full sync for now.
+    # uri = uri(text_view.file_path.not_nil!)
+    # version = text_view.next_version
+    # params = Protocol::DidChangeTextDocumentParams.new(uri, version, text_view.text)
+    # lsp_client.notify("textDocument/didChange", params)
   end
 
   def notify_did_save(text_view : TextView)
