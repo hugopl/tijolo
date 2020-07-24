@@ -303,10 +303,6 @@ class ProjectTree
     @root.remove(path)
   end
 
-  def project_folder_renamed(old_path : Path, new_path : Path)
-    @root.rename_folder(old_path, new_path)
-  end
-
   def project_load_finished
     @root.populate
   end

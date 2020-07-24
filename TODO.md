@@ -7,7 +7,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 ## Probably before 0.1.0 release
 
 - [x] This TODO list.
-- [ ] :no_entry: Fix file monitoring taht barely works now.
+- [x] Fix file monitoring that barely works now.
 - [ ] :no_entry: Warn about files changed on mainwindow focus in.
 - [ ] Open files with cursor position where it was when closed last time.
 - [ ] Separate config file from rc file.

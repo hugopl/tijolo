@@ -61,16 +61,9 @@ class IdeWindow < Window
     @open_files.add_open_files_listener(self)
     @locator.add_locator_listener(self)
     @project.add_project_listener(self)
+    @project.scan_files # To avoid a race condition we scan project files only after we add all listeners to it.
+
     setup_actions
-  end
-
-  def project_file_added(path : Path)
-  end
-
-  def project_file_removed(path : Path)
-  end
-
-  def project_folder_renamed(old_path : Path, new_path : Path)
   end
 
   def project_load_finished
@@ -245,7 +238,7 @@ class IdeWindow < Window
       res = dlg.run
       if res == Gtk::ResponseType::ACCEPT.to_i
         file_path = Path.new(dlg.filename.to_s).expand
-        @project.add_file(file_path)
+        @project.add_path(file_path)
         view.file_path = file_path
       end
 

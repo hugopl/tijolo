@@ -10,16 +10,8 @@ class FileLocator < FuzzyLocator
     @project.add_project_listener(self)
   end
 
-  def project_file_added(_path : Path)
-    project_load_finished # Lazy way... just reload all the things
-  end
-
-  def project_file_removed(_path : Path)
-    project_load_finished # Lazy way... just reload all the things
-  end
-
-  def project_folder_renamed(_old_path : Path, _new_path : Path)
-    project_load_finished # Lazy way... just reload all the things
+  def project_files_changed
+    project_load_finished
   end
 
   def project_load_finished

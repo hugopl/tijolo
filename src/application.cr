@@ -122,9 +122,6 @@ class Application
 
   def run
     @application.run(nil)
-  rescue e
-    Log.fatal { e.backtrace }
-    abort(e.message)
   end
 
   def error(exception : Exception) : Nil

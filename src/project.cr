@@ -2,10 +2,23 @@ require "log"
 require "./observable"
 
 module ProjectListener
-  abstract def project_file_added(path : Path)
-  abstract def project_file_removed(path : Path)
-  abstract def project_folder_renamed(old_path : Path, new_path : Path)
-  abstract def project_load_finished
+  def project_file_added(path : Path)
+  end
+
+  def project_file_removed(path : Path)
+  end
+
+  def project_dir_added(path : Path)
+  end
+
+  def project_dir_removed(path : Path)
+  end
+
+  def project_files_changed
+  end
+
+  def project_load_finished
+  end
 end
 
 class Project
@@ -17,13 +30,14 @@ class Project
   @files_mutex = Mutex.new
   @ignored_dirs : Array(Path)
 
+  # All paths here should be relative to `root`, directories doesn't include root dir.
+  @directories = Set(Path).new
+  @files = Set(Path).new
+
   def initialize(location : String)
     @root = find_root(Path.new(location)).normalize
     @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: @root))
-    # All paths here should be relative to `root`.
-    @files = Set(Path).new
 
-    scan_files
     Log.info { "Project root: #{@root}" }
     Dir.cd(@root)
   end
@@ -37,85 +51,132 @@ class Project
   end
 
   def under_project?(path : Path)
-    file_path = path.expand
+    file_path = path.expand(base: @root)
     file_path.parts[0...@root.parts.size] == @root.parts
   end
 
-  def files : Set(Path)
+  def files : Enumerable(Path)
     @files_mutex.synchronize do
       @files.dup
     end
   end
 
-  def add_file(file_path : String)
-    add_file(Path.new(file_path))
+  def add_path(path : Path) : Bool
+    path = path.relative_to(@root)
+    return false unless under_project?(path)
+
+    if File.directory?(path)
+      add_files_in_dir(path)
+    else
+      add_single_file_path(path)
+    end
   end
 
-  def add_file(file_path : Path) : Bool
-    return false unless under_project?(file_path)
+  private def add_files_in_dir(dir_path) : Bool
+    files = [] of Path
+    directories = [] of Path
+    scan_dir(dir_path, files, directories)
 
-    relative_path = file_path.expand.relative_to(@root)
+    @files_mutex.synchronize do
+      files.each { |file| @files.add?(file) }
+      directories.each { |dir| @directories.add?(dir) }
+    end
+    files.each do |file|
+      notify_project_file_added(file)
+    end
+    directories.each do |dir|
+      notify_project_dir_added(dir)
+    end
+    notify_project_files_changed if files.any?
+
+    files.any? || directories.any?
+  end
+
+  private def add_single_file_path(relative_path) : Bool
     added = false
+    missing_dirs = missing_directories(relative_path)
     @files_mutex.synchronize do
       added = @files.add?(relative_path)
     end
-    notify_project_file_added(relative_path)
+    if added
+      missing_dirs.each do |dir|
+        notify_project_dir_added(dir)
+      end
+      notify_project_file_added(relative_path)
+      notify_project_files_changed
+    end
     added
   end
 
-  def remove_file(file_path : String)
-    remove_file(Path.new(file_path))
+  private def missing_directories(relative_file_path) : Array(Path)
+    path = Path.new(relative_file_path.dirname)
+    missing_dirs = [] of Path
+    @files_mutex.synchronize do
+      while path.to_s != "." && !@directories.includes?(path)
+        missing_dirs << path
+        path = Path.new(path.dirname)
+      end
+    end
+    missing_dirs
   end
 
-  def remove_file(file_path : Path) : Bool
-    relative_path = file_path.relative_to(@root)
-    return false unless @files.includes?(relative_path)
+  def remove_path(path : Path) : Bool
+    path = path.relative_to(@root)
+    return true if remove_file_path(path)
 
+    files_to_delete = [] of Path
+    dirs_to_delete = [] of Path
     @files_mutex.synchronize do
+      return false unless @directories.includes?(path)
+
+      # Remove all files under this dir.
+      path_str = "#{path}/"
+      files_to_delete = @files.select(&.to_s.starts_with?(path_str))
+      files_to_delete.not_nil!.each do |file|
+        @files.delete(file)
+      end
+
+      # Remove all directories under this dir
+      dirs_to_delete = @directories.select(&.to_s.starts_with?(path_str)).uniq!
+      dirs_to_delete << path
+      dirs_to_delete.each do |file|
+        @directories.delete(file)
+      end
+    end
+    files_to_delete.each do |file|
+      notify_project_file_removed(file)
+    end
+    dirs_to_delete.each do |dir|
+      notify_project_dir_removed(dir)
+    end
+    notify_project_files_changed
+    files_to_delete.any? || dirs_to_delete.any?
+  end
+
+  # file_path should already be relative to the project
+  private def remove_file_path(relative_path : Path) : Bool
+    @files_mutex.synchronize do
+      return false unless @files.includes?(relative_path)
+
       @files.delete(relative_path)
     end
     notify_project_file_removed(relative_path)
+    notify_project_files_changed
     true
   end
 
-  def rename_folder(old_path : String, new_path : String)
-    rename_folder(Path.new(old_path), Path.new(new_path))
-  end
-
-  # Both paths must be at same level.. or weird things will happen
-  def rename_folder(old_path : Path, new_path : Path) : Nil
-    old_path = old_path.relative_to(@root)
-    new_path = new_path.relative_to(@root)
-
-    old_path_str = "#{old_path}/"
-    new_path_str = new_path.to_s
-    files_to_remove = [] of Path
-    files_to_add = [] of Path
-    @files.each do |file|
-      if file.to_s.starts_with?(old_path_str)
-        files_to_add << Path.new(file.to_s.sub(old_path.to_s, new_path_str))
-        files_to_remove << file
-      end
-    end
-    files_to_remove.each { |f| @files.delete(f) }
-    files_to_add.each { |f| @files << f }
-    notify_project_folder_renamed(old_path, new_path) if files_to_remove.any?
+  def rename_path(old_path : Path, new_path : Path)
+    # FIXME: Proper rename folders
+    remove_path(old_path)
+    add_path(new_path)
   end
 
   def each_directory
-    dirs = @files.map(&.dirname).select!(&.index('/')).uniq!
-    uniq_dirs = Set(String).new(dirs)
-
-    # Get the inner this
-    while dirs.any?
-      dirs = dirs.map! { |dir| File.dirname(dir) }.uniq!
-      dirs.delete(".")
-      dirs.each { |dir| uniq_dirs << dir }
-    end
-
     yield @root.to_s
-    uniq_dirs.each do |dir|
-      yield(@root.join(dir))
+    @files_mutex.synchronize do
+      @directories.each do |dir|
+        yield(@root.join(dir))
+      end
     end
   end
 
@@ -152,13 +213,15 @@ class Project
     raise AppError.new("Valid git project directory not found at #{location.expand}.")
   end
 
-  private def scan_files
+  def scan_files
     spawn do
       start_t = Time.monotonic
       files = Set(Path).new
-      scan_dir(@root, files)
+      directories = Set(Path).new
+      scan_dir(@root, files, directories)
       @files_mutex.synchronize do
         @files = files
+        @directories = directories
       end
       @load_finished = true
       Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
@@ -173,9 +236,10 @@ class Project
     @ignored_dirs.any?(path)
   end
 
-  private def scan_dir(dir : Path, files)
+  private def scan_dir(dir : Path, files, directories)
     return if should_ignore_dir?(dir)
 
+    directories << dir.relative_to(@root) if dir != @root
     entries = Dir.open(dir, &.entries)
     entries.each do |entry|
       next if entry == "." || entry == ".."
@@ -187,7 +251,7 @@ class Project
       elsif info.file?
         files << path.relative_to(@root)
       elsif info.directory? && entry[0] != '.'
-        scan_dir(path, files)
+        scan_dir(path, files, directories)
       end
     end
   end

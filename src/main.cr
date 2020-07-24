@@ -50,4 +50,7 @@ begin
 rescue e : AppError
   Log.fatal { e.message }
   abort
+rescue e
+  Log.fatal(exception: e) { e.message }
+  abort
 end
