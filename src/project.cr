@@ -180,9 +180,9 @@ class Project
     end
   end
 
-  def self.scan_projects(dir : Path, projects = [] of Path)
+  def self.scan_projects(dir : Path, &block : Proc(Path,Nil))
     if File.exists?(dir.join(".git"))
-      projects << dir
+      block.call(dir)
     else
       entries = Dir.open(dir.to_s, &.entries)
       entries.each do |entry|
@@ -190,10 +190,9 @@ class Project
 
         path = Path.new(dir, entry)
         info = File.info(path.to_s, follow_symlinks: false)
-        scan_projects(path, projects) if info.directory?
+        scan_projects(path, &block) if info.directory?
       end
     end
-    projects.sort!
   end
 
   private def find_root(location : Path) : Path

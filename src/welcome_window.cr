@@ -76,7 +76,7 @@ class WelcomeWindow < Window
       config = Config.instance
 
       t = Time.measure do
-        Project.scan_projects(Path.home).each do |project|
+        Project.scan_projects(Path.home) do |project|
           config.add_project(project.to_s)
         end
       end
