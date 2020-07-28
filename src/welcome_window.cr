@@ -1,5 +1,5 @@
 require "./window"
-require "./config"
+require "./tijolo_rc"
 
 class WelcomeWindow < Window
   @projects_model : Gtk::ListStore
@@ -25,7 +25,7 @@ class WelcomeWindow < Window
 
     @projects_model = Gtk::ListStore.cast(builder["projects_model"])
 
-    if Config.instance.scan_projects?
+    if TijoloRC.instance.scan_projects?
       scan_projects
     else
       fill_projects_model
@@ -33,14 +33,13 @@ class WelcomeWindow < Window
   end
 
   private def fill_projects_model
-    config = Config.instance
     home = Path.home.to_s
-
-    config.projects.each do |project|
-      project_dir = project.path.sub(home, "~")
+    TijoloRC.instance.projects.each do |project|
+      project_path = project.path.to_s
+      project_path_label = project_path.starts_with?(home) ? project_path.sub(home, "~") : project_path
       last_used = format_last_used(project)
-      @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_dir}#{last_used}</small></i>",
-                                      project.path})
+      @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>",
+                                      project_path})
     end
   end
 
@@ -73,16 +72,16 @@ class WelcomeWindow < Window
     @tree_view.sensitive = false
     @spinner.show
     spawn do
-      config = Config.instance
+      rc = TijoloRC.instance
 
       t = Time.measure do
-        Project.scan_projects(Path.home) do |project|
-          config.add_project(project.to_s)
+        Project.scan_projects(Path.home) do |path|
+          rc.add_project(path)
         end
       end
       Log.info { "Scaning all projects in #{t}." }
-      config.scan_projects = false
-      config.filter_projects!
+      rc.scan_projects = false
+      rc.filter_projects!
 
       # Execute this in main thread
       GLib.timeout(0, &->scan_projects_finished)

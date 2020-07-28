@@ -40,6 +40,7 @@ class TextView < View
     @language = Language.new
     setup_editor
     update_header
+    restore_cursor
 
     variant_self = GLib::Variant.new_uint64(self.object_id)
     Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
@@ -172,9 +173,21 @@ class TextView < View
     @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
     @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
     @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
-    @buffer.place_cursor(0)
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  def restore_cursor
+    file_path = @file_path
+    project_path = @project_path
+    if file_path && project_path
+      GLib.timeout(0) do
+        goto(*TijoloRC.instance.cursor_position(project_path.not_nil!, file_path))
+        false
+      end
+    else
+      @buffer.place_cursor(0)
+    end
   end
 
   def next_version
@@ -201,6 +214,10 @@ class TextView < View
   def cursor_pos
     iter = @buffer.iter_at_offset(@buffer.cursor_position)
     {iter.line, iter.line_offset}
+  end
+
+  def cursor_pos=(pos : {Int32, Int32})
+    @buffer.place_cursor(@buffer.iter_at_line_offset(*pos))
   end
 
   private def cursor_changed

@@ -1,4 +1,5 @@
 require "log"
+require "./config"
 require "./observable"
 
 module ProjectListener
@@ -180,7 +181,7 @@ class Project
     end
   end
 
-  def self.scan_projects(dir : Path, &block : Proc(Path,Nil))
+  def self.scan_projects(dir : Path, &block : Proc(Path, Nil))
     if File.exists?(dir.join(".git"))
       block.call(dir)
     else

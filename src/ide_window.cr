@@ -8,6 +8,7 @@ require "./window"
 require "./project_monitor"
 require "./project_tree"
 require "./text_view"
+require "./tijolo_rc"
 
 class IdeWindow < Window
   include ViewListener
@@ -26,12 +27,14 @@ class IdeWindow < Window
   @find_replace : FindReplace
   @locator : Locator
 
+  @tijolorc : TijoloRC
+
   def initialize(application : Application, @project : Project)
     builder = builder_for("ide_window")
     super(application, builder)
 
-    Config.instance.update_last_used_of(@project.root)
-
+    @tijolorc = TijoloRC.instance
+    @tijolorc.touch_project(@project.root)
     @project_monitor = ProjectMonitor.new(@project)
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project)
@@ -137,15 +140,15 @@ class IdeWindow < Window
 
   private def create_view(file : Path) : View
     # TODO: check file mime type and create the right view.
-    create_text_view(file)
+    view = create_text_view(file)
+    @open_files << view
+    view
   end
 
   private def create_text_view(file_path : Path? = nil) : TextView
     project_path = @project.root if file_path && @project.under_project?(file_path)
     view = TextView.new(file_path, project_path)
     view.add_view_listener(self)
-    @open_files << view
-
     view.language.file_opened(view)
     view
   end
@@ -278,7 +281,10 @@ class IdeWindow < Window
     view.remove_view_listener(self)
 
     text_view = view.as?(TextView)
-    text_view.language.file_closed(text_view) if text_view
+    if text_view
+      text_view.language.file_closed(text_view)
+      save_cursor(text_view)
+    end
   end
 
   def find_in_current_view
@@ -370,6 +376,13 @@ class IdeWindow < Window
     @fullscreen = !@fullscreen
   end
 
+  def save_cursor(view : TextView)
+    file_path = view.file_path
+    return if file_path.nil?
+
+    @tijolorc.save_cursor_position(@project.root, file_path, *view.cursor_pos)
+  end
+
   def about_to_quit(_widget, event) : Bool
     unless @open_files.all_saved?
       dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
@@ -383,6 +396,11 @@ class IdeWindow < Window
       end
     end
     LanguageManager.shutdown
+    # Save all view cursors
+    @open_files.files.each do |view|
+      save_cursor(view) if view.is_a?(TextView)
+    end
+    @tijolorc.touch_project(@project.root)
     false
   end
 end

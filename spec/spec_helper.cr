@@ -2,7 +2,7 @@ require "spec"
 require "gobject/gtk"
 require_gobject "GtkSource"
 
-require "../src/config"
+require "../src/tijolo_rc"
 require "../src/error"
 require "../src/gtk"
 require "../src/helper"
@@ -78,14 +78,6 @@ def load_project(root) : Project
     Fiber.yield
   end
   project
-end
-
-class Config
-  @@load_yaml : Config?
-
-  def self.load_yaml
-    @@load_yaml ||= Config.new
-  end
 end
 
 class TestLocatorListener
