@@ -135,16 +135,13 @@ class IdeWindow < Window
     @locator.show(select_text: true, view: @open_files.current_view)
   end
 
-  private def create_view(file : String) : View
+  private def create_view(file : Path) : View
     # TODO: check file mime type and create the right view.
     create_text_view(file)
   end
 
-  private def create_text_view(file : String? = nil) : TextView
-    if file
-      file_path = Path.new(file)
-      project_path = @project.root if @project.under_project?(file_path)
-    end
+  private def create_text_view(file_path : Path? = nil) : TextView
+    project_path = @project.root if file_path && @project.under_project?(file_path)
     view = TextView.new(file_path, project_path)
     view.add_view_listener(self)
     @open_files << view
@@ -163,11 +160,11 @@ class IdeWindow < Window
     return if view.value(tree_path, ProjectTree::PROJECT_TREE_IS_DIR).boolean
 
     file_path = @project_tree.file_path(tree_path)
-    open_file(file_path) if file_path
+    open_file(Path.new(file_path)) if file_path
   end
 
   def locator_open_file(file : String)
-    open_file(file)
+    open_file(Path.new(file))
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)
@@ -185,7 +182,7 @@ class IdeWindow < Window
     @locator.show(select_text: false, view: @open_files.current_view)
   end
 
-  def open_file(file : String) : View?
+  def open_file(file : Path) : View?
     view = @open_files.view(file)
     if view.nil?
       view = create_view(file)
@@ -259,7 +256,7 @@ class IdeWindow < Window
 
     if dlg.run == Gtk::ResponseType::ACCEPT.value
       uri = dlg.uri
-      open_file(URI.parse(uri).full_path) if uri
+      open_file(Path.new(URI.parse(uri).full_path)) if uri
     end
   ensure
     dlg.try(&.destroy)
@@ -316,7 +313,7 @@ class IdeWindow < Window
     return if path.nil?
 
     text_view.language.goto_definition(path, *text_view.cursor_pos) do |file, line, col|
-      view = open_file(file).as?(TextView)
+      view = open_file(Path.new(file)).as?(TextView)
       view.goto(line, col) if view
     end
   rescue e : AppError

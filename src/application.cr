@@ -86,6 +86,7 @@ class Application
   end
 
   def open_project(files : Array(String)) : Bool
+    pwd = Dir.current
     ide = nil
     files.each do |file|
       ide = open_project(file)
@@ -94,7 +95,8 @@ class Application
     return false if ide.nil?
 
     files.each do |file|
-      ide.open_file(file) unless Dir.exists?(file)
+      file_path = Path.new(file).expand(base: pwd)
+      ide.open_file(file_path) unless Dir.exists?(file_path)
     end
     true
   end

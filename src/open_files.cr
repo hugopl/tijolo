@@ -48,11 +48,10 @@ class OpenFiles
     nil
   end
 
-  def view(file_path : String) : View?
-    @files.each do |view|
-      return view if view.file_path.to_s == file_path
+  def view(file_path : Path) : View?
+    @files.find do |view|
+      view.file_path == file_path
     end
-    nil
   end
 
   def current_view : View?
