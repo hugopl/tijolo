@@ -123,6 +123,7 @@ class TextView < View
     raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
 
     remove_all_trailing_spaces! if Config.instance.trailing_whitespace?
+    super
     File.write(file_path, text)
     @buffer.modified = false
 
@@ -151,10 +152,30 @@ class TextView < View
   end
 
   private def setup_editor
-    @buffer.begin_not_undoable_action
-
     @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
 
+    @buffer.begin_not_undoable_action
+    reload
+
+    @buffer.connect("notify::cursor-position") { cursor_changed }
+    @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
+  ensure
+    @buffer.end_not_undoable_action
+  end
+
+  def reload
+    super
+    @buffer.begin_user_action
+    pos = cursor_pos
+    load_contents
+    self.cursor_pos = pos
+  ensure
+    @buffer.end_user_action
+  end
+
+  private def load_contents
     file_path = @file_path
     if file_path
       text = File.read(file_path)
@@ -168,13 +189,6 @@ class TextView < View
     else
       @buffer.modified = true
     end
-
-    @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
-    @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
-  ensure
-    @buffer.end_not_undoable_action
   end
 
   def restore_cursor

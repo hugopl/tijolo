@@ -20,6 +20,8 @@ abstract class View
   getter id : String
   property label : String
   property? readonly = false
+  getter last_saved_at : Time::Span?
+  getter? externally_modified = false
 
   def initialize(file_path : Path? = nil, @project_path = nil)
     @id = object_id.to_s
@@ -65,5 +67,22 @@ abstract class View
 
   abstract def grab_focus
   abstract def modified? : Bool
-  abstract def save
+
+  def externally_unmodified!
+    @externally_modified = false
+  end
+
+  def externally_modified!
+    last_saved_at = @last_saved_at
+    @externally_modified = last_saved_at.nil? ? true : Time.monotonic - last_saved_at > 1.seconds
+  end
+
+  def reload : Nil
+    @externally_modified = false
+  end
+
+  def save : Nil
+    @last_saved_at = Time.monotonic
+    @externally_modified = false
+  end
 end

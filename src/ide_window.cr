@@ -1,6 +1,6 @@
 require "uri"
 
-require "./confirm_save_dialog"
+require "./confirm_dialogs"
 require "./find_replace"
 require "./locator"
 require "./open_files"
@@ -67,6 +67,15 @@ class IdeWindow < Window
     @project.scan_files # To avoid a race condition we scan project files only after we add all listeners to it.
 
     setup_actions
+  end
+
+  def project_file_content_changed(path : Path)
+    view = @open_files.view(path)
+    return if view.nil?
+
+    view.externally_modified!
+    # TODO: Show a passive banner and let user press F5 to reload or ESC to ignore instead of an annoying dialog.
+    ask_about_externally_modified_files if view == @open_files.current_view
   end
 
   def project_load_finished
@@ -202,6 +211,8 @@ class IdeWindow < Window
     @open_files_view.selection.select_row(@open_files.current_row)
     return unless definitive
 
+    ask_about_externally_modified_files if view.externally_modified?
+
     @find_replace.hide
     # Select file on project tree view
     file = view.file_path
@@ -275,7 +286,7 @@ class IdeWindow < Window
       result = dlg.run
       return if result.cancel?
 
-      save_view(view) if result.save?
+      save_view(view) if result.do_action?
     end
     @open_files.close_current_view
     view.remove_view_listener(self)
@@ -383,13 +394,25 @@ class IdeWindow < Window
     @tijolorc.save_cursor_position(@project.root, file_path, *view.cursor_pos)
   end
 
+  def ask_about_externally_modified_files
+    modified_views = @open_files.files.select(&.externally_modified?)
+    return if modified_views.empty?
+
+    dlg = ConfirmReloadDialog.new(modified_views)
+    case dlg.run
+    when .cancel?    then return
+    when .do_action? then dlg.selected_views.each(&.reload)
+    end
+    modified_views.each(&.externally_unmodified!)
+  end
+
   def about_to_quit(_widget, event) : Bool
     unless @open_files.all_saved?
       dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
       result = dlg.run
       if result.cancel?
         return true
-      elsif result.save?
+      elsif result.do_action?
         dlg.selected_views.each do |view|
           save_view(view)
         end

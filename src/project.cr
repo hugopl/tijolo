@@ -18,6 +18,9 @@ module ProjectListener
   def project_files_changed
   end
 
+  def project_file_content_changed(path : Path)
+  end
+
   def project_load_finished
   end
 end

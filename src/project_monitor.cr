@@ -41,6 +41,8 @@ class ProjectMonitor
       @project.remove_path(file_path)
     when .renamed?
       @project.rename_path(file_path, other_path) if other_path
+    when .changed?
+      @project.notify_project_file_content_changed(file_path)
     end
   end
 

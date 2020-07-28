@@ -8,7 +8,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 - [x] This TODO list.
 - [x] Fix file monitoring that barely works now.
-- [ ] :no_entry: Warn about files changed on mainwindow focus in.
+- [x] Warn about files changed externally.
 - [x] Open files with cursor position where it was when closed last time.
 - [x] Separate config file from rc file.
 - [x] Click on editor-header show options to copy file path to clipboard.
