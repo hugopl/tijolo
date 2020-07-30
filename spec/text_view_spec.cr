@@ -21,6 +21,17 @@ describe TextView do
     TextView.new.modified?.should eq(true)
   end
 
+  it "has a Untitled title for new files" do
+    view_label = TextView.new.file_path_label.label
+    view_label.should match(/Untitled (\d+ )?✱/)
+
+    match = view_label.match(/Untitled (\d+ )?✱/).not_nil!
+    next_n = match[1]?.nil? ? 0 : match[1].to_i
+    TextView.new.file_path_label.label.should eq("Untitled #{next_n + 1} ✱")
+    TextView.new.file_path_label.label.should eq("Untitled #{next_n + 2} ✱")
+    TextView.new.file_path_label.label.should eq("Untitled #{next_n + 3} ✱")
+  end
+
   context "when inserting around selection" do
     it "insert chars" do
       view = TextView.new

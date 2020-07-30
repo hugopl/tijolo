@@ -56,7 +56,7 @@ abstract class View
     path = if project_path && file_path
              "#{file_path.relative_to(project_path)}"
            else
-             file_path.to_s
+             @label
            end
     "#{path}#{modified}"
   end

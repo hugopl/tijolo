@@ -12,7 +12,7 @@ class TextView < View
   @editor : GtkSource::View
   getter buffer : GtkSource::Buffer
   getter version = 1
-  @file_path_label : Gtk::MenuButton
+  getter file_path_label : Gtk::MenuButton
 
   getter language : Language
 

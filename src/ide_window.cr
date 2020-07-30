@@ -105,7 +105,7 @@ class IdeWindow < Window
   private def setup_actions
     config = Config.instance
     actions = { {"show_locator", ->show_locator},
-               {"new_file", ->create_text_view},
+               {"new_file", ->create_view},
                {"open_file", ->open_file_dlg},
                {"close_view", ->close_current_view},
                {"save_view", ->save_current_view},
@@ -147,13 +147,14 @@ class IdeWindow < Window
     @locator.show(select_text: true, view: @open_files.current_view)
   end
 
-  private def create_view(file : Path) : View
+  private def create_view(file : Path? = nil) : View
     # TODO: check file mime type and create the right view.
     view = create_text_view(file)
     @open_files << view
     view
   end
 
+  # Call create_view instead of this.
   private def create_text_view(file_path : Path? = nil) : TextView
     project_path = @project.root if file_path && @project.under_project?(file_path)
     view = TextView.new(file_path, project_path)
