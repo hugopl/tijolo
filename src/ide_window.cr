@@ -45,16 +45,15 @@ class IdeWindow < Window
 
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files"])
-    @open_files_view.selection.mode = :browse
     @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
     @open_files_view.model = @open_files.sorted_model
-    @open_files_view.on_row_activated &->open_file_from_open_files(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
+    overlay.add_overlay(@open_files_view)
+    @open_files_view.hide
 
     # Setup Project Tree view
     @project_tree = ProjectTree.new(@project)
     @project_tree_view = Gtk::TreeView.cast(builder["project_tree"])
     @project_tree_view.model = @project_tree.model
-    @project_tree_view.selection.mode = :browse
     @project_tree_view.on_row_activated &->open_file_from_project_tree(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
 
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
@@ -88,6 +87,7 @@ class IdeWindow < Window
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = true
       @open_files.switch_current_view(false)
+      @open_files_view.show unless @open_files.empty?
       return true
     end
     false
@@ -97,6 +97,7 @@ class IdeWindow < Window
     if @switching_open_files && event.keyval != Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = false
       @open_files.switch_current_view(true)
+      @open_files_view.hide
       return true
     end
     false
@@ -161,12 +162,6 @@ class IdeWindow < Window
     view.add_view_listener(self)
     view.language.file_opened(view)
     view
-  end
-
-  private def open_file_from_open_files(view : Gtk::TreeView, path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    view_id = view.value(path, OpenFiles::OPEN_FILES_VIEW_ID).uint64
-    view = @open_files.view(view_id)
-    @open_files.show_view(view) unless view.nil?
   end
 
   private def open_file_from_project_tree(view : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)

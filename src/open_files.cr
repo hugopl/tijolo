@@ -20,15 +20,14 @@ class OpenFiles
 
   # Open files model columns
   OPEN_FILES_LABEL     = 0
-  OPEN_FILES_VIEW_ID   = 1
-  OPEN_FILES_LAST_USED = 2
+  OPEN_FILES_LAST_USED = 1
 
   Log = ::Log.for("OpenFiles")
 
   delegate empty?, to: @files
 
   def initialize(@stack : Gtk::Stack)
-    @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UINT64, GObject::Type::ULONG})
+    @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
 
@@ -65,7 +64,7 @@ class OpenFiles
     @files << view
     @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
-    @model.append({0, 1, 2}, {view.label, view.object_id, last_used_counter})
+    @model.append({0, 1}, {view.label, last_used_counter})
 
     reveal_view(view, true)
     view.add_view_listener(self)

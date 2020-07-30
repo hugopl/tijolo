@@ -30,7 +30,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 ## UI Planned Changes
 
-- [ ] Remove open files view an dmake it show only at Ctrl+Tab press.
+- [x] Remove open files view and make it only show at Ctrl+Tab press.
 - [ ] Show useful git info in the space where not is the open files view.
 - [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
 
