@@ -19,7 +19,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Add non-project mode, by creating a FakeProject obj.
 - [ ] Clone repository dialog.
 - [x] Text find.
-- [ ] Text find/replace.
+- [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] :no_entry: Split screen
   - [ ] :no_entry: Ctrl+Shift+P open locator targeting a split view.
   - [ ] Ctrl+Shift+X "zoom" view.
@@ -27,16 +27,16 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [ ] Ctrl+T split view opening a terminal.
 - [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] :fire: Fix GC issues :fire:
-
-## UI Planned Changes
-
 - [x] Remove open files view and make it only show at Ctrl+Tab press.
 - [ ] Show useful git info in the space where not is the open files view.
 - [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
+- [ ] Use TOML for the configuration file.
+- [ ] Save sessions, with a config flag.
 
 ## Probably Post 0.1.0 release
 
-- [ ] Notification system for things like "LSP for language X ready!"
+- [ ] I18N support.
+- [ ] Notification system for things like "LSP for language X ready!".
 - [ ] Rectractable project tree pane.
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
@@ -48,3 +48,9 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [ ] Trigged by "g "
   - [ ] Model filled with "checkout <branch>"
   - [ ] Model filled with "blame", "log", "commit", How to do git log on current file?
+
+## When Crystal coding is done
+
+- Check why GTK markdown syntax is so slow at first load.
+- Check why GTK CSS syntax is so slow at first load.
+- Subclass GTK TextView class to try to implement multiple cursors
