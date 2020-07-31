@@ -73,6 +73,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn">
+                    <property name="sizing">autosize</property>
                     <property name="title" translatable="yes">Project Tree</property>
                     <child>
                       <object class="GtkCellRendererText"/>
