@@ -98,6 +98,10 @@ paned separator {
   background: @tijolo_white2;
 }
 
+#open-files {
+  border: 1px solid @tijolo_orange1;
+}
+
 #find-box {
   color: @tijolo_white;
   background-color: @tijolo_black;

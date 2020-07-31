@@ -17,6 +17,7 @@ class IdeWindow < Window
   include ProjectListener
 
   @open_files_view : Gtk::TreeView
+  @open_files_box : Gtk::Box
   @project_tree_view : Gtk::TreeView
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
@@ -44,10 +45,11 @@ class IdeWindow < Window
     @find_replace = FindReplace.new(Gtk::Revealer.cast(builder["find_revealer"]), Gtk::Entry.cast(builder["find_entry"]))
 
     # Open Files view
-    @open_files_view = Gtk::TreeView.cast(builder["open_files"])
+    @open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
+    @open_files_box = Gtk::Box.cast(builder["open_files"])
     @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
     @open_files_view.model = @open_files.sorted_model
-    overlay.add_overlay(@open_files_view)
+    overlay.add_overlay(@open_files_box)
     @open_files_view.hide
 
     # Setup Project Tree view
@@ -88,7 +90,7 @@ class IdeWindow < Window
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = true
       @open_files.switch_current_view(false)
-      @open_files_view.show unless @open_files.empty?
+      @open_files_box.show_all unless @open_files.empty?
       return true
     end
     false
@@ -98,7 +100,7 @@ class IdeWindow < Window
     if @switching_open_files && event.keyval != Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = false
       @open_files.switch_current_view(true)
-      @open_files_view.hide
+      @open_files_box.hide
       return true
     end
     false
