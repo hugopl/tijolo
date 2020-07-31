@@ -78,6 +78,7 @@ abstract class View
   end
 
   def reload : Nil
+    @last_saved_at = Time.monotonic
     @externally_modified = false
   end
 
