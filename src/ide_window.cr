@@ -59,6 +59,7 @@ class IdeWindow < Window
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_delete_event(&->about_to_quit(Gtk::Widget, Gdk::Event))
+    main_window.connect("notify::is-active") { ask_about_externally_modified_files }
 
     @open_files.add_open_files_listener(self)
     @locator.add_locator_listener(self)
@@ -74,7 +75,7 @@ class IdeWindow < Window
 
     view.externally_modified!
     # TODO: Show a passive banner and let user press F5 to reload or ESC to ignore instead of an annoying dialog.
-    ask_about_externally_modified_files if view == @open_files.current_view
+    ask_about_externally_modified_files
   end
 
   def project_load_finished
@@ -207,7 +208,7 @@ class IdeWindow < Window
     @open_files_view.selection.select_row(@open_files.current_row)
     return unless definitive
 
-    ask_about_externally_modified_files if view.externally_modified?
+    ask_about_externally_modified_files
 
     @find_replace.hide
     # Select file on project tree view
@@ -391,9 +392,12 @@ class IdeWindow < Window
   end
 
   def ask_about_externally_modified_files
-    modified_views = @open_files.files.select(&.externally_modified?)
-    return if modified_views.empty?
+    return unless main_window.active?
 
+    view = @open_files.current_view
+    return if view.nil? || !view.externally_modified?
+
+    modified_views = @open_files.files.select(&.externally_modified?)
     dlg = ConfirmReloadDialog.new(modified_views)
     case dlg.run
     when .cancel?    then return

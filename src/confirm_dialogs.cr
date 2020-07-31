@@ -87,7 +87,7 @@ end
 class ConfirmReloadDialog < ConfirmDialog
   def primary_text : String
     if @views.size < 2
-      "Reload document “#{@views.first.label}” from disk?"
+      "Document “#{@views.first.label}” was externally modified. Reload from disk?"
     else
       "Some files were externally modified. Reload contents from disk?"
     end
