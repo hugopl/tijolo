@@ -36,6 +36,26 @@ class OpenFiles
 
   def create_empty_view
     builder = builder_for("no_view")
+    # FIXME: Use the shortcuts from config file
+    Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
+      <b>Code Navigation</b><span foreground="#DCDCD1">
+      Ctrl + P  —  Show locator
+      F2        —  Go to definition
+      Ctrl + G  —  Go to line/column
+      </span>
+      <b>Editting</b><span foreground="#DCDCD1">
+      Ctrl + F  —  Find text
+      F3        —  Find next text match
+      F9        —  Sort lines
+      Ctrl + /  —  Comment code
+      Ctrl + .  —  Insert emoji 💣️
+      </span>
+      <b>Project</b><span foreground="#DCDCD1">
+      Ctrl + N  —  New file
+      Ctrl + O  —  Open non-project file
+      Ctrl + W  —  Close view
+      </span>
+    EOT
     editor = Gtk::Widget.cast(builder["root"])
     @stack.add(editor)
   end
