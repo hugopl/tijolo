@@ -208,15 +208,8 @@ class ProjectTree
   class Root < FolderNode
     getter model = Gtk::TreeStore.new({GObject::Type::UTF8, GObject::Type::BOOLEAN})
 
-    def initialize(@project : Project)
+    def initialize
       super("<root>")
-      populate if @project.load_finished?
-    end
-
-    def populate
-      @project.files.each do |file|
-        add(file)
-      end
     end
 
     def add(path : Path)
@@ -268,7 +261,7 @@ class ProjectTree
   delegate model, to: @root
 
   def initialize(@project : Project)
-    @root = Root.new(@project)
+    @root = Root.new
     @project.add_project_listener(self)
   end
 
@@ -277,11 +270,15 @@ class ProjectTree
   end
 
   def tree_path(file : Path) : Array(Int32)?
+    return nil unless @project.valid?
+
     path = file.relative_to(@project.root)
     @root.tree_path(path)
   end
 
   def file_path(tree_path_indices : Enumerable(Int32)) : String?
+    return nil unless @project.valid?
+
     path_parts = @root.file_path(tree_path_indices)
     return if path_parts.nil?
 
@@ -304,7 +301,9 @@ class ProjectTree
   end
 
   def project_load_finished
-    @root.populate
+    @project.files.each do |file|
+      @root.add(file)
+    end
   end
 
   def to_s(io : IO)

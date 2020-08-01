@@ -28,22 +28,41 @@ end
 class Project
   observable_by ProjectListener
 
-  getter root : Path
+  getter root = Path.new
   getter? load_finished = false
 
   @files_mutex = Mutex.new
-  @ignored_dirs : Array(Path)
+  @ignored_dirs = [] of Path
 
   # All paths here should be relative to `root`, directories doesn't include root dir.
   @directories = Set(Path).new
   @files = Set(Path).new
 
-  def initialize(location : String)
-    @root = find_root(Path.new(location)).normalize
-    @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: @root))
+  def initialize
+  end
 
+  def initialize(location : String)
+    try_load_project(Path.new(location))
+  end
+
+  def valid?
+    !@root.to_s.empty?
+  end
+
+  # Try load project and scan files on success
+  def try_load_project!(path : Path) : Nil
+    scan_files if try_load_project(path)
+  end
+
+  def try_load_project(path : Path) : Bool
+    root = find_root(path)
+    return false if root.nil?
+
+    @root = root
     Log.info { "Project root: #{@root}" }
     Dir.cd(@root)
+    @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: @root))
+    true
   end
 
   def self.name(path)
@@ -54,7 +73,9 @@ class Project
     Project.name(@root)
   end
 
-  def under_project?(path : Path)
+  def under_project?(path : Path) : Bool
+    return false unless valid?
+
     file_path = path.expand(base: @root)
     file_path.parts[0...@root.parts.size] == @root.parts
   end
@@ -199,7 +220,7 @@ class Project
     end
   end
 
-  private def find_root(location : Path) : Path
+  private def find_root(location : Path) : Path?
     path = location.expand
     root = path.root.not_nil!
 
@@ -213,10 +234,12 @@ class Project
         break if path == root
       end
     end
-    raise AppError.new("Valid git project directory not found at #{location.expand}.")
+    nil
   end
 
   def scan_files
+    return unless valid?
+
     spawn do
       start_t = Time.monotonic
       files = Set(Path).new

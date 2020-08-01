@@ -6,7 +6,6 @@ class FileLocator < FuzzyLocator
 
   def initialize(@project : Project)
     super("Waiting project load to finish...")
-    project_load_finished if @project.load_finished?
     @project.add_project_listener(self)
   end
 

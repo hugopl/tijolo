@@ -19,6 +19,7 @@ class IdeWindow < Window
   @open_files_view : Gtk::TreeView
   @open_files_box : Gtk::Box
   @project_tree_view : Gtk::TreeView
+  @sidebar : Gtk::Box
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
   @fullscreen = false
@@ -50,7 +51,8 @@ class IdeWindow < Window
     @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
     @open_files_view.model = @open_files.sorted_model
     overlay.add_overlay(@open_files_box)
-    @open_files_view.hide
+
+    @sidebar = Gtk::Box.cast(builder["sidebar"])
 
     # Setup Project Tree view
     @project_tree = ProjectTree.new(@project)
@@ -81,6 +83,7 @@ class IdeWindow < Window
   end
 
   def project_load_finished
+    @sidebar.show_all
     return if Config.instance.lazy_start_language_servers?
 
     LanguageManager.start_languages_for(@project.files)
@@ -152,6 +155,8 @@ class IdeWindow < Window
   end
 
   private def create_view(file : Path? = nil) : View
+    @project.try_load_project!(file) if file && !@project.valid?
+
     # TODO: check file mime type and create the right view.
     view = create_text_view(file)
     @open_files << view
@@ -265,7 +270,7 @@ class IdeWindow < Window
     dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true)
     dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
     dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
-    dlg.current_folder_uri = @project.root.to_uri.to_s
+    dlg.current_folder_uri = @project.root.to_uri.to_s if @project.valid?
 
     if dlg.run == Gtk::ResponseType::ACCEPT.value
       uri = dlg.uri

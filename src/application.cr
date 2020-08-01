@@ -46,9 +46,11 @@ class Application
 
     apply_css
 
-    if !open_project(@argv_files)
+    if @argv_files.empty?
       welcome = WelcomeWindow.new(self)
       main_window.add(welcome.root)
+    else
+      open_project(@argv_files)
     end
     main_window.show
   end
@@ -85,24 +87,30 @@ class Application
     dialog.run
   end
 
-  def open_project(files : Array(String)) : Bool
-    pwd = Dir.current
-    ide = nil
-    files.each do |file|
-      ide = open_project(file)
-      break unless ide.nil?
-    end
-    return false if ide.nil?
+  def open_project(project_path : String) : Bool
+    project = Project.new(project_path)
+    return false unless project.valid?
 
-    files.each do |file|
-      file_path = Path.new(file).expand(base: pwd)
-      ide.open_file(file_path) unless Dir.exists?(file_path)
-    end
+    init_ide(project)
     true
   end
 
-  def open_project(project_path : String) : IdeWindow?
-    project = Project.new(project_path)
+  def open_project(files : Array(String))
+    pwd = Dir.current
+    paths = files.map { |f| Path.new(f).expand(base: pwd) }
+
+    project = Project.new
+    paths.each do |path|
+      break if project.try_load_project(path)
+    end
+
+    ide = init_ide(project)
+    paths.each do |path|
+      ide.open_file(path) unless Dir.exists?(path)
+    end
+  end
+
+  private def init_ide(project : Project) : IdeWindow
     ide_window = IdeWindow.new(self, project)
 
     header_bar.title = project.name
@@ -114,12 +122,8 @@ class Application
     {% if flag?(:release) %}
       main_window.maximize
     {% end %}
+
     ide_window
-  rescue e
-    dialog = Gtk::MessageDialog.new(text: e.message, message_type: :error, buttons: :ok)
-    dialog.on_response { dialog.close }
-    dialog.run
-    nil
   end
 
   def run
