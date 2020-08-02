@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="3.22"/>
   <object class="GtkListStore" id="projects_model">
     <columns>
       <!-- column-name Project -->
@@ -11,74 +11,204 @@
     </columns>
   </object>
   <object class="GtkBox" id="root">
+    <property name="name">welcome-window</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="margin_start">6</property>
-    <property name="margin_end">6</property>
-    <property name="margin_top">6</property>
-    <property name="margin_bottom">6</property>
-    <property name="spacing">8</property>
+    <property name="orientation">vertical</property>
     <child>
-      <object class="GtkOverlay" id="overlay">
+      <object class="GtkBox" id="contents">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="halign">center</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkViewport">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="halign">start</property>
+            <property name="margin_top">40</property>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkImage">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_end">5</property>
+                <property name="icon_name">io.github.hugopl.Tijolo</property>
+                <property name="icon_size">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTreeView" id="tree_view">
+                  <object class="GtkLabel">
+                    <property name="name">tijolo-title</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Tijolo</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="name">tijolo-version</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">v0.1.0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="halign">start</property>
+            <property name="margin_top">20</property>
+            <property name="margin_bottom">20</property>
+            <property name="label" translatable="yes">Lightweight, keyboard-oriented IDE for the masses.</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="halign">center</property>
+            <property name="spacing">40</property>
+            <child>
+              <object class="GtkOverlay" id="overlay">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="width_request">350</property>
+                    <property name="height_request">400</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">projects_model</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
+                    <property name="valign">start</property>
                     <child>
-                      <object class="GtkTreeViewColumn">
-                        <property name="title" translatable="yes">Existing Projects</property>
+                      <object class="GtkTreeView" id="tree_view">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">projects_model</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
                         <child>
-                          <object class="GtkCellRendererText"/>
-                          <attributes>
-                            <attribute name="markup">0</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Existing Projects</property>
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="markup">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="index">-1</property>
+                  </packing>
                 </child>
               </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
-          </object>
-          <packing>
-            <property name="index">-1</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkButtonBox">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">8</property>
-        <property name="layout_style">start</property>
-        <child>
-          <object class="GtkButton" id="clone_btn">
-            <property name="label" translatable="yes">Clone Repository...</property>
-            <property name="visible">True</property>
-            <property name="sensitive">False</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <child>
+              <object class="GtkButtonBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_top">26</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
+                <property name="layout_style">start</property>
+                <child>
+                  <object class="GtkButton" id="open_btn">
+                    <property name="label" translatable="yes">Open Selected Project</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="clone_btn">
+                    <property name="label" translatable="yes">Clone Repository...</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="rescan_btn">
+                    <property name="label" translatable="yes">Rescan Projects</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -86,24 +216,11 @@
             <property name="position">2</property>
           </packing>
         </child>
-        <child>
-          <object class="GtkButton" id="rescan_btn">
-            <property name="label" translatable="yes">Rescan projects</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
-          </packing>
-        </child>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">2</property>
+        <property name="position">0</property>
       </packing>
     </child>
   </object>

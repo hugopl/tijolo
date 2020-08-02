@@ -4,8 +4,11 @@ require "./tijolo_rc"
 class WelcomeWindow < Window
   @projects_model : Gtk::ListStore
   @tree_view : Gtk::TreeView
+  @open_btn : Gtk::Button
   @rescan_btn : Gtk::Button
   @scanning_projects = false
+
+  delegate open_project, to: @application
 
   def initialize(application : Application)
     builder = builder_for("welcome_window")
@@ -15,6 +18,8 @@ class WelcomeWindow < Window
     @tree_view = Gtk::TreeView.cast(builder["tree_view"])
     @tree_view.on_row_activated(&->project_activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
 
+    @open_btn = Gtk::Button.cast(builder["open_btn"])
+    @open_btn.on_clicked(&->open_btn_clicked(Gtk::Button))
     @rescan_btn = Gtk::Button.cast(builder["rescan_btn"])
     @rescan_btn.on_clicked(&->scan_projects(Gtk::Button))
 
@@ -34,13 +39,15 @@ class WelcomeWindow < Window
 
   private def fill_projects_model
     home = Path.home.to_s
-    TijoloRC.instance.projects.each do |project|
+    projects = TijoloRC.instance.projects
+    projects.each do |project|
       project_path = project.path.to_s
       project_path_label = project_path.starts_with?(home) ? project_path.sub(home, "~") : project_path
       last_used = format_last_used(project)
       @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>",
                                       project_path})
     end
+    @open_btn.sensitive = projects.any?
   end
 
   private def format_last_used(project)
@@ -69,6 +76,7 @@ class WelcomeWindow < Window
 
     @scanning_projects = true
     @rescan_btn.sensitive = false
+    @open_btn.sensitive = false
     @tree_view.sensitive = false
     @spinner.show
     spawn do
@@ -102,6 +110,12 @@ class WelcomeWindow < Window
   end
 
   private def project_activated(view, path, _column)
-    application.open_project(view.value(path, 1).string)
+    open_project(view.value(path, 1).string)
+  end
+
+  private def open_btn_clicked(_btn)
+    iter = Gtk::TreeIter.new
+    @tree_view.selection.selected(nil, iter)
+    open_project(@projects_model.value(iter, 1).string)
   end
 end

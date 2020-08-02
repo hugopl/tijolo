@@ -28,14 +28,41 @@ textview
 
 textview
 {
-    font: 9pt "JetBrainsMono Nerd Font", "Monospace";
+  font: 9pt "JetBrainsMono Nerd Font", "Monospace";
 }
 
 popover {
   padding: 6px;
 }
 
-#ide-window {
+#welcome-window {
+  color : @tijolo_white2;
+  background-color: @tijolo_black;
+}
+
+#welcome-window treeview {
+  color: @tijolo_white2;
+  background-color: @tijolo_black2;
+}
+
+#welcome-window treeview:selected {
+  color: @tijolo_black2;
+  background: @tijolo_white2;
+}
+
+
+#tijolo-title {
+  color: @tijolo_orange2;
+  font-weight: bold;
+  font-size: 18pt;
+}
+
+#tijolo-version {
+  color: @tijolo_white;
+  font-size: 7pt;
+}
+
+#ide-window, #welcome-window {
   font: 9pt "JetBrainsMono Nerd Font", "Monospace";
 }
 
@@ -61,7 +88,7 @@ paned separator {
   background-color: @tijolo_black;
 }
 
-#ide-window .editor-header {
+.editor-header {
   color: @tijolo_black;
   background-color: @tijolo_orange2;
 }
@@ -77,23 +104,23 @@ paned separator {
   background-color: transparent;
 }
 
-#ide-window .tijolo-title {
+.tijolo-title {
   color: @tijolo_orange1;
 }
 
-#ide-window treeview button {
+treeview button {
   color: @tijolo_orange1;
   background-color: @tijolo_black;
   padding: 2px 6px 2px 6px;
   border: 0px;
 }
 
-#ide-window treeview {
+treeview {
   color: @tijolo_white2;
   background-color: @tijolo_black;
 }
 
-#ide-window treeview:selected {
+treeview:selected {
   color: @tijolo_black;
   background: @tijolo_white2;
 }

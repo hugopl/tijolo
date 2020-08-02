@@ -37,7 +37,10 @@ class Application
   end
 
   private def activate_ui(g_app)
-    @main_window = main_window = Gtk::ApplicationWindow.new(application: @application, default_width: 800, default_height: 600)
+    @main_window = main_window = Gtk::ApplicationWindow.new(application: @application)
+    {% if flag?(:release) %}
+    main_window.maximize
+    {% end %}
     setup_actions
 
     builder = builder_for("header_bar")
@@ -119,9 +122,6 @@ class Application
     child = main_window.child
     main_window.remove(child) unless child.nil?
     main_window.add(ide_window.root)
-    {% if flag?(:release) %}
-      main_window.maximize
-    {% end %}
 
     ide_window
   end
