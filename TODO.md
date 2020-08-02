@@ -16,7 +16,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] LSP
   - [x] Start language servers when opening a project.
   - [ ] :no_entry: Better feedback when failed to open language servers.
-- [ ] Add non-project mode, by creating a FakeProject obj.
+- [x] Add non-project mode (a.k.a. lazzy project load)
 - [ ] Clone repository dialog.
 - [x] Text find.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
@@ -25,7 +25,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [ ] Ctrl+Shift+X "zoom" view.
   - [ ] Alt + arrows change from one split view to another.
   - [ ] Ctrl+T split view opening a terminal.
-- [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] :fire: Fix GC issues :fire:
 - [x] Remove open files view and make it only show at Ctrl+Tab press.
 - [ ] Show useful git info in the space where not is the open files view.
@@ -35,7 +34,9 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 ## Probably Post 0.1.0 release
 
+- [ ] Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - [ ] I18N support.
+- [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] Notification system for things like "LSP for language X ready!".
 - [ ] Rectractable project tree pane.
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
