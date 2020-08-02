@@ -117,7 +117,9 @@ class Application
     ide_window = IdeWindow.new(self, project)
 
     header_bar.title = project.name
-    header_bar.subtitle = project.root.relative_to(Path.home).to_s
+    subtitle = project.root.relative_to(Path.home).to_s
+    subtitle = "~/#{subtitle}" unless subtitle.starts_with?(".") || subtitle.starts_with?("/")
+    header_bar.subtitle = subtitle
 
     child = main_window.child
     main_window.remove(child) unless child.nil?
