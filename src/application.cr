@@ -47,12 +47,7 @@ class Application
 
     apply_css
 
-    if @argv_files.empty?
-      welcome = WelcomeWindow.new(self)
-      main_window.add(welcome.root)
-    else
-      open_project(@argv_files)
-    end
+    init_welcome unless open_project(@argv_files)
     main_window.show
   end
 
@@ -96,7 +91,9 @@ class Application
     true
   end
 
-  def open_project(files : Array(String))
+  private def open_project(files : Array(String)) : Bool
+    return false if files.empty?
+
     pwd = Dir.current
     paths = files.map { |f| Path.new(f).expand(base: pwd) }
 
@@ -105,10 +102,19 @@ class Application
       break if project.try_load_project(path)
     end
 
+    files_to_open = paths.reject { |path| Dir.exists?(path) }
+    return false if !project.valid? && files_to_open.empty?
+
     ide = init_ide(project)
-    paths.each do |path|
-      ide.open_file(path) unless Dir.exists?(path)
+    files_to_open.each do |file|
+      ide.open_file(file)
     end
+    true
+  end
+
+  private def init_welcome
+    welcome = WelcomeWindow.new(self)
+    main_window.add(welcome.root)
   end
 
   private def init_ide(project : Project) : IdeWindow
