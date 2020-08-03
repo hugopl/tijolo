@@ -69,7 +69,9 @@ popover {
 #locator entry {
   border-width: 1px;
   border-radius: 4px 4px 0px 0px;
-  background-color: @tijolo_white;
+  color: @tijolo_black;
+  background-color: @tijolo_white2;
+  caret-color: @tijolo_black2;
 }
 
 #find-box {
