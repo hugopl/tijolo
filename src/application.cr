@@ -38,9 +38,7 @@ class Application
 
   private def activate_ui(g_app)
     @main_window = main_window = Gtk::ApplicationWindow.new(application: @application)
-    {% if flag?(:release) %}
     main_window.maximize
-    {% end %}
     setup_actions
 
     builder = builder_for("header_bar")
@@ -115,11 +113,7 @@ class Application
 
   private def init_ide(project : Project) : IdeWindow
     ide_window = IdeWindow.new(self, project)
-
-    header_bar.title = project.name
-    subtitle = project.root.relative_to(Path.home).to_s
-    subtitle = "~/#{subtitle}" unless subtitle.starts_with?(".") || subtitle.starts_with?("/")
-    header_bar.subtitle = subtitle
+    header_bar.subtitle = "No Project"
 
     child = main_window.child
     main_window.remove(child) unless child.nil?
