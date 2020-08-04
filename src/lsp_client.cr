@@ -6,7 +6,7 @@ module LspClientListener
 end
 
 class LspClient
-  include LSP::Protocol
+  include LSP
 
   observable_by LspClientListener
 

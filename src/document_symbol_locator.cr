@@ -1,7 +1,7 @@
 require "./fuzzy_locator"
 
 class DocumentSymbolLocator < FuzzyLocator
-  @symbols : Array(LSP::Protocol::SymbolInformation)?
+  @symbols : Array(LSP::SymbolInformation)?
 
   PLACEHOLDER = "Waiting for language server..."
 

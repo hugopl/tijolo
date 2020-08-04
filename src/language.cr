@@ -1,7 +1,6 @@
 require "./lsp_client.cr"
 
 class Language
-  include LSP
   include LspClientListener
 
   NONE = "none"
@@ -79,7 +78,7 @@ class Language
 
     if lsp_client.initialized?
       path = text_view.file_path.not_nil!
-      params = Protocol::DidOpenTextDocumentParams.new(
+      params = LSP::DidOpenTextDocumentParams.new(
         uri: uri(path),
         language_id: @id,
         version: text_view.version,
@@ -96,7 +95,7 @@ class Language
 
     if lsp_client.initialized?
       path = text_view.file_path.not_nil!
-      params = Protocol::DidCloseTextDocumentParams.new(uri: uri(path))
+      params = LSP::DidCloseTextDocumentParams.new(uri: uri(path))
       lsp_client.notify("textDocument/didClose", params)
     else
       @views_to_open.try(&.delete(text_view))
@@ -111,7 +110,7 @@ class Language
       file_changed_full_sync(text_view)
     elsif document_sync.incremental?
       uri = uri(text_view.file_path.not_nil!)
-      params = Protocol::DidChangeTextDocumentParams.new(uri, text_view.next_version, line, col, text)
+      params = LSP::DidChangeTextDocumentParams.new(uri, text_view.next_version, line, col, text)
       lsp_client.notify("textDocument/didChange", params)
     end
   end
@@ -125,7 +124,7 @@ class Language
     elsif document_sync.incremental?
       uri = uri(text_view.file_path.not_nil!)
       version = text_view.next_version
-      params = Protocol::DidChangeTextDocumentParams.new(uri, version, start_line, start_col, end_line, end_col)
+      params = LSP::DidChangeTextDocumentParams.new(uri, version, start_line, start_col, end_line, end_col)
       lsp_client.notify("textDocument/didChange", params)
     end
   end
@@ -134,7 +133,7 @@ class Language
     # FIXME: Calling text_view.text too many times is very slow... so I'm disabling full sync for now.
     # uri = uri(text_view.file_path.not_nil!)
     # version = text_view.next_version
-    # params = Protocol::DidChangeTextDocumentParams.new(uri, version, text_view.text)
+    # params = LSP::DidChangeTextDocumentParams.new(uri, version, text_view.text)
     # lsp_client.notify("textDocument/didChange", params)
   end
 
@@ -142,16 +141,16 @@ class Language
     return if lsp_disabled? || text_view.file_path.nil?
 
     uri = uri(text_view.file_path.not_nil!)
-    params = Protocol::DidSaveTextDocumentParams.new(uri)
+    params = LSP::DidSaveTextDocumentParams.new(uri)
     lsp_client.notify("textDocument/didSave", params)
   end
 
   def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))
     return unless lsp_ready?("Go To Definition", &.definition_provider?)
 
-    params = Protocol::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
+    params = LSP::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
     lsp_client.request("textDocument/definition", params) do |response|
-      result = response.result.as?(Array(LSP::Protocol::Location))
+      result = response.result.as?(Array(LSP::Location))
       next if result.nil? || result.empty?
 
       location = result.first
@@ -162,12 +161,12 @@ class Language
     end
   end
 
-  def document_symbols(path : Path, &block : Proc(Array(Protocol::SymbolInformation), Nil))
+  def document_symbols(path : Path, &block : Proc(Array(LSP::SymbolInformation), Nil))
     return unless lsp_ready?("Document Symbols", &.document_symbol_provider?)
 
-    params = Protocol::DocumentSymbolParams.new(uri: uri(path))
+    params = LSP::DocumentSymbolParams.new(uri: uri(path))
     lsp_client.request("textDocument/documentSymbol", params) do |response|
-      result = response.result.as?(Array(Protocol::SymbolInformation))
+      result = response.result.as?(Array(LSP::SymbolInformation))
       block.call(result) if result
     end
   end
