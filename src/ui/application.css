@@ -96,14 +96,13 @@ paned separator {
 }
 
 
-.editor-header button {
+.editor-header button, .editor-header button:hover, .editor-header:checked {
   color: @tijolo_black;
+  background: @tijolo_orange2;
   padding: 0;
   margin: 0px;
-}
-.editor-header .text-button:hover, .editor-header .text-button:checked {
-  color: @tijolo_black;
-  background-color: transparent;
+  border: none;
+  text-shadow: none;
 }
 
 .tijolo-title {
