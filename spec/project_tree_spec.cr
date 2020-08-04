@@ -4,6 +4,7 @@ describe ProjectTree do
   it "directories come first when traversing the tree" do
     project = FakeProject.new(%w(file1 dir/file2.ext))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
     tree.to_s.should eq("<root>\n" \
                         "  dir\n" \
                         "    file2.ext\n" \
@@ -13,6 +14,7 @@ describe ProjectTree do
   it "can calculate the tree path" do
     project = FakeProject.new(%w(00/00 00/01 01/00/00 01/00/01 02))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
     tree.to_s.should eq("<root>\n" \
                         "  00\n" \
                         "    00\n" \
@@ -50,6 +52,7 @@ describe ProjectTree do
   it "can get the path tree" do
     project = FakeProject.new(%w(0 1 2/0 2/1))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
     tree.to_s.should eq("<root>\n" \
                         "  2\n" \
                         "    0\n" \
@@ -87,6 +90,7 @@ describe ProjectTree do
   it "can have files added" do
     project = FakeProject.new(%w(0 1 2/0 2/1))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
     project.add_path(Path.new("/fake/2/2/0"))
     tree.to_s.should eq("<root>\n" \
                         "  2\n" \
@@ -111,6 +115,7 @@ describe ProjectTree do
   it "can have files removed" do
     project = FakeProject.new(%w(file1 dir1/dir2/dir3/file2 dir1/file3))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
     tree.to_s.should eq("<root>\n" \
                         "  dir1\n" \
                         "    dir2\n" \
@@ -137,6 +142,7 @@ describe ProjectTree do
   it "can have files removed (2)" do
     project = FakeProject.new(%w(file1 file2 dir1/file3))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
 
     tree.to_s.should eq("<root>\n" \
                         "  dir1\n" \
@@ -164,6 +170,7 @@ describe ProjectTree do
   it "can have files removed (3)" do
     project = FakeProject.new(%w(file1 dir/file2 dir/file3))
     tree = ProjectTree.new(project)
+    project.notify_project_load_finished
 
     tree.to_s.should eq("<root>\n" \
                         "  dir\n" \

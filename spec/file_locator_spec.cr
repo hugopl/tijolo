@@ -5,6 +5,7 @@ describe FileLocator do
     project = FakeProject.new(%w(spec/locator_spec.cr))
 
     locator = TestLocator.new(project)
+    project.notify_project_load_finished
     listener = TestLocatorListener.new
     locator.add_locator_listener(listener)
     locator.text = "locator"
@@ -15,8 +16,9 @@ describe FileLocator do
   end
 
   it "do nothing if can't find a file" do
-    project = Project.new(".")
+    project = FakeProject.new(%w(hey ho))
     locator = TestLocator.new(project)
+    project.notify_project_load_finished
     listener = TestLocatorListener.new
     locator.add_locator_listener(listener)
     locator.text = "*&*&%*&%*&"
