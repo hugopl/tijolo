@@ -6,7 +6,7 @@ shards:
 
   fzy:
     git: https://github.com/hugopl/fzy.git
-    version: 0.4.0+git.commit.b52033af1717ca8c23b9fc8cf46a41265fcbfefb
+    version: 0.5.0
 
   gobject:
     git: https://github.com/jhass/crystal-gobject.git

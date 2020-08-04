@@ -14,8 +14,7 @@ dependencies:
     version: ~> 1.2.1
   fzy:
     github: hugopl/fzy
-    # version: ~> 0.4.0
-    commit: b52033af1717ca8c23b9fc8cf46a41265fcbfefb
+    version: ~> 0.5.0
   gobject:
     github: jhass/crystal-gobject
     commit: 2296ff6b1b2222b83e262c38555fc9eaa8f0b847
