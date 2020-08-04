@@ -27,7 +27,7 @@ class Locator
   SCORE_COLUMN   = 2
 
   @project : Project
-  @locator_entry : Gtk::SearchEntry
+  @locator_entry : Gtk::Entry
   @locator_results : Gtk::TreeView
   private getter results_cursor = 0
 
@@ -40,7 +40,7 @@ class Locator
     @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
     @locator_widget.ref
 
-    @locator_entry = Gtk::SearchEntry.cast(builder["locator_entry"])
+    @locator_entry = Gtk::Entry.cast(builder["locator_entry"])
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
     @locator_entry.on_activate(&->activated(Gtk::Entry))
     @locator_entry.connect("notify::text", &->search_changed)
