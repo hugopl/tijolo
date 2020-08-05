@@ -24,7 +24,9 @@ dependencies:
   lsp:
     github: hugopl/lsp
     version: ~> 0.2.0
-
+  git:
+    github: smacker/libgit2.cr
+    commit: 1d42ffdcf6f885a49ece5b2baac00a5146d0a556
 crystal: 0.35.0
 
 license: MIT

@@ -8,6 +8,10 @@ shards:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.0
 
+  git:
+    git: https://github.com/smacker/libgit2.cr.git
+    version: 0.1.0+git.commit.1d42ffdcf6f885a49ece5b2baac00a5146d0a556
+
   gobject:
     git: https://github.com/jhass/crystal-gobject.git
     version: 0.8.0+git.commit.2296ff6b1b2222b83e262c38555fc9eaa8f0b847

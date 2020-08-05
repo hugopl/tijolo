@@ -2,12 +2,13 @@ require "uri"
 
 require "./confirm_dialogs"
 require "./find_replace"
+require "./git_branches"
 require "./locator"
 require "./open_files"
-require "./window"
 require "./project_monitor"
 require "./project_tree"
 require "./text_view"
+require "./window"
 require "./tijolo_rc"
 
 class IdeWindow < Window
@@ -19,6 +20,7 @@ class IdeWindow < Window
   @open_files_view : Gtk::TreeView
   @open_files_box : Gtk::Box
   @project_tree_view : Gtk::TreeView
+  @branches_view : Gtk::TreeView
   @sidebar : Gtk::Box
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
@@ -28,6 +30,7 @@ class IdeWindow < Window
   @open_files : OpenFiles
   @find_replace : FindReplace
   @locator : Locator
+  @branches : GitBranches
 
   @tijolorc : TijoloRC
 
@@ -53,6 +56,10 @@ class IdeWindow < Window
     overlay.add_overlay(@open_files_box)
 
     @sidebar = Gtk::Box.cast(builder["sidebar"])
+
+    @branches = GitBranches.new(@project)
+    @branches_view = Gtk::TreeView.cast(builder["git_branches"])
+    @branches_view.model = @branches.model
 
     # Setup Project Tree view
     @project_tree = ProjectTree.new(@project)

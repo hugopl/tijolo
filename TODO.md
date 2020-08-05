@@ -27,7 +27,8 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [ ] Ctrl+T split view opening a terminal.
 - [ ] :fire: Fix GC issues :fire:
 - [x] Remove open files view and make it only show at Ctrl+Tab press.
-- [ ] Show useful git info in the space where not is the open files view.
+- [x] Show useful git info in the space where now is the open files view.
+- [ ] Rectractable project tree pane on Alt+0.
 - [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
 - [ ] Use TOML for the configuration file.
 - [ ] Save sessions, with a config flag.
@@ -38,7 +39,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] I18N support.
 - [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] Notification system for things like "LSP for language X ready!".
-- [ ] Rectractable project tree pane.
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
 - [ ] Settings UI.
