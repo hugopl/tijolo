@@ -25,10 +25,10 @@ class GitBranches
     repo = Git::Repo.open(@project.root.to_s)
     repo.branches.each(:local).each do |branch|
       label = if branch.head?
-                 "<b>* #{branch.name}</b>"
-               else
-                 "  #{branch.name}"
-               end
+                "<b>* #{branch.name}</b>"
+              else
+                "  #{branch.name}"
+              end
       @model.append({BRANCH_NAME_COL}, {label})
     end
   end
