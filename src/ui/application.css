@@ -103,6 +103,7 @@ paned separator {
   margin: 0px;
   border: none;
   text-shadow: none;
+  box-shadow: none;
 }
 
 .tijolo-title {
