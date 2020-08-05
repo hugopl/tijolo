@@ -1,4 +1,5 @@
 require "./observable"
+require "./helper"
 
 module ViewListener
   # This is here... but this class doesn't emit it, since it doesn't have a ref for the widget.
@@ -27,7 +28,7 @@ abstract class View
     @id = object_id.to_s
     if file_path
       @file_path = file_path.expand
-      @label = File.basename(file_path)
+      @label = relative_path_label(file_path, @project_path)
     else
       @label = untitled_name
     end
@@ -35,7 +36,7 @@ abstract class View
 
   def file_path=(file_path : Path) : Nil
     @file_path = file_path
-    self.label = File.basename(file_path)
+    self.label = relative_path_label(file_path, @project_path)
     notify_view_file_path_changed(self)
   end
 

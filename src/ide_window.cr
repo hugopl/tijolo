@@ -93,9 +93,7 @@ class IdeWindow < Window
     @sidebar.show_all
     # Setup title bar
     application.header_bar.title = @project.name
-    subtitle = @project.root.relative_to(Path.home).to_s
-    subtitle = "~/#{subtitle}" unless subtitle.starts_with?(".") || subtitle.starts_with?("/")
-    application.header_bar.subtitle = subtitle
+    application.header_bar.subtitle = relative_path_label(@project.root)
 
     return if Config.instance.lazy_start_language_servers?
 

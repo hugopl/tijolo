@@ -2,6 +2,19 @@ require "version_from_shard"
 
 VersionFromShard.declare
 
+# Return file_path relative to project path, Home or abs.
+def relative_path_label(path : Path, project_path : Path? = nil) : String
+  return path.relative_to(project_path).to_s if project_path
+
+  path_from_home = path.relative_to(Path.home)
+  path_from_home_str = path_from_home.to_s
+  if path_from_home_str.starts_with?(".") || path_from_home_str.starts_with?("/")
+    path.expand.to_s
+  else
+    "~/#{path_from_home_str}"
+  end
+end
+
 def usr_share_paths(dir : String, paths = [] of String)
   usr_path = Path[File.readlink("/proc/self/exe"), "../../"]
 
