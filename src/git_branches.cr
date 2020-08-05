@@ -34,8 +34,8 @@ class GitBranches
   end
 
   private def create_monitor
-    head = "#{@project.root}/.git/HEAD"
-    Gio::File.new_for_path(head).monitor_file(:none, nil).on_changed do
+    heads = "#{@project.root}/.git/refs/heads"
+    Gio::File.new_for_path(heads).monitor_directory(:none, nil).on_changed do
       fill_model
     end
   end
