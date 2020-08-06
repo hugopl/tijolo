@@ -13,29 +13,29 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [x] Separate config file from rc file.
 - [x] Click on editor-header show options to copy file path to clipboard.
 - [x] Show locator helper when more locators exists.
-- [ ] LSP
-  - [x] Start language servers when opening a project.
-  - [ ] :no_entry: Better feedback when failed to open language servers.
+- [x] Start language servers when opening a project.
 - [x] Add non-project mode (a.k.a. lazzy project load)
-- [ ] Clone repository dialog.
 - [x] Text find.
+- [x] Remove open files view and make it only show at Ctrl+Tab press.
+- [x] Show useful git info in the space where now is the open files view.
+- [x] Ubuntu packages.
+- [ ] Use TOML for the configuration file.
+
+## Probably Post 0.1.0 release
+
+- [ ] Rectractable project tree pane on Alt+0.
+- [ ] :fire: Fix GC issues :fire:
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
+- [ ] Clone repository dialog.
+- [ ] :no_entry: Better feedback when failed to open language servers.
+- [ ] Save sessions, with a config flag.
+- [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
+- [ ] Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - [ ] :no_entry: Split screen
   - [ ] :no_entry: Ctrl+Shift+P open locator targeting a split view.
   - [ ] Ctrl+Shift+X "zoom" view.
   - [ ] Alt + arrows change from one split view to another.
   - [ ] Ctrl+T split view opening a terminal.
-- [ ] :fire: Fix GC issues :fire:
-- [x] Remove open files view and make it only show at Ctrl+Tab press.
-- [x] Show useful git info in the space where now is the open files view.
-- [ ] Rectractable project tree pane on Alt+0.
-- [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
-- [ ] Use TOML for the configuration file.
-- [ ] Save sessions, with a config flag.
-
-## Probably Post 0.1.0 release
-
-- [ ] Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - [ ] I18N support.
 - [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] Notification system for things like "LSP for language X ready!".
