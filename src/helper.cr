@@ -42,7 +42,9 @@ def parse_args(argv)
     end
     parser.on("--logfile=FILE", "Where to save log, default to STDOUT.") { |file| logfile = file }
     parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { debug = true }
-    parser.on("--disable-gc", "Disable garbage collector (yes, leak memory).") { gc_disabled = true }
+    parser.on("--enable-gc", "Enable garbage collector (see https://github.com/jhass/crystal-gobject/issues/69).") do
+      gc_disabled = false
+    end
     parser.invalid_option do |flag|
       STDERR.puts "ERROR: #{flag} is not a valid option."
       STDERR.puts parser
