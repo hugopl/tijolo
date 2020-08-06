@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Tijolo
+Upstream-Contact: Hugo Parente Lima <hugo.pl@gmail.com>
+Source: https://github.com/hugopl/tijolo
+
+Files: *
+Copyright: 2020 Hugo Parente Lima
+License: MIT
+
+Files: usr/share/fonts/*
+Copyright: JetBrains
+License: Apache-2

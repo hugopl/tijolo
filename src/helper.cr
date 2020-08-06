@@ -21,6 +21,11 @@ def usr_share_paths(dir : String, paths = [] of String)
   paths.unshift(usr_path.join("./share/tijolo/#{dir}/").expand.to_s)
   paths.unshift(usr_path.join("./local/share/tijolo/#{dir}/").expand.to_s)
   paths.unshift(Path.home.join(".local/share/tijolo/#{dir}/").expand.to_s)
+
+  # data dir has preference on debug builds
+  {% if flag?(:debug) %}
+  paths.unshift("#{__DIR__}/../data/#{dir}/")
+  {% end %}
   paths
 end
 

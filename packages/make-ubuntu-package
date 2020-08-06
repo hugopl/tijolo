@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+require "yaml"
+require "shellwords"
+
+DOCKER_IMG = "ubuntu-tijolo"
+TIJOLO_TARGZ = "/tmp/tijolo.tar.gz"
+TIJOLO_VOLUME = "tijolo-vol"
+MOUNT_OPTS = "--mount source=#{TIJOLO_VOLUME},destination=/package"
+Dir.chdir(__dir__)
+
+def docker(command, required: true)
+  res = system("docker #{command}")
+  abort if required && !res
+end
+
+def docker_run(command, workdir: "/package", required: true)
+  docker("run -w=#{workdir} --rm #{MOUNT_OPTS} #{DOCKER_IMG} #{command}", required: required)
+end
+
+def build_package(options)
+  # Create Ubuntu image with all tools needed to compile and create Tijolo package.
+  docker("build -t #{DOCKER_IMG} -f Dockerfile ..") if options[:build_image]
+
+  docker("volume create #{TIJOLO_VOLUME}")
+
+  # Copy Tijolo sources into container volume
+  version = YAML.load(File.read("../shard.yml"))["version"]
+  system("cd .. && git archive -o #{TIJOLO_TARGZ} --prefix=tijolo-#{version}/ HEAD")
+  docker("container create --name dummy #{MOUNT_OPTS} #{DOCKER_IMG}")
+  docker("cp #{TIJOLO_TARGZ} dummy:/package")
+  docker("rm dummy")
+  docker_run("tar -xf tijolo.tar.gz")
+
+  # Compile
+  build_dir = "/package/tijolo-#{version}"
+  docker_run("make", build_dir) if options[:compile]
+
+  # Install
+  pkg_dir = "/package/tijolo_#{version}-1"
+  if options[:install]
+    docker_run("rm -rf #{pkg_dir}")
+    docker_run("make install install-fonts PREFIX=#{pkg_dir}/usr", workdir: build_dir)
+    docker_run("strip #{pkg_dir}/usr/bin/tijolo", workdir: build_dir)
+  end
+
+  # Finally build package...
+  docker_run("install -d -m0755 #{pkg_dir}/DEBIAN")
+  docker_run("install -D -m0644 #{build_dir}/packages/DEBIAN/copyright #{pkg_dir}/usr/share/doc/tijolo/copyright")
+  docker_run("sh -c \"sed s/TIJOLO_VERSION/#{version}/ #{build_dir}/packages/DEBIAN/control > #{pkg_dir}/DEBIAN/control\"")
+  docker_run("dpkg-deb --build #{pkg_dir}")
+  # And lint it.
+  docker_run("lintian --color=always #{pkg_dir}.deb", required: false)
+
+  # And copy it to real world
+  docker("container create --name dummy #{MOUNT_OPTS} #{DOCKER_IMG}")
+  docker("cp dummy:#{pkg_dir}.deb ..")
+  docker("rm dummy")
+end
+
+def main
+  options = {
+    compile: false,
+    install: true,
+    build_image: false
+  }
+  build_package(options)
+end
+
+main if $PROGRAM_NAME == __FILE__
