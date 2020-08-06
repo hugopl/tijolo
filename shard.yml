@@ -27,6 +27,9 @@ dependencies:
   git:
     github: smacker/libgit2.cr
     commit: 1d42ffdcf6f885a49ece5b2baac00a5146d0a556
-crystal: 0.35.0
+  toml:
+    github: crystal-community/toml.cr
+    commit: d02de85eed68a70dc97ab6d6e52831a4d0e890fe
+crystal: 0.35.1
 
 license: MIT

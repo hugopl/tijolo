@@ -19,7 +19,8 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [x] Remove open files view and make it only show at Ctrl+Tab press.
 - [x] Show useful git info in the space where now is the open files view.
 - [x] Ubuntu packages.
-- [ ] Use TOML for the configuration file.
+- [x] Use TOML for the configuration file.
+- [ ] Settings "UI", just open config file and tell about syntax errors on save
 
 ## Probably Post 0.1.0 release
 
@@ -41,7 +42,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Notification system for things like "LSP for language X ready!".
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
-- [ ] Settings UI.
 - [ ] Git menu (Study if locator commands can be used)
 - [ ] In-editor git blame.
 - [ ] Git log.

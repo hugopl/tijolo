@@ -122,7 +122,7 @@ class TextView < View
     file_path = @file_path
     raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
 
-    remove_all_trailing_spaces! if Config.instance.trailing_whitespace?
+    remove_all_trailing_spaces! if Config.instance.trim_trailing_white_space_on_save?
     super
     File.write(file_path, text)
     @buffer.modified = false

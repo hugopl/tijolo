@@ -142,7 +142,7 @@ class IdeWindow < Window
       action.on_activate { closure.call }
       main_window.add_action(action)
 
-      shortcut = config.shortcuts[name]? || config.default_shortcuts[name]?
+      shortcut = config.shortcuts[name]
       application.set_accels_for_action("win.#{name}", {shortcut}) if shortcut
     end
 

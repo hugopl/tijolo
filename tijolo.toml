@@ -1,0 +1,37 @@
+# Tijolo configuration file, use with ♥️
+# If you mess up with this and want to load the defaults, just remove this file.
+
+# If true, start language server only when opening a a file with a language server, otherwise
+# scan project and start all possible language servers
+lazy_start_language_servers = false
+
+# Ignore this directory when parsing any project
+ignored_dirs = ["node_modules", "tmp/cache"]
+
+# Set to true to removing trailing white space on save
+trim_trailing_white_space_on_save = true
+
+# Any valid GTK like shortcut string is valid here
+[shortcuts]
+show_locator    = "<Control>P"
+new_file        = "<Control>N"
+open_file       = "<Control>O"
+close_view      = "<Control>W"
+save_view       = "<Control>S"
+save_view_as    = "<Control><Shift>S"
+find            = "<Control>F"
+find_next       = "F3"
+find_prev       = "<Shift>F3"
+goto_line       = "<Control>G"
+comment_code    = "<Control>slash"
+sort_lines      = "F9"
+fullscreen      = "F11"
+goto_definition = "F2"
+
+[language-servers]
+# SCry, not very good but is what we have for Crystal
+crystal = "scry"
+
+# SolarGraph for Ruby, slow but awesome.. but you probably need to change something here if you need to
+# run it with bundle exec, rvm do, etc...
+ruby = "solargraph stdio"

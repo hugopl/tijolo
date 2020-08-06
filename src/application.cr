@@ -19,6 +19,8 @@ class Application
 
   delegate set_accels_for_action, to: @application
 
+  @window : Window?
+
   def initialize(@argv_files : Array(String))
     GtkSource.init
     @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
@@ -54,15 +56,18 @@ class Application
   def setup_actions
     # Hamburguer menu
     preferences = Gio::SimpleAction.new("preferences", nil)
-    preferences.enabled = false
-    main_window.add_action(preferences)
     preferences.on_activate { show_preferences_dlg }
+    main_window.add_action(preferences)
     about = Gio::SimpleAction.new("about", nil)
     about.on_activate { show_about_dlg }
     main_window.add_action(about)
   end
 
   def show_preferences_dlg
+    Config.create_config_if_needed
+
+    ide = @window.as?(IdeWindow) || init_ide(Project.new)
+    ide.open_file(Config.path)
   end
 
   def show_about_dlg
@@ -125,6 +130,7 @@ class Application
     main_window.remove(child) unless child.nil?
     main_window.add(ide_window.root)
 
+    @window = ide_window
     ide_window
   end
 

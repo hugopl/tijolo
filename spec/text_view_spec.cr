@@ -75,7 +75,7 @@ describe TextView do
     end
 
     it "strips nothing if configured to" do
-      Config.instance.trailing_whitespace = false
+      Config.instance.trim_trailing_white_space_on_save = false
       text = "Hey\n   \n Ho! \r\nLet's Go   \n"
       tempfile = File.tempfile("foo")
       tempfile.print(text)
@@ -86,7 +86,7 @@ describe TextView do
       view.save
       view.text.should eq(text)
     ensure
-      Config.instance.trailing_whitespace = true
+      Config.restore_default
     end
   end
 

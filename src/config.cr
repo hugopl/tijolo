@@ -1,81 +1,113 @@
-require "yaml"
+require "toml"
+
+class ConfigError < Exception
+end
 
 class Config
-  include YAML::Serializable
-
-  PATH = ".config/tijolo/tijolo.yaml"
+  PATH = ".config/tijolo/tijolo.toml"
 
   @@instance : Config?
 
-  property ignored_dirs : Array(Path)?
-  property? lazy_start_language_servers = false
-  setter shortcuts : Hash(String, String)?
-  setter language_servers : Hash(String, String)?
-  property? trailing_whitespace = true
+  enum Mode
+    Strict
+    Relaxed
+  end
+
+  struct ErrorInfo
+    property key : String
+    property default_value : TOML::Type?
+    property cause : String
+
+    def initialize(@key, @default_value, @cause)
+    end
+  end
+
+  getter ignored_dirs : Array(Path)
+  getter? lazy_start_language_servers : Bool
+  getter shortcuts : Hash(String, String)
+  getter language_servers : Hash(String, String)
+  property? trim_trailing_white_space_on_save : Bool
 
   def self.instance
-    @@instance ||= load_yaml
-  end
-
-  def self.load_yaml_contents(contents : String | IO)
-    from_yaml(contents)
-  end
-
-  private def self.load_yaml
-    File.open(path) do |fp|
-      from_yaml(fp)
+    @@instance ||= begin
+      Config.new(File.read(path), :relaxed)
+    rescue e : IO::Error
+      Log.info { "Error loading config file: #{e.message}, creating a new one." }
+      create_config_if_needed
+      Config.new(default_contents)
+    rescue e : TOML::ParseException
+      Log.info { "Error loading config file: #{e.message}" }
+      Config.new(default_contents)
     end
-  rescue e : IO::Error
-    Log.error { "Error loading config file (#{path}): #{e.message}, using default values." }
-    Config.new
+  end
+
+  def self.default_contents
+    {{ read_file("#{__DIR__}/../tijolo.toml") }}
+  end
+
+  def self.create_config_if_needed
+    File.write(path, default_contents) unless File.exists?(path)
+  end
+
+  def self.replace(other : Config)
+    @@instance = other
+  end
+
+  def self.restore_default
+    @@instance = Config.new(default_contents)
   end
 
   def self.path
     Path.home.join(PATH)
   end
 
-  def initialize
+  def initialize(contents : String, mode : Mode = Mode::Strict)
+    toml = TOML.parse(contents)
+    if contents != Config.default_contents
+      defaults = TOML.parse(Config.default_contents)
+
+      each_invalid_entry(toml, defaults) do |error|
+        msg = "Invalid config entry for key #{error.key.inspect}, #{error.cause}"
+        raise ConfigError.new(msg) if mode.strict?
+
+        Log.error { msg }
+        error.default_value.not_nil!
+      end
+    end
+
+    @lazy_start_language_servers = toml["lazy_start_language_servers"].as(Bool)
+    @shortcuts = toml["shortcuts"].as(Hash).transform_values(&.as(String))
+    @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
+    @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
+    @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
   end
 
+  private def each_invalid_entry(toml : Hash, defaults : Hash, &block : Proc(ErrorInfo, TOML::Type))
+    defaults.each do |key, default_value|
+      value = toml[key]?
+      error = validate_value(value, default_value)
+      if error
+        info = ErrorInfo.new(key, default_value, error)
+        toml[key] = block.call(info)
+      elsif value.is_a?(Hash) && default_value.is_a?(Hash)
+        each_invalid_entry(value, default_value, &block)
+      end
+    end
+  end
+
+  # Return a string with the error or nil if there's no error
+  def validate_value(value, default_value) : String?
+    return "found nil value" if value.nil?
+    return "expected #{default_value.class}, found #{value.class}" if value.class != default_value.class
+
+    if value.is_a?(Array) && default_value.is_a?(Array)
+      item_type = default_value.as(Array).first.class
+      return "expected all items to be #{item_type}" if value.any? { |i| i.class != item_type }
+    end
+  end
+
+  # This was a config flag in the past
   def style_scheme
     "monokai"
-  end
-
-  def shortcuts
-    @shortcuts ||= default_shortcuts
-  end
-
-  def default_shortcuts : Hash(String, String)
-    {
-      "show_locator"    => "<Control>P",
-      "new_file"        => "<Control>N",
-      "open_file"       => "<Control>O",
-      "close_view"      => "<Control>W",
-      "save_view"       => "<Control>S",
-      "save_view_as"    => "<Control><Shift>S",
-      "find"            => "<Control>F",
-      "find_next"       => "F3",
-      "find_prev"       => "<Shift>F3",
-      "goto_line"       => "<Control>G",
-      "comment_code"    => "<Control>slash",
-      "sort_lines"      => "F9",
-      "fullscreen"      => "F11",
-      "goto_definition" => "F2",
-    }
-  end
-
-  def language_servers
-    @language_servers ||= default_language_servers
-  end
-
-  def default_language_servers
-    {
-      "crystal" => "scry",
-      "ruby"    => "solargraph stdio",
-    }
-  end
-
-  def ignored_dirs : Array(Path)
-    @ignored_dirs ||= [Path.new("node_modules"), Path.new("tmp/cache")]
   end
 end
