@@ -18,7 +18,6 @@ end
 if options[:debug]
   lsp_logger = ::Log.for("LSP")
   lsp_logger.level = :debug
-  lsp_logger.backend = Log::IOBackend.new(File.open("#{Dir.tempdir}/tijolo-lsp.log", "w"))
 end
 
 # Yes, always leak memory...
