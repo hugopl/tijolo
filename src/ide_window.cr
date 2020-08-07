@@ -272,9 +272,19 @@ class IdeWindow < Window
       return if res == Gtk::ResponseType::CANCEL.to_i
     end
 
-    view.save unless view.file_path.nil?
+    path = view.file_path
+    if path
+      validate_config(view.text) if path == Config.path
+      view.save
+    end
+  rescue e : ConfigError
+    application.error("There's an error in your config file", e.message.to_s)
   rescue e : IO::Error
     application.error(e)
+  end
+
+  private def validate_config(contents : String)
+    Config.replace(Config.new(contents))
   end
 
   private def open_file_dlg

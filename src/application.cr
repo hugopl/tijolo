@@ -139,9 +139,12 @@ class Application
   end
 
   def error(exception : Exception) : Nil
-    message = exception.message || exception.class.name
+    error("Error", exception.message || exception.class.name)
+  end
+
+  def error(title : String, message : String) : Nil
     Log.warn { message }
-    dialog = Gtk::MessageDialog.new(text: message, message_type: :error, buttons: :ok)
+    dialog = Gtk::MessageDialog.new(text: title, secondary_text: message, message_type: :error, buttons: :ok)
     dialog.on_response { dialog.close }
     dialog.run
   end

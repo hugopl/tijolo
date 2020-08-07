@@ -1,6 +1,13 @@
 require "toml"
 
 class ConfigError < Exception
+  def initialize(exception : TOML::ParseException)
+    super(exception.message)
+  end
+
+  def initialize(message)
+    super(message)
+  end
 end
 
 class Config
@@ -62,6 +69,16 @@ class Config
   end
 
   def initialize(contents : String, mode : Mode = Mode::Strict)
+    toml = load_toml(contents, mode)
+
+    @lazy_start_language_servers = toml["lazy_start_language_servers"].as(Bool)
+    @shortcuts = toml["shortcuts"].as(Hash).transform_values(&.as(String))
+    @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
+    @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
+    @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
+  end
+
+  private def load_toml(contents, mode)
     toml = TOML.parse(contents)
     if contents != Config.default_contents
       defaults = TOML.parse(Config.default_contents)
@@ -74,12 +91,9 @@ class Config
         error.default_value.not_nil!
       end
     end
-
-    @lazy_start_language_servers = toml["lazy_start_language_servers"].as(Bool)
-    @shortcuts = toml["shortcuts"].as(Hash).transform_values(&.as(String))
-    @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
-    @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
-    @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
+    toml
+  rescue e : TOML::ParseException
+    raise ConfigError.new(e)
   end
 
   private def each_invalid_entry(toml : Hash, defaults : Hash, &block : Proc(ErrorInfo, TOML::Type))

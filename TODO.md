@@ -4,7 +4,7 @@
 
 This is a short-term TODO list in no special order. Things I'm already working on have a :no_entry:.
 
-## Probably before 0.1.0 release
+## 0.1.0 release
 
 - [x] This TODO list.
 - [x] Fix file monitoring that barely works now.
@@ -20,7 +20,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [x] Show useful git info in the space where now is the open files view.
 - [x] Ubuntu packages.
 - [x] Use TOML for the configuration file.
-- [ ] Settings "UI", just open config file and tell about syntax errors on save
+- [x] Settings "UI", just open config file and tell about syntax errors on save
 
 ## Probably Post 0.1.0 release
 
