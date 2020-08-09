@@ -4,7 +4,7 @@
 
 Lightweight, keyboard-oriented IDE for the masses.
 
-[![AUR](https://img.shields.io/aur/version/tijolo-git)](https://aur.archlinux.org/packages/tijolo-git)
+[![AUR](https://img.shields.io/aur/version/tijolo)](https://aur.archlinux.org/packages/tijolo)
 
 ## Project status
 
