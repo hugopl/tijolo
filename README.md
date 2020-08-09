@@ -13,6 +13,12 @@ Lightweight, keyboard-oriented IDE for the masses.
 The [TODO](./TODO.md) works like a roadmap and also list things I'm working on, it can give you a better idea of the project
 status.
 
+## How it looks like?
+
+<img align="left" src="./screenshots/0.1.0-code.png" />
+
+See more [screenshots](https://github.com/hugopl/tijolo/tree/master/screenshots).
+
 ## Project goals
 
 - Run fast, something you don't see very often in new desktop applicaitons.
