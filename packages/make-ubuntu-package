@@ -33,7 +33,7 @@ def build_package(options)
 
   # Compile
   build_dir = "/package/tijolo-#{version}"
-  docker_run("make", build_dir) if options[:compile]
+  docker_run("make", workdir: build_dir) if options[:compile]
 
   # Install
   pkg_dir = "/package/tijolo_#{version}-1"
@@ -59,9 +59,9 @@ end
 
 def main
   options = {
-    compile: false,
+    compile: true,
     install: true,
-    build_image: false
+    build_image: true
   }
   build_package(options)
 end
