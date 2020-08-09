@@ -57,6 +57,11 @@
     <property name="can_focus">False</property>
     <property name="icon_name">open-menu-symbolic</property>
   </object>
+  <object class="GtkImage" id="new">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">document-new-symbolic</property>
+  </object>
   <object class="GtkHeaderBar" id="root">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -73,6 +78,18 @@
       </object>
       <packing>
         <property name="pack_type">end</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButton" id="new_tijolo_btn">
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="tooltip_text" translatable="yes">Open another project</property>
+        <property name="action_name">win.new_tijolo</property>
+        <property name="image">new</property>
+      </object>
+      <packing>
+        <property name="position">1</property>
       </packing>
     </child>
   </object>

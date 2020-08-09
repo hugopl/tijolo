@@ -20,6 +20,7 @@ class Application
   delegate set_accels_for_action, to: @application
 
   @window : Window?
+  @new_tijolo_btn : Gtk::Button?
 
   def initialize(@argv_files : Array(String))
     GtkSource.init
@@ -45,6 +46,7 @@ class Application
 
     builder = builder_for("header_bar")
     @header_bar = Gtk::HeaderBar.cast(builder["root"])
+    @new_tijolo_btn = Gtk::Button.cast(builder["new_tijolo_btn"])
     main_window.titlebar = header_bar
 
     apply_css
@@ -61,6 +63,14 @@ class Application
     about = Gio::SimpleAction.new("about", nil)
     about.on_activate { show_about_dlg }
     main_window.add_action(about)
+
+    new_tijolo = Gio::SimpleAction.new("new_tijolo", nil)
+    new_tijolo.on_activate { start_new_tijolo }
+    main_window.add_action(new_tijolo)
+  end
+
+  def start_new_tijolo
+    tijolo = Process.new(Process.executable_path.to_s)
   end
 
   def show_preferences_dlg
@@ -131,6 +141,7 @@ class Application
     main_window.add(ide_window.root)
 
     @window = ide_window
+    @new_tijolo_btn.not_nil!.show
     ide_window
   end
 
