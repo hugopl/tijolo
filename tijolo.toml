@@ -1,17 +1,33 @@
+###############################################################################
 # Tijolo configuration file, use with ♥️
-# If you mess up with this and want to load the defaults, just remove this file.
+#
+# If you mess up with this and want to load the defaults, just delete this
+# file.
+###############################################################################
 
-# If true, start language server only when opening a a file with a language server, otherwise
+# If true, start language server only when opening a file with a language server, otherwise
 # scan project and start all possible language servers
+# Default: false
 lazy_start_language_servers = false
 
-# Ignore this directory when parsing any project
+# Ignore these directories when loading any project.
+# Default: ["node_modules", "tmp/cache"]
 ignored_dirs = ["node_modules", "tmp/cache"]
 
 # Set to true to removing trailing white space on save
+# Default: true
 trim_trailing_white_space_on_save = true
 
-# Any valid GTK like shortcut string is valid here
+# Any valid strings accepted by gtk_accelerator_parse is a valid shortcut
+#
+# From GTK docs:
+#
+# The format looks like "<Control>a" or "<Shift><Alt>F1" or "<Release>z" (the last one is
+# for key release).
+#
+# The parser is fairly liberal and allows lower or upper case, and also abbreviations such
+# as "<Ctl>" and "<Ctrl>". For character keys the name is not the symbol, but the lowercase
+# name, e.g. one would use "<Ctrl>minus" instead of "<Ctrl>-".
 [shortcuts]
 show_locator    = "<Control>P"
 new_file        = "<Control>N"
@@ -28,6 +44,8 @@ sort_lines      = "F9"
 fullscreen      = "F11"
 goto_definition = "F2"
 
+# Language servers are started using stdio communication, to know all possible language IDs
+# list file names /usr/share/gtksourceview-4/language-specs/
 [language-servers]
 # SCry, not very good but is what we have for Crystal
 crystal = "scry"
