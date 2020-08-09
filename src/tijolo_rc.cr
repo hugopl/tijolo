@@ -1,8 +1,8 @@
-require "yaml"
+require "json"
 
 module RCData
   struct ViewCursor
-    include YAML::Serializable
+    include JSON::Serializable
 
     property pos : {Int32, Int32}
 
@@ -12,11 +12,11 @@ module RCData
   end
 
   class Project
-    include YAML::Serializable
+    include JSON::Serializable
 
     property path : Path
     property last_used : Time?
-    property cursors : Hash(Path, ViewCursor)?
+    property cursors : Hash(String, ViewCursor)?
 
     def initialize(@path, @last_used = nil)
     end
@@ -43,12 +43,12 @@ module RCData
     end
 
     def save_cursor_position(file_path, line, col)
-      cursors = @cursors ||= Hash(Path, ViewCursor).new
+      cursors = @cursors ||= Hash(String, ViewCursor).new
       if line.zero? && col.zero?
-        cursors.delete(file_path)
+        cursors.delete(file_path.to_s)
         @cursors = nil if cursors.empty?
       else
-        cursors[file_path] = ViewCursor.new(line, col)
+        cursors[file_path.to_s] = ViewCursor.new(line, col)
       end
     end
 
@@ -56,7 +56,7 @@ module RCData
       cursors = @cursors
       return {0, 0} if cursors.nil?
 
-      cursor = cursors[file_path]?
+      cursor = cursors[file_path.to_s]?
       cursor.nil? ? {0, 0} : cursor.pos
     end
   end
@@ -64,9 +64,9 @@ end
 
 # Tijolo Runtime Configuration
 class TijoloRC
-  include YAML::Serializable
+  include JSON::Serializable
 
-  PATH = ".local/share/tijolo/tijolorc.yaml"
+  PATH = ".local/share/tijolo/tijolorc.json"
 
   property? scan_projects = true
   getter projects : Array(RCData::Project)
@@ -78,21 +78,21 @@ class TijoloRC
   end
 
   def self.instance
-    @@instance ||= load_yaml
+    @@instance ||= load
   end
 
   def self.path
     Path.home.join(PATH)
   end
 
-  def self.load_yaml_contents(contents : String | IO)
-    from_yaml(contents).tap do |config|
+  def self.load_contents(contents : String | IO)
+    from_json(contents).tap do |config|
       config.filter_data!
     end
   end
 
-  private def self.load_yaml
-    load_yaml_contents(File.read(path))
+  private def self.load
+    load_contents(File.read(path))
   rescue e
     Log.error { "Error loading config file, using default values: #{e.message}" }
     TijoloRC.new
@@ -145,7 +145,7 @@ class TijoloRC
     if !File.exists?(path)
       Dir.mkdir_p(path.dirname)
     end
-    File.write(path, to_yaml)
+    File.write(path, to_json)
   rescue e
     Log.fatal { "Error saving config file: #{e.message}" }
   end
