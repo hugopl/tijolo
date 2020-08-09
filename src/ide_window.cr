@@ -165,15 +165,18 @@ class IdeWindow < Window
 
   def create_view(file : Path? = nil) : View
     @project.try_load_project!(file) if file && !@project.valid?
+    project_path = @project.root if file && @project.under_project?(file)
+
+    application.add_recent_file(file) if file && project_path.nil?
 
     # TODO: check file mime type and create the right view.
-    view = create_text_view(file)
+    view = create_text_view(file, project_path)
     @open_files << view
     view
   end
 
   # Call create_view instead of this.
-  private def create_text_view(file_path : Path? = nil) : TextView
+  private def create_text_view(file_path : Path? = nil, project_path : Path? = nil) : TextView
     project_path = @project.root if file_path && @project.under_project?(file_path)
     view = TextView.new(file_path, project_path)
     view.add_view_listener(self)

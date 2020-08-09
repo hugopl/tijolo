@@ -22,6 +22,8 @@ class Application
 
   @window : Window?
   @new_tijolo_btn : Gtk::Button?
+  @recent_files_btn : Gtk::MenuButton?
+  @recent_files_menu : Gio::Menu?
 
   def initialize(@argv_files : Array(String))
     GtkSource.init
@@ -48,6 +50,9 @@ class Application
     builder = builder_for("header_bar")
     @header_bar = Gtk::HeaderBar.cast(builder["root"])
     @new_tijolo_btn = Gtk::Button.cast(builder["new_tijolo_btn"])
+    @recent_files_btn = recent_files_btn = Gtk::MenuButton.cast(builder["recent_files_btn"])
+
+    init_recent_files_menu
     main_window.titlebar = header_bar
 
     apply_css
@@ -69,6 +74,11 @@ class Application
     new_tijolo.on_activate { start_new_tijolo }
     main_window.add_action(new_tijolo)
 
+    string = GLib::VariantType.new("s")
+    open_recent = Gio::SimpleAction.new("open_recent_file", string)
+    open_recent.on_activate(&->open_recent_file(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(open_recent)
+
     # global actions with shortcuts
     config = Config.instance
     actions = {new_file:   ->new_file,
@@ -81,6 +91,28 @@ class Application
 
       shortcut = config.shortcuts[name.to_s]
       set_accels_for_action("win.#{name}", {shortcut}) if shortcut
+    end
+  end
+
+  private def init_recent_files_menu
+    files = TijoloRC.instance.recent_files
+    return if files.empty?
+
+    @recent_files_menu = recent_files_menu = Gio::Menu.new
+    reload_recent_files_menu
+    @recent_files_btn.not_nil!.menu_model = recent_files_menu
+  end
+
+  private def fill_recent_files_menu(files, menu : Gio::Menu)
+  end
+
+  private def reload_recent_files_menu
+    rc = TijoloRC.instance
+    recent_files_menu = @recent_files_menu.not_nil!
+    recent_files_menu.remove_all # Yeah, the lazy way... just 10 itens,
+    rc.recent_files.each do |file|
+      label = relative_path_label(Path.new(file.to_s))
+      recent_files_menu.append(label, "win.open_recent_file(#{file.to_s.inspect})")
     end
   end
 
@@ -107,6 +139,16 @@ class Application
     end
   ensure
     dlg.try(&.destroy)
+  end
+
+  def open_recent_file(_action : Gio::SimpleAction, file : GLib::Variant?)
+    ide.open_file(Path.new(file.string)) unless file.nil?
+    reload_recent_files_menu
+  end
+
+  def add_recent_file(file : Path)
+    TijoloRC.instance.push_recent_file(file)
+    reload_recent_files_menu
   end
 
   def fullscreen

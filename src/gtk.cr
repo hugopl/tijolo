@@ -2,6 +2,17 @@ lib LibGtk
   fun tree_store_reorder = gtk_tree_store_reorder(this : TreeStore*, iter : LibGtk::TreeIter*, new_order : Int32*) : Void
 end
 
+module GLib
+  class Variant
+    def string
+      # TODO: Fix this on crystal g_object.
+      __var0 = LibGLib.variant_get_string(@pointer.as(LibGLib::Variant*), out length)
+      GObject.raise_unexpected_null("g_variant_get_string") if __var0.null?
+      ::String.new(__var0)
+    end
+  end
+end
+
 module Gio
   def self.content_type_guess(filename : ::String, data : ::String)
     __return_value = LibGio.content_type_guess(filename, data, data.size, out result_uncertain)

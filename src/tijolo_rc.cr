@@ -66,15 +66,18 @@ end
 class TijoloRC
   include JSON::Serializable
 
-  PATH = ".local/share/tijolo/tijolorc.json"
+  PATH               = ".local/share/tijolo/tijolorc.json"
+  RECENT_FILES_LIMIT = 10
 
   property? scan_projects = true
   getter projects : Array(RCData::Project)
+  @recent_files : Deque(String)?
 
   @@instance : self?
 
   def initialize
     @projects = Array(RCData::Project).new
+    @recent_files = Deque(String).new
   end
 
   def self.instance
@@ -100,6 +103,19 @@ class TijoloRC
     at_exit do
       instance.try(&.save)
     end
+  end
+
+  def push_recent_file(file : Path) : Nil
+    recent_files = self.recent_files
+    recent_files.delete(file.to_s) # Remove to re-add, so last added go to top.
+
+    recent_files.unshift(file.to_s)
+    recent_files.pop if recent_files.size > RECENT_FILES_LIMIT
+    @recent_files = recent_files
+  end
+
+  def recent_files : Indexable(String)
+    @recent_files || Deque(String).new
   end
 
   def filter_projects!

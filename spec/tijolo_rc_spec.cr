@@ -45,4 +45,22 @@ describe TijoloRC do
     rc.projects[1].path.to_s.should eq("#{__DIR__}/spec_helper.cr")
     rc.projects[2].path.to_s.should eq("#{__DIR__}/project_spec.cr")
   end
+
+  it "store only X files in recent files list" do
+    rc = TijoloRC.load_contents(%q({"projects": []}))
+    TijoloRC::RECENT_FILES_LIMIT.times do |i|
+      rc.push_recent_file(Path.new(i.to_s))
+    end
+    rc.push_recent_file(Path.new("most recent"))
+    rc.recent_files.size.should eq(TijoloRC::RECENT_FILES_LIMIT)
+    rc.recent_files.first.should eq("most recent")
+    rc.recent_files.last.should eq("1")
+  end
+
+  it "does not allow duplicates in recent files list" do
+    rc = TijoloRC.load_contents(%q({"projects": []}))
+    rc.push_recent_file(Path.new("hey"))
+    rc.push_recent_file(Path.new("hey"))
+    rc.recent_files.size.should eq(1)
+  end
 end

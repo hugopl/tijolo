@@ -57,6 +57,11 @@
     <property name="can_focus">False</property>
     <property name="icon_name">open-menu-symbolic</property>
   </object>
+  <object class="GtkImage" id="img_recent_files">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">pan-down-symbolic</property>
+  </object>
   <object class="GtkImage" id="new">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -66,6 +71,7 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Tijolo</property>
+    <property name="has_subtitle">False</property>
     <property name="show_close_button">True</property>
     <child>
       <object class="GtkMenuButton" id="hamburguer_btn">
@@ -81,6 +87,48 @@
       </packing>
     </child>
     <child>
+      <object class="GtkBox" id="open_btn_box">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <child>
+          <object class="GtkButton">
+            <property name="label" translatable="yes">Open</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="action_name">win.open_file</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="recent_files_btn">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="focus_on_click">False</property>
+            <property name="receives_default">True</property>
+            <property name="image">img_recent_files</property>
+            <property name="use_popover">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <style>
+          <class name="linked"/>
+        </style>
+      </object>
+      <packing>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
       <object class="GtkButton" id="new_tijolo_btn">
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
@@ -89,7 +137,7 @@
         <property name="image">new</property>
       </object>
       <packing>
-        <property name="position">1</property>
+        <property name="position">2</property>
       </packing>
     </child>
   </object>
