@@ -8,7 +8,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 - [ ] Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - [ ] Add open button on header bar with list of last N non-project files opened.
-- [ ] Add button on header bar to open another instance of Tijolo.
 - :no_entry: Some ♥️ to Git support
   - [ ] Git checkout.
   - [ ] Git log.
