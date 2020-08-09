@@ -4,5 +4,6 @@
 /.shards/
 *~
 *.deb
+*.deb.sig
 *.dwarf
 *.log
