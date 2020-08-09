@@ -1,3 +1,3 @@
 # Copyright Notice
 
-All fonts here, copyright [JetBrains](https://www.jetbrains.com/lp/mono/)
+All fonts here, copyright [Ryan L McIntyre](https://github.com/ryanoasis/nerd-fonts/).
