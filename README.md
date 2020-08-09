@@ -8,29 +8,19 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-**Pre Alpha or something**, not yet released. I'm already using it in my daily work and also to write itself, however it
-doesn't have the enough minimum planned features to be released yet. The [TODO](./TODO.md) file list things I'm working on.
+**Alpha**. I'm already using it in my daily work and also to write itself.
+
+The [TODO](./TODO.md) works like a roadmap and also list things I'm working on, it can give you a better idea of the project
+status.
 
 ## Project goals
 
 - Run fast, something you don't see very often in new desktop applicaitons.
-- Fuzzy search powered locator for a simple and pleasant code navigation.
+- Have a simple distraction free UI.
 - Keyboard focused user interface.
-- Git support without hide git, so you can trust it.
-- Support Language Server Protocol.
-- Plain simple UI, distraction free.
-
-## Features
-
- - [x] Syntax highlighting, Undo/Redo and all the things supported by GtkSourceView4.
- - [x] Fuzzy search to open project files.
- - [ ] Custom language identers.
- - [ ] Easy Split Screen inspired by Tilix.
- - [ ] Language Server support for auto completion.
- - [x] Language Server Protocol support for class/method navigation.
- - [ ] Project wide symbol fuzzy search.
- - [x] Open document symbol fuzzy search.
- - [ ] Basic git commands support (log/blame).
+- Easy/fast code navigation.
+- ♥️ Git.
+- ♥️ Language Servers.
 
 ## Things I have no plans to implement in a near future
 
@@ -40,21 +30,45 @@ doesn't have the enough minimum planned features to be released yet. The [TODO](
 
 ## Installing
 
-If you use Archlinux, there's a AUR package available for latest git version.
+### Archlinux
+
+There's a AUR package for every release.
 
 ```
-$ yay -S tijolo-git
+$ yay -S tijolo
 ```
 
-More packages (for e.g. Ubuntu) only when first version get released.
+There's also AUR package available for latest git version, named `tijolo-git`.
+
+### Ubuntu
+
+There should be a home made Ubuntu package for every release, check the
+[github release page](https://github.com/hugopl/tijolo/releases).
+
+If you want to create a package from git, clone the repository then run `./packages/make-ubuntu-package`, this will generate
+a docker image, build Tijolo inside that image then copy it back, out of the container. Not best approach to build a deb
+package but works on non-deb machines.
 
 ## Compiling from source
 
-You need the Crystal 0.35 compiler, GTK3 and GTKSourceView4 installed.
+You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK lirbaries, libYAML and libGit2 installed.
 
 ```
 $ make
 $ sudo make install PREFIX=/usr
+```
+
+Tijolo use [JetBrains Mono](https://www.jetbrains.com/lp/mono/) font, you can _make install_ them if you don't already have
+them installed:
+
+```
+$ sudo make install-fonts PREFIX=/usr
+```
+
+To uninstall:
+
+```
+$ sudo make uninstall uninstall-fonts PREFIX=/usr
 ```
 
 ## Usage
