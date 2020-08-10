@@ -5,6 +5,7 @@ require "./document_symbol_locator"
 require "./file_locator"
 require "./help_locator"
 require "./line_locator"
+require "./git_locator"
 require "./observable"
 require "./ui_builder_helper"
 
@@ -60,7 +61,7 @@ class Locator
   def init_locators
     @default_locator_provider.add_locator_provider_listener(self)
 
-    [DocumentSymbolLocator.new, LineLocator.new].each do |locator|
+    [DocumentSymbolLocator.new, LineLocator.new, GitLocator.new(@project)].each do |locator|
       @locator_providers[locator.shortcut] = locator
       locator.add_locator_provider_listener(self)
       @help_locator_provider.add(locator)

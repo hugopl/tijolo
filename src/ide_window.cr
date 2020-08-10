@@ -124,17 +124,18 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:    ->show_locator,
-               close_view:      ->close_current_view,
-               save_view:       ->save_current_view,
-               save_view_as:    ->save_current_view_as,
-               find:            ->find_in_current_view,
-               find_next:       ->find_next_in_current_view,
-               find_prev:       ->find_prev_in_current_view,
-               goto_line:       ->show_goto_line_locator,
-               comment_code:    ->comment_code,
-               sort_lines:      ->sort_lines,
-               goto_definition: ->goto_definition,
+    actions = {show_locator:     ->show_locator,
+               show_git_locator: ->show_git_locator,
+               close_view:       ->close_current_view,
+               save_view:        ->save_current_view,
+               save_view_as:     ->save_current_view_as,
+               find:             ->find_in_current_view,
+               find_next:        ->find_next_in_current_view,
+               find_prev:        ->find_prev_in_current_view,
+               goto_line:        ->show_goto_line_locator,
+               comment_code:     ->comment_code,
+               sort_lines:       ->sort_lines,
+               goto_definition:  ->goto_definition,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -162,6 +163,18 @@ class IdeWindow < Window
 
   private def show_locator
     @locator.show(select_text: true, view: @open_files.current_view)
+  end
+
+  private def show_git_locator
+    @locator.text = "g "
+    @locator.show(select_text: false, view: @open_files.current_view)
+  end
+
+  def show_goto_line_locator
+    return if @open_files.empty?
+
+    @locator.text = "l "
+    @locator.show(select_text: false, view: @open_files.current_view)
   end
 
   def create_view(file : Path? = nil) : View
@@ -202,13 +215,6 @@ class IdeWindow < Window
 
     view.goto(line, column)
     view.grab_focus
-  end
-
-  def show_goto_line_locator
-    return if @open_files.empty?
-
-    @locator.text = "l "
-    @locator.show(select_text: false, view: @open_files.current_view)
   end
 
   def open_file(file : Path) : View?

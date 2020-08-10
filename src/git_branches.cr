@@ -1,5 +1,4 @@
 require "git"
-
 require "./project"
 
 # Responsible for display the available git branches
@@ -21,6 +20,8 @@ class GitBranches
   end
 
   private def fill_model
+    return unless @project.valid?
+
     @model.clear
     repo = Git::Repo.open(@project.root.to_s)
     repo.branches.each(:local).each do |branch|
@@ -34,6 +35,11 @@ class GitBranches
   end
 
   private def create_monitor
+    head = "#{@project.root}/.git/HEAD"
+    Gio::File.new_for_path(head).monitor_file(:none, nil).on_changed do
+      fill_model
+    end
+
     heads = "#{@project.root}/.git/refs/heads"
     Gio::File.new_for_path(heads).monitor_directory(:none, nil).on_changed do
       fill_model

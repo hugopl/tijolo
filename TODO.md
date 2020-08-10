@@ -11,9 +11,9 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Ask if user want to open a new Tijolo instance if opening a file from another project.
 - [x] Render Welcome Screen when all files are closed and the current project is invalid.
 - :no_entry: Some ♥️ to Git support
-  - [ ] Git checkout.
+  - [x] Git checkout.
   - [ ] Git log.
-  - [ ] Show git locator at ALT+G
+  - [x] Show git locator at ALT+G
   - [ ] Git commit
 - [ ] :fire: Fix GC issue :fire:
 - :no_entry: Split screen

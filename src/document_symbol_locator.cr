@@ -28,7 +28,6 @@ class DocumentSymbolLocator < FuzzyLocator
   end
 
   def selected(current_view : View?)
-    super
     @current_view = selected_view = validate_view(current_view)
     if selected_view.nil?
       self.haystack = nil

@@ -24,7 +24,6 @@ abstract class View
   getter? externally_modified = false
   getter widget : Gtk::Widget
 
-
   def initialize(@widget, file_path : Path? = nil, @project_path = nil)
     @id = object_id.to_s
     if file_path

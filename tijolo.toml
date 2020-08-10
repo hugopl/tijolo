@@ -29,20 +29,21 @@ trim_trailing_white_space_on_save = true
 # as "<Ctl>" and "<Ctrl>". For character keys the name is not the symbol, but the lowercase
 # name, e.g. one would use "<Ctrl>minus" instead of "<Ctrl>-".
 [shortcuts]
-show_locator    = "<Control>P"
-new_file        = "<Control>N"
-open_file       = "<Control>O"
-close_view      = "<Control>W"
-save_view       = "<Control>S"
-save_view_as    = "<Control><Shift>S"
-find            = "<Control>F"
-find_next       = "F3"
-find_prev       = "<Shift>F3"
-goto_line       = "<Control>G"
-comment_code    = "<Control>slash"
-sort_lines      = "F9"
-fullscreen      = "F11"
-goto_definition = "F2"
+close_view       = "<Control>W"
+comment_code     = "<Control>slash"
+find             = "<Control>F"
+find_next        = "F3"
+find_prev        = "<Shift>F3"
+fullscreen       = "F11"
+goto_definition  = "F2"
+goto_line        = "<Control>G"
+new_file         = "<Control>N"
+open_file        = "<Control>O"
+save_view_as     = "<Control><Shift>S"
+save_view        = "<Control>S"
+show_git_locator = "<Alt>G"
+show_locator     = "<Control>P"
+sort_lines       = "F9"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/
