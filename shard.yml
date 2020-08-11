@@ -23,7 +23,7 @@ dependencies:
     version: ~> 0.1.3
   lsp:
     github: hugopl/lsp
-    version: ~> 0.2.0
+    commit: 3b2b590cb02c08d5504a1e105ba6b166bcd0f804
   git:
     github: smacker/libgit2.cr
     commit: 1d42ffdcf6f885a49ece5b2baac00a5146d0a556

@@ -53,3 +53,7 @@ crystal = "scry"
 # SolarGraph for Ruby, slow but awesome.. but you probably need to change something here if you need to
 # run it with bundle exec, rvm do, etc...
 ruby = "solargraph stdio"
+
+# Bash language server
+# https://github.com/bash-lsp/bash-language-server
+sh = "bash-language-server start"
