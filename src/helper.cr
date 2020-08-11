@@ -24,7 +24,7 @@ def usr_share_paths(dir : String, paths = [] of String)
 
   # data dir has preference on debug builds
   {% if flag?(:debug) %}
-  paths.unshift("#{__DIR__}/../data/#{dir}/")
+    paths.unshift("#{__DIR__}/../data/#{dir}/")
   {% end %}
   paths
 end

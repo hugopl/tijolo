@@ -41,11 +41,15 @@ class Config
     rescue e : IO::Error
       Log.info { "Error loading config file: #{e.message}, creating a new one." }
       create_config_if_needed
-      Config.new(default_contents)
+      default
     rescue e : TOML::ParseException
       Log.info { "Error loading config file: #{e.message}" }
-      Config.new(default_contents)
+      default
     end
+  end
+
+  def self.default
+    @@default ||= Config.new(default_contents)
   end
 
   def self.default_contents
@@ -99,19 +103,22 @@ class Config
   private def each_invalid_entry(toml : Hash, defaults : Hash, &block : Proc(ErrorInfo, TOML::Type))
     defaults.each do |key, default_value|
       value = toml[key]?
-      error = validate_value(value, default_value)
-      if error
-        info = ErrorInfo.new(key, default_value, error)
-        toml[key] = block.call(info)
-      elsif value.is_a?(Hash) && default_value.is_a?(Hash)
-        each_invalid_entry(value, default_value, &block)
+      if value.nil?
+        toml[key] = default_value
+      else
+        error = validate_value(value, default_value)
+        if error
+          info = ErrorInfo.new(key, default_value, error)
+          toml[key] = block.call(info)
+        elsif value.is_a?(Hash) && default_value.is_a?(Hash)
+          each_invalid_entry(value, default_value, &block)
+        end
       end
     end
   end
 
   # Return a string with the error or nil if there's no error
-  def validate_value(value, default_value) : String?
-    return "found nil value" if value.nil?
+  def validate_value(value : TOML::Type, default_value : TOML::Type?) : String?
     return "expected #{default_value.class}, found #{value.class}" if value.class != default_value.class
 
     if value.is_a?(Array) && default_value.is_a?(Array)
