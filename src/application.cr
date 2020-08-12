@@ -98,17 +98,12 @@ class Application
     files = TijoloRC.instance.recent_files
     return if files.empty?
 
-    @recent_files_menu = recent_files_menu = Gio::Menu.new
     reload_recent_files_menu
     @recent_files_btn.not_nil!.menu_model = recent_files_menu
   end
 
-  private def fill_recent_files_menu(files, menu : Gio::Menu)
-  end
-
   private def reload_recent_files_menu
     rc = TijoloRC.instance
-    recent_files_menu = @recent_files_menu.not_nil!
     recent_files_menu.remove_all # Yeah, the lazy way... just 10 itens,
     rc.recent_files.each do |file|
       label = relative_path_label(Path.new(file.to_s))
@@ -144,6 +139,10 @@ class Application
   def open_recent_file(_action : Gio::SimpleAction, file : GLib::Variant?)
     ide.open_file(Path.new(file.string)) unless file.nil?
     reload_recent_files_menu
+  end
+
+  def recent_files_menu : Gio::Menu
+    @recent_files_menu ||= Gio::Menu.new
   end
 
   def add_recent_file(file : Path)
