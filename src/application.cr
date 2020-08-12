@@ -16,6 +16,7 @@ class Application
   getter! main_window : Gtk::ApplicationWindow?
   getter! header_bar : Gtk::HeaderBar?
   getter style_scheme : GtkSource::StyleScheme
+  property? fullscreen = false
 
   delegate set_accels_for_action, to: @application
 
@@ -67,6 +68,54 @@ class Application
     new_tijolo = Gio::SimpleAction.new("new_tijolo", nil)
     new_tijolo.on_activate { start_new_tijolo }
     main_window.add_action(new_tijolo)
+
+    # global actions with shortcuts
+    config = Config.instance
+    actions = {new_file:   ->new_file,
+               open_file:  ->open_file,
+               fullscreen: ->fullscreen}
+    actions.each do |name, closure|
+      action = Gio::SimpleAction.new(name.to_s, nil)
+      action.on_activate { closure.call }
+      main_window.add_action(action)
+
+      shortcut = config.shortcuts[name.to_s]
+      set_accels_for_action("win.#{name}", {shortcut}) if shortcut
+    end
+  end
+
+  def ide : IdeWindow
+    window = @window.as?(IdeWindow)
+    window ||= init_ide(Project.new)
+  end
+
+  def new_file
+    ide.create_view(nil)
+  end
+
+  def open_file
+    dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true)
+    dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
+    dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
+
+    ide_window = @window.as?(IdeWindow)
+    dlg.current_folder_uri = ide_window.project.root.to_uri.to_s if ide_window && ide_window.project.valid?
+
+    if dlg.run == Gtk::ResponseType::ACCEPT.value
+      uri = dlg.uri
+      ide.open_file(Path.new(URI.parse(uri).full_path)) if uri
+    end
+  ensure
+    dlg.try(&.destroy)
+  end
+
+  def fullscreen
+    if @fullscreen
+      main_window.unfullscreen
+    else
+      main_window.fullscreen
+    end
+    @fullscreen = !@fullscreen
   end
 
   def start_new_tijolo
@@ -76,7 +125,6 @@ class Application
   def show_preferences_dlg
     Config.create_config_if_needed
 
-    ide = @window.as?(IdeWindow) || init_ide(Project.new)
     ide.open_file(Config.path)
   end
 

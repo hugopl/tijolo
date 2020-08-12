@@ -17,6 +17,8 @@ class IdeWindow < Window
   include LocatorListener
   include ProjectListener
 
+  getter project : Project
+
   @open_files_view : Gtk::TreeView
   @open_files_box : Gtk::Box
   @project_tree_view : Gtk::TreeView
@@ -24,7 +26,6 @@ class IdeWindow < Window
   @sidebar : Gtk::Box
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
-  @fullscreen = false
 
   @project_tree : ProjectTree
   @open_files : OpenFiles
@@ -122,27 +123,24 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = { {"show_locator", ->show_locator},
-               {"new_file", ->create_view},
-               {"open_file", ->open_file_dlg},
-               {"close_view", ->close_current_view},
-               {"save_view", ->save_current_view},
-               {"save_view_as", ->save_current_view_as},
-               {"find", ->find_in_current_view},
-               {"find_next", ->find_next_in_current_view},
-               {"find_prev", ->find_prev_in_current_view},
-               {"goto_line", ->show_goto_line_locator},
-               {"comment_code", ->comment_code},
-               {"sort_lines", ->sort_lines},
-               {"fullscreen", ->fullscreen},
-               {"goto_definition", ->goto_definition},
+    actions = {show_locator:    ->show_locator,
+               close_view:      ->close_current_view,
+               save_view:       ->save_current_view,
+               save_view_as:    ->save_current_view_as,
+               find:            ->find_in_current_view,
+               find_next:       ->find_next_in_current_view,
+               find_prev:       ->find_prev_in_current_view,
+               goto_line:       ->show_goto_line_locator,
+               comment_code:    ->comment_code,
+               sort_lines:      ->sort_lines,
+               goto_definition: ->goto_definition,
     }
-    actions.each do |(name, closure)|
-      action = Gio::SimpleAction.new(name, nil)
+    actions.each do |name, closure|
+      action = Gio::SimpleAction.new(name.to_s, nil)
       action.on_activate { closure.call }
       main_window.add_action(action)
 
-      shortcut = config.shortcuts[name]
+      shortcut = config.shortcuts[name.to_s]
       application.set_accels_for_action("win.#{name}", {shortcut}) if shortcut
     end
 
@@ -165,7 +163,7 @@ class IdeWindow < Window
     @locator.show(select_text: true, view: @open_files.current_view)
   end
 
-  private def create_view(file : Path? = nil) : View
+  def create_view(file : Path? = nil) : View
     @project.try_load_project!(file) if file && !@project.valid?
 
     # TODO: check file mime type and create the right view.
@@ -287,20 +285,6 @@ class IdeWindow < Window
     Config.replace(Config.new(contents))
   end
 
-  private def open_file_dlg
-    dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true)
-    dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
-    dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
-    dlg.current_folder_uri = @project.root.to_uri.to_s if @project.valid?
-
-    if dlg.run == Gtk::ResponseType::ACCEPT.value
-      uri = dlg.uri
-      open_file(Path.new(URI.parse(uri).full_path)) if uri
-    end
-  ensure
-    dlg.try(&.destroy)
-  end
-
   def close_current_view
     view = @open_files.current_view
     return if view.nil?
@@ -401,15 +385,6 @@ class IdeWindow < Window
 
   def view_escape_pressed(_view)
     @find_replace.hide
-  end
-
-  def fullscreen
-    if @fullscreen
-      main_window.unfullscreen
-    else
-      main_window.fullscreen
-    end
-    @fullscreen = !@fullscreen
   end
 
   def save_cursor(view : TextView)
