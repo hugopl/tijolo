@@ -302,6 +302,7 @@ class IdeWindow < Window
     end
     @open_files.close_current_view
     view.remove_view_listener(self)
+    @locator.view_closed(view)
 
     text_view = view.as?(TextView)
     if text_view

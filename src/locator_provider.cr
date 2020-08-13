@@ -15,10 +15,13 @@ abstract class LocatorProvider
     @model = Gtk::ListStore.new({GObject::Type::UTF8})
   end
 
+  # Called when the locator was selected with the current_view focused.
   def selected(current_view : View?)
   end
 
-  def unselected
+  # Called when the view was closed, the locator may or may not be selected
+  # Use this to free locator caches.
+  def view_closed(view : View) : Nil
   end
 
   # index is the index of the entry in the provided model.

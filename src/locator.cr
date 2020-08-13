@@ -69,10 +69,7 @@ class Locator
 
   def show(*, select_text : Bool, view : View?)
     self.results_cursor = 0
-    if view != @current_view
-      @current_locator_provider.unselected
-      @current_locator_provider.selected(view)
-    end
+    @current_locator_provider.selected(view) if view != @current_view
 
     @current_view = view
     @locator_widget.show
@@ -91,6 +88,10 @@ class Locator
   def text=(text : String)
     @locator_entry.text = text
     @locator_entry.position = text.size
+  end
+
+  def view_closed(view : View)
+    @locator_providers.each_value(&.view_closed(view))
   end
 
   private def focus_out_event(widget, event : Gdk::EventFocus) : Bool
@@ -124,7 +125,6 @@ class Locator
     text = @locator_entry.text
     locator = find_locator(text)
     if @current_locator_provider != locator
-      @current_locator_provider.unselected
       locator.selected(@current_view)
       @current_locator_provider = locator
       @locator_results.model = @current_locator_provider.model
