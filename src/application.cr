@@ -20,7 +20,9 @@ class Application
 
   delegate set_accels_for_action, to: @application
 
-  @window : Window?
+  @ide_wnd : IdeWindow?
+  @welcome_wnd : WelcomeWindow?
+
   @new_tijolo_btn : Gtk::Button?
   @recent_files_btn : Gtk::MenuButton?
   @recent_files_menu : Gio::Menu?
@@ -112,8 +114,7 @@ class Application
   end
 
   def ide : IdeWindow
-    window = @window.as?(IdeWindow)
-    window ||= init_ide(Project.new)
+    @ide_wnd || init_ide(Project.new)
   end
 
   def new_file
@@ -125,8 +126,8 @@ class Application
     dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
     dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
 
-    ide_window = @window.as?(IdeWindow)
-    dlg.current_folder_uri = ide_window.project.root.to_uri.to_s if ide_window && ide_window.project.valid?
+    ide_wnd = @ide_wnd
+    dlg.current_folder_uri = ide_wnd.project.root.to_uri.to_s if ide_wnd && ide_wnd.project.valid?
 
     if dlg.run == Gtk::ResponseType::ACCEPT.value
       uri = dlg.uri
@@ -216,22 +217,36 @@ class Application
     true
   end
 
-  private def init_welcome
-    welcome = WelcomeWindow.new(self)
-    main_window.add(welcome.root)
-  end
-
-  private def init_ide(project : Project) : IdeWindow
-    ide_window = IdeWindow.new(self, project)
-    header_bar.subtitle = "No Project"
+  def init_welcome
+    @welcome_wnd = welcome_wnd = WelcomeWindow.new(self)
 
     child = main_window.child
     main_window.remove(child) unless child.nil?
-    main_window.add(ide_window.root)
+    main_window.add(welcome_wnd.root)
+  end
 
-    @window = ide_window
+  def destroy_welcome
+    @welcome_wnd.try(&.destroy)
+    @welcome_wnd = nil
+  end
+
+  private def init_ide(project : Project) : IdeWindow
+    reuse_ide = !!@ide_wnd && project.valid?
+    ide_wnd = @ide_wnd || IdeWindow.new(self, project)
+
+    header_bar.subtitle = project.valid? ? "Loading Project…" : "No Project"
+
+    if reuse_ide
+      ide_wnd.project.root = project.root
+      ide_wnd.project.scan_files
+    end
+
+    child = main_window.child
+    main_window.remove(child) unless child.nil?
+    main_window.add(ide_wnd.root)
+
     @new_tijolo_btn.not_nil!.show
-    ide_window
+    ide_wnd
   end
 
   def run

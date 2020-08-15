@@ -9,7 +9,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - [x] Add open button on header bar with list of last N non-project files opened.
 - [ ] Ask if user want to open a new Tijolo instance if opening a file from another project.
-- [ ] Render Welcome Screen when all files are closed and the current project is invalid.
+- [x] Render Welcome Screen when all files are closed and the current project is invalid.
 - :no_entry: Some ♥️ to Git support
   - [ ] Git checkout.
   - [ ] Git log.

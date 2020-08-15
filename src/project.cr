@@ -28,7 +28,7 @@ end
 class Project
   observable_by ProjectListener
 
-  getter root = Path.new
+  property root = Path.new
   getter? load_finished = false
 
   @files_mutex = Mutex.new

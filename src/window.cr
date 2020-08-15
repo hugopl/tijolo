@@ -12,4 +12,9 @@ abstract class Window
     @root = Gtk::Widget.cast(builder["root"])
     @root.ref
   end
+
+  def destroy
+    @root.destroy
+    @root.unref
+  end
 end

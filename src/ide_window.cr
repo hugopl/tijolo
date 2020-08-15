@@ -95,6 +95,7 @@ class IdeWindow < Window
     # Setup title bar
     application.header_bar.title = @project.name
     application.header_bar.subtitle = relative_path_label(@project.root)
+    application.destroy_welcome
 
     return if Config.instance.lazy_start_language_servers?
 
@@ -309,6 +310,8 @@ class IdeWindow < Window
       text_view.language.file_closed(text_view)
       save_cursor(text_view)
     end
+
+    application.init_welcome if @open_files.empty? && !@project.valid?
   end
 
   def find_in_current_view
