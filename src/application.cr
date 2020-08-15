@@ -87,7 +87,7 @@ class Application
       program_name: "Tijolo",
       logo_icon_name: "io.github.hugopl.Tijolo",
       comments: "Lightweight, keyboard-oriented IDE for the masses",
-      website: "https://hugopl.github.io/tijolo",
+      website: "https://github.com/hugopl/tijolo", # "https://hugopl.github.io/tijolo",
       website_label: "Learn more about Tijolo",
       license: Compiled::License.display)
     # FIXME: Need to fill a bug into crystal-gobject about set these properties on ctor.
