@@ -47,7 +47,7 @@ class Language
   end
 
   def start_lsp(cmd)
-    lsp = LspClient.new(cmd)
+    lsp = LspClient.new(cmd, @id)
     lsp.add_lsp_client_listener(self)
     lsp
   rescue

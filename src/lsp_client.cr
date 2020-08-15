@@ -1,3 +1,4 @@
+require "colorize"
 require "lsp"
 require "./observable"
 
@@ -15,6 +16,7 @@ class LspClient
   Log = ::Log.for("LSP")
 
   getter? initialized = false
+  private getter log : ::Log
 
   @server : Process
   # Next request ID
@@ -25,9 +27,10 @@ class LspClient
   delegate definition_provider?, to: @server_capabilities
   delegate document_symbol_provider?, to: @server_capabilities
 
-  def initialize(command : String)
+  def initialize(command : String, lang_id : String)
+    @log = Log.for(lang_id.titleize)
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
-    Log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
+    log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
 
     initialize_request do |response|
       @initialized = true
@@ -181,12 +184,12 @@ class LspClient
   end
 
   private def send(payload : String) : Nil
-    return Log.fatal { "Server died" } unless @server.exists?
+    return log.fatal { "Server died" } unless @server.exists?
 
     output = @server.input
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 
-    Log.debug { "> #{payload}" }
+    log.debug { "> #{payload.colorize(:green)}" }
   end
 
   def shutdown
@@ -214,7 +217,7 @@ class LspClient
       end
     end
   rescue e : IO::EOFError
-    Log.fatal { "Server closed output." }
+    log.fatal { "Server closed output." }
   end
 
   private def decode_server_message(data : String)
@@ -226,7 +229,7 @@ class LspClient
     handler = @response_handlers[msg_id]?
     return if handler.nil?
 
-    Log.debug { "< #{data}" }
+    log.debug { "< #{data.colorize(:blue)}" }
     # TODO: Handle server requets
     message = ResponseMessage.from_json(data)
     GLib.timeout(0) do
@@ -235,6 +238,6 @@ class LspClient
     end
     @response_handlers.delete(msg_id)
   rescue e : JSON::ParseException
-    Log.fatal { "Bad message from server (#{e.message}):\n\n#{data}\n\n" }
+    log.fatal { "Bad message from server (#{e.message}):\n\n#{data.colorize(:red)}\n\n" }
   end
 end

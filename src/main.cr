@@ -11,14 +11,8 @@ require "./helper"
 
 options = parse_args(ARGV)
 
-if options[:logfile]
-  ::Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w"))
-end
-
-if options[:debug]
-  lsp_logger = ::Log.for("LSP")
-  lsp_logger.level = :debug
-end
+Log.setup(:debug) if options[:debug]
+Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w")) if options[:logfile]
 
 # Yes, always leak memory...
 #
