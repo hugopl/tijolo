@@ -2,11 +2,10 @@ require "./observable"
 require "./helper"
 
 module ViewListener
-  # This is here... but this class doesn't emit it, since it doesn't have a ref for the widget.
-  def view_escape_pressed(view : TextView)
+  def view_escape_pressed(view : View)
   end
 
-  def view_file_path_changed(view : TextView)
+  def view_file_path_changed(view : View)
   end
 end
 
@@ -23,8 +22,10 @@ abstract class View
   property? readonly = false
   getter last_saved_at : Time::Span?
   getter? externally_modified = false
+  getter widget : Gtk::Widget
 
-  def initialize(file_path : Path? = nil, @project_path = nil)
+
+  def initialize(@widget, file_path : Path? = nil, @project_path = nil)
     @id = object_id.to_s
     if file_path
       @file_path = file_path.expand
@@ -38,6 +39,14 @@ abstract class View
     @file_path = file_path
     self.label = relative_path_label(file_path, @project_path)
     notify_view_file_path_changed(self)
+  end
+
+  private def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey) : Bool
+    if event.keyval == Gdk::KEY_Escape
+      notify_view_escape_pressed(self)
+      return true
+    end
+    false
   end
 
   private def untitled_name

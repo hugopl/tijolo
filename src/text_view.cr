@@ -6,7 +6,6 @@ class TextView < View
   include UiBuilderHelper
 
   getter label : String
-  getter widget : Gtk::Widget
   getter! search_context : GtkSource::SearchContext?
 
   @editor : GtkSource::View
@@ -22,10 +21,10 @@ class TextView < View
   delegate focus?, to: @editor
 
   def initialize(file_path : Path? = nil, project_path : Path? = nil)
-    super
     builder = builder_for("text_view")
-    @widget = Gtk::Widget.cast(builder["root"])
-    @widget.ref
+    widget = Gtk::Widget.cast(builder["root"])
+    super(widget, file_path, project_path)
+
     @editor = GtkSource::View.cast(builder["editor"])
     @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
 
@@ -84,10 +83,9 @@ class TextView < View
   end
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
-    if event.keyval == Gdk::KEY_Escape
-      notify_view_escape_pressed(self)
-      return true
-    elsif event.keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
+    return true if super
+
+    if event.keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
       return insert_char_around_selection(event.keyval)
     end
     return false
