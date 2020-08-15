@@ -7,6 +7,9 @@ module ViewListener
 
   def view_file_path_changed(view : View)
   end
+
+  def view_cursor_location_changed(view : View, line : Int32, column : Int32)
+  end
 end
 
 # Base class for everything that Tijolo can show in the editor

@@ -39,9 +39,11 @@ class OpenFiles
     # FIXME: Use the shortcuts from config file
     Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
       <b>Code Navigation</b><span foreground="#DCDCD1">
-      Ctrl + P  —  Show locator
-      F2        —  Go to definition
-      Ctrl + G  —  Go to line/column
+      Ctrl + P         —  Show locator
+      F2               —  Go to definition
+      Ctrl + G         —  Go to line/column
+      Alt + Shift + ←  —  Go back
+      Alt + Shift + →  —  Go forward
       </span>
       <b>Editting</b><span foreground="#DCDCD1">
       Ctrl + F  —  Find text
@@ -54,7 +56,9 @@ class OpenFiles
       Ctrl + N  —  New file
       Ctrl + O  —  Open non-project file
       Ctrl + W  —  Close view
+      Alt  + G  —  Open Git locator
       </span>
+
     EOT
     editor = Gtk::Widget.cast(builder["root"])
     @stack.add(editor)

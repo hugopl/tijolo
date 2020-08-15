@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - log_level is now configurable via config file.
+ - Cursor position history! Triggered on Alt+Shift+⬅️/Alt+Shift+➡️.
 
 ### Changed
  - Show tree lines on project tree.

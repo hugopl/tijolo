@@ -51,6 +51,9 @@ sort_lines       = "F9"
 show_hide_sidebar     = "<Alt>0"
 focus_editor          = "<Alt>1"
 show_hide_output_pane = "<Alt>2"
+# Go back/forward on cursor history position
+go_back    = "<Shift><Alt>Left"
+go_forward = "<Shift><Alt>Right"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/

@@ -26,7 +26,6 @@ class TextView < View
     @language = Language.new
     setup_editor
     update_header
-    restore_cursor
   end
 
   def text
@@ -143,11 +142,26 @@ class TextView < View
     @editor.smart_backspace = true
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
     @buffer.on_modified_changed { update_header }
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  def create_mark(name : String, line : Int32)
+    iter = @buffer.cursor_iter
+    @buffer.create_mark(name, iter, true)
+  end
+
+  private def text_inserted(_buffer, iter, text, _text_size)
+    line = iter.line
+    col = iter.line_offset
+    language.file_changed_by_insertion(self, line, col, text)
+  end
+
+  private def text_deleted(buffer, start_iter, end_iter)
+    language.file_changed_by_deletion(self, start_iter.line, start_iter.line_offset, end_iter.line, end_iter.line_offset)
   end
 
   def reload
@@ -191,14 +205,6 @@ class TextView < View
     @version += 1
   end
 
-  private def sync_lsp_on_insert(buffer, start_iter, text, _len)
-    language.file_changed_by_insertion(self, start_iter.line, start_iter.line_offset, text)
-  end
-
-  private def sync_lsp_on_delete(buffer, start_iter, end_iter)
-    language.file_changed_by_deletion(self, start_iter.line, start_iter.line_offset, end_iter.line, end_iter.line_offset)
-  end
-
   private def mimetype(file_name, file_contents)
     contents, _uncertain = Gio.content_type_guess(file_name, file_contents)
     contents
@@ -216,6 +222,12 @@ class TextView < View
   private def cursor_changed
     line, col = cursor_pos
     line_column_label(line + 1, col + 1)
+    notify_view_cursor_location_changed(self, line, col)
+  end
+
+  def mark(line) : Gtk::TextMark
+    iter = @buffer.iter_at_line(line)
+    @buffer.create_mark(nil, iter, true)
   end
 
   def has_selection?
@@ -273,6 +285,18 @@ class TextView < View
     iter.forward_chars(column)
     @buffer.place_cursor(iter)
     @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+  end
+
+  def goto(cursor : CursorHistory::Cursor)
+    mark = @buffer.mark(cursor.mark_name)
+    if mark
+      iter = Gtk::TextIter.new
+      @buffer.iter_at_mark(iter, mark)
+      @buffer.place_cursor(iter)
+      @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+    else
+      goto(cursor.line, cursor.column)
+    end
   end
 
   def sort_lines_action

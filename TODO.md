@@ -6,7 +6,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 ## 0.3.0 release
 
-- [ ] :no_entry: Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
+- [x] Location history, Alt+Shift⬅️/Alt+Shift➡️ navigate through cursor location history.
 - :no_entry: Some ♥️ to Git support
   - [ ] Git commit
 - :no_entry: Split screen

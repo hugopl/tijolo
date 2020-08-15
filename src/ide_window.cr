@@ -1,6 +1,7 @@
 require "uri"
 
 require "./confirm_dialogs"
+require "./cursor_history"
 require "./find_replace"
 require "./git_branches"
 require "./locator"
@@ -37,6 +38,7 @@ class IdeWindow < Window
   @find_replace : FindReplace
   @locator : Locator
   @branches : GitBranches
+  @cursor_history : CursorHistory
 
   @tijolorc : TijoloRC
 
@@ -50,6 +52,7 @@ class IdeWindow < Window
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)
+    @cursor_history = CursorHistory.new
 
     # Find widget
     @find_replace = FindReplace.new(Gtk::Revealer.cast(builder["find_revealer"]), Gtk::Entry.cast(builder["find_entry"]))
@@ -158,6 +161,8 @@ class IdeWindow < Window
                show_hide_sidebar:     ->show_hide_sidebar,
                show_hide_output_pane: ->show_hide_output_pane,
                focus_editor:          ->focus_editor,
+               go_back:               ->go_back,
+               go_forward:            ->go_forward,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -252,9 +257,35 @@ class IdeWindow < Window
     view = @open_files.view(file)
     if view.nil?
       view = create_view(file)
+      view.restore_cursor
     else
       @open_files.show_view(view)
     end
+    view.grab_focus
+    view
+  rescue e : IO::Error
+    application.error(e)
+  end
+
+  def open_file(cursor : CursorHistory::Cursor) : View?
+    # TODO: Remove this trace once the feature feels stable enough.
+    Log.trace do
+      String.build do |str|
+        str.puts
+        @cursor_history.items.each_with_index do |i, idx|
+          a = idx == @cursor_history.idx ? "*" : " "
+          str.puts "#{a} #{i.file_path.basename}:#{i.line}"
+        end
+      end
+    end
+
+    view = @open_files.view(cursor.file_path)
+    if view.nil?
+      view = create_view(cursor.file_path)
+    else
+      @open_files.show_view(view)
+    end
+    view.goto(cursor)
     view.grab_focus
     view
   rescue e : IO::Error
@@ -442,6 +473,26 @@ class IdeWindow < Window
   def view_escape_pressed(_view)
     @output_pane.hide
     @find_replace.hide
+  end
+
+  # Go back on cursor position history
+  def go_back
+    cursor = @cursor_history.prev
+    open_file(cursor) if cursor
+  end
+
+  # Go forward on cursor position history
+  def go_forward
+    cursor = @cursor_history.next
+    open_file(cursor) if cursor
+  end
+
+  def view_cursor_location_changed(view : View, line : Int32, column : Int32)
+    path = view.file_path
+    return if path.nil?
+
+    mark_name = @cursor_history.add(path, line, column)
+    view.create_mark(mark_name, line) unless mark_name.nil?
   end
 
   def save_cursor(view : TextView)
