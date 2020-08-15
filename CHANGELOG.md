@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
  - Missing config entries are filled up with defaults.
+ - It's now possible to go back to welcome screen after close all files if there's no project open.
 
 ## [0.1.0] - 2020-08-09
 ### Added

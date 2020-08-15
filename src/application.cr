@@ -232,7 +232,7 @@ class Application
 
   private def init_ide(project : Project) : IdeWindow
     reuse_ide = !!@ide_wnd && project.valid?
-    ide_wnd = @ide_wnd || IdeWindow.new(self, project)
+    @ide_wnd = ide_wnd = @ide_wnd || IdeWindow.new(self, project)
 
     header_bar.subtitle = project.valid? ? "Loading Project…" : "No Project"
 
