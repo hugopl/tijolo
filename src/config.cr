@@ -1,3 +1,4 @@
+require "file_utils"
 require "toml"
 
 class ConfigError < Exception
@@ -53,7 +54,10 @@ class Config
   end
 
   def self.create_config_if_needed
-    File.write(path, default_contents) unless File.exists?(path)
+    return if File.exists?(path)
+
+    FileUtils.mkdir_p(Config.path.dirname)
+    File.write(path, default_contents)
   end
 
   def self.replace(other : Config)
