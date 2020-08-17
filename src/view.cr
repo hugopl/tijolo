@@ -18,8 +18,9 @@ abstract class View
   getter file_path : Path?
   getter project_path : Path?
   getter id : String
-  getter label : String
+  property label : String
   property? readonly = false
+  property? virtual = false
   getter last_saved_at : Time::Span?
   getter? externally_modified = false
   getter widget : Gtk::Widget
@@ -36,7 +37,13 @@ abstract class View
 
   def file_path=(file_path : Path) : Nil
     @file_path = file_path
+    @virtual = false
     @label = relative_path_label(file_path, @project_path)
+    update_header
+    notify_view_file_path_changed(self)
+  end
+
+  def label=(@label : String)
     update_header
     notify_view_file_path_changed(self)
   end
@@ -61,6 +68,8 @@ abstract class View
   end
 
   def header_text : String
+    return @label if @virtual
+
     project_path = @project_path
     file_path = @file_path
 

@@ -209,6 +209,14 @@ class IdeWindow < Window
     open_file(Path.new(file))
   end
 
+  def locator_show_special_file(contents : String, label : String)
+    view = create_view.as(TextView)
+    view.text = contents
+    view.readonly = true
+    view.virtual = true
+    view.label = label
+  end
+
   def locator_goto_line_col(line : Int32, column : Int32)
     view = @open_files.current_view.as?(TextView)
     return if view.nil?
@@ -251,7 +259,7 @@ class IdeWindow < Window
 
   def save_current_view
     view = @open_files.current_view
-    save_view(view) if view
+    save_view(view) if view && !view.virtual?
   end
 
   def save_current_view_as

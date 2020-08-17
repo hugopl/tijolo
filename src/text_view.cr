@@ -74,6 +74,8 @@ class TextView < View
   end
 
   def modified? : Bool
+    return false if virtual?
+
     @buffer.modified
   end
 
@@ -209,6 +211,7 @@ class TextView < View
     language.file_changed_by_deletion(self, start_iter.line, start_iter.line_offset, end_iter.line, end_iter.line_offset)
   end
 
+  # TODO: Move these header specific things to View class
   private def update_header(_buffer = nil)
     @file_path_label.label = header_text
   end
