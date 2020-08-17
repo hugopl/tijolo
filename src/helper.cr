@@ -45,7 +45,9 @@ def parse_args(argv)
       puts parser
       exit
     end
-    parser.on("--logfile=FILE", "Where to save log, default to STDOUT.") { |file| logfile = file }
+    parser.on("--logfile=FILE", "Where to save log, default to STDOUT or /tmp/tijolo.PID.log if not on a tty.") do |file|
+      logfile = file
+    end
     parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { debug = true }
     parser.on("--enable-gc", "Enable garbage collector (see https://github.com/jhass/crystal-gobject/issues/69).") do
       gc_disabled = false

@@ -9,10 +9,16 @@ require "./observable"
 require "./application"
 require "./helper"
 
-options = parse_args(ARGV)
+def setup_logger(options)
+  logfile = options[:logfile]
+  logfile = File.join(Dir.tempdir, "tijolo.#{Process.pid}.log") if logfile.nil? && !STDOUT.tty?
 
-Log.setup(:debug) if options[:debug]
-Log.for("").backend = Log::IOBackend.new(File.open(options[:logfile].to_s, "w")) if options[:logfile]
+  Log.setup(:debug) if options[:debug]
+  Log.for("").backend = Log::IOBackend.new(File.open(logfile, "w")) if logfile
+end
+
+options = parse_args(ARGV)
+setup_logger(options)
 
 # Yes, always leak memory...
 #

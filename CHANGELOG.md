@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - LSP symbols are now cached for faster locator contents load when there's no file changes.
  - Added default configuration for bash language server.
  - New Git locator, triggered on ALT+G or typing "g " on locator.
+ - Default logfile to /tmp/tijolo.#{pid}.log if STDOUT isn't a tty.
 
 ## Fixed
  - Missing config entries are filled up with defaults.
