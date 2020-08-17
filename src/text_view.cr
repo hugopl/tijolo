@@ -47,11 +47,6 @@ class TextView < View
     Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
   end
 
-  def label=(label : String)
-    super
-    update_header
-  end
-
   def text
     @buffer.text(@buffer.start_iter, @buffer.end_iter, false)
   end
@@ -72,9 +67,9 @@ class TextView < View
     super
     @editor.editable = !value
     if value
-      @file_path_label.label = "#{@label} 🔒"
+      @file_path_label.label = "#{label} 🔒"
     else
-      @file_path_label.label = "#{@label}"
+      @file_path_label.label = "#{label}"
     end
   end
 
@@ -180,7 +175,7 @@ class TextView < View
       @buffer.text = text
       @buffer.modified = false
 
-      @language = LanguageManager.guess_language(@label, mimetype(@label, text))
+      @language = LanguageManager.guess_language(label, mimetype(label, text))
       @buffer.language = @language.gtk_language
 
       self.readonly = !File.writable?(file_path)

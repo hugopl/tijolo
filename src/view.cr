@@ -18,7 +18,7 @@ abstract class View
   getter file_path : Path?
   getter project_path : Path?
   getter id : String
-  property label : String
+  getter label : String
   property? readonly = false
   getter last_saved_at : Time::Span?
   getter? externally_modified = false
@@ -36,9 +36,12 @@ abstract class View
 
   def file_path=(file_path : Path) : Nil
     @file_path = file_path
-    self.label = relative_path_label(file_path, @project_path)
+    @label = relative_path_label(file_path, @project_path)
+    update_header
     notify_view_file_path_changed(self)
   end
+
+  abstract def update_header
 
   private def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey) : Bool
     if event.keyval == Gdk::KEY_Escape
@@ -62,12 +65,7 @@ abstract class View
     file_path = @file_path
 
     modified = modified? ? " ✱" : ""
-    path = if project_path && file_path
-             "#{file_path.relative_to(project_path)}"
-           else
-             @label
-           end
-    "#{path}#{modified}"
+    "#{@label}#{modified}"
   end
 
   def modified? : Bool
