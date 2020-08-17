@@ -215,6 +215,7 @@ class IdeWindow < Window
     view.readonly = true
     view.virtual = true
     view.label = label
+    view.cursor_pos = {0,0}
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)

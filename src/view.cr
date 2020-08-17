@@ -11,6 +11,8 @@ end
 
 # Base class for everything that Tijolo can show in the editor
 abstract class View
+  include UiBuilderHelper
+
   observable_by ViewListener
 
   @@untitled_count = -1
@@ -18,28 +20,49 @@ abstract class View
   getter file_path : Path?
   getter project_path : Path?
   getter id : String
-  property label : String
+  property label = ""
   property? readonly = false
   property? virtual = false
   getter last_saved_at : Time::Span?
   getter? externally_modified = false
+
   getter widget : Gtk::Widget
 
-  def initialize(@widget, file_path : Path? = nil, @project_path = nil)
+  def initialize(view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
+    builder = builder_for("view")
+    @widget = Gtk::Widget.cast(builder["root"])
+    @line_column_label = Gtk::Label.cast(builder["line_column"])
+    @file_path_label = Gtk::MenuButton.cast(builder["file_path"])
+    @file_path_label.on_button_press_event do |_widget, _event|
+      @file_path_label.clicked
+      true
+    end
+
+    container = Gtk::ScrolledWindow.cast(builder["container"])
+    container.add(view_widget)
+
     @id = object_id.to_s
     if file_path
-      @file_path = file_path.expand
-      @label = relative_path_label(file_path, @project_path)
+      self.file_path = file_path.expand
     else
       @label = untitled_name
     end
+
+    variant_self = GLib::Variant.new_uint64(self.object_id)
+    Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
+  end
+
+  def line_column_label(line : Int32, col : Int32)
+    @line_column_label.label = "#{line}:#{col}"
   end
 
   def file_path=(file_path : Path) : Nil
     @file_path = file_path
+    self.readonly = !File.writable?(file_path)
     @virtual = false
-    @label = relative_path_label(file_path, @project_path)
-    update_header
+    self.label = relative_path_label(file_path, @project_path)
     notify_view_file_path_changed(self)
   end
 
@@ -48,7 +71,9 @@ abstract class View
     notify_view_file_path_changed(self)
   end
 
-  abstract def update_header
+  def update_header
+    @file_path_label.label = header_text
+  end
 
   private def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey) : Bool
     if event.keyval == Gdk::KEY_Escape
@@ -68,13 +93,15 @@ abstract class View
   end
 
   def header_text : String
-    return @label if @virtual
-
-    project_path = @project_path
-    file_path = @file_path
-
-    modified = modified? ? " ✱" : ""
-    "#{@label}#{modified}"
+    if virtual?
+      @label
+    elsif modified?
+      "#{@label} ✱"
+    elsif readonly?
+      "#{@label} 🔒"
+    else
+      @label
+    end
   end
 
   def modified? : Bool
@@ -101,5 +128,6 @@ abstract class View
   def save : Nil
     @last_saved_at = Time.monotonic
     @externally_modified = false
+    self.readonly = false
   end
 end

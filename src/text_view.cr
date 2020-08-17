@@ -3,15 +3,12 @@ require "./ui_builder_helper"
 require "./view"
 
 class TextView < View
-  include UiBuilderHelper
-
   getter label : String
   getter! search_context : GtkSource::SearchContext?
 
-  @editor : GtkSource::View
+  @editor = GtkSource::View.new
   getter buffer : GtkSource::Buffer
   getter version = 1
-  getter file_path_label : Gtk::MenuButton
 
   getter language : Language
 
@@ -21,30 +18,15 @@ class TextView < View
   delegate focus?, to: @editor
 
   def initialize(file_path : Path? = nil, project_path : Path? = nil)
-    builder = builder_for("text_view")
-    widget = Gtk::Widget.cast(builder["root"])
-    super(widget, file_path, project_path)
-
-    @editor = GtkSource::View.cast(builder["editor"])
-    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
-
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
-    @line_column = Gtk::Label.cast(builder["line_column"])
-    @file_path_label = Gtk::MenuButton.cast(builder["file_path"])
-    @file_path_label.on_button_press_event do |_widget, _event|
-      @file_path_label.clicked
-      true
-    end
+    super(@editor, file_path, project_path)
 
+    @editor.show
+    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
     @language = Language.new
     setup_editor
     update_header
     restore_cursor
-
-    variant_self = GLib::Variant.new_uint64(self.object_id)
-    Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
-    Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
-    Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
   end
 
   def text
@@ -63,20 +45,13 @@ class TextView < View
     end
   end
 
-  def readonly=(value)
+  def readonly=(value : Bool)
     super
     @editor.editable = !value
-    if value
-      @file_path_label.label = "#{label} 🔒"
-    else
-      @file_path_label.label = "#{label}"
-    end
   end
 
   def modified? : Bool
-    return false if virtual?
-
-    @buffer.modified
+    virtual? ? false : @buffer.modified
   end
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
@@ -112,7 +87,7 @@ class TextView < View
   end
 
   def save
-    return if @readonly
+    return if readonly?
 
     file_path = @file_path
     raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
@@ -147,6 +122,21 @@ class TextView < View
   end
 
   private def setup_editor
+    # TODO: Add config entries for all this
+    @editor.monospace = true
+    @editor.wrap_mode = :word_char
+    @editor.monospace = true
+    @editor.show_line_numbers = true
+    @editor.tab_width = 2
+    @editor.auto_indent = true
+    @editor.insert_spaces_instead_of_tabs = true
+    @editor.show_right_margin = true
+    @editor.right_margin_position = 125
+    @editor.smart_home_end = :before
+    @editor.highlight_current_line = true
+    @editor.background_pattern = :grid
+    @editor.smart_backspace = true
+
     @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
 
     @buffer.begin_not_undoable_action
@@ -155,7 +145,7 @@ class TextView < View
     @buffer.connect("notify::cursor-position") { cursor_changed }
     @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
     @buffer.after_delete_range(&->sync_lsp_on_delete(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
-    @buffer.on_modified_changed(&->update_header(Gtk::TextBuffer))
+    @buffer.on_modified_changed { update_header }
   ensure
     @buffer.end_not_undoable_action
   end
@@ -179,8 +169,6 @@ class TextView < View
 
       @language = LanguageManager.guess_language(label, mimetype(label, text))
       @buffer.language = @language.gtk_language
-
-      self.readonly = !File.writable?(file_path)
     else
       @buffer.modified = true
     end
@@ -211,11 +199,6 @@ class TextView < View
     language.file_changed_by_deletion(self, start_iter.line, start_iter.line_offset, end_iter.line, end_iter.line_offset)
   end
 
-  # TODO: Move these header specific things to View class
-  private def update_header(_buffer = nil)
-    @file_path_label.label = header_text
-  end
-
   private def mimetype(file_name, file_contents)
     contents, _uncertain = Gio.content_type_guess(file_name, file_contents)
     contents
@@ -232,7 +215,7 @@ class TextView < View
 
   private def cursor_changed
     line, col = cursor_pos
-    @line_column.label = "#{line + 1}:#{col + 1}"
+    line_column_label(line + 1, col + 1)
   end
 
   def has_selection?
