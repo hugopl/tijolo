@@ -122,7 +122,8 @@ class Application
   end
 
   def open_file
-    dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true)
+    dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true,
+      transient_for: main_window)
     dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
     dlg.add_button("Open", Gtk::ResponseType::ACCEPT.value)
 
@@ -172,6 +173,7 @@ class Application
 
   def show_about_dlg
     dialog = Gtk::AboutDialog.new(application: @application,
+      transient_for: main_window,
       copyright: "© 2020 Hugo Parente Lima",
       version: VERSION,
       program_name: "Tijolo",

@@ -228,7 +228,7 @@ class IdeWindow < Window
     view.readonly = true
     view.virtual = true
     view.label = label
-    view.cursor_pos = {0,0}
+    view.cursor_pos = {0, 0}
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)
@@ -323,7 +323,7 @@ class IdeWindow < Window
 
     @locator.hide
     if view.modified?
-      dlg = ConfirmSaveDialog.new([view])
+      dlg = ConfirmSaveDialog.new(main_window, [view])
       result = dlg.run
       return if result.cancel?
 
@@ -436,7 +436,7 @@ class IdeWindow < Window
     return if view.nil? || !view.externally_modified?
 
     modified_views = @open_files.files.select(&.externally_modified?)
-    dlg = ConfirmReloadDialog.new(modified_views)
+    dlg = ConfirmReloadDialog.new(main_window, modified_views)
     case dlg.run
     when .cancel?
       @inhibit_modified_files_dlg = true
@@ -449,7 +449,7 @@ class IdeWindow < Window
 
   def about_to_quit(_widget, event) : Bool
     unless @open_files.all_saved?
-      dlg = ConfirmSaveDialog.new(@open_files.files.select(&.modified?))
+      dlg = ConfirmSaveDialog.new(main_window, @open_files.files.select(&.modified?))
       result = dlg.run
       if result.cancel?
         return true

@@ -14,10 +14,11 @@ abstract class ConfirmDialog
     DestructiveAction
   end
 
-  def initialize(@views : Array(View))
+  def initialize(parent : Gtk::Widget, @views : Array(View))
     builder = builder_for("confirm_dialog")
     builder.connect_signals
     @dialog = Gtk::MessageDialog.cast(builder["root"])
+    @dialog.transient_for = parent
 
     if @views.size < 2
       @dialog.secondary_text = secondary_text
