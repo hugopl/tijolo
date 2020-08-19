@@ -14,7 +14,7 @@ shards:
 
   gobject:
     git: https://github.com/jhass/crystal-gobject.git
-    version: 0.8.0+git.commit.2296ff6b1b2222b83e262c38555fc9eaa8f0b847
+    version: 0.9.1
 
   lsp:
     git: https://github.com/hugopl/lsp.git
