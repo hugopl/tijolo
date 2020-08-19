@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fixes on LSP protocol implementation, so more language servers should work with Tijolo.
  - Git branches are now updated on UI when just the HEAD changes.
  - Don't crash at startup if ~/.config/tijolo directory doesn't exist.
+ - Do not repeated show "File was externally modified" dialog when user press cancel.
  - Fix app URL on about dialog.
 
 ## [0.1.0] - 2020-08-09

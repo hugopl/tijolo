@@ -26,6 +26,9 @@ class IdeWindow < Window
   @sidebar : Gtk::Box
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
+  # True if user pressed cancel on dlg about reload externally modified files
+  # So we don't show th edialog again when main window regain focus.
+  @inhibit_modified_files_dlg = false
 
   @project_tree : ProjectTree
   @open_files : OpenFiles
@@ -71,7 +74,7 @@ class IdeWindow < Window
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_delete_event(&->about_to_quit(Gtk::Widget, Gdk::Event))
-    main_window.connect("notify::is-active") { ask_about_externally_modified_files }
+    main_window.connect("notify::is-active") { main_window_active_changed }
 
     @open_files.add_open_files_listener(self)
     @locator.add_locator_listener(self)
@@ -81,9 +84,19 @@ class IdeWindow < Window
     setup_actions
   end
 
+  def main_window_active_changed
+    return unless main_window.active?
+
+    if @inhibit_modified_files_dlg
+      @inhibit_modified_files_dlg = false
+      return
+    end
+    ask_about_externally_modified_files
+  end
+
   def project_file_content_changed(path : Path)
     view = @open_files.view(path)
-    return if view.nil?
+    return if view.nil? || view.externally_modified?
 
     view.externally_modified!
     # TODO: Show a passive banner and let user press F5 to reload or ESC to ignore instead of an annoying dialog.
@@ -425,8 +438,11 @@ class IdeWindow < Window
     modified_views = @open_files.files.select(&.externally_modified?)
     dlg = ConfirmReloadDialog.new(modified_views)
     case dlg.run
-    when .cancel?    then return
-    when .do_action? then dlg.selected_views.each(&.reload)
+    when .cancel?
+      @inhibit_modified_files_dlg = true
+      return
+    when .do_action?
+      dlg.selected_views.each(&.reload)
     end
     modified_views.each(&.externally_unmodified!)
   end
