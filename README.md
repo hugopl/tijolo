@@ -28,12 +28,6 @@ See more [screenshots](https://github.com/hugopl/tijolo/tree/master/screenshots)
 - ♥️ Git.
 - ♥️ Language Servers.
 
-## Things I have no plans to implement in a near future
-
-- Support for other version control systems besides git.
-- Printing support.
-- Support for specific build systems.
-
 ## Installing
 
 ### Archlinux
@@ -52,12 +46,12 @@ There should be a home made Ubuntu package for every release, check the
 [github release page](https://github.com/hugopl/tijolo/releases).
 
 If you want to create a package from git, clone the repository then run `./packages/make-ubuntu-package`, this will generate
-a docker image, build Tijolo inside that image then copy it back, out of the container. Not best approach to build a deb
-package but works on non-deb machines.
+a docker image, build Tijolo inside that image, create a debian package then copy it back, out of the container. Not best
+approach to build a deb package but works on non-deb machines.
 
 ## Compiling from source
 
-You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK lirbaries, libYAML and libGit2 installed.
+You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK lirbaries and libGit2 installed.
 
 ```
 $ make

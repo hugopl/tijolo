@@ -14,23 +14,34 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [x] Git checkout.
   - [x] Git log.
   - [x] Show git locator at ALT+G
+  - [ ] Git blame (ugly way, not in editor gutter)
+
+## 0.3.0 release
+
+- :no_entry: Some ♥️ to Git support
   - [ ] Git commit
-- [ ] :fire: Fix GC issue :fire:
 - :no_entry: Split screen
   - [ ] :no_entry: Ctrl+Shift+P open locator targeting a split view.
   - [ ] Ctrl+Shift+X "zoom" view.
   - [ ] Alt + arrows change from one split view to another.
   - [ ] Ctrl+T split view opening a terminal.
 
-## Probably Not on Next Release
+## 0.4.0 release
 
 - [ ] LSP-based auto complete.
 - [ ] Rectractable project tree pane on Alt+0.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
-- [ ] Clone repository dialog.
 - [ ] :no_entry: Better feedback when failed to open language servers.
-- [ ] Save sessions, with a config flag.
 - [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
+
+## 0.5.0 release
+
+- [ ] :fire: Fix GC issue :fire:, this is the project major issue, Crystal GC doesn't like GTK.
+
+## Backlog
+
+- [ ] Clone repository dialog. (I really don't care about this task, since I don't use it)
+- [ ] Save sessions, with a config flag.
 - [ ] I18N support.
 - [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] Notification system for things like "LSP for language X ready!".
