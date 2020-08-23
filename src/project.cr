@@ -49,13 +49,17 @@ class Project
     !@root.to_s.empty?
   end
 
+  def self.valid?(path : Path)
+    !Project.find_root(path).nil?
+  end
+
   # Try load project and scan files on success
   def try_load_project!(path : Path) : Nil
     scan_files if try_load_project(path)
   end
 
   def try_load_project(path : Path) : Bool
-    root = find_root(path)
+    root = Project.find_root(path)
     return false if root.nil?
 
     @root = root
@@ -220,7 +224,7 @@ class Project
     end
   end
 
-  private def find_root(location : Path) : Path?
+  protected def self.find_root(location : Path) : Path?
     path = location.expand
     root = path.root.not_nil!
 

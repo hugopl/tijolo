@@ -130,12 +130,20 @@ class Application
     ide_wnd = @ide_wnd
     dlg.current_folder_uri = ide_wnd.project.root.to_uri.to_s if ide_wnd && ide_wnd.project.valid?
 
-    if dlg.run == Gtk::ResponseType::ACCEPT.value
-      uri = dlg.uri
-      ide.open_file(Path.new(URI.parse(uri).full_path)) if uri
+    res = dlg.run
+    uri = dlg.uri if res == Gtk::ResponseType::ACCEPT.value
+    dlg.destroy
+    return if uri.nil?
+
+    file_path = Path.new(URI.parse(uri).full_path)
+    # If this zillion questions are true... the user is opening a file from another project on this project
+    # So we ask if the file should be opened in another Tijolo instance.
+    if ide_wnd && ide_wnd.project.valid? && !ide_wnd.project.under_project?(file_path) &&
+       Project.valid?(file_path) && open_another_tijolo_instance?(file_path)
+      start_new_tijolo(file_path.to_s)
+    else
+      ide.open_file(file_path)
     end
-  ensure
-    dlg.try(&.destroy)
   end
 
   def open_recent_file(_action : Gio::SimpleAction, file : GLib::Variant?)
@@ -161,8 +169,9 @@ class Application
     @fullscreen = !@fullscreen
   end
 
-  def start_new_tijolo
-    tijolo = Process.new(Process.executable_path.to_s)
+  def start_new_tijolo(file : String? = nil)
+    args = file.nil? ? nil : {file}
+    tijolo = Process.new(Process.executable_path.to_s, args)
   end
 
   def show_preferences_dlg
@@ -255,14 +264,29 @@ class Application
     @application.run(nil)
   end
 
+  def open_another_tijolo_instance?(file : Path) : Bool
+    label = relative_path_label(file)
+    dialog = Gtk::MessageDialog.new(text: "Open “#{label}” in another Tijolo instance?",
+      secondary_text: "It belongs to another git repository.",
+      buttons: :yes_no, message_type: :question,
+      transient_for: main_window)
+    dialog.on_response { dialog.close }
+
+    res = dialog.run
+    dialog.destroy
+    res == Gtk::ResponseType::YES.value
+  end
+
   def error(exception : Exception) : Nil
     error("Error", exception.message || exception.class.name)
   end
 
   def error(title : String, message : String) : Nil
     Log.warn { message }
-    dialog = Gtk::MessageDialog.new(text: title, secondary_text: message, message_type: :error, buttons: :ok)
+    dialog = Gtk::MessageDialog.new(text: title, secondary_text: message,
+      message_type: :error, buttons: :ok, transient_for: main_window)
     dialog.on_response { dialog.close }
     dialog.run
+    dialog.destroy
   end
 end
