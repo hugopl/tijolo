@@ -32,6 +32,35 @@ describe TextView do
     TextView.new.header_text.should eq("Untitled #{next_n + 3} ✱")
   end
 
+  it "can save new files" do
+    filename = Path.new(Dir.tempdir) / "test"
+    view = TextView.new
+    view.readonly?.should eq(false)
+    view.virtual?.should eq(false)
+
+    view.file_path = Path.new(filename)
+    view.save
+    view.modified?.should eq(false)
+    view.header_text.should eq(filename.to_s)
+    File.delete(filename)
+  end
+
+  it "open readonly files in readonly mode" do
+    tempfile = File.tempfile("foo", ".txt") do |file|
+      file.print("hey")
+    end
+    File.chmod(tempfile.path, 0o400)
+    view = TextView.new(Path.new(tempfile.path))
+    view.readonly?.should eq(true)
+    view.modified?.should eq(false)
+    view.header_text.should eq("#{tempfile.path} 🔒")
+  ensure
+    if tempfile
+      File.chmod(tempfile.path, 0o600)
+      tempfile.delete
+    end
+  end
+
   context "when inserting around selection" do
     it "insert chars" do
       view = TextView.new

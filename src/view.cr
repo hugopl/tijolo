@@ -60,7 +60,7 @@ abstract class View
 
   def file_path=(file_path : Path) : Nil
     @file_path = file_path
-    self.readonly = !File.writable?(file_path)
+    self.readonly = !File.writable?(file_path) if File.exists?(file_path)
     @virtual = false
     self.label = relative_path_label(file_path, @project_path)
     notify_view_file_path_changed(self)
