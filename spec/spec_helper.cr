@@ -93,6 +93,9 @@ class TestLocatorListener
   def locator_goto_line_col(line : Int32, column : Int32)
     @line_col = {line, column}
   end
+
+  def locator_show_special_file(contents : String, label : String)
+  end
 end
 
 # Just to make things accessible for testing
