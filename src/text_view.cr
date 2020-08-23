@@ -122,25 +122,27 @@ class TextView < View
   end
 
   private def setup_editor
+    @buffer.begin_not_undoable_action
+    reload
+
+    @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
+
+    file_path = @file_path
+    is_make_file = !file_path.nil? && file_path.basename == "Makefile"
     # TODO: Add config entries for all this
     @editor.monospace = true
     @editor.wrap_mode = :word_char
     @editor.monospace = true
     @editor.show_line_numbers = true
-    @editor.tab_width = 2
+    @editor.tab_width = is_make_file ? 4 : 2
     @editor.auto_indent = true
-    @editor.insert_spaces_instead_of_tabs = true
+    @editor.insert_spaces_instead_of_tabs = !is_make_file
     @editor.show_right_margin = true
     @editor.right_margin_position = 125
     @editor.smart_home_end = :before
     @editor.highlight_current_line = true
     @editor.background_pattern = :grid
     @editor.smart_backspace = true
-
-    @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
-
-    @buffer.begin_not_undoable_action
-    reload
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
     @buffer.after_insert_text(&->sync_lsp_on_insert(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
