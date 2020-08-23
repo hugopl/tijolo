@@ -14,7 +14,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [x] Git checkout.
   - [x] Git log.
   - [x] Show git locator at ALT+G
-  - [ ] Git blame (ugly way, not in editor gutter)
+  - [x] Git blame (ugly way, not in editor gutter)
 
 ## 0.3.0 release
 

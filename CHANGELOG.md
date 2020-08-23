@@ -10,7 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Recent files button on header bar to fast open last 10 non-project files opened.
  - LSP symbols are now cached for faster locator contents load when there's no file changes.
  - Added default configuration for bash language server.
- - New Git locator, triggered on ALT+G or typing "g " on locator (only basic git log and checkout commands)
+ - New Git locator, triggered on ALT+G or typing "g " on locator
+   - git log (basic... without syntax highlighting and not possible to navigate and see the commit diffs)
+   - git blame (basic... just show the output in a buffer, the future plan is to show it on editor gutter)
+   - git checkout (only for local branches)
  - Default logfile to /tmp/tijolo.#{pid}.log if STDOUT isn't a tty.
 
 ### Fixed
