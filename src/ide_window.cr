@@ -442,7 +442,11 @@ class IdeWindow < Window
       @inhibit_modified_files_dlg = true
       return
     when .do_action?
-      dlg.selected_views.each(&.reload)
+      dlg.selected_views.each do |v|
+        v.reload
+      rescue e : File::NotFoundError
+        application.error(e)
+      end
     end
     modified_views.each(&.externally_unmodified!)
   end

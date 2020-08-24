@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Git branches are now updated on UI when just the HEAD changes.
  - Do not repeated show "File was externally modified" dialog when user press cancel.
  - Correctly set "transient_for" property on dialogs, i.e. dialogs behave as expected reggarding focus.
+ - Do not crash if try to reload a deleted file.
 
 ## [0.1.1] - 2020-08-19
 ### Fixed
