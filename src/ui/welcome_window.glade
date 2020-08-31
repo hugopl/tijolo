@@ -52,6 +52,7 @@
                     <property name="name">tijolo-title</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="halign">start</property>
                     <property name="label" translatable="yes">Tijolo</property>
                     <property name="use_markup">True</property>
                   </object>
@@ -62,12 +63,11 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="version">
                     <property name="name">tijolo-version</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
-                    <property name="label" translatable="yes">v0.1.0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>

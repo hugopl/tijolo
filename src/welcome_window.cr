@@ -14,6 +14,8 @@ class WelcomeWindow < Window
     builder = builder_for("welcome_window")
     super(application, builder)
 
+    Gtk::Label.cast(builder["version"]).label = "v#{VERSION}"
+
     # Signals
     @tree_view = Gtk::TreeView.cast(builder["tree_view"])
     @tree_view.on_row_activated(&->project_activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
