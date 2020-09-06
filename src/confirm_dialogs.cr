@@ -56,7 +56,7 @@ abstract class ConfirmDialog
     res = @dialog.run
     return Result::Cancel if res < 0 || res == Result::Cancel.value
     return Result::DestructiveAction if res == Result::DestructiveAction.value
-    return Result::DoAction
+    Result::DoAction
   ensure
     @dialog.destroy
     @dialog.unref

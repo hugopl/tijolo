@@ -52,7 +52,7 @@ class Application
     builder = builder_for("header_bar")
     @header_bar = Gtk::HeaderBar.cast(builder["root"])
     @new_tijolo_btn = Gtk::Button.cast(builder["new_tijolo_btn"])
-    @recent_files_btn = recent_files_btn = Gtk::MenuButton.cast(builder["recent_files_btn"])
+    @recent_files_btn = Gtk::MenuButton.cast(builder["recent_files_btn"])
 
     init_recent_files_menu
     main_window.titlebar = header_bar
@@ -171,7 +171,7 @@ class Application
 
   def start_new_tijolo(file : String? = nil)
     args = file.nil? ? nil : {file}
-    tijolo = Process.new(Process.executable_path.to_s, args)
+    Process.new(Process.executable_path.to_s, args)
   end
 
   def show_preferences_dlg

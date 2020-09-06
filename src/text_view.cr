@@ -60,7 +60,7 @@ class TextView < View
     if event.keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
       return insert_char_around_selection(event.keyval)
     end
-    return false
+    false
   end
 
   def insert_char_around_selection(keyval) : Bool
@@ -83,7 +83,7 @@ class TextView < View
     start_iter.backward_char
     @buffer.move_mark_by_name("selection_bound", start_iter)
     @buffer.end_user_action
-    return true
+    true
   end
 
   def save
@@ -101,9 +101,7 @@ class TextView < View
   end
 
   private def remove_all_trailing_spaces!
-    line, col = cursor_pos
     original_text = self.text
-    text_modified = false
     start_iter = Gtk::TextIter.new
     end_iter = Gtk::TextIter.new
 
@@ -251,17 +249,16 @@ class TextView < View
     search_context = @search_context
     return if search_context.nil?
 
-    iter = Gtk::TextIter.new.tap do |iter|
-      @buffer.iter_at_offset(iter, offset)
-    end
+    iter = Gtk::TextIter.new
+    @buffer.iter_at_offset(iter, offset)
 
     match_start = Gtk::TextIter.new
     match_end = Gtk::TextIter.new
-    found, wrapped_around = if forward
-                              search_context.forward(iter, match_start, match_end)
-                            else
-                              search_context.backward(iter, match_start, match_end)
-                            end
+    found, _wrapped_around = if forward
+                               search_context.forward(iter, match_start, match_end)
+                             else
+                               search_context.backward(iter, match_start, match_end)
+                             end
 
     if found
       @buffer.place_cursor(match_start)
