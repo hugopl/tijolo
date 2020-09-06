@@ -16,6 +16,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [x] Git log.
   - [x] Show git locator at ALT+G
   - [x] Git blame (ugly way, not in editor gutter)
+- [x] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
 
 ## 0.3.0 release
 
@@ -32,7 +33,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] LSP-based auto complete.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] :no_entry: Better feedback when failed to open language servers.
-- [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
 
 ## 0.5.0 release
 

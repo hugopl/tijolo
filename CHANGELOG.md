@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - git checkout (only for local branches)
  - Default logfile to /tmp/tijolo.#{pid}.log if STDOUT isn't a tty.
  - Show/Hide Project Tree pane on Alt+0.
+ - Focus editor on Alt+1.
+ - Added Output pane, show/hide on Alt+2, currently it only show Tijolo logs.
 
 ### Fixed
  - Missing config entries are filled up with defaults.
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Do not repeated show "File was externally modified" dialog when user press cancel.
  - Correctly set "transient_for" property on dialogs, i.e. dialogs behave as expected reggarding focus.
  - Do not crash if try to reload a deleted file.
+ - LSP do not stop working if receive a bad or not supported message from server (Error is show on output pane - Alt+2).
 
 ## [0.1.1] - 2020-08-19
 ### Fixed

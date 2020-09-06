@@ -127,6 +127,11 @@ treeview:selected {
   background: @tijolo_white2;
 }
 
+#output-pane textview text {
+  color: @tijolo_white2;
+  background-color: @tijolo_black;
+}
+
 #open-files {
   border: 1px solid @tijolo_orange1;
 }

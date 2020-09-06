@@ -189,7 +189,7 @@ class LspClient
     output = @server.input
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 
-    log.debug { "> #{payload.colorize(:green)}" }
+    log.debug { "==> #{payload.colorize(:green)}" }
   end
 
   def shutdown
@@ -229,7 +229,7 @@ class LspClient
     handler = @response_handlers[msg_id]?
     return if handler.nil?
 
-    log.debug { "< #{data.colorize(:blue)}" }
+    log.debug { "<== #{data.colorize(:blue)}" }
     # TODO: Handle server requets
     message = ResponseMessage.from_json(data)
     GLib.timeout(0) do
@@ -237,7 +237,7 @@ class LspClient
       false
     end
     @response_handlers.delete(msg_id)
-  rescue e : JSON::ParseException
-    log.fatal { "Bad message from server (#{e.message}):\n\n#{data.colorize(:red)}\n\n" }
+  rescue e
+    log.fatal(exception: e) { "Bad message from server:\n\n#{data.colorize(:red)}\n\n" }
   end
 end

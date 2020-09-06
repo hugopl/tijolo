@@ -9,6 +9,7 @@ require "./project_monitor"
 require "./project_tree"
 require "./text_view"
 require "./window"
+require "./tijolo_log_backend"
 require "./tijolo_rc"
 
 class IdeWindow < Window
@@ -24,6 +25,7 @@ class IdeWindow < Window
   @project_tree_view : Gtk::TreeView
   @branches_view : Gtk::TreeView
   @sidebar : Gtk::Box
+  @output_pane : Gtk::Notebook
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
   # True if user pressed cancel on dlg about reload externally modified files
@@ -60,6 +62,7 @@ class IdeWindow < Window
     overlay.add_overlay(@open_files_box)
 
     @sidebar = Gtk::Box.cast(builder["sidebar"])
+    @output_pane = Gtk::Notebook.cast(builder["output_pane"])
 
     @branches = GitBranches.new(@project)
     @branches_view = Gtk::TreeView.cast(builder["git_branches"])
@@ -75,6 +78,9 @@ class IdeWindow < Window
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_delete_event(&->about_to_quit(Gtk::Widget, Gdk::Event))
     main_window.connect("notify::is-active") { main_window_active_changed }
+
+    logger = TijoloLogBackend.instance
+    logger.gtk_buffer = Gtk::TextView.cast(builder["log"]).buffer
 
     @open_files.add_open_files_listener(self)
     @locator.add_locator_listener(self)
@@ -137,19 +143,21 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:         ->show_locator,
-               show_git_locator:     ->show_git_locator,
-               close_view:           ->close_current_view,
-               save_view:            ->save_current_view,
-               save_view_as:         ->save_current_view_as,
-               find:                 ->find_in_current_view,
-               find_next:            ->find_next_in_current_view,
-               find_prev:            ->find_prev_in_current_view,
-               goto_line:            ->show_goto_line_locator,
-               comment_code:         ->comment_code,
-               sort_lines:           ->sort_lines,
-               goto_definition:      ->goto_definition,
-               show_hide_side_panel: ->show_hide_side_panel,
+    actions = {show_locator:          ->show_locator,
+               show_git_locator:      ->show_git_locator,
+               close_view:            ->close_current_view,
+               save_view:             ->save_current_view,
+               save_view_as:          ->save_current_view_as,
+               find:                  ->find_in_current_view,
+               find_next:             ->find_next_in_current_view,
+               find_prev:             ->find_prev_in_current_view,
+               goto_line:             ->show_goto_line_locator,
+               comment_code:          ->comment_code,
+               sort_lines:            ->sort_lines,
+               goto_definition:       ->goto_definition,
+               show_hide_sidebar:     ->show_hide_sidebar,
+               show_hide_output_pane: ->show_hide_output_pane,
+               focus_editor:          ->focus_editor,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -382,10 +390,16 @@ class IdeWindow < Window
     application.error(e)
   end
 
-  def show_hide_side_panel
-    return unless @project.valid?
+  def show_hide_sidebar
+    @sidebar.visible? ? @sidebar.hide : @sidebar.show if @project.valid?
+  end
 
-    @sidebar.visible? ? @sidebar.hide : @sidebar.show
+  def show_hide_output_pane
+    @output_pane.visible? ? @output_pane.hide : @output_pane.show if @project.valid?
+  end
+
+  def focus_editor
+    @open_files.current_view.try(&.grab_focus)
   end
 
   private def clipboard
@@ -426,6 +440,7 @@ class IdeWindow < Window
   end
 
   def view_escape_pressed(_view)
+    @output_pane.hide
     @find_replace.hide
   end
 

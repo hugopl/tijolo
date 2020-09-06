@@ -8,17 +8,17 @@ require "./observable"
 
 require "./application"
 require "./helper"
+require "./tijolo_log_backend"
 
 def setup_logger(options)
   logfile = options[:logfile]
   logfile = File.join(Dir.tempdir, "tijolo.#{Process.pid}.log") if logfile.nil? && !STDOUT.tty?
+  backend = logfile ? Log::IOBackend.new(File.open(logfile, "w")) : Log::IOBackend.new
 
-  if logfile
-    backend = Log::IOBackend.new(File.open(logfile, "w"))
+  Log.setup do |config|
     level = options[:debug] ? Log::Severity::Debug : Log::Severity::Info
-    Log.setup do |config|
-      config.bind("*", level, backend)
-    end
+    config.bind("*", level, backend)
+    config.bind("*", level, TijoloLogBackend.instance)
   end
 end
 
