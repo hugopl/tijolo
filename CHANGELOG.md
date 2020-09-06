@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - git blame (basic... just show the output in a buffer, the future plan is to show it on editor gutter)
    - git checkout (only for local branches)
  - Default logfile to /tmp/tijolo.#{pid}.log if STDOUT isn't a tty.
+ - Show/Hide Project Tree pane on Alt+0.
 
 ### Fixed
  - Missing config entries are filled up with defaults.

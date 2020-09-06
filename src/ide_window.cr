@@ -137,18 +137,19 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:     ->show_locator,
-               show_git_locator: ->show_git_locator,
-               close_view:       ->close_current_view,
-               save_view:        ->save_current_view,
-               save_view_as:     ->save_current_view_as,
-               find:             ->find_in_current_view,
-               find_next:        ->find_next_in_current_view,
-               find_prev:        ->find_prev_in_current_view,
-               goto_line:        ->show_goto_line_locator,
-               comment_code:     ->comment_code,
-               sort_lines:       ->sort_lines,
-               goto_definition:  ->goto_definition,
+    actions = {show_locator:         ->show_locator,
+               show_git_locator:     ->show_git_locator,
+               close_view:           ->close_current_view,
+               save_view:            ->save_current_view,
+               save_view_as:         ->save_current_view_as,
+               find:                 ->find_in_current_view,
+               find_next:            ->find_next_in_current_view,
+               find_prev:            ->find_prev_in_current_view,
+               goto_line:            ->show_goto_line_locator,
+               comment_code:         ->comment_code,
+               sort_lines:           ->sort_lines,
+               goto_definition:      ->goto_definition,
+               show_hide_side_panel: ->show_hide_side_panel,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -379,6 +380,12 @@ class IdeWindow < Window
     end
   rescue e : AppError
     application.error(e)
+  end
+
+  def show_hide_side_panel
+    return unless @project.valid?
+
+    @sidebar.visible? ? @sidebar.hide : @sidebar.show
   end
 
   private def clipboard

@@ -44,6 +44,7 @@ save_view        = "<Control>S"
 show_git_locator = "<Alt>G"
 show_locator     = "<Control>P"
 sort_lines       = "F9"
+show_hide_side_panel = "<Alt>0"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/

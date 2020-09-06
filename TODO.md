@@ -10,6 +10,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [x] Add open button on header bar with list of last N non-project files opened.
 - [x] Ask if user want to open a new Tijolo instance when opening a file from another project.
 - [x] Render Welcome Screen when all files are closed and the current project is invalid.
+- [x] Rectractable project tree pane on Alt+0.
 - :no_entry: Some ♥️ to Git support
   - [x] Git checkout.
   - [x] Git log.
@@ -29,7 +30,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 ## 0.4.0 release
 
 - [ ] LSP-based auto complete.
-- [ ] Rectractable project tree pane on Alt+0.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] :no_entry: Better feedback when failed to open language servers.
 - [ ] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
