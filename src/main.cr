@@ -13,8 +13,13 @@ def setup_logger(options)
   logfile = options[:logfile]
   logfile = File.join(Dir.tempdir, "tijolo.#{Process.pid}.log") if logfile.nil? && !STDOUT.tty?
 
-  Log.setup(:debug) if options[:debug]
-  Log.for("").backend = Log::IOBackend.new(File.open(logfile, "w")) if logfile
+  if logfile
+    backend = Log::IOBackend.new(File.open(logfile, "w"))
+    level = options[:debug] ? Log::Severity::Debug : Log::Severity::Info
+    Log.setup do |config|
+      config.bind("*", level, backend)
+    end
+  end
 end
 
 options = parse_args(ARGV)
