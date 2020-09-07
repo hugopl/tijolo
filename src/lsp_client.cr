@@ -40,6 +40,7 @@ class LspClient
 
       notify("initialized", VoidParams.new)
       notify_lsp_client_initialized
+      log.info { "Ready!" }
     end
 
     spawn do
