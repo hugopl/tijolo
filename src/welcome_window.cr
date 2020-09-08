@@ -94,7 +94,7 @@ class WelcomeWindow < Window
       rc.filter_projects!
 
       # Execute this in main thread
-      GLib.timeout(0, &->scan_projects_finished)
+      GLib.idle_add(&->scan_projects_finished)
     end
     Fiber.yield # Let Crystal start the Fiber before we back to Glib mainloop.
   end

@@ -41,7 +41,7 @@ class TijoloLogBackend < Log::Backend
     str = format(entry)
 
     # This can be called from a different threads, so we make sure to call GTK on main thread.
-    GLib.timeout(0) do
+    GLib.idle_add do
       iter = gtk_buffer.start_iter
       gtk_buffer.insert_markup(iter, str, str.bytesize)
       false

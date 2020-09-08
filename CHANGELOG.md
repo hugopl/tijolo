@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Correctly set "transient_for" property on dialogs, i.e. dialogs behave as expected reggarding focus.
  - Do not crash if try to reload a deleted file.
  - LSP do not stop working if receive a bad or not supported message from server (Error is show on output pane - Alt+2).
+ - Use g_idle_add instead of g_timeout(0), so some inter-thread stuff like LSP is much faster.
 
 ## [0.1.1] - 2020-08-19
 ### Fixed

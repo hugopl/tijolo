@@ -178,7 +178,7 @@ class TextView < View
     file_path = @file_path
     project_path = @project_path
     if file_path && project_path
-      GLib.timeout(0) do
+      GLib.idle_add do
         goto(*TijoloRC.instance.cursor_position(project_path.not_nil!, file_path))
         false
       end

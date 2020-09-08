@@ -233,7 +233,7 @@ class LspClient
     log.debug { "<== #{data.colorize(:blue)}" }
     # TODO: Handle server requets
     message = ResponseMessage.from_json(data)
-    GLib.timeout(0) do
+    GLib.idle_add do
       handler.try(&.call(message))
       false
     end

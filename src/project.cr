@@ -255,7 +255,7 @@ class Project
       end
       @load_finished = true
       Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
-      GLib.timeout(0) do
+      GLib.idle_add do
         notify_project_load_finished
         false
       end
