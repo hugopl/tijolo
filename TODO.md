@@ -4,22 +4,9 @@
 
 This is a short-term TODO list in no special order. Things I'm already working on have a :no_entry:.
 
-## 0.2.0 release
-
-- [ ] :no_entry: Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
-- [x] Add open button on header bar with list of last N non-project files opened.
-- [x] Ask if user want to open a new Tijolo instance when opening a file from another project.
-- [x] Render Welcome Screen when all files are closed and the current project is invalid.
-- [x] Rectractable project tree pane on Alt+0.
-- :no_entry: Some ♥️ to Git support
-  - [x] Git checkout.
-  - [x] Git log.
-  - [x] Show git locator at ALT+G
-  - [x] Git blame (ugly way, not in editor gutter)
-- [x] Add retractable output pane, default hidden until ALT+1 or an error, hidden on ESC.
-
 ## 0.3.0 release
 
+- [ ] :no_entry: Location history, Ctrl+Alt+➡️/Ctrl+Alt+⬅️ navigate through cursor location history.
 - :no_entry: Some ♥️ to Git support
   - [ ] Git commit
 - :no_entry: Split screen
@@ -38,8 +25,16 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 - [ ] :fire: Fix GC issue :fire:, this is the project major issue, Crystal GC doesn't like GTK.
 
-## Backlog
+## Backlog, things that can go in any version...
 
+- [ ] Rebind shortcuts after save config file.
+- [ ] Checkout git branch by clicking on branch in sidebar.
+- [ ] Warn if an open file was removed.
+- [ ] Warn if an open file was renamed.
+- [ ] Rename files.
+- [ ] Delete files.
+- [ ] Show LSP diagnostics.
+- [ ] Support folding (there's a very simple folding implementation in TEPL, just get it and use with LSP)
 - [ ] Clone repository dialog. (I really don't care about this task, since I don't use it)
 - [ ] Save sessions, with a config flag.
 - [ ] I18N support.
