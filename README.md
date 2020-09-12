@@ -55,20 +55,20 @@ You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these
 
 ```
 $ make
-$ sudo make install PREFIX=/usr
+$ sudo make install
 ```
 
 Tijolo use [JetBrains Mono](https://www.jetbrains.com/lp/mono/) font, you can _make install_ them if you don't already have
 them installed:
 
 ```
-$ sudo make install-fonts PREFIX=/usr
+$ sudo make install-fonts
 ```
 
 To uninstall:
 
 ```
-$ sudo make uninstall uninstall-fonts PREFIX=/usr
+$ sudo make uninstall uninstall-fonts
 ```
 
 ## Usage
