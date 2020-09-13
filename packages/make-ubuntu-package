@@ -36,7 +36,7 @@ def build_package(options)
   docker_run("make", workdir: build_dir) if options[:compile]
 
   # Install
-  pkg_dir = "/package/tijolo_#{version}-1"
+  pkg_dir = "/package/tijolo_#{version}-1_amd64"
   if options[:install]
     docker_run("rm -rf #{pkg_dir}")
     docker_run("make install install-fonts PREFIX=#{pkg_dir}/usr", workdir: build_dir)
