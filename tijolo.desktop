@@ -6,6 +6,8 @@ GenericName=Lightweight, keyboard-oriented IDE for the masses
 Terminal=false
 Icon=io.github.hugopl.Tijolo
 Categories=Development;IDE;
+MimeType=text/plain;
+Keywords=text;editor;code;
 Actions=new-window;
 
 [Desktop Action new-window]
