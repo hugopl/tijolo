@@ -1,5 +1,7 @@
 require "version_from_shard"
 
+require "./config"
+
 VersionFromShard.declare
 
 # Return file_path relative to project path, Home or abs.
@@ -32,7 +34,7 @@ end
 def parse_args(argv)
   gc_disabled = true # Leak all the things! See main.cr
   logfile = nil
-  debug = false
+  log_level = Config.instance.log_level
 
   OptionParser.parse(argv) do |parser|
     parser.banner = "Usage: tijolo [OPTIONS] [FILE|DIRECTORY]..."
@@ -48,7 +50,7 @@ def parse_args(argv)
     parser.on("--logfile=FILE", "Where to save log, default to STDOUT or /tmp/tijolo.PID.log if not on a tty.") do |file|
       logfile = file
     end
-    parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { debug = true }
+    parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { log_level = Log::Severity::Debug }
     parser.on("--enable-gc", "Enable garbage collector (see https://github.com/jhass/crystal-gobject/issues/69).") do
       gc_disabled = false
     end
@@ -62,5 +64,5 @@ def parse_args(argv)
   {locations:   argv,
    gc_disabled: gc_disabled,
    logfile:     logfile,
-   debug:       debug}
+   log_level:   log_level}
 end

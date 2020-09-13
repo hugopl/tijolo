@@ -18,6 +18,10 @@ ignored_dirs = ["node_modules", "tmp/cache"]
 # Default: true
 trim_trailing_white_space_on_save = true
 
+# Tijolo log level, can be: trace, debug, info, notice, warn, error, fatal, none
+# Default: "info"
+log_level = "info"
+
 # Any valid strings accepted by gtk_accelerator_parse is a valid shortcut
 #
 # From GTK docs:

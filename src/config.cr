@@ -34,6 +34,7 @@ class Config
   getter? lazy_start_language_servers : Bool
   getter shortcuts : Hash(String, String)
   getter language_servers : Hash(String, String)
+  getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
 
   def self.instance
@@ -84,6 +85,11 @@ class Config
     @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
     @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
     @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
+
+    log_level = Log::Severity.parse?(toml["log_level"].as(String))
+    raise ConfigError.new("Unknown log level: #{toml["log_level"].as(String)}") if log_level.nil?
+
+    @log_level = log_level
   end
 
   private def load_toml(contents, mode)

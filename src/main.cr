@@ -16,7 +16,7 @@ def setup_logger(options)
   backend = logfile ? Log::IOBackend.new(File.open(logfile, "w")) : Log::IOBackend.new
 
   Log.setup do |config|
-    level = options[:debug] ? Log::Severity::Debug : Log::Severity::Info
+    level = options[:log_level]
     config.bind("*", level, backend)
     config.bind("*", level, TijoloLogBackend.instance)
   end
@@ -43,7 +43,7 @@ end
 begin
   app = Application.new(options[:locations])
 
-  if options[:gc_disabled] || options[:debug]
+  if options[:gc_disabled] || options[:log_level].debug?
     GLib.timeout(60) do # each 60 seconds...
       Log.info { "NonGTK memory usage: #{GC.stats.heap_size.humanize_bytes}" }
       true
