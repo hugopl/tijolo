@@ -1,8 +1,8 @@
 .PHONY: all debug install install-fonts uninstall uninstall-fonts
-PREFIX ?= "/usr"
+PREFIX ?= /usr
 
 all:
-	shards build --release -Dpreview_mt
+	shards build --release -s -Dpreview_mt
 
 debug:
 	shards build -Dpreview_mt
