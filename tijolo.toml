@@ -3,6 +3,8 @@
 #
 # If you mess up with this and want to load the defaults, just delete this
 # file.
+#
+# YOU NEED TO RELOAD TIJOLO FOR SOME OF THE SETTINGS TAKE EFFECT.
 ###############################################################################
 
 # If true, start language server only when opening a file with a language server, otherwise
@@ -18,9 +20,29 @@ ignored_dirs = ["node_modules", "tmp/cache"]
 # Default: true
 trim_trailing_white_space_on_save = true
 
-# Tijolo log level, can be: trace, debug, info, notice, warn, error, fatal, none
+# Tijolo log level, can be: "trace", "debug", "info", "notice", "warn", "error", "fatal", "none"
 # Default: "info"
 log_level = "info"
+
+# Line wrap mode, can be:
+# "none"      - Do not wrap lines; just make the text area wider.
+# "char"      - Wrap text, breaking lines anywhere the cursor can appear.
+# "word"      - Wrap text, breaking lines in between words.
+# "word_char" - Wrap text, breaking lines in between words, or if that is not enough, also between graphemes
+#
+# Default: "word"
+editor_wrap_mode = "word"
+editor_show_line_numbers = true
+# This is not valid for Makefiles
+editor_insert_spaces_instead_of_tabs = true
+# This is not valid for Makefiles, they always use tab width of 4
+editor_tab_width = 2
+editor_show_right_margin = true
+editor_right_margin_position = 125
+editor_highlight_current_line = true
+# Background pattern to show, can be: "none", "grid"
+# Default: "grid"
+editor_background_pattern = "grid"
 
 # Any valid strings accepted by gtk_accelerator_parse is a valid shortcut
 #

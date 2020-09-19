@@ -37,15 +37,25 @@ class Config
   getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
 
+  # editor
+  getter editor_wrap_mode : Gtk::WrapMode
+  getter editor_show_line_numbers : Bool
+  getter editor_insert_spaces_instead_of_tabs : Bool
+  getter editor_tab_width : Int32
+  getter editor_show_right_margin : Bool
+  getter editor_right_margin_position : Int32
+  getter editor_highlight_current_line : Bool
+  getter editor_background_pattern : GtkSource::BackgroundPatternType
+
   def self.instance
     @@instance ||= begin
       Config.new(File.read(path), :relaxed)
     rescue e : IO::Error
-      Log.info { "Error loading config file: #{e.message}, creating a new one." }
+      Log.error { "Error loading config file: #{e.message}, creating a new one." }
       create_config_if_needed
       default
-    rescue e : TOML::ParseException
-      Log.info { "Error loading config file: #{e.message}" }
+    rescue e : TOML::ParseException | ConfigError
+      Log.error { "Error loading config file: #{e.message}" }
       default
     end
   end
@@ -85,11 +95,24 @@ class Config
     @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
     @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
     @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
+    @log_level = parse_enum(toml, "log_level", Log::Severity)
+    @editor_wrap_mode = parse_enum(toml, "editor_wrap_mode", Gtk::WrapMode)
+    @editor_show_line_numbers = toml["editor_show_line_numbers"].as(Bool)
+    @editor_insert_spaces_instead_of_tabs = toml["editor_insert_spaces_instead_of_tabs"].as(Bool)
+    @editor_tab_width = toml["editor_tab_width"].as(Int64).to_i32
+    @editor_show_right_margin = toml["editor_show_right_margin"].as(Bool)
+    @editor_right_margin_position = toml["editor_right_margin_position"].as(Int64).to_i32
+    @editor_highlight_current_line = toml["editor_highlight_current_line"].as(Bool)
+    @editor_background_pattern = parse_enum(toml, "editor_background_pattern", GtkSource::BackgroundPatternType)
+  end
 
-    log_level = Log::Severity.parse?(toml["log_level"].as(String))
-    raise ConfigError.new("Unknown log level: #{toml["log_level"].as(String)}") if log_level.nil?
-
-    @log_level = log_level
+  private def parse_enum(toml : TOML::Type, key : String, enum_class)
+    value = enum_class.parse?(toml[key].as(String))
+    if value.nil?
+      valid_enums = enum_class.names.map(&.downcase).join(", ")
+      raise ConfigError.new("Unknown value for #{key}: #{toml[key].as(String)}, valid values are: #{valid_enums}.")
+    end
+    value
   end
 
   private def load_toml(contents, mode)

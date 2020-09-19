@@ -122,23 +122,23 @@ class TextView < View
     @buffer.begin_not_undoable_action
     reload
 
-    @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(Config.instance.style_scheme)
-
+    config = Config.instance
     file_path = @file_path
     is_make_file = !file_path.nil? && file_path.basename == "Makefile"
-    # TODO: Add config entries for all this
-    @editor.monospace = true
-    @editor.wrap_mode = :word_char
-    @editor.monospace = true
-    @editor.show_line_numbers = true
-    @editor.tab_width = is_make_file ? 4 : 2
-    @editor.auto_indent = true
-    @editor.insert_spaces_instead_of_tabs = !is_make_file
-    @editor.show_right_margin = true
-    @editor.right_margin_position = 125
+
+    @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(config.style_scheme)
+    @editor.wrap_mode = config.editor_wrap_mode
+    @editor.show_line_numbers = config.editor_show_line_numbers
+    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
+    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
+    @editor.show_right_margin = config.editor_show_right_margin
+    @editor.right_margin_position = config.editor_right_margin_position
+    @editor.highlight_current_line = config.editor_highlight_current_line
+    @editor.background_pattern = config.editor_background_pattern
+
     @editor.smart_home_end = :before
-    @editor.highlight_current_line = true
-    @editor.background_pattern = :grid
+    @editor.monospace = true
+    @editor.auto_indent = true
     @editor.smart_backspace = true
 
     @buffer.connect("notify::cursor-position") { cursor_changed }
