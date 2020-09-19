@@ -30,7 +30,6 @@ class CursorHistory
 
   def add(path : Path, line : Int32, column : Int32) : String?
     return unless should_add?(path, line)
-    Log.info { "cursor added #{path.basename}:#{line}" }
 
     cursor = Cursor.new(path, line, column)
     @idx += 1

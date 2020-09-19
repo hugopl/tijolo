@@ -51,7 +51,7 @@ class Language
     lsp.add_lsp_client_listener(self)
     lsp
   rescue
-    Log.fatal { "Failed to start language server for #{@id}: #{cmd}" }
+    Log.error { "Failed to start language server for #{@id}: #{cmd}" }
     nil
   end
 

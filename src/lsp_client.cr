@@ -239,6 +239,6 @@ class LspClient
     end
     @response_handlers.delete(msg_id)
   rescue e
-    log.fatal(exception: e) { "Bad message from server:\n\n#{data.colorize(:red)}\n\n" }
+    log.error(exception: e) { "Bad message from server:\n\n#{data.colorize(:red)}\n\n" }
   end
 end
