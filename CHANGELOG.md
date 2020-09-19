@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Show tree lines on project tree.
 
+### Fixed
+ - Don't crash if project directory is removed while Tijolo is open.
+
 ## [0.2.0] - 2020-09-13
 ### Added
  - Open button on header bar, so you can open/create new file at welcome screen.

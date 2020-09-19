@@ -32,6 +32,8 @@ class GitBranches
               end
       @model.append({BRANCH_NAME_COL}, {label})
     end
+  rescue e : Git::Error
+    Log.error { "Error reading git repository: #{e.message}" }
   end
 
   private def create_monitor
