@@ -10,6 +10,9 @@ module ViewListener
 
   def view_cursor_location_changed(view : View, line : Int32, column : Int32)
   end
+
+  def view_focused(view : View)
+  end
 end
 
 # Base class for everything that Tijolo can show in the editor

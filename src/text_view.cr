@@ -145,6 +145,10 @@ class TextView < View
     @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
     @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
     @buffer.on_modified_changed { update_header }
+    @editor.on_focus_in_event do
+      notify_view_focused(self)
+      false
+    end
   ensure
     @buffer.end_not_undoable_action
   end

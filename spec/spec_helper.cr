@@ -86,7 +86,7 @@ class TestLocatorListener
   property files = [] of String
   property line_col = {-1, -1}
 
-  def locator_open_file(file : String)
+  def locator_open_file(file : String, split_view : Bool)
     @files << file
   end
 

@@ -10,7 +10,7 @@ require "./observable"
 require "./ui_builder_helper"
 
 module LocatorListener
-  abstract def locator_open_file(file : String)
+  abstract def locator_open_file(file : String, split_view : Bool)
   abstract def locator_goto_line_col(line : Int32, column : Int32)
   abstract def locator_show_special_file(contents : String, label : String)
 end
@@ -30,6 +30,7 @@ class Locator
 
   @project : Project
   @locator_entry : Gtk::Entry
+  getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
   private getter results_cursor = 0
 
@@ -69,7 +70,8 @@ class Locator
     end
   end
 
-  def show(*, select_text : Bool, view : View?)
+  def show(*, select_text : Bool, view : View?, split_view = false)
+    @split_next = split_view
     self.results_cursor = 0
     @current_locator_provider.selected(view) if view != @current_view
 

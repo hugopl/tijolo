@@ -1,9 +1,10 @@
+require "./root_split_node"
+
 module OpenFilesListener
   abstract def open_files_view_revealed(view : View, definitive : Bool)
 end
 
 class OpenFiles
-  include UiBuilderHelper
   include ViewListener
 
   observable_by OpenFilesListener
@@ -11,8 +12,6 @@ class OpenFiles
   getter model : Gtk::ListStore
   getter sorted_model : Gtk::TreeModelSort
   getter files = [] of View
-
-  @stack : Gtk::Stack
 
   @sorted_files = [] of View # Files reverse sorted by last used
   @sorted_files_index = 0    # Selected file on open files model
@@ -24,44 +23,18 @@ class OpenFiles
 
   Log = ::Log.for("OpenFiles")
 
-  delegate empty?, to: @files
+  @root : RootSplitNode
 
-  def initialize(@stack : Gtk::Stack)
+  delegate empty?, to: @files
+  delegate widget, to: @root
+  delegate current_view, to: @root
+
+  def initialize
     @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
 
-    create_empty_view
-  end
-
-  def create_empty_view
-    builder = builder_for("no_view")
-    # FIXME: Use the shortcuts from config file
-    Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
-      <b>Code Navigation</b><span foreground="#DCDCD1">
-      Ctrl + P         —  Show locator
-      F2               —  Go to definition
-      Ctrl + G         —  Go to line/column
-      Alt + Shift + ←  —  Go back
-      Alt + Shift + →  —  Go forward
-      </span>
-      <b>Editting</b><span foreground="#DCDCD1">
-      Ctrl + F  —  Find text
-      F3        —  Find next text match
-      F9        —  Sort lines
-      Ctrl + /  —  Comment code
-      Ctrl + .  —  Insert emoji 💣️
-      </span>
-      <b>Project</b><span foreground="#DCDCD1">
-      Ctrl + N  —  New file
-      Ctrl + O  —  Open non-project file
-      Ctrl + W  —  Close view
-      Alt  + G  —  Open Git locator
-      </span>
-
-    EOT
-    editor = Gtk::Widget.cast(builder["root"])
-    @stack.add(editor)
+    @root = RootSplitNode.new
   end
 
   def view(id : UInt64) : View?
@@ -77,18 +50,13 @@ class OpenFiles
     end
   end
 
-  def current_view : View?
-    view_id = @stack.visible_child_name
-    @files.find { |view| view.id == view_id }
-  end
-
-  def <<(view : View) : View
-    @stack.add_named(view.widget, view.id)
-
+  def add_view(view : View, split_view : Bool) : View
     @files << view
     @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
     @model.append({0, 1}, {view.label, last_used_counter})
+
+    @root.add_view(view, split_view)
 
     reveal_view(view, true)
     view.add_view_listener(self)
@@ -109,8 +77,7 @@ class OpenFiles
 
   # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
   private def reveal_view(view : View, definitive : Bool)
-    @stack.visible_child_name = view.id
-
+    @root.reveal_view(view)
     notify_open_files_view_revealed(view, definitive)
     view.grab_focus
   end
@@ -150,19 +117,18 @@ class OpenFiles
   def close_current_view : View?
     return if @files.empty?
 
-    view_id = @stack.visible_child_name
-    idx = @files.index { |view| view.id == view_id }
+    view = current_view
+    return if view.nil?
 
-    return if idx.nil?
+    idx = @files.index(view)
+    @model.remove_row(idx) unless idx.nil?
 
-    view = @files[idx]
     view.remove_view_listener(self)
     @files.delete(view)
     @sorted_files.delete(view)
     @sorted_files_index = @sorted_files.size - 1
 
-    @model.remove_row(idx)
-    @stack.remove(@stack.visible_child.not_nil!)
+    @root.remove_view(view)
 
     reveal_view(@sorted_files.last, true) if @sorted_files.any?
 

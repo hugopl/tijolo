@@ -60,7 +60,9 @@ class IdeWindow < Window
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
     @open_files_box = Gtk::Box.cast(builder["open_files"])
-    @open_files = OpenFiles.new(Gtk::Stack.cast(builder["stack"]))
+    @open_files = OpenFiles.new
+    editor_box = Gtk::Box.cast(builder["editor_box"])
+    editor_box.pack_start(@open_files.widget, true, true, 0)
     @open_files_view.model = @open_files.sorted_model
     overlay.add_overlay(@open_files_box)
 
@@ -146,23 +148,29 @@ class IdeWindow < Window
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:          ->show_locator,
-               show_git_locator:      ->show_git_locator,
-               close_view:            ->close_current_view,
-               save_view:             ->save_current_view,
-               save_view_as:          ->save_current_view_as,
-               find:                  ->find_in_current_view,
-               find_next:             ->find_next_in_current_view,
-               find_prev:             ->find_prev_in_current_view,
-               goto_line:             ->show_goto_line_locator,
-               comment_code:          ->comment_code,
-               sort_lines:            ->sort_lines,
-               goto_definition:       ->goto_definition,
-               show_hide_sidebar:     ->show_hide_sidebar,
-               show_hide_output_pane: ->show_hide_output_pane,
-               focus_editor:          ->focus_editor,
-               go_back:               ->go_back,
-               go_forward:            ->go_forward,
+    actions = {show_locator:              ->show_locator,
+               show_locator_new_split:    ->{ show_locator(split_view: true) },
+               show_git_locator:          ->show_git_locator,
+               close_view:                ->close_current_view,
+               save_view:                 ->save_current_view,
+               save_view_as:              ->save_current_view_as,
+               find:                      ->find_in_current_view,
+               find_next:                 ->find_next_in_current_view,
+               find_prev:                 ->find_prev_in_current_view,
+               goto_line:                 ->show_goto_line_locator,
+               comment_code:              ->comment_code,
+               sort_lines:                ->sort_lines,
+               goto_definition:           ->goto_definition,
+               goto_definition_new_split: ->{ goto_definition(split_view: true) },
+               show_hide_sidebar:         ->show_hide_sidebar,
+               show_hide_output_pane:     ->show_hide_output_pane,
+               focus_editor:              ->focus_editor,
+               go_back:                   ->go_back,
+               go_forward:                ->go_forward,
+               focus_upper_split:         ->focus_upper_split,
+               focus_right_split:         ->focus_right_split,
+               focus_lower_split:         ->focus_lower_split,
+               focus_left_split:          ->focus_left_split,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -188,8 +196,8 @@ class IdeWindow < Window
     main_window.add_action(action)
   end
 
-  private def show_locator
-    @locator.show(select_text: true, view: @open_files.current_view)
+  private def show_locator(split_view = false)
+    @locator.show(select_text: true, view: @open_files.current_view, split_view: split_view)
   end
 
   private def show_git_locator
@@ -204,7 +212,7 @@ class IdeWindow < Window
     @locator.show(select_text: false, view: @open_files.current_view)
   end
 
-  def create_view(file : Path? = nil) : View
+  def create_view(file : Path? = nil, split_view = false) : View
     @project.try_load_project!(file) if file && !@project.valid?
     project_path = @project.root if file && @project.under_project?(file)
 
@@ -212,7 +220,7 @@ class IdeWindow < Window
 
     # TODO: check file mime type and create the right view.
     view = create_text_view(file, project_path)
-    @open_files << view
+    @open_files.add_view(view, split_view)
     view
   end
 
@@ -232,8 +240,8 @@ class IdeWindow < Window
     open_file(Path.new(file_path)) if file_path
   end
 
-  def locator_open_file(file : String)
-    open_file(Path.new(file))
+  def locator_open_file(file : String, split_view : Bool)
+    open_file(Path.new(file), split_view)
   end
 
   def locator_show_special_file(contents : String, label : String)
@@ -253,10 +261,10 @@ class IdeWindow < Window
     view.grab_focus
   end
 
-  def open_file(file : Path) : View?
+  def open_file(file : Path, split_view = false) : View?
     view = @open_files.view(file)
     if view.nil?
-      view = create_view(file)
+      view = create_view(file, split_view)
       view.restore_cursor
     else
       @open_files.show_view(view)
@@ -406,7 +414,7 @@ class IdeWindow < Window
     view.sort_lines_action if view && view.focus?
   end
 
-  def goto_definition
+  def goto_definition(split_view = false)
     text_view = @open_files.current_view.as?(TextView)
     return if text_view.nil? || !text_view.focus?
 
@@ -414,7 +422,7 @@ class IdeWindow < Window
     return if path.nil?
 
     text_view.language.goto_definition(path, *text_view.cursor_pos) do |file, line, col|
-      view = open_file(Path.new(file)).as?(TextView)
+      view = open_file(Path.new(file), split_view).as?(TextView)
       view.goto(line, col) if view
     end
   rescue e : AppError
@@ -493,6 +501,22 @@ class IdeWindow < Window
 
     mark_name = @cursor_history.add(path, line, column)
     view.create_mark(mark_name, line) unless mark_name.nil?
+  end
+
+  def focus_upper_split
+    Log.info { "go up" }
+  end
+
+  def focus_right_split
+    Log.info { "go right" }
+  end
+
+  def focus_lower_split
+    Log.info { "go down" }
+  end
+
+  def focus_left_split
+    Log.info { "go left" }
   end
 
   def save_cursor(view : TextView)
