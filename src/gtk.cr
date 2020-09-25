@@ -204,6 +204,12 @@ module Gtk
       self.line_index = bytes_in_line
     end
   end
+
+  class Stack
+    def has_child?(name : String) : Bool
+      !!LibGtk.stack_get_child_by_name(@pointer.as(LibGtk::Stack*), name)
+    end
+  end
 end
 
 module GtkSource

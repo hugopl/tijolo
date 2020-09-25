@@ -8,10 +8,11 @@ class RootSplitNode < AbstractSplitNode
   NO_VIEW_WIDGET_NAME = "no-view"
 
   @child : AbstractSplitNode?
+  # Current selected view, this should be nil only if @child is nil
   @current_view : View?
   # This stack has only 2 faces... a widget to be show when there's no editors open and a widget tree of open editors.
   @stack : Gtk::Stack
-  getter current_view : View?
+  property current_view : View?
 
   def initialize
     @stack = Gtk::Stack.new
@@ -28,34 +29,73 @@ class RootSplitNode < AbstractSplitNode
     true
   end
 
-  def add_view(view : View, split_view : Bool = false)
-    child = @child
-    if child.nil?
-      @child = child = ViewSplitNode.new(self)
-      @stack.add_named(child.widget, "editors")
-      @stack.visible_child = child.widget
-    end
-    child.add_view(view)
+  def add_view(view : View, split_view : Bool)
     view.add_view_listener(self)
+    if @child.nil?
+      add_first_view(view)
+      return
+    end
+
+    view_node = find_current_node
+    return if view_node.nil?
+
+    if split_view
+      view_node.split(view)
+    else
+      view_node.add_view(view)
+    end
+    @current_view = view
+    Log.info { "\n#{dump}" }
+  end
+
+  private def add_first_view(view : View)
+    @child = child = ViewSplitNode.new(self)
+    child.add_view(view)
+    @stack.add(child.widget)
+    @stack.visible_child = child.widget
+    @current_view = view
+  end
+
+  def replace_child(child : AbstractSplitNode)
+    @stack.remove(child.widget)
+    @child = nil
+    @child = new_child = yield
+    @stack.add(new_child.widget)
+    @stack.visible_child = new_child.widget
+  end
+
+  private def find_current_node : ViewSplitNode?
+    current_view = @current_view
+    if current_view
+      find_node(current_view)
+    else
+      Log.warn { "There's no selected view to find the current split node." }
+      nil
+    end
+  end
+
+  def find_node(view : View) : ViewSplitNode?
+    view_node = @child.not_nil!.find_node(view)
+    Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
+    view_node
   end
 
   def reveal_view(view) : Bool
-    child = @child
-    child ? child.reveal_view(view) : false
+    view_node = find_node(view)
+    view_node ? view_node.reveal_view(view) : false
   end
 
-  def remove_view(view) : Bool
-    child = @child
-    if child
-      @current_view = nil if view == @current_view
-      view.remove_view_listener(self)
-      return child.remove_view(view)
-    end
-    false
+  def remove_view(view) : Nil
+    view.remove_view_listener(self)
+    view_node = find_node(view)
+    return if view_node.nil?
+
+    view_node.remove_view(view)
+    @current_view = nil if view == @current_view
   end
 
   def destroy_child(child : AbstractSplitNode)
-    raise "Ooops" if child != @child
+    raise AppError.new("You found a bug, be welcome!") if child != @child
 
     @child = nil
     @stack.remove(child.widget)
@@ -98,5 +138,15 @@ class RootSplitNode < AbstractSplitNode
 
   private def show_welcome_msg
     @stack.visible_child_name = NO_VIEW_WIDGET_NAME
+  end
+
+  def dump
+    String.build { |str| dump(str) }
+  end
+
+  def dump(io : IO)
+    child = @child
+    io << "root -> #{child}\n"
+    child.dump(io) if child
   end
 end
