@@ -37,6 +37,7 @@ abstract class View
   def initialize(view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
     builder = builder_for("view")
     @widget = Gtk::Widget.cast(builder["root"])
+    @editor_header = Gtk::Widget.cast(builder["editor_header"])
     @line_column_label = Gtk::Label.cast(builder["line_column"])
     @file_path_label = Gtk::MenuButton.cast(builder["file_path"])
     @file_path_label.on_button_press_event do |_widget, _event|
@@ -112,6 +113,15 @@ abstract class View
 
   def modified? : Bool
     false
+  end
+
+  def selected=(value : Bool) : Nil
+    ctx = @editor_header.style_context
+    if value
+      ctx.add_class("selected")
+    else
+      ctx.remove_class("selected")
+    end
   end
 
   abstract def grab_focus

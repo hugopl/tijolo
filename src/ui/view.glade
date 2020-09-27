@@ -60,7 +60,7 @@
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="editor_header">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child type="center">

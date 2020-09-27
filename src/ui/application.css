@@ -90,15 +90,19 @@ paned separator {
   background-color: @tijolo_black;
 }
 
-.editor-header {
+.editor-header.selected {
   color: @tijolo_black;
   background-color: @tijolo_orange2;
 }
 
+.editor-header {
+  color: @tijolo_orange2;
+  background-color: @tijolo_black;
+}
 
 .editor-header button, .editor-header button:hover, .editor-header:checked {
-  color: @tijolo_black;
-  background: @tijolo_orange2;
+  color: inherit;
+  background: inherit;
   padding: 0;
   margin: 0px;
   border: none;

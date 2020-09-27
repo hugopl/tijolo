@@ -3,7 +3,6 @@ require "./view_split_node"
 
 class RootSplitNode < AbstractSplitNode
   include UiBuilderHelper
-  include ViewListener
 
   NO_VIEW_WIDGET_NAME = "no-view"
 
@@ -30,7 +29,6 @@ class RootSplitNode < AbstractSplitNode
   end
 
   def add_view(view : View, split_view : Bool)
-    view.add_view_listener(self)
     if @child.nil?
       add_first_view(view)
       return
@@ -44,12 +42,13 @@ class RootSplitNode < AbstractSplitNode
     else
       view_node.add_view(view)
     end
-    @current_view = view
+    self.current_view = view
     Log.info { "\n#{dump}" }
   end
 
   private def add_first_view(view : View)
     @child = child = ViewSplitNode.new(self)
+    self.current_view = view
     child.add_view(view)
     @stack.add(child.widget)
     @stack.visible_child = child.widget
@@ -86,7 +85,6 @@ class RootSplitNode < AbstractSplitNode
   end
 
   def remove_view(view) : Nil
-    view.remove_view_listener(self)
     view_node = find_node(view)
     return if view_node.nil?
 
@@ -102,8 +100,12 @@ class RootSplitNode < AbstractSplitNode
     show_welcome_msg
   end
 
-  def view_focused(view : View)
+  def current_view=(view : View)
+    return if view == @current_view
+
+    @current_view.try(&.selected=(false))
     @current_view = view
+    view.selected = true
   end
 
   private def create_empty_view : Nil

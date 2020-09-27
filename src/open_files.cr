@@ -139,4 +139,8 @@ class OpenFiles
     row = files.index(view)
     @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?
   end
+
+  def view_focused(view : View)
+    @root.current_view = view
+  end
 end
