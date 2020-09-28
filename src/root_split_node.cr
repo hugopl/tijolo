@@ -123,25 +123,19 @@ class RootSplitNode < AbstractSplitNode
     builder = builder_for("no_view")
     # FIXME: Use the shortcuts from config file
     Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
-      <b>Code Navigation</b><span foreground="#DCDCD1">
-      Ctrl + P         —  Show locator
-      F2               —  Go to definition
-      Ctrl + G         —  Go to line/column
-      Alt + Shift + ←  —  Go back
-      Alt + Shift + →  —  Go forward
-      </span>
-      <b>Editting</b><span foreground="#DCDCD1">
-      Ctrl + F  —  Find text
-      F3        —  Find next text match
-      F9        —  Sort lines
-      Ctrl + /  —  Comment code
-      Ctrl + .  —  Insert emoji 💣️
-      </span>
-      <b>Project</b><span foreground="#DCDCD1">
-      Ctrl + N  —  New file
-      Ctrl + O  —  Open non-project file
-      Ctrl + W  —  Close view
-      Alt  + G  —  Open Git locator
+      <b>Code Navigation</b>                                          <b>Editting</b><span foreground="#DCDCD1">
+      Ctrl + P           —  Show locator                       Ctrl + F  —  Find text
+      F2                 —  Go to definition                   F3        —  Find next text match
+      Ctrl + G           —  Go to line/colum                   F9        —  Sort lines
+      Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment code
+                                                               Ctrl + .  —  Insert emoji 💣️</span>
+
+      <b>Split View</b>                                               <b>Project</b><span foreground="#DCDCD1">
+      Alt + ↑/→/←/↓      —  Focus editor in that direction     Ctrl + N  —  New file
+                                                               Ctrl + O  —  Open non-project file
+      Press Shift on any action that could open a file e.g.    Ctrl + W  —  Close view
+      <i>Ctrl + Shift + P</i> and the file will be open in a new      Alt  + G  —  Open Git locator
+      split view.
       </span>
     EOT
     widget = Gtk::Widget.cast(builder["root"])
