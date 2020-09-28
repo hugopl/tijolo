@@ -57,10 +57,28 @@ class RootSplitNode < AbstractSplitNode
 
   def replace_child(child : AbstractSplitNode)
     @stack.remove(child.widget)
-    @child = nil
     @child = new_child = yield
-    @stack.add(new_child.widget)
-    @stack.visible_child = new_child.widget
+    if new_child.nil?
+      show_welcome_msg
+    else
+      new_child.parent = self
+      @stack.add(new_child.widget)
+      @stack.visible_child = new_child.widget
+    end
+  end
+
+  private def destroy_node(node : ViewSplitNode)
+    parent = node.parent
+    if parent.root? # Just a single view is present, just remove itself and let root show welcome_screen.
+      parent.replace_child(node) { nil }
+    elsif parent.is_a?(SplitNode) # Some split is present
+      node.parent.parent.replace_child(parent) do
+        replacement = node == parent.child1 ? parent.child2 : parent.child1
+        parent.replace_child(node) { nil }
+        parent.replace_child(replacement) { nil }
+        replacement
+      end
+    end
   end
 
   private def find_current_node : ViewSplitNode?
@@ -89,15 +107,8 @@ class RootSplitNode < AbstractSplitNode
     return if view_node.nil?
 
     view_node.remove_view(view)
+    destroy_node(view_node) if view_node.empty?
     @current_view = nil if view == @current_view
-  end
-
-  def destroy_child(child : AbstractSplitNode)
-    raise AppError.new("You found a bug, be welcome!") if child != @child
-
-    @child = nil
-    @stack.remove(child.widget)
-    show_welcome_msg
   end
 
   def current_view=(view : View)

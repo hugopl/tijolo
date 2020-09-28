@@ -5,8 +5,8 @@ class SplitNode < AbstractSplitNode
   end
 
   @orientation : Orientation
-  @child1 : AbstractSplitNode
-  @child2 : AbstractSplitNode
+  property child1 : AbstractSplitNode
+  property child2 : AbstractSplitNode
   @paned : Gtk::Paned
 
   def initialize(parent, @orientation, @child1, @child2)
@@ -31,15 +31,12 @@ class SplitNode < AbstractSplitNode
     @paned
   end
 
-  def destroy_child(child : AbstractSplitNode)
-    @paned.remove(child.widget)
-    # TODO: Do the nodes dance here
-  end
-
   def replace_child(child : AbstractSplitNode)
     @paned.remove(child.widget)
     new_child = yield
+    return if new_child.nil?
 
+    new_child.parent = self
     if @child1 == child
       @child1 = new_child
       @paned.pack1(new_child.widget, true, true)

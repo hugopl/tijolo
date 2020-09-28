@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - log_level is now configurable via config file.
  - Cursor position history! Triggered on Alt+Shift+⬅️/Alt+Shift+➡️.
+ - Split views!!
+   - Ctrl+Shift+P open the locator causing the result to be possibly opened by spliting the current view
+   - Shift+F2 go to symbol definition possibly (if file isn't already open) opened by spliting the current view
 
 ### Changed
  - Show tree lines on project tree.

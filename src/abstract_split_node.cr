@@ -14,12 +14,10 @@ abstract class AbstractSplitNode
   end
 
   # called by the child on father when it split
+  # the block given must return the new replacement child.
   def replace_child(child : AbstractSplitNode)
     yield
   end
-
-  # Called by the child when the last view on it was closed.
-  abstract def destroy_child(child : AbstractSplitNode)
 
   abstract def dump(io : IO)
 end

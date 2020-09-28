@@ -7,10 +7,11 @@ This is a short-term TODO list in no special order. Things I'm already working o
 ## 0.3.0 release
 
 - [x] Location history, Alt+Shift⬅️/Alt+Shift➡️ navigate through cursor location history.
-- :no_entry: Some ♥️ to Git support
+- Some ♥️ to Git support
   - [ ] Git commit
-- :no_entry: Split screen
-  - [ ] :no_entry: Ctrl+Shift+P open locator targeting a split view.
+- Split screen
+  - [x] Ctrl+Shift+P open locator targeting a split view.
+  - [x] Shift+F2 go to definition targeting a split view.
   - [ ] Ctrl+Shift+X "zoom" view.
   - [ ] Alt + arrows change from one split view to another.
   - [ ] Ctrl+T split view opening a terminal.

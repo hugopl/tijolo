@@ -19,18 +19,16 @@ class ViewSplitNode < AbstractSplitNode
     @views_count += 1
   end
 
-  def remove_view(view : View) : Bool
+  def remove_view(view : View) : Nil
     view_widget = @stack.child_by_name(view.id)
     if view_widget
       @stack.remove(view_widget)
       @views_count -= 1
-      parent.destroy_child(self) if @views_count.zero?
-      return true
     end
-    false
   end
 
-  def destroy_child(child : AbstractSplitNode)
+  def empty?
+    @views_count.zero?
   end
 
   def reveal_view(view : View) : Bool
