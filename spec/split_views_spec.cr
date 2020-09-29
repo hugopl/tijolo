@@ -1,9 +1,9 @@
 require "./spec_helper"
-require "../src/root_split_node"
+require "../src/split/root_node"
 
 describe "Split views" do
   it "can split the root node" do
-    root = RootSplitNode.new
+    root = Split::RootNode.new
     root.dump.should eq("root -> \n")
 
     root.add_view(TextView.new, split_view: true)

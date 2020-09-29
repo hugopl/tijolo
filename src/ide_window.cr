@@ -42,6 +42,11 @@ class IdeWindow < Window
 
   @tijolorc : TijoloRC
 
+  delegate focus_upper_split, to: @open_files
+  delegate focus_right_split, to: @open_files
+  delegate focus_lower_split, to: @open_files
+  delegate focus_left_split, to: @open_files
+
   def initialize(application : Application, @project : Project)
     builder = builder_for("ide_window")
     super(application, builder)
@@ -499,22 +504,6 @@ class IdeWindow < Window
 
     mark_name = @cursor_history.add(path, line, column)
     view.create_mark(mark_name, line) unless mark_name.nil?
-  end
-
-  def focus_upper_split
-    Log.info { "go up" }
-  end
-
-  def focus_right_split
-    Log.info { "go right" }
-  end
-
-  def focus_lower_split
-    Log.info { "go down" }
-  end
-
-  def focus_left_split
-    Log.info { "go left" }
   end
 
   def save_cursor(view : TextView)

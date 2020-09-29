@@ -1,4 +1,4 @@
-require "./root_split_node"
+require "./split/root_node"
 
 module OpenFilesListener
   abstract def open_files_view_revealed(view : View, definitive : Bool)
@@ -23,18 +23,22 @@ class OpenFiles
 
   Log = ::Log.for("OpenFiles")
 
-  @root : RootSplitNode
+  @root : Split::RootNode
 
   delegate empty?, to: @files
   delegate widget, to: @root
   delegate current_view, to: @root
+  delegate focus_upper_split, to: @root
+  delegate focus_right_split, to: @root
+  delegate focus_lower_split, to: @root
+  delegate focus_left_split, to: @root
 
   def initialize
     @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::ULONG})
     @sorted_model = Gtk::TreeModelSort.new(model: @model)
     @sorted_model.set_sort_column_id(OPEN_FILES_LAST_USED, :descending)
 
-    @root = RootSplitNode.new
+    @root = Split::RootNode.new
   end
 
   def view(id : UInt64) : View?
