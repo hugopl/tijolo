@@ -43,7 +43,7 @@ class RootSplitNode < AbstractSplitNode
       view_node.add_view(view)
     end
     self.current_view = view
-    Log.info { "\n#{dump}" }
+    Log.trace { "\n#{dump}" }
   end
 
   private def add_first_view(view : View)
@@ -79,6 +79,7 @@ class RootSplitNode < AbstractSplitNode
         replacement
       end
     end
+    Log.trace { "\n#{dump}" }
   end
 
   private def find_current_node : ViewSplitNode?
@@ -97,9 +98,13 @@ class RootSplitNode < AbstractSplitNode
     view_node
   end
 
-  def reveal_view(view) : Bool
+  def reveal_view(view : View, definitive : Bool) : Nil
     view_node = find_node(view)
-    view_node ? view_node.reveal_view(view) : false
+    return if view_node.nil?
+
+    view_node.reveal_view(view)
+    self.current_view = view
+    view.grab_focus if definitive
   end
 
   def remove_view(view) : Nil
@@ -114,6 +119,7 @@ class RootSplitNode < AbstractSplitNode
   def current_view=(view : View)
     return if view == @current_view
 
+    Log.trace { "current_view: #{view.file_path}" }
     @current_view.try(&.selected=(false))
     @current_view = view
     view.selected = true

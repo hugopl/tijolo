@@ -77,13 +77,8 @@ class OpenFiles
 
   # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
   private def reveal_view(view : View, definitive : Bool)
-    @root.reveal_view(view)
+    @root.reveal_view(view, definitive)
     notify_open_files_view_revealed(view, definitive)
-    if definitive
-      view.grab_focus
-    else
-      @root.current_view = view
-    end
   end
 
   private def reorder_open_files(new_selected_index)

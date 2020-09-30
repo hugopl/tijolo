@@ -269,7 +269,6 @@ class IdeWindow < Window
     else
       @open_files.show_view(view)
     end
-    view.grab_focus
     view
   rescue e : IO::Error
     application.error(e)
@@ -294,7 +293,6 @@ class IdeWindow < Window
       @open_files.show_view(view)
     end
     view.goto(cursor)
-    view.grab_focus
     view
   rescue e : IO::Error
     application.error(e)
