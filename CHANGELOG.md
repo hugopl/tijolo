@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fixes on LSP protocol implementation, so more language servers should work with Tijolo.
  - Git branches are now updated on UI when just the HEAD changes.
  - Do not repeated show "File was externally modified" dialog when user press cancel.
- - Correctly set "transient_for" property on dialogs, i.e. dialogs behave as expected reggarding focus.
+ - Correctly set "transient_for" property on dialogs, i.e. dialogs behave as expected regarding focus.
  - Do not crash if try to reload a deleted file.
  - LSP do not stop working if receive a bad or not supported message from server (Error is show on output pane - Alt+2).
  - Use g_idle_add instead of g_timeout(0), so some inter-thread stuff like LSP is much faster.

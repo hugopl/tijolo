@@ -50,7 +50,7 @@ class DocumentSymbolLocator < FuzzyLocator
       end
     end
   rescue e : AppError
-    self.placeholder = e.message || "Unknow error"
+    self.placeholder = e.message || "Unknown error"
   end
 
   private def validate_view(view : View?) : TextView?

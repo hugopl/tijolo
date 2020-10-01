@@ -21,7 +21,7 @@ See more [screenshots](https://github.com/hugopl/tijolo/tree/master/screenshots)
 
 ## Project goals
 
-- Run fast, something you don't see very often in new desktop applicaitons.
+- Run fast, something you don't see very often in new desktop applications.
 - Have a simple distraction free UI.
 - Keyboard focused user interface.
 - Easy/fast code navigation.
@@ -51,7 +51,7 @@ approach to build a deb package but works on non-deb machines.
 
 ## Compiling from source
 
-You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK lirbaries and libGit2 installed.
+You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK libraries and libGit2 installed.
 
 ```
 $ make

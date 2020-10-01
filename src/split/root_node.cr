@@ -141,7 +141,7 @@ module Split
       builder = builder_for("no_view")
       # FIXME: Use the shortcuts from config file
       Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
-      <b>Code Navigation</b>                                          <b>Editting</b><span foreground="#DCDCD1">
+      <b>Code Navigation</b>                                          <b>Editing</b><span foreground="#DCDCD1">
       Ctrl + P           —  Show locator                       Ctrl + F  —  Find text
       F2                 —  Go to definition                   F3        —  Find next text match
       Ctrl + G           —  Go to line/colum                   F9        —  Sort lines
