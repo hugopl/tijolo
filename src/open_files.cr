@@ -21,8 +21,6 @@ class OpenFiles
   OPEN_FILES_LABEL     = 0
   OPEN_FILES_LAST_USED = 1
 
-  Log = ::Log.for("OpenFiles")
-
   @root : Split::RootNode
 
   delegate empty?, to: @files
@@ -85,12 +83,19 @@ class OpenFiles
     notify_open_files_view_revealed(view, definitive)
   end
 
-  private def reorder_open_files(new_selected_index)
+  private def reorder_open_files(view : View)
+    idx = @sorted_files.index(view)
+    reorder_open_files(idx) unless idx.nil?
+  end
+
+  private def reorder_open_files(new_selected_index : Int32)
     @sorted_files.push(@sorted_files.delete_at(new_selected_index))
     @sorted_files_index = @sorted_files.size - 1
 
     idx = @files.index(@sorted_files[@sorted_files_index])
     @model.set(idx, {OPEN_FILES_LAST_USED}, {last_used_counter}) unless idx.nil?
+
+    Log.trace { @sorted_files.map(&.file_path.to_s) }
   end
 
   def switch_current_view(reorder : Bool)
@@ -107,13 +112,7 @@ class OpenFiles
   end
 
   def show_view(view : View)
-    idx = @sorted_files.index(view)
-    if idx.nil?
-      Log.warn { "Unknow view: #{view.label}" }
-      return
-    end
-
-    reorder_open_files(idx)
+    reorder_open_files(view)
     reveal_view(view, true)
   end
 
@@ -143,6 +142,7 @@ class OpenFiles
   end
 
   def view_focused(view : View)
+    reorder_open_files(view)
     @root.current_view = view
   end
 end
