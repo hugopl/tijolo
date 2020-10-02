@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+ - When using split views, hit Ctrl+Shift+X to maximized the current view and let it tak all screen space.
+
 ## [0.3.0] - 2020-11-02
 ### Added
  - log_level is now configurable via config file.

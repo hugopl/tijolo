@@ -34,6 +34,7 @@ abstract class View
   property? virtual = false
   getter last_saved_at : Time::Span?
   getter? externally_modified = false
+  getter? maximized = false
 
   getter widget : Gtk::Widget
 
@@ -88,6 +89,10 @@ abstract class View
     notify_view_file_path_changed(self)
   end
 
+  def maximized=(@maximized)
+    update_header
+  end
+
   def update_header
     @file_path_label.label = header_text
   end
@@ -110,15 +115,15 @@ abstract class View
   end
 
   def header_text : String
-    if virtual?
-      @label
-    elsif modified?
-      "#{@label} ✱"
-    elsif readonly?
-      "#{@label} 🔒"
-    else
-      @label
-    end
+    # TODO: Find a better/nicer way to inform view status on UI
+    modified = if modified?
+                 "✱"
+               elsif readonly?
+                 "🔒"
+               end
+    maximized = "<maximized>" if @maximized
+    separator = " " if maximized || modified
+    "#{label}#{separator}#{modified}#{maximized}"
   end
 
   def modified? : Bool

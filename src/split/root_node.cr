@@ -10,14 +10,15 @@ module Split
     NO_VIEW_WIDGET_NAME = "no-view"
 
     @child : Node?
+    # Node where the maximized view comes from, need it to put the view back on it on unmaximize.
+    @maximized_node : ViewNode?
     # Current selected view, this should be nil only if @child is nil
     @current_view : View?
     # This stack has only 2 faces... a widget to be show when there's no editors open and a widget tree of open editors.
-    @stack : Gtk::Stack
+    @stack = Gtk::Stack.new
     property current_view : View?
 
     def initialize
-      @stack = Gtk::Stack.new
       create_empty_view
       super(self)
       @stack.show_all
@@ -83,12 +84,16 @@ module Split
     end
 
     def find_node(view : View) : ViewNode?
+      unmaximize_view if maximized?
+
       view_node = @child.not_nil!.find_node(view)
       Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
       view_node
     end
 
     def reveal_view(view : View) : Nil
+      return if view == current_view
+
       view_node = find_node(view)
       return if view_node.nil?
 
@@ -183,6 +188,35 @@ module Split
         end
       end
       nil
+    end
+
+    def maximized? : Bool
+      !@maximized_node.nil?
+    end
+
+    def maximize_view(view : View) : Nil
+      node = find_node(view)
+      return if node.nil? || node.parent == self # return if screen isn't being split
+
+      @maximized_node = node
+      node.remove_view(view)
+      @stack.add_named(view.widget, view.id)
+      @stack.visible_child = view.widget
+      view.maximized = true
+      self.current_view = view
+    end
+
+    def unmaximize_view : Nil
+      view = @current_view
+      return if view.nil?
+
+      view_widget = @stack.child_by_name(view.id)
+      @stack.remove(view_widget) if view_widget
+      @maximized_node.not_nil!.add_view(view)
+      @maximized_node = nil
+      view.maximized = false
+
+      @stack.visible_child = @child.not_nil!.widget
     end
 
     private def create_empty_view : Nil

@@ -48,6 +48,7 @@ class IdeWindow < Window
   delegate focus_right_split, to: @open_files
   delegate focus_lower_split, to: @open_files
   delegate focus_left_split, to: @open_files
+  delegate maximize_view, to: @open_files
 
   def initialize(application : Application, @project : Project)
     builder = builder_for("ide_window")
@@ -188,6 +189,7 @@ class IdeWindow < Window
                focus_left_split:          ->focus_left_split,
                increase_font_size:        ->increase_current_view_font_size,
                decrease_font_size:        ->decrease_current_view_font_size,
+               maximize_view:             ->maximize_view,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)

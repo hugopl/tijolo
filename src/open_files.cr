@@ -155,6 +155,17 @@ class OpenFiles
     view
   end
 
+  def maximize_view
+    if @sorted_files.empty?
+      return
+    elsif @root.maximized?
+      @root.unmaximize_view
+    else
+      @root.maximize_view(@sorted_files.last)
+    end
+    @sorted_files.last.grab_focus
+  end
+
   def view_file_path_changed(view)
     row = files.index(view)
     @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?

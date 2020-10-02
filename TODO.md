@@ -6,7 +6,7 @@ This is a short-term TODO list in no special order.
 
 ## 0.4.0 release
 
-- [ ] Maximinize split view on Ctrl+Shift+X.
+- [x] Maximinize split view on Ctrl+Shift+X.
 - Some ♥️ to LSP implementation.
   - [ ] Make it work with yaml-language-server.
   - [ ] Make it work with ccls language-server.
