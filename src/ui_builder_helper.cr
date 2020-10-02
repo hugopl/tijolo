@@ -3,7 +3,8 @@ module UiBuilderHelper
     {% if flag?(:release) %}
     Gtk::Builder.new_from_string({{ read_file("#{__DIR__}/ui/" + file + ".glade") }}, -1)
     {% else %}
-    Gtk::Builder.new_from_file("#{__DIR__}/ui/" + {{ file }} + ".glade")
+    dir = {{ __DIR__ }}
+    Gtk::Builder.new_from_file("#{dir}/ui/" + {{ file }} + ".glade")
     {% end %}
   end
 
