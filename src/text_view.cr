@@ -173,6 +173,7 @@ class TextView < View
     @buffer.begin_user_action
     pos = cursor_pos
     load_contents
+    @buffer.modified = false
     self.cursor_pos = pos
   ensure
     @buffer.end_user_action
@@ -180,16 +181,13 @@ class TextView < View
 
   private def load_contents
     file_path = @file_path
-    if file_path
-      text = File.read(file_path)
-      @buffer.text = text
-      @buffer.modified = false
+    return if file_path.nil?
 
-      @language = LanguageManager.guess_language(label, mimetype(label, text))
-      @buffer.language = @language.gtk_language
-    else
-      @buffer.modified = true
-    end
+    text = File.read(file_path)
+    @buffer.text = text
+
+    @language = LanguageManager.guess_language(label, mimetype(label, text))
+    @buffer.language = @language.gtk_language
   end
 
   def restore_cursor
