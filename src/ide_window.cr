@@ -4,6 +4,7 @@ require "./confirm_dialogs"
 require "./cursor_history"
 require "./find_replace"
 require "./git_branches"
+require "./image_view"
 require "./locator"
 require "./open_files"
 require "./project_monitor"
@@ -227,17 +228,21 @@ class IdeWindow < Window
 
     application.add_recent_file(file) if file && project_path.nil?
 
-    # TODO: check file mime type and create the right view.
-    view = create_text_view(file, project_path)
+    # TODO: Do this more dinamically... let the views tell us what they can open instead of this
+    view = case file.try(&.extension)
+           when /\.(png|jpg|jpeg|bmp)/i
+             ImageView.new(file.not_nil!, project_path)
+           else
+             create_text_view(file, project_path)
+           end
     @open_files.add_view(view, split_view)
+    view.add_view_listener(self)
     view
   end
 
   # Call create_view instead of this.
   private def create_text_view(file_path : Path? = nil, project_path : Path? = nil) : TextView
-    project_path = @project.root if file_path && @project.under_project?(file_path)
     view = TextView.new(file_path, project_path)
-    view.add_view_listener(self)
     view.language.file_opened(view)
     view
   end
@@ -274,7 +279,7 @@ class IdeWindow < Window
     view = @open_files.view(file)
     if view.nil?
       view = create_view(file, split_view)
-      view.restore_cursor
+      view.restore_state
     else
       @open_files.show_view(view)
     end
@@ -301,7 +306,7 @@ class IdeWindow < Window
     else
       @open_files.show_view(view)
     end
-    view.goto(cursor)
+    view.goto(cursor) if view.is_a?(TextView)
     view
   rescue e : IO::Error
     application.error(e)
@@ -359,7 +364,7 @@ class IdeWindow < Window
     end
 
     path = view.file_path
-    if path
+    if path && view.is_a?(TextView)
       validate_config(view.text) if path == Config.path
       view.save
     end
@@ -399,8 +404,8 @@ class IdeWindow < Window
   end
 
   def find_in_current_view
-    view = @open_files.current_view
-    @find_replace.show(view) unless view.nil?
+    view = @open_files.current_view.as?(TextView)
+    @find_replace.show(view) if view
   end
 
   def find_next_in_current_view
@@ -413,12 +418,12 @@ class IdeWindow < Window
 
   # TODO: Write a macro to do this repeated code when we get more text views shortcuts
   def comment_code
-    view = @open_files.current_view
+    view = @open_files.current_view.as?(TextView)
     view.comment_action if view && view.focus?
   end
 
   def sort_lines
-    view = @open_files.current_view
+    view = @open_files.current_view.as?(TextView)
     view.sort_lines_action if view && view.focus?
   end
 
@@ -465,7 +470,7 @@ class IdeWindow < Window
   end
 
   private def copy_view_path_and_line(_action, view_id : GLib::Variant?)
-    view = @open_files.view(view_id.uint64) unless view_id.nil?
+    view = @open_files.view(view_id.uint64).as?(TextView) unless view_id.nil?
     return if view.nil?
 
     path = view.file_path

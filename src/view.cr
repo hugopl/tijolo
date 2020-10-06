@@ -59,6 +59,7 @@ abstract class View
     Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
+    @widget.show_all
   end
 
   def line_column_label(line : Int32, col : Int32)
@@ -113,6 +114,9 @@ abstract class View
 
   def modified? : Bool
     false
+  end
+
+  def restore_state
   end
 
   def selected=(value : Bool) : Nil

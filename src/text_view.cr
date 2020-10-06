@@ -21,7 +21,6 @@ class TextView < View
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
     super(@editor, file_path, project_path)
 
-    @editor.show
     @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
     @language = Language.new
     setup_editor
@@ -190,7 +189,7 @@ class TextView < View
     @buffer.language = @language.gtk_language
   end
 
-  def restore_cursor
+  def restore_state
     file_path = @file_path
     project_path = @project_path
     if file_path && project_path

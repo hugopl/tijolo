@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Split views!!
    - Ctrl+Shift+P open the locator causing the result to be possibly opened by spliting the current view
    - Shift+F2 go to symbol definition possibly (if file isn't already open) opened by spliting the current view
+ - Basic image view, *really* basic.
 
 ### Changed
  - Show tree lines on project tree.

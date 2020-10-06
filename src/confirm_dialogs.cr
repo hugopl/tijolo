@@ -63,7 +63,7 @@ abstract class ConfirmDialog
   end
 
   def selected_views
-    views_to_save = Array(TextView).new(@views.size)
+    views_to_save = Array(View).new(@views.size)
     @views.size.times do |i|
       views_to_save << @views[i] if @toogle_status[i]
     end
