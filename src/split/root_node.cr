@@ -98,13 +98,13 @@ module Split
       view_node
     end
 
-    def reveal_view(view : View, definitive : Bool) : Nil
+    def reveal_view(view : View) : Nil
       view_node = find_node(view)
       return if view_node.nil?
 
+      Log.trace { "root.reveal_view(#{view.label.inspect}" }
       view_node.reveal_view(view)
       self.current_view = view
-      view.grab_focus if definitive
     end
 
     def remove_view(view) : Nil
@@ -117,9 +117,9 @@ module Split
     end
 
     def current_view=(view : View)
+      Log.trace { "root.current_view=(#{view.label.inspect})  - same? #{view == @current_view}" }
       return if view == @current_view
 
-      Log.trace { "current_view: #{view.file_path}" }
       @current_view.try(&.selected=(false))
       @current_view = view
       view.selected = true

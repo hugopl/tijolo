@@ -32,13 +32,14 @@ module Split
       @views_count.zero?
     end
 
-    def reveal_view(view : View) : Bool
+    def reveal_view(view : View) : Nil
       view_widget = @stack.child_by_name(view.id)
       if view_widget
+        Log.trace { "node.stack.visible_child = #{view.label.inspect}" }
         @stack.visible_child = view_widget
-        return true
+      else
+        Log.error { "View not found on view node: #{view.label}" }
       end
-      false
     end
 
     def find_node(view : View) : ViewNode?
@@ -59,7 +60,6 @@ module Split
         new_view.add_view(view)
         SplitNode.new(parent, orientation, self, new_view)
       end
-      # parent.child_split(self, new_split)
     end
 
     def to_s(io : IO)

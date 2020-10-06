@@ -334,7 +334,6 @@ class IdeWindow < Window
       @project_tree_view.expand_to_path(tree_path)
       @project_tree_view.set_cursor(tree_path, nil, false)
     end
-    view.grab_focus
   end
 
   def save_current_view

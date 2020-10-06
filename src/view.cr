@@ -34,6 +34,8 @@ abstract class View
 
   getter widget : Gtk::Widget
 
+  delegate show_all, to: widget
+
   def initialize(view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
     builder = builder_for("view")
     @widget = Gtk::Widget.cast(builder["root"])
@@ -59,7 +61,6 @@ abstract class View
     Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
-    @widget.show_all
   end
 
   def self.reset_untitled_count
