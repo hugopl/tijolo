@@ -83,9 +83,10 @@ class Application
 
     # global actions with shortcuts
     config = Config.instance
-    actions = {new_file:   ->new_file,
-               open_file:  ->open_file,
-               fullscreen: ->fullscreen}
+    actions = {new_file:           ->new_file,
+               new_file_new_split: ->{ new_file(true) },
+               open_file:          ->open_file,
+               fullscreen:         ->fullscreen}
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
       action.on_activate { closure.call }
@@ -117,8 +118,8 @@ class Application
     @ide_wnd || init_ide(Project.new)
   end
 
-  def new_file
-    ide.create_view(nil)
+  def new_file(new_split = false)
+    ide.create_view(nil, new_split)
   end
 
   def open_file
