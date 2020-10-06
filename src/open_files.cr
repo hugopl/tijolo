@@ -24,6 +24,7 @@ class OpenFiles
   @root : Split::RootNode
 
   delegate empty?, to: @files
+  delegate any?, to: @files
   delegate widget, to: @root
   delegate current_view, to: @root
   delegate focus_upper_split, to: @root
@@ -101,9 +102,7 @@ class OpenFiles
   def switch_current_view(reorder : Bool)
     return if @files.size < 2
 
-    if reorder
-      reorder_open_files(@sorted_files_index)
-    else
+    unless reorder
       @sorted_files_index -= 1
       @sorted_files_index = @sorted_files.size - 1 if @sorted_files_index < 0
     end
@@ -112,6 +111,7 @@ class OpenFiles
   end
 
   def show_view(view : View)
+    Log.trace { "reorder by show view #{view.file_path}" }
     reorder_open_files(view)
     reveal_view(view, true)
   end
@@ -142,6 +142,7 @@ class OpenFiles
   end
 
   def view_focused(view : View)
+    Log.trace { "reorder by view focused: #{view.file_path}" }
     reorder_open_files(view)
     @root.current_view = view
   end

@@ -134,8 +134,12 @@ class IdeWindow < Window
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = true
-      @open_files.switch_current_view(false)
-      @open_files_box.show_all unless @open_files.empty?
+      if @open_files.any?
+        @open_files.switch_current_view(false)
+        @open_files_box.show_all
+        # Focus need to be removed away from editor, or it will mess with open files model
+        @open_files_view.grab_focus
+      end
       return true
     end
     false
@@ -320,6 +324,7 @@ class IdeWindow < Window
       @project_tree_view.expand_to_path(tree_path)
       @project_tree_view.set_cursor(tree_path, nil, false)
     end
+    view.grab_focus
   end
 
   def save_current_view
