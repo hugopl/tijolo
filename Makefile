@@ -20,7 +20,7 @@ install:
 	install -D -m0644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/tijolo/LICENSE
 	# Changelog
 	install -D -m0644 CHANGELOG.md $(DESTDIR)$(PREFIX)/share/doc/tijolo/CHANGELOG.md
-	gzip -9 -n $(DESTDIR)$(PREFIX)/share/doc/tijolo/CHANGELOG.md
+	gzip -9fn $(DESTDIR)$(PREFIX)/share/doc/tijolo/CHANGELOG.md
 
 install-fonts:
 	install -d $(DESTDIR)$(PREFIX)/share/fonts/jetbrains-mono
