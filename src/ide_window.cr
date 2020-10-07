@@ -9,6 +9,7 @@ require "./locator"
 require "./open_files"
 require "./project_monitor"
 require "./project_tree"
+require "./terminal_view.cr"
 require "./text_view"
 require "./window"
 require "./tijolo_log_backend"
@@ -244,6 +245,12 @@ class IdeWindow < Window
     view
   end
 
+  def create_terminal
+    view = TerminalView.new
+    @open_files.add_view(view, true)
+    view.add_view_listener(self)
+  end
+
   # Call create_view instead of this.
   private def create_text_view(file_path : Path? = nil, project_path : Path? = nil) : TextView
     view = TextView.new(file_path, project_path)
@@ -388,11 +395,13 @@ class IdeWindow < Window
 
   def close_current_view
     view = @open_files.current_view
-    return if view.nil?
+    close_view(view) if view
+  end
 
+  def close_view(view : View)
     @locator.hide
     if view.modified?
-      dlg = ConfirmSaveDialog.new(main_window, [view])
+      dlg = ConfirmSaveDialog.new(main_window, [view] of View)
       result = dlg.run
       return if result.cancel?
 
@@ -526,6 +535,10 @@ class IdeWindow < Window
 
   def view_focused(view : View)
     update_text_mark(view) if view.is_a?(TextView)
+  end
+
+  def view_close_requested(view : View)
+    close_view(view)
   end
 
   private def update_text_mark(view : TextView)

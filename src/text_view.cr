@@ -3,7 +3,6 @@ require "./ui_builder_helper"
 require "./view"
 
 class TextView < View
-  getter label : String
   getter! search_context : GtkSource::SearchContext?
 
   @editor = GtkSource::View.new
@@ -14,7 +13,6 @@ class TextView < View
 
   Log = ::Log.for("TextView")
 
-  delegate grab_focus, to: @editor
   delegate focus?, to: @editor
 
   def initialize(file_path : Path? = nil, project_path : Path? = nil)

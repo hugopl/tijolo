@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Basic image view, *really* basic.
  - Silent reload readonly open files when they are externally modified.
  - Load the right syntax-highlighting when saving a new file first time or saving as another file name.
+ - Embedded terminal! Works like any other view, Ctrl+T opens a terminal view in a new split.
 
 ### Changed
  - Show tree lines on project tree.

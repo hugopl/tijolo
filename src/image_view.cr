@@ -8,9 +8,6 @@ class ImageView < View
     false
   end
 
-  def grab_focus
-  end
-
   def readonly?
     true
   end

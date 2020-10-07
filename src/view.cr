@@ -13,6 +13,9 @@ module ViewListener
 
   def view_focused(view : View)
   end
+
+  def view_close_requested(view : View)
+  end
 end
 
 # Base class for everything that Tijolo can show in the editor
@@ -34,9 +37,10 @@ abstract class View
 
   getter widget : Gtk::Widget
 
-  delegate show_all, to: widget
+  delegate show_all, to: @view_widget
+  delegate grab_focus, to: @view_widget
 
-  def initialize(view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
+  def initialize(@view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
     builder = builder_for("view")
     @widget = Gtk::Widget.cast(builder["root"])
     @editor_header = Gtk::Widget.cast(builder["editor_header"])
@@ -48,7 +52,7 @@ abstract class View
     end
 
     container = Gtk::ScrolledWindow.cast(builder["container"])
-    container.add(view_widget)
+    container.add(@view_widget)
 
     @id = object_id.to_s
     if file_path
@@ -133,7 +137,6 @@ abstract class View
     end
   end
 
-  abstract def grab_focus
   abstract def modified? : Bool
 
   def externally_unmodified!

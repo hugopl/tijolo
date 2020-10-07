@@ -14,7 +14,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
   - [x] Shift+F2 go to definition targeting a split view.
   - [ ] Ctrl+Shift+X "zoom" view.
   - [x] Alt + arrows change from one split view to another.
-  - [ ] Ctrl+T split view opening a terminal.
+  - [x] Ctrl+T split view opening a terminal.
 
 ## 0.4.0 release
 

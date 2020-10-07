@@ -87,6 +87,7 @@ class Application
                new_file_new_split:  ->{ new_file(true) },
                open_file:           ->open_file,
                open_file_new_split: ->{ open_file(true) },
+               new_terminal:        ->new_terminal,
                fullscreen:          ->fullscreen}
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -121,6 +122,10 @@ class Application
 
   def new_file(new_split = false)
     ide.create_view(nil, new_split)
+  end
+
+  def new_terminal
+    ide.create_terminal
   end
 
   def open_file(new_split = false)

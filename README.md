@@ -51,7 +51,7 @@ approach to build a deb package but works on non-deb machines.
 
 ## Compiling from source
 
-You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, GIR packages for these GTK libraries and libGit2 installed.
+You need the Crystal 0.35 compiler, GTK3, GTKSourceView4, Vte, GIR packages for these GTK libraries and libGit2 installed.
 
 ```
 $ make

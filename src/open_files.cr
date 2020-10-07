@@ -166,11 +166,9 @@ class OpenFiles
     return if view_node.nil?
 
     view_id = view_node.visible_view_id
-    pp! view_id
     return if view_id.nil?
 
     view = view_by_id(view_id)
-    pp! view.to_s
     show_view(view) if view
   end
 
