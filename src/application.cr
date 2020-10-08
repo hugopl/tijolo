@@ -232,6 +232,7 @@ class Application
   def init_welcome
     @welcome_wnd = welcome_wnd = WelcomeWindow.new(self)
 
+    header_bar.subtitle = nil
     child = main_window.child
     main_window.remove(child) unless child.nil?
     main_window.add(welcome_wnd.root)
