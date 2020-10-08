@@ -45,13 +45,14 @@ module Split
       return self if @stack.has_child?(view.id)
     end
 
-    def split(view : View)
+    def calc_orientation : Orientation
       width = @stack.allocated_width
       height = @stack.allocated_height
-      width >= height ? split(view, :horizontal) : split(view, :vertical)
+      width >= height ? Orientation::Horizontal : Orientation::Vertical
     end
 
-    def split(view : View, orientation : Orientation)
+    def split(view : View, orientation : Orientation?)
+      orientation ||= calc_orientation
       parent = self.parent
       parent.replace_child(self) do
         new_view = ViewNode.new(self) # Split node will re-parent this

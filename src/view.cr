@@ -62,6 +62,10 @@ abstract class View
     @widget.show_all
   end
 
+  def self.reset_untitled_count
+    @@untitled_count = -1
+  end
+
   def line_column_label(line : Int32, col : Int32)
     @line_column_label.label = "#{line}:#{col}"
   end

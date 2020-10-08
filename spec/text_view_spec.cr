@@ -17,15 +17,16 @@ def create_text_view(text = SAMPLE_CODE, language = "crystal")
 end
 
 describe TextView do
+  before_each do
+    TextView.reset_untitled_count
+  end
+
   it "has a Untitled title for new files" do
     view_label = TextView.new.header_text
-    view_label.should match(/Untitled (\d+)?/)
-
-    match = view_label.match(/Untitled (\d+)?/).not_nil!
-    next_n = match[1]?.nil? ? 0 : match[1].to_i
-    TextView.new.header_text.should eq("Untitled #{next_n + 1}")
-    TextView.new.header_text.should eq("Untitled #{next_n + 2}")
-    TextView.new.header_text.should eq("Untitled #{next_n + 3}")
+    view_label.should eq("Untitled")
+    TextView.new.header_text.should eq("Untitled 1")
+    TextView.new.header_text.should eq("Untitled 2")
+    TextView.new.header_text.should eq("Untitled 3")
   end
 
   it "can save new files" do

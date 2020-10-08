@@ -28,7 +28,7 @@ module Split
       true
     end
 
-    def add_view(view : View, split_view : Bool)
+    def add_view(view : View, split_view : Bool, orientation : Orientation? = nil)
       if @child.nil?
         add_first_view(view)
         return
@@ -38,7 +38,7 @@ module Split
       return if view_node.nil?
 
       if split_view
-        view_node.split(view)
+        view_node.split(view, orientation)
       else
         view_node.add_view(view)
       end
