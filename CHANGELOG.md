@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Don't crash if project directory is removed while Tijolo is open.
+ - Starting Tijolo and doing Ctrl+N, Ctrl+W, Ctrl+N works, and I'm too lazy to translate this into a better sentence.
 
 ## [0.2.0] - 2020-09-13
 ### Added

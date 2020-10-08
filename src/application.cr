@@ -115,7 +115,7 @@ class Application
   end
 
   def ide : IdeWindow
-    @ide_wnd || init_ide(Project.new)
+    init_ide(Project.new)
   end
 
   def new_file(new_split = false)
@@ -243,7 +243,7 @@ class Application
   end
 
   private def init_ide(project : Project) : IdeWindow
-    reuse_ide = !!@ide_wnd && project.valid?
+    reuse_ide = !@ide_wnd.nil? && project.valid?
     @ide_wnd = ide_wnd = @ide_wnd || IdeWindow.new(self, project)
 
     header_bar.subtitle = project.valid? ? "Loading Project…" : "No Project"
