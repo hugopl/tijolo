@@ -11,7 +11,6 @@ class TijoloLogBackend < Log::Backend
   def gtk_buffer=(gtk_buffer : Gtk::TextBuffer)
     raise ArgumentError.new unless @gtk_buffer.nil?
 
-    gtk_buffer.ref
     @gtk_buffer = gtk_buffer
   end
 

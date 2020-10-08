@@ -41,7 +41,6 @@ class Locator
   def initialize(@project)
     builder = builder_for("locator")
     @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
-    @locator_widget.ref
 
     @locator_entry = Gtk::Entry.cast(builder["locator_entry"])
     @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
