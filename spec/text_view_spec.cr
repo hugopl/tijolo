@@ -201,6 +201,22 @@ describe TextView do
            # end
         EOF
     end
+
+    it "do not comment last line if the end-iter is at index zero" do
+      view = create_text_view
+      start_iter = view.buffer.iter_at_line(2)
+      end_iter = view.buffer.iter_at_line_offset(3, 0)
+      view.buffer.select_range(start_iter, end_iter)
+
+      view.comment_action
+      view.text.should eq(<<-EOF)
+        require "whatever"
+
+        # module Module
+          abstract def method(param : Type)
+        end
+        EOF
+    end
   end
 
   context "when file is read only" do

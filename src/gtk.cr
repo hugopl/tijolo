@@ -168,7 +168,9 @@ module Gtk
     end
 
     def select_lines(from : Int32, to : Int32)
-      select_range(iter_at_line(from), iter_at_line(to))
+      end_iter = iter_at_line(to)
+      end_iter.forward_to_line_end
+      select_range(iter_at_line(from), end_iter)
     end
 
     def select_range(start_offset : Int32, end_offset : Int32)
@@ -182,7 +184,7 @@ module Gtk
       {start_iter, end_iter}
     end
 
-    def lines(from, to)
+    def lines(from : Int32, to : Int32)
       return [] of String if to < from
 
       lines = Array(String).new(to - from)

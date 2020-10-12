@@ -376,8 +376,10 @@ class TextView < View
   private def comment_selection_action
     start_iter, end_iter = @buffer.selection_bounds
     start_iter.line_index = 0
+    end_line = end_iter.line
+    end_line -= 1 if end_iter.line_index.zero?
 
-    lines = @buffer.lines(start_iter.line, end_iter.line)
+    lines = @buffer.lines(start_iter.line, end_line)
     matches = lines.map(&.match(comment_regex))
 
     if matches.all? # uncoment
