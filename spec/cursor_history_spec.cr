@@ -93,4 +93,20 @@ describe CursorHistory do
     hist.current.not_nil!.line.should eq(75)
     hist.current.not_nil!.column.should eq(34)
   end
+
+  it "can save a location on history overriding a near location if necessary on add!" do
+    hist = CursorHistory.new
+    hist.add(Path.new("foo"), 75, 34).should eq("hst_0")
+    hist.add!(Path.new("foo"), 79, 2).should eq({"hst_0", true})
+
+    hist.items.size.should eq(1)
+    cursor = hist.current.not_nil!
+    cursor.file_path.should eq(Path.new("foo"))
+    cursor.line.should eq(79)
+    cursor.column.should eq(2)
+    cursor.mark_name.should eq("hst_0")
+
+    hist.add!(Path.new("foo"), 279, 0).should eq({"hst_1", false})
+    hist.items.size.should eq(2)
+  end
 end

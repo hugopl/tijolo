@@ -152,9 +152,19 @@ class TextView < View
     @buffer.end_not_undoable_action
   end
 
-  def create_mark(name : String, line : Int32)
-    iter = @buffer.cursor_iter
+  def create_mark(name : String, line : Int32, column : Int32)
+    iter = @buffer.iter_at_line_offset(line, column)
     @buffer.create_mark(name, iter, true)
+  end
+
+  def update_mark(name : String, line : Int32, column : Int32)
+    iter = @buffer.iter_at_line_offset(line, column)
+    mark = @buffer.mark(name)
+    if mark
+      @buffer.move_mark(mark, iter)
+    else
+      @buffer.create_mark(name, iter, true)
+    end
   end
 
   private def text_inserted(_buffer, iter, text, _text_size)

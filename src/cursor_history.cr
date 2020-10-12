@@ -37,6 +37,17 @@ class CursorHistory
     cursor.mark_name
   end
 
+  # Returns a tuple if the mark_name and a Bool to indicate if a current mark may exist and just be updated.
+  def add!(path : Path, line : Int32, column : Int32) : {String, Bool}
+    mark_name = add(path, line, column)
+    return {mark_name, false} unless mark_name.nil?
+
+    cursor = current.not_nil!
+    cursor.line = line
+    cursor.column = column
+    {cursor.mark_name, true}
+  end
+
   private def should_add?(path : Path, line : Int32) : Bool
     return true if @items.empty?
 

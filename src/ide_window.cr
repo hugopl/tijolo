@@ -306,7 +306,12 @@ class IdeWindow < Window
     else
       @open_files.show_view(view)
     end
-    view.goto(cursor) if view.is_a?(TextView)
+
+    path = view.file_path # FIXME Nto workign with unsaved file is a problem.
+    return if path.nil? || !view.is_a?(TextView)
+
+    update_text_mark(view)
+    view.goto(cursor)
     view
   rescue e : IO::Error
     application.error(e)
@@ -513,7 +518,24 @@ class IdeWindow < Window
     return if path.nil?
 
     mark_name = @cursor_history.add(path, line, column)
-    view.create_mark(mark_name, line) unless mark_name.nil?
+    view.create_mark(mark_name, line, column) unless mark_name.nil?
+  end
+
+  def view_focused(view : View)
+    update_text_mark(view) if view.is_a?(TextView)
+  end
+
+  private def update_text_mark(view : TextView)
+    line, column = view.cursor_pos
+    path = view.file_path
+    return if path.nil?
+
+    mark_name, update = @cursor_history.add!(path, line, column)
+    if update
+      view.update_mark(mark_name, line, column)
+    else
+      view.create_mark(mark_name, line, column)
+    end
   end
 
   def save_cursor(view : TextView)
