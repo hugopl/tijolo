@@ -156,13 +156,15 @@ class TijoloRC
   end
 
   def save
+    # FIXME: This should load the file and save only the differences to avoid override values written by another
+    # Tijolo instance.
     path = TijoloRC.path
-    Log.info { "Saving config to #{path}" }
+    Log.info { "Saving runtime config to #{path}" }
     if !File.exists?(path)
       Dir.mkdir_p(path.dirname)
     end
     File.write(path, to_json)
   rescue e
-    Log.fatal { "Error saving config file: #{e.message}" }
+    Log.fatal { "Error runtime config file: #{e.message}" }
   end
 end
