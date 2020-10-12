@@ -14,6 +14,10 @@ module Split
       @stack
     end
 
+    def visible_view_id : String?
+      @stack.visible_child_name
+    end
+
     def add_view(view : View)
       @stack.add_named(view.widget, view.id)
       @stack.visible_child = view.widget
@@ -63,10 +67,10 @@ module Split
     end
 
     def to_s(io : IO)
-      io << "View#{@id} (#{@views_count})"
+      io << "\"View#{@id} (#{@views_count})\""
     end
 
-    def dump(io : IO)
+    def dump(io : IO) : Nil
     end
   end
 end

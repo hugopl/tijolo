@@ -2,10 +2,13 @@ require "./node"
 
 module Split
   class SplitNode < Node
-    @orientation : Orientation
+    getter orientation : Orientation
     property child1 : Node
     property child2 : Node
     @paned : Gtk::Paned
+
+    delegate horizontal?, to: @orientation
+    delegate vertical?, to: @orientation
 
     def initialize(parent, @orientation, @child1, @child2)
       super(parent)
@@ -52,7 +55,7 @@ module Split
       io << (@orientation.vertical? ? "Vsplit#{@id}" : "Hsplit#{@id}")
     end
 
-    def dump(io : IO)
+    def dump(io : IO) : Nil
       io << "#{self} -> #{@child1}\n"
       io << "#{self} -> #{@child2}\n"
       @child1.dump(io)

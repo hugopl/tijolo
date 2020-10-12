@@ -1,6 +1,9 @@
 require "./view_node"
 
 module Split
+  # Split views are organized in a b-tree structure where the leaves are the node views and all other nodes
+  # are split nodes, that split the view. An Exception is for root node, that take care of the special case
+  # where there's no split views and works like a facade for the node operations.
   class RootNode < Node
     include UiBuilderHelper
 
@@ -22,10 +25,6 @@ module Split
 
     def widget
       @stack
-    end
-
-    def root?
-      true
     end
 
     def add_view(view : View, split_view : Bool, orientation : Orientation? = nil)
@@ -69,7 +68,7 @@ module Split
 
     private def destroy_node(node : ViewNode)
       parent = node.parent
-      if parent.root? # Just a single view is present, just remove itself and let root show welcome_screen.
+      if parent == self # Just a single view is present, just remove itself and let root show welcome_screen.
         parent.replace_child(node) { nil }
       elsif parent.is_a?(SplitNode) # Some split is present
         node.parent.parent.replace_child(parent) do
@@ -125,16 +124,76 @@ module Split
       view.selected = true
     end
 
-    def focus_upper_split
+    def upper_split : ViewNode?
+      navigate(1, :vertical)
     end
 
-    def focus_right_split
+    def right_split : ViewNode?
+      navigate(2, :horizontal)
     end
 
-    def focus_lower_split
+    def lower_split : ViewNode?
+      navigate(2, :vertical)
     end
 
-    def focus_left_split
+    def left_split : ViewNode?
+      navigate(1, :horizontal)
+    end
+
+    # This works this way:
+    #
+    # 1. Climb (or down?) the tree, i.e. go from the leaf you are in the root direction.
+    # 2. During the climb, save if you went through child 1 or 2 and save this on horizontal_origin/vertical_origin
+    # 3. If find a split node with the same orientation:
+    # 3.1 Keep climbing if the `child_to_go` is the same as horizontal_origin/vertical_origin.
+    # 3.2 Stop climbing otherwise
+    # 4.0 Down the tree through the `child_to_go` node.
+    # 4.1 If you find a split node, down through horizontal_origin/vertical_origin node depending on the split orientation.
+    # 5.0 Stop at the leaf node you want ☺️
+    private def navigate(child_to_go : Int32, orientation : Orientation) : ViewNode?
+      node = find_current_node
+      return if node.nil?
+
+      horizontal_origin = 0
+      vertical_origin = 0
+
+      # Climb the tree
+      previous = node
+      current = node.parent.as?(SplitNode)
+      loop do
+        # Reached the root and nothing can be done.
+        return if current.nil?
+
+        if current.horizontal?
+          horizontal_origin = previous == current.child1 ? 1 : 2
+        else
+          vertical_origin = previous == current.child1 ? 1 : 2
+        end
+
+        if current.orientation == orientation
+          origin = previous == current.child1 ? 1 : 2
+          break if origin != child_to_go
+        end
+        previous = current
+        current = current.parent.as?(SplitNode)
+      end
+
+      # On top
+      return if current.nil?
+      return if orientation.horizontal? && child_to_go == horizontal_origin
+      return if orientation.vertical? && child_to_go == vertical_origin
+      current = child_to_go == 1 ? current.child1 : current.child2
+
+      # Down the tree
+      loop do
+        if current.is_a?(ViewNode)
+          return current
+        elsif current.is_a?(SplitNode)
+          child_to_go = current.horizontal? ? horizontal_origin : vertical_origin
+          current = child_to_go == 1 ? current.child1 : current.child2
+        end
+      end
+      nil
     end
 
     private def create_empty_view : Nil
@@ -169,10 +228,20 @@ module Split
       String.build { |str| dump(str) }
     end
 
-    def dump(io : IO)
+    def dump(io : IO) : Nil
       child = @child
       io << "root -> #{child}\n"
       child.dump(io) if child
+    end
+
+    # Save a root.png with split views tree, only for debugging
+    def to_dot
+      fp = File.new("/tmp/root.dot", "w")
+      fp << "digraph \"\" {\n"
+      dump(fp)
+      fp << "}\n"
+      fp.close
+      `dot -Tpng /tmp/root.dot > root.png`
     end
   end
 end

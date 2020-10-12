@@ -28,10 +28,6 @@ class OpenFiles
   delegate any?, to: @files
   delegate widget, to: @root
   delegate current_view, to: @root
-  delegate focus_upper_split, to: @root
-  delegate focus_right_split, to: @root
-  delegate focus_lower_split, to: @root
-  delegate focus_left_split, to: @root
 
   def initialize
     @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::ULONG})
@@ -41,17 +37,16 @@ class OpenFiles
     @root = Split::RootNode.new
   end
 
+  def view_by_id(id : String) : View?
+    @files.find { |view| view.id == id }
+  end
+
   def view(id : UInt64) : View?
-    @files.each do |view|
-      return view if view.object_id == id
-    end
-    nil
+    @files.find { |view| view.object_id == id }
   end
 
   def view(file_path : Path) : View?
-    @files.find do |view|
-      view.file_path == file_path
-    end
+    @files.find { |view| view.file_path == file_path }
   end
 
   private def ignore_focus_event
@@ -160,6 +155,34 @@ class OpenFiles
   def view_file_path_changed(view)
     row = files.index(view)
     @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?
+  end
+
+  def focus_upper_split
+    select_view_node(@root.upper_split)
+  end
+
+  def focus_right_split
+    select_view_node(@root.right_split)
+  end
+
+  def focus_lower_split
+    select_view_node(@root.lower_split)
+  end
+
+  def focus_left_split
+    select_view_node(@root.left_split)
+  end
+
+  private def select_view_node(view_node : Split::ViewNode?)
+    return if view_node.nil?
+
+    view_id = view_node.visible_view_id
+    pp! view_id
+    return if view_id.nil?
+
+    view = view_by_id(view_id)
+    pp! view.to_s
+    show_view(view) if view
   end
 
   def view_focused(view : View)

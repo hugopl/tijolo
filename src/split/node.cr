@@ -15,8 +15,9 @@ module Split
       @id = @@id += 1
     end
 
-    def root?
-      false
+    # This is used on tests
+    def self.reset_node_count
+      @@id = 0
     end
 
     # called by the child on father when it split
@@ -25,6 +26,6 @@ module Split
       yield
     end
 
-    abstract def dump(io : IO)
+    abstract def dump(io : IO) : Nil
   end
 end
