@@ -10,4 +10,13 @@ class ImageView < View
 
   def grab_focus
   end
+
+  def readonly?
+    true
+  end
+
+  def reload : Nil
+    super
+    @image.from_file = file_path.to_s
+  end
 end
