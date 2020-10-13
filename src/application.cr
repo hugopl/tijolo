@@ -83,10 +83,11 @@ class Application
 
     # global actions with shortcuts
     config = Config.instance
-    actions = {new_file:           ->new_file,
-               new_file_new_split: ->{ new_file(true) },
-               open_file:          ->open_file,
-               fullscreen:         ->fullscreen}
+    actions = {new_file:            ->new_file,
+               new_file_new_split:  ->{ new_file(true) },
+               open_file:           ->open_file,
+               open_file_new_split: ->{ open_file(true) },
+               fullscreen:          ->fullscreen}
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
       action.on_activate { closure.call }
@@ -122,7 +123,7 @@ class Application
     ide.create_view(nil, new_split)
   end
 
-  def open_file
+  def open_file(new_split = false)
     dlg = Gtk::FileChooserDialog.new(title: "Open file", action: :open, local_only: true, modal: true,
       transient_for: main_window)
     dlg.add_button("Cancel", Gtk::ResponseType::CANCEL.value)
@@ -143,7 +144,7 @@ class Application
        Project.valid?(file_path) && open_another_tijolo_instance?(file_path)
       start_new_tijolo(file_path.to_s)
     else
-      ide.open_file(file_path)
+      ide.open_file(file_path, new_split)
     end
   end
 
