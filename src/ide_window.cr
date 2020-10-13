@@ -115,9 +115,13 @@ class IdeWindow < Window
     view = @open_files.view(path)
     return if view.nil? || view.externally_modified?
 
-    view.externally_modified!
-    # TODO: Show a passive banner and let user press F5 to reload or ESC to ignore instead of an annoying dialog.
-    ask_about_externally_modified_files
+    if view.readonly?
+      view.reload
+    else
+      view.externally_modified!
+      # TODO: Show a passive banner and let user press F5 to reload or ESC to ignore instead of an annoying dialog.
+      ask_about_externally_modified_files
+    end
   end
 
   def project_load_finished

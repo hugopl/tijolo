@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Shift+F2 go to symbol definition possibly (if file isn't already open) opened by spliting the current view.
    - Ctrl+Shift+O open an external file spliting the current view.
  - Basic image view, *really* basic.
+ - Silent reload readonly open files when they are externally modified.
 
 ### Changed
  - Show tree lines on project tree.
