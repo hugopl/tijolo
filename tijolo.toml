@@ -90,6 +90,9 @@ focus_left_split  = "<Alt>Left"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/
+#
+# To disable a language server set the value to a empty string, just commenting the entry will cause Tijolo to use
+# the default values
 [language-servers]
 # SCry, not very good but is what we have for Crystal
 crystal = "scry"

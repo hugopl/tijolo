@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Show tree lines on project tree.
  - New files are initially marked as non-modified.
+ - Language servers can be disabled in config files by letting then with empty strings
 
 ### Fixed
  - Don't crash if project directory is removed while Tijolo is open.

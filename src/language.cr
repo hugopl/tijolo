@@ -18,7 +18,13 @@ class Language
 
   def initialize(@id, @line_comment = "")
     cmd = Config.instance.language_servers[@id]?
-    @lsp_client = start_lsp(cmd) if cmd
+    if cmd.nil?
+      Log.info { "No language server for \"#{@id}\" found." }
+    elsif cmd.blank?
+      Log.info { "Language server for \"#{@id}\" is disabled." }
+    else
+      @lsp_client = start_lsp(cmd)
+    end
   end
 
   def none?
