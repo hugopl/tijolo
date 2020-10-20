@@ -42,7 +42,6 @@ module Split
         view_node.add_view(view)
       end
       self.current_view = view
-      Log.trace { "\n#{dump}" }
     end
 
     private def add_first_view(view : View)
@@ -78,7 +77,6 @@ module Split
           replacement
         end
       end
-      Log.trace { "\n#{dump}" }
     end
 
     private def find_current_node : ViewNode?
@@ -101,7 +99,6 @@ module Split
       view_node = find_node(view)
       return if view_node.nil?
 
-      Log.trace { "root.reveal_view(#{view.label.inspect}" }
       view_node.reveal_view(view)
       self.current_view = view
     end
@@ -116,7 +113,6 @@ module Split
     end
 
     def current_view=(view : View)
-      Log.trace { "root.current_view=(#{view.label.inspect})  - same? #{view == @current_view}" }
       return if view == @current_view
 
       @current_view.try(&.selected=(false))

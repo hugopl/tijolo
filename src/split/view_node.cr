@@ -39,7 +39,6 @@ module Split
     def reveal_view(view : View) : Nil
       view_widget = @stack.child_by_name(view.id)
       if view_widget
-        Log.trace { "node.stack.visible_child = #{view.label.inspect}" }
         @stack.visible_child = view_widget
       else
         Log.error { "View not found on view node: #{view.label}" }

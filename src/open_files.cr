@@ -57,7 +57,6 @@ class OpenFiles
   end
 
   def add_view(view : View, split_view : Bool) : View
-    Log.trace { "add_view(#{view.label.inspect}, #{split_view})" }
     @files << view
     @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
@@ -68,7 +67,6 @@ class OpenFiles
       reveal_view(view, true)
     end
     view.add_view_listener(self)
-    Log.trace { "~add_view(#{view.label.inspect}, #{split_view})" }
     view.show_all
     view
   end
@@ -87,7 +85,6 @@ class OpenFiles
 
   # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
   private def reveal_view(view : View, definitive : Bool)
-    Log.trace { "reveal_view(#{view.label.inspect}, #{definitive})" }
     @root.reveal_view(view)
     notify_open_files_view_revealed(view, definitive)
     view.grab_focus if definitive
@@ -99,35 +96,27 @@ class OpenFiles
   end
 
   private def reorder_open_files(new_selected_index : Int32)
-    Log.trace { "reorder_open_files(new_selected_index)" }
-    Log.trace { "  Sidx: #{@sorted_files_index} - #{@sorted_files.map(&.label)}" }
     @sorted_files.push(@sorted_files.delete_at(new_selected_index))
     @sorted_files_index = @sorted_files.size - 1
 
     idx = @files.index(@sorted_files[@sorted_files_index])
     @model.set(idx, {OPEN_FILES_LAST_USED}, {last_used_counter}) unless idx.nil?
-    Log.trace { "  Sidx: #{@sorted_files_index} - #{@sorted_files.map(&.label)}" }
   end
 
   def switch_current_view(reorder : Bool)
     return if @files.size < 2
 
-    Log.trace { "switch_current_view(#{reorder})" }
-
     @ignore_focus_event = !reorder
 
     unless reorder
-      Log.trace { "  Sidx: #{@sorted_files_index} - #{@sorted_files.map(&.label)}" }
       @sorted_files_index -= 1
       @sorted_files_index = @sorted_files.size - 1 if @sorted_files_index < 0
-      Log.trace { "  Sidx: #{@sorted_files_index} - #{@sorted_files.map(&.label)}" }
     end
 
     reveal_view(@sorted_files[@sorted_files_index], reorder)
   end
 
   def show_view(view : View)
-    Log.trace { "show_view(#{view.label.inspect})" }
     reorder_open_files(view)
     reveal_view(view, true)
   end
@@ -186,7 +175,6 @@ class OpenFiles
   end
 
   def view_focused(view : View)
-    Log.trace { "view_focused(#{view.label.inspect}) - ignore: #{@ignore_focus_event}" }
     return if @ignore_focus_event
 
     @root.current_view = view
