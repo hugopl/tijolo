@@ -12,17 +12,23 @@ require "./tijolo_log_backend"
 
 def setup_logger(options)
   logfile = options[:logfile]
-  logfile = File.join(Dir.tempdir, "tijolo.#{Process.pid}.log") if logfile.nil? && !STDOUT.tty?
-  backend = logfile ? Log::IOBackend.new(File.open(logfile, "w")) : Log::IOBackend.new
-
+  backend = if logfile || options[:fork]
+              logfile ||= File.join(Dir.tempdir, "tijolo.#{Process.pid}.log")
+              Log::IOBackend.new(File.open(logfile, "w"))
+            elsif STDOUT.tty?
+              Log::IOBackend.new
+            end
   Log.setup do |config|
     level = options[:log_level]
-    config.bind("*", level, backend)
+    config.bind("*", level, backend) if backend
     config.bind("*", level, TijoloLogBackend.instance)
   end
 end
 
 options = parse_args(ARGV)
+if options[:fork]
+  exit if Crystal::System::Process.fork
+end
 setup_logger(options)
 
 # Yes, always leak memory...

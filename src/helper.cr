@@ -35,6 +35,7 @@ def parse_args(argv)
   gc_disabled = true # Leak all the things! See main.cr
   logfile = nil
   log_level = Config.instance.log_level
+  fork = true
 
   OptionParser.parse(argv) do |parser|
     parser.banner = "Usage: tijolo [OPTIONS] [FILE|DIRECTORY]..."
@@ -42,18 +43,19 @@ def parse_args(argv)
       puts "Tijolo version #{VERSION}"
       exit
     end
-    parser.on("--licenses", "Show license from Tijolo and their Crystal dependencies.") { }
-    parser.on("-h", "--help", "Show this help.") do
-      puts parser
-      exit
-    end
-    parser.on("--logfile=FILE", "Where to save log, default to STDOUT or /tmp/tijolo.PID.log if not on a tty.") do |file|
-      logfile = file
-    end
     parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { log_level = Log::Severity::Debug }
     parser.on("--enable-gc", "Enable garbage collector (see https://github.com/jhass/crystal-gobject/issues/69).") do
       gc_disabled = false
     end
+    parser.on("-h", "--help", "Show this help.") do
+      puts parser
+      exit
+    end
+    parser.on("--licenses", "Show license from Tijolo and their Crystal dependencies.") { }
+    parser.on("--logfile=FILE", "Where to save log, default to STDOUT or /tmp/tijolo.PID.log if not on a tty.") do |file|
+      logfile = file
+    end
+    parser.on("--no-fork", "Do not fork process.") { fork = false }
     parser.invalid_option do |flag|
       STDERR.puts "ERROR: #{flag} is not a valid option."
       STDERR.puts parser
@@ -64,5 +66,6 @@ def parse_args(argv)
   {locations:   argv,
    gc_disabled: gc_disabled,
    logfile:     logfile,
-   log_level:   log_level}
+   log_level:   log_level,
+   fork:        fork}
 end
