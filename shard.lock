@@ -16,10 +16,6 @@ shards:
     git: https://github.com/jhass/crystal-gobject.git
     version: 0.9.1
 
-  lsp:
-    git: https://github.com/hugopl/lsp.git
-    version: 0.2.0+git.commit.3b2b590cb02c08d5504a1e105ba6b166bcd0f804
-
   toml:
     git: https://github.com/crystal-community/toml.cr.git
     version: 0.6.1+git.commit.d02de85eed68a70dc97ab6d6e52831a4d0e890fe

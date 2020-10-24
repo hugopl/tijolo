@@ -1,6 +1,6 @@
 require "colorize"
-require "lsp"
 require "./observable"
+require "./lsp"
 
 module LspClientListener
   abstract def lsp_client_initialized
