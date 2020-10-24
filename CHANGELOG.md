@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Basic image view, *really* basic.
  - Silent reload readonly open files when they are externally modified.
  - Fork tijolo by default when launched from terminal, use --no-fork for old behavior.
+ - Load the right syntax-highlighting when saving a new file first time or saving as another file name.
 
 ### Changed
  - Show tree lines on project tree.

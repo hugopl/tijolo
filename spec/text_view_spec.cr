@@ -29,6 +29,13 @@ describe TextView do
     TextView.new.header_text.should eq("Untitled 3")
   end
 
+  it "update language when saving a new file" do
+    view = TextView.new
+    view.language.id.should eq("none")
+    view.file_path = Path.new("hey.cr")
+    view.language.id.should eq("crystal")
+  end
+
   it "can save new files" do
     filename = Path.new(Dir.tempdir) / "test"
     view = TextView.new

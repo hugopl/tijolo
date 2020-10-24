@@ -43,6 +43,11 @@ class TextView < View
     end
   end
 
+  def file_path=(file_path : Path) : Nil
+    super
+    guess_language!(text)
+  end
+
   def readonly=(value : Bool)
     super
     @editor.editable = !value
@@ -195,7 +200,15 @@ class TextView < View
     text = File.read(file_path)
     @buffer.text = text
 
-    @language = LanguageManager.guess_language(label, mimetype(label, text))
+    guess_language!(text)
+  end
+
+  private def guess_language!(text : String)
+    file_path = @file_path
+    return if file_path.nil?
+
+    file_path_str = file_path.to_s
+    @language = LanguageManager.guess_language(file_path_str, mimetype(file_path_str, text))
     @buffer.language = @language.gtk_language
   end
 
