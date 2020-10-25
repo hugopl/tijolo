@@ -109,7 +109,7 @@ class LspClient
             #   "relatedInformation" => true,
             # },
             "synchronization" => {
-              "dynamicRegistration" => true,
+              "dynamicRegistration" => false,
               "willSave"            => true,
               "willSaveWaitUntil"   => false,
               "didSave"             => true,
