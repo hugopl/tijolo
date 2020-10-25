@@ -36,6 +36,7 @@ class Config
   getter language_servers : Hash(String, String)
   getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
+  getter? terminal_shared_view : Bool
 
   # editor
   getter editor_wrap_mode : Gtk::WrapMode
@@ -96,6 +97,10 @@ class Config
     @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)
     @ignored_dirs = toml["ignored_dirs"].as(Array).map { |e| Path.new(e.as(String)) }
     @log_level = parse_enum(toml, "log_level", Log::Severity)
+
+    terminal_entry = toml["terminal"].as(Hash)
+    @terminal_shared_view = terminal_entry["shared_view"].as(Bool)
+
     @editor_wrap_mode = parse_enum(toml, "editor_wrap_mode", Gtk::WrapMode)
     @editor_show_line_numbers = toml["editor_show_line_numbers"].as(Bool)
     @editor_insert_spaces_instead_of_tabs = toml["editor_insert_spaces_instead_of_tabs"].as(Bool)

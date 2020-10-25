@@ -27,14 +27,17 @@ module Split
       @stack
     end
 
-    def add_view(view : View, split_view : Bool, orientation : Orientation? = nil)
+    def add_view(view : View, reference : View?, split_view : Bool, orientation : Orientation? = nil)
       if @child.nil?
         add_first_view(view)
         return
       end
 
-      view_node = find_current_node
-      return if view_node.nil?
+      view_node = find_node(reference) if reference
+      if view_node.nil?
+        Log.error { "Error finding a node to insert view (#{view})." }
+        return
+      end
 
       if split_view
         view_node.split(view, orientation)

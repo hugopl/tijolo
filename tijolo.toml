@@ -44,6 +44,11 @@ editor_highlight_current_line = true
 # Default: "grid"
 editor_background_pattern = "grid"
 
+[terminal]
+# If true, opening a file focused terminal view will open the file in the same view area instead of in a new split view.
+# Default: false
+shared_view = false
+
 # Any valid strings accepted by gtk_accelerator_parse is a valid shortcut
 #
 # From GTK docs:

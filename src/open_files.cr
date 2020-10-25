@@ -56,14 +56,28 @@ class OpenFiles
     @ignore_focus_event = false
   end
 
+  private def first_shared_view : View?
+    @sorted_files.reverse_each do |view|
+      return view if view.can_share_node?
+    end
+    nil
+  end
+
   def add_view(view : View, split_view : Bool) : View
+    reference_view = split_view ? @sorted_files.last? : first_shared_view
+    # If no views were found, e.g. there are just non-shared terminals, use the terminal and split the view
+    if reference_view.nil? && @sorted_files.any?
+      reference_view = @sorted_files.last
+      split_view = true
+    end
+
     @files << view
     @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
     @model.append({0, 1}, {view.label, last_used_counter})
 
     ignore_focus_event do
-      @root.add_view(view, split_view)
+      @root.add_view(view, reference_view, split_view)
       reveal_view(view, true)
     end
     view.add_view_listener(self)

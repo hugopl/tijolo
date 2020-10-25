@@ -125,6 +125,10 @@ abstract class View
     false
   end
 
+  def can_share_node? : Bool
+    true
+  end
+
   def restore_state
   end
 
@@ -157,5 +161,9 @@ abstract class View
     @last_saved_at = Time.monotonic
     @externally_modified = false
     self.readonly = false
+  end
+
+  def to_s(io : IO) : IO
+    io << @label
   end
 end

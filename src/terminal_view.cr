@@ -38,4 +38,8 @@ class TerminalView < View
   def modified? : Bool
     false
   end
+
+  def can_share_node? : Bool
+    Config.instance.terminal_shared_view?
+  end
 end

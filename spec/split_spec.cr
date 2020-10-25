@@ -12,16 +12,20 @@ describe Split do
     root = Split::RootNode.new
     root.dump.should eq("root -> \n")
 
-    root.add_view(TextView.new, true)
+    view1 = TextView.new
+    root.add_view(view1, nil, true)
     root.dump.should eq("root -> \"View1 (1)\"\n")
-    root.add_view(TextView.new, false)
+    view2 = TextView.new
+    root.add_view(view2, view1, false)
     root.dump.should eq("root -> \"View1 (2)\"\n")
 
-    root.add_view(TextView.new, true, :horizontal)
+    view3 = TextView.new
+    root.add_view(view3, view2, true, :horizontal)
     root.dump.should eq("root -> Hsplit1\n" \
                         "Hsplit1 -> \"View1 (2)\"\n" \
                         "Hsplit1 -> \"View2 (1)\"\n")
-    root.add_view(TextView.new, true, :vertical)
+    view4 = TextView.new
+    root.add_view(view4, view3, true, :vertical)
     root.dump.should eq("root -> Hsplit1\n" \
                         "Hsplit1 -> \"View1 (2)\"\n" \
                         "Hsplit1 -> Vsplit2\n" \
@@ -32,33 +36,30 @@ describe Split do
 
   it "can navigate to through splits" do
     root = Split::RootNode.new
-    root.add_view(TextView.new, false)
+    view0 = TextView.new
+    root.add_view(view0, nil, false)
     view1 = TextView.new
-    root.add_view(view1, false)
+    root.add_view(view1, view0, false)
     view2 = TextView.new
-    root.add_view(view2, true, :horizontal)
+    root.add_view(view2, view1, true, :horizontal)
     view3 = TextView.new
-    root.add_view(view3, true, :vertical)
-    root.current_view = view1
+    root.add_view(view3, view2, true, :vertical)
     view4 = TextView.new
-    root.add_view(view4, true, :vertical)
+    root.add_view(view4, view1, true, :vertical)
     #  view1 | view2
     # -------+-------
     #  view4 | view3
     view5 = TextView.new
-    root.add_view(view5, true, :horizontal)
+    root.add_view(view5, view4, true, :horizontal)
 
-    root.current_view = view3
     view6 = TextView.new
-    root.add_view(view6, true, :horizontal)
+    root.add_view(view6, view3, true, :horizontal)
 
-    root.current_view = view2
     view7 = TextView.new
-    root.add_view(view7, true, :horizontal)
+    root.add_view(view7, view2, true, :horizontal)
 
-    root.current_view = view1
     view8 = TextView.new
-    root.add_view(view8, true, :horizontal)
+    root.add_view(view8, view1, true, :horizontal)
     #  view1 | view8 | view2 | view7
     # -------+-------+-------+-------
     #  view4 | view5 | view3 | view6
