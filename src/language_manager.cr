@@ -66,6 +66,7 @@ class LanguageManager
 
       glob = globs.find { |e| File.match?(e.glob, file.basename) }
       if glob
+        Log.info { "Detected #{glob.language_id} in the project due to '#{file}'." }
         find(glob.language_id)                                  # Start the language.
         globs.reject! { |e| e.language_id == glob.language_id } # Remove the language globs
       end

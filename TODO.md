@@ -9,7 +9,7 @@ This is a short-term TODO list in no special order.
 - [x] Maximinize split view on Ctrl+Shift+X.
 - Some ♥️ to LSP implementation.
   - [x] Make it work with yaml-language-server.
-  - [ ] Make it work with ccls language-server.
+  - [x] Make it work with ccls language-server.
   - [ ] Make it work with whatever language-server.
   - [ ] Support LSP auto-complete feature.
   - [ ] Better feedback on LSP when it fails, when it's ready, etc.

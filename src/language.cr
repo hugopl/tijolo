@@ -17,6 +17,8 @@ class Language
     @line_comment = ""
   end
 
+  @@running_language_servers = Hash(String, LspClient).new
+
   def initialize(@id, @line_comment = "")
     cmd = Config.instance.language_servers[@id]?
     if cmd.nil?
@@ -57,6 +59,12 @@ class Language
   end
 
   def start_lsp(cmd)
+    lsp = @@running_language_servers[cmd]?
+    if lsp
+      Log.info { "Reusing LSP client for #{@id}." }
+      return lsp
+    end
+
     program = cmd[0...(cmd.index(/\s/) || 0)]
     if Process.find_executable(program).nil?
       Log.error { "Can't find a executable for: #{cmd}" }
@@ -64,6 +72,7 @@ class Language
     end
     lsp = LspClient.new(cmd, @id)
     lsp.add_lsp_client_listener(self)
+    @@running_language_servers[cmd] = lsp
     lsp
   rescue
     Log.error { "Failed to start language server for #{@id}: #{cmd}" }
