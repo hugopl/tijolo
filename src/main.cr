@@ -12,7 +12,7 @@ require "./tijolo_log_backend"
 
 def setup_logger(options)
   logfile = options[:logfile]
-  backend = if logfile || options[:fork]
+  backend = if logfile
               logfile ||= File.join(Dir.tempdir, "tijolo.#{Process.pid}.log")
               Log::IOBackend.new(File.open(logfile, "w"))
             elsif STDOUT.tty?
@@ -26,9 +26,6 @@ def setup_logger(options)
 end
 
 options = parse_args(ARGV)
-if options[:fork]
-  exit if Crystal::System::Process.fork
-end
 setup_logger(options)
 
 # Yes, always leak memory...
