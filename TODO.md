@@ -7,8 +7,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 ## 0.3.0 release
 
 - [x] Location history, Alt+Shift⬅️/Alt+Shift➡️ navigate through cursor location history.
-- Some ♥️ to Git support
-  - [ ] Git commit
 - Split screen
   - [x] Ctrl+Shift+P open locator targeting a split view.
   - [x] Shift+F2 go to definition targeting a split view.
@@ -18,6 +16,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 ## 0.4.0 release
 
+- [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] LSP-based auto complete.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] :no_entry: Better feedback when failed to open language servers.
@@ -28,6 +27,7 @@ This is a short-term TODO list in no special order. Things I'm already working o
 
 ## Backlog, things that can go in any version...
 
+- [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
 - [ ] Rebind shortcuts after save config file.
 - [ ] Checkout git branch by clicking on branch in sidebar.
 - [ ] Warn if an open file was removed.
@@ -43,10 +43,5 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Notification system for things like "LSP for language X ready!".
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
-- [ ] In-editor git blame.
-
-## When Crystal coding is done
-
-- Check why GTK markdown syntax is so slow at first load.
-- Check why GTK CSS syntax is so slow at first load.
-- Subclass/fork GTK TextView class to try to implement multiple cursors
+- [ ] In-editor git blame (maybe should better wait for GTK4 before dig into GTK drawing functions)
+- [ ] Subclass/fork GTK TextView class to try to implement multiple cursors, maybe in Crystal with a lot of C glue.
