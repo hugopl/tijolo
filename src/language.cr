@@ -53,6 +53,11 @@ class Language
   end
 
   def start_lsp(cmd)
+    program = cmd[0...(cmd.index(/\s/) || 0)]
+    if Process.find_executable(program).nil?
+      Log.error { "Can't find a executable for: #{cmd}" }
+      return nil
+    end
     lsp = LspClient.new(cmd, @id)
     lsp.add_lsp_client_listener(self)
     lsp
