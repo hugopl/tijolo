@@ -82,16 +82,6 @@ module Split
       end
     end
 
-    private def find_current_node : ViewNode?
-      current_view = @current_view
-      if current_view
-        find_node(current_view)
-      else
-        Log.warn { "There's no selected view to find the current split node." }
-        nil
-      end
-    end
-
     def find_node(view : View) : ViewNode?
       view_node = @child.not_nil!.find_node(view)
       Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
@@ -123,20 +113,20 @@ module Split
       view.selected = true
     end
 
-    def upper_split : ViewNode?
-      navigate(1, :vertical)
+    def upper_split(reference : View) : ViewNode?
+      navigate(reference, 1, :vertical)
     end
 
-    def right_split : ViewNode?
-      navigate(2, :horizontal)
+    def right_split(reference : View) : ViewNode?
+      navigate(reference, 2, :horizontal)
     end
 
-    def lower_split : ViewNode?
-      navigate(2, :vertical)
+    def lower_split(reference : View) : ViewNode?
+      navigate(reference, 2, :vertical)
     end
 
-    def left_split : ViewNode?
-      navigate(1, :horizontal)
+    def left_split(reference : View) : ViewNode?
+      navigate(reference, 1, :horizontal)
     end
 
     # This works this way:
@@ -149,8 +139,8 @@ module Split
     # 4.0 Down the tree through the `child_to_go` node.
     # 4.1 If you find a split node, down through horizontal_origin/vertical_origin node depending on the split orientation.
     # 5.0 Stop at the leaf node you want ☺️
-    private def navigate(child_to_go : Int32, orientation : Orientation) : ViewNode?
-      node = find_current_node
+    private def navigate(reference : View, child_to_go : Int32, orientation : Orientation) : ViewNode?
+      node = find_node(reference)
       return if node.nil?
 
       horizontal_origin = 0

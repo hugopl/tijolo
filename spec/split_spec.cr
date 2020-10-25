@@ -65,61 +65,51 @@ describe Split do
     #  view4 | view5 | view3 | view6
 
     # View1
-    root.current_view = view1
-    root.upper_split.should eq(nil)
-    root.right_split.not_nil!.visible_view_id.should eq(view8.id)
-    root.lower_split.not_nil!.visible_view_id.should eq(view4.id)
-    root.left_split.should eq(nil)
+    root.upper_split(view1).should eq(nil)
+    root.right_split(view1).not_nil!.visible_view_id.should eq(view8.id)
+    root.lower_split(view1).not_nil!.visible_view_id.should eq(view4.id)
+    root.left_split(view1).should eq(nil)
 
     # View2
-    root.current_view = view2
-    root.upper_split.should eq(nil)
-    root.right_split.not_nil!.visible_view_id.should eq(view7.id)
-    root.lower_split.not_nil!.visible_view_id.should eq(view3.id)
-    root.left_split.not_nil!.visible_view_id.should eq(view8.id)
+    root.upper_split(view2).should eq(nil)
+    root.right_split(view2).not_nil!.visible_view_id.should eq(view7.id)
+    root.lower_split(view2).not_nil!.visible_view_id.should eq(view3.id)
+    root.left_split(view2).not_nil!.visible_view_id.should eq(view8.id)
 
     # View3
-    root.current_view = view3
-    root.upper_split.not_nil!.visible_view_id.should eq(view2.id)
-    root.right_split.not_nil!.visible_view_id.should eq(view6.id)
-    root.lower_split.should eq(nil)
-    root.left_split.not_nil!.visible_view_id.should eq(view5.id)
+    root.upper_split(view3).not_nil!.visible_view_id.should eq(view2.id)
+    root.right_split(view3).not_nil!.visible_view_id.should eq(view6.id)
+    root.lower_split(view3).should eq(nil)
+    root.left_split(view3).not_nil!.visible_view_id.should eq(view5.id)
 
     # View4
-    root.current_view = view4
-    root.upper_split.not_nil!.visible_view_id.should eq(view1.id)
-    root.right_split.not_nil!.visible_view_id.should eq(view5.id)
-    root.lower_split.should eq(nil)
-    root.left_split.should eq(nil)
+    root.upper_split(view4).not_nil!.visible_view_id.should eq(view1.id)
+    root.right_split(view4).not_nil!.visible_view_id.should eq(view5.id)
+    root.lower_split(view4).should eq(nil)
+    root.left_split(view4).should eq(nil)
 
     # View5
-    root.current_view = view5
-    root.upper_split.not_nil!.visible_view_id.should eq(view8.id)
-    root.right_split.not_nil!.visible_view_id.should eq(view3.id)
-    root.lower_split.should eq(nil)
-    root.left_split.not_nil!.visible_view_id.should eq(view4.id)
+    root.upper_split(view5).not_nil!.visible_view_id.should eq(view8.id)
+    root.right_split(view5).not_nil!.visible_view_id.should eq(view3.id)
+    root.lower_split(view5).should eq(nil)
+    root.left_split(view5).not_nil!.visible_view_id.should eq(view4.id)
 
     # View6
-    root.current_view = view6
-    root.upper_split.not_nil!.visible_view_id.should eq(view7.id)
-    root.right_split.should eq(nil)
-    root.lower_split.should eq(nil)
-    root.left_split.not_nil!.visible_view_id.should eq(view3.id)
+    root.upper_split(view6).not_nil!.visible_view_id.should eq(view7.id)
+    root.right_split(view6).should eq(nil)
+    root.lower_split(view6).should eq(nil)
+    root.left_split(view6).not_nil!.visible_view_id.should eq(view3.id)
 
     # View7
-    root.current_view = view7
-    root.upper_split.should eq(nil)
-    root.right_split.should eq(nil)
-    root.lower_split.not_nil!.visible_view_id.should eq(view6.id)
-    root.left_split.not_nil!.visible_view_id.should eq(view2.id)
+    root.upper_split(view7).should eq(nil)
+    root.right_split(view7).should eq(nil)
+    root.lower_split(view7).not_nil!.visible_view_id.should eq(view6.id)
+    root.left_split(view7).not_nil!.visible_view_id.should eq(view2.id)
 
     # View8
-    root.current_view = view8
-    root.upper_split.should eq(nil)
-    root.right_split.not_nil!.visible_view_id.should eq(view2.id)
-    root.lower_split.not_nil!.visible_view_id.should eq(view5.id)
-    root.left_split.not_nil!.visible_view_id.should eq(view1.id)
-
-    # root.to_dot
+    root.upper_split(view8).should eq(nil)
+    root.right_split(view8).not_nil!.visible_view_id.should eq(view2.id)
+    root.lower_split(view8).not_nil!.visible_view_id.should eq(view5.id)
+    root.left_split(view8).not_nil!.visible_view_id.should eq(view1.id)
   end
 end

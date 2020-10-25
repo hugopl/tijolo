@@ -161,19 +161,23 @@ class OpenFiles
   end
 
   def focus_upper_split
-    select_view_node(@root.upper_split)
+    return if @sorted_files.size < 2
+    select_view_node(@root.upper_split(@sorted_files.last))
   end
 
   def focus_right_split
-    select_view_node(@root.right_split)
+    return if @sorted_files.size < 2
+    select_view_node(@root.right_split(@sorted_files.last))
   end
 
   def focus_lower_split
-    select_view_node(@root.lower_split)
+    return if @sorted_files.size < 2
+    select_view_node(@root.lower_split(@sorted_files.last))
   end
 
   def focus_left_split
-    select_view_node(@root.left_split)
+    return if @sorted_files.size < 2
+    select_view_node(@root.left_split(@sorted_files.last))
   end
 
   private def select_view_node(view_node : Split::ViewNode?)
