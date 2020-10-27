@@ -194,13 +194,14 @@ module Split
       F2                 —  Go to definition                   F3        —  Find next text match
       Ctrl + G           —  Go to line/colum                   F9        —  Sort lines
       Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment code
-                                                               Ctrl + .  —  Insert emoji 💣️</span>
+                                                               Ctrl + .  —  Insert emoji 😎️</span>
 
       <b>Split View</b>                                               <b>Project</b><span foreground="#DCDCD1">
-      Alt + ↑/→/←/↓      —  Focus editor in that direction     Ctrl + N  —  New file
-                                                               Ctrl + O  —  Open non-project file
-      Press Shift on any action that could open a file e.g.    Ctrl + W  —  Close view
-      <i>Ctrl + Shift + P</i> and the file will be open in a new      Alt  + G  —  Open Git locator
+      Ctrl + T           —  Split view with a new Terminal     Ctrl + N  —  New file
+      Alt + ↑/→/←/↓      —  Focus editor in that direction     Ctrl + O  —  Open non-project file
+                                                               Ctrl + W  —  Close view
+      Press Shift on any action that could open a file e.g.    Alt  + G  —  Open Git locator
+      <i>Ctrl + Shift + P</i> and the file will be open in a new
       split view.
       </span>
     EOT
