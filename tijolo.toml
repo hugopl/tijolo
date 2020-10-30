@@ -24,6 +24,7 @@ trim_trailing_white_space_on_save = true
 # Default: "info"
 log_level = "info"
 
+[editor]
 # Line wrap mode, can be:
 # "none"      - Do not wrap lines; just make the text area wider.
 # "char"      - Wrap text, breaking lines anywhere the cursor can appear.
@@ -31,18 +32,18 @@ log_level = "info"
 # "word_char" - Wrap text, breaking lines in between words, or if that is not enough, also between graphemes
 #
 # Default: "word"
-editor_wrap_mode = "word"
-editor_show_line_numbers = true
+wrap_mode = "word"
+show_line_numbers = true
 # This is not valid for Makefiles
-editor_insert_spaces_instead_of_tabs = true
+insert_spaces_instead_of_tabs = true
 # This is not valid for Makefiles, they always use tab width of 4
-editor_tab_width = 2
-editor_show_right_margin = true
-editor_right_margin_position = 125
-editor_highlight_current_line = true
+tab_width = 2
+show_right_margin = true
+right_margin_position = 125
+highlight_current_line = true
 # Background pattern to show, can be: "none", "grid"
 # Default: "grid"
-editor_background_pattern = "grid"
+background_pattern = "grid"
 
 [terminal]
 # If true, opening a file focused terminal view will open the file in the same view area instead of in a new split view.

@@ -101,17 +101,18 @@ class Config
     terminal_entry = toml["terminal"].as(Hash)
     @terminal_shared_view = terminal_entry["shared_view"].as(Bool)
 
-    @editor_wrap_mode = parse_enum(toml, "editor_wrap_mode", Gtk::WrapMode)
-    @editor_show_line_numbers = toml["editor_show_line_numbers"].as(Bool)
-    @editor_insert_spaces_instead_of_tabs = toml["editor_insert_spaces_instead_of_tabs"].as(Bool)
-    @editor_tab_width = toml["editor_tab_width"].as(Int64).to_i32
-    @editor_show_right_margin = toml["editor_show_right_margin"].as(Bool)
-    @editor_right_margin_position = toml["editor_right_margin_position"].as(Int64).to_i32
-    @editor_highlight_current_line = toml["editor_highlight_current_line"].as(Bool)
-    @editor_background_pattern = parse_enum(toml, "editor_background_pattern", GtkSource::BackgroundPatternType)
+    editor_entry = toml["editor"].as(Hash)
+    @editor_wrap_mode = parse_enum(editor_entry, "wrap_mode", Gtk::WrapMode)
+    @editor_show_line_numbers = editor_entry["show_line_numbers"].as(Bool)
+    @editor_insert_spaces_instead_of_tabs = editor_entry["insert_spaces_instead_of_tabs"].as(Bool)
+    @editor_tab_width = editor_entry["tab_width"].as(Int64).to_i32
+    @editor_show_right_margin = editor_entry["show_right_margin"].as(Bool)
+    @editor_right_margin_position = editor_entry["right_margin_position"].as(Int64).to_i32
+    @editor_highlight_current_line = editor_entry["highlight_current_line"].as(Bool)
+    @editor_background_pattern = parse_enum(editor_entry, "background_pattern", GtkSource::BackgroundPatternType)
   end
 
-  private def parse_enum(toml : TOML::Type, key : String, enum_class)
+  private def parse_enum(toml, key : String, enum_class)
     value = enum_class.parse?(toml[key].as(String))
     if value.nil?
       valid_enums = enum_class.names.map(&.downcase).join(", ")
