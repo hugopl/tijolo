@@ -127,6 +127,7 @@
 
     <context id="module-handlers" style-ref="module-handler">
       <keyword>require</keyword>
+      <keyword>require_relative</keyword>
       <keyword>include</keyword>
       <keyword>load</keyword>
     </context>
