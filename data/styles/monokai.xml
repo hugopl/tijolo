@@ -30,7 +30,7 @@
   <style name="background-pattern"          background="bg-pattern"/>
 
   <!-- Bracket Matching -->
-  <style name="bracket-match"               bold="true" />
+  <style name="bracket-match"               bold="true" foreground="bg" background="yellow"/>
   <style name="bracket-mismatch"            foreground="red" background="bg"/>
 
   <!-- Right Margin -->
