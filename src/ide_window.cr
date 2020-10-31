@@ -186,6 +186,8 @@ class IdeWindow < Window
                focus_right_split:         ->focus_right_split,
                focus_lower_split:         ->focus_lower_split,
                focus_left_split:          ->focus_left_split,
+               increase_font_size:        ->increase_current_view_font_size,
+               decrease_font_size:        ->decrease_current_view_font_size,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -433,7 +435,20 @@ class IdeWindow < Window
     @find_replace.find_prev
   end
 
-  # TODO: Write a macro to do this repeated code when we get more text views shortcuts
+  def increase_current_view_font_size
+    view = @open_files.current_view.as?(TextView)
+    return if view.nil?
+
+    view.font_size += 1
+  end
+
+  def decrease_current_view_font_size
+    view = @open_files.current_view.as?(TextView)
+    return if view.nil?
+
+    view.font_size -= 1
+  end
+
   def comment_code
     view = @open_files.current_view.as?(TextView)
     view.comment_action if view && view.focus?

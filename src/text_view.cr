@@ -6,6 +6,7 @@ class TextView < View
   getter! search_context : GtkSource::SearchContext?
 
   @editor = GtkSource::View.new
+  getter font_size = -1
   getter buffer : GtkSource::Buffer
   getter version = 1
 
@@ -152,14 +153,21 @@ class TextView < View
       false
     end
 
-    requested_size = config.editor_font_size
-    style_ctx = @editor.style_context
-    font_descr = style_ctx.font(:normal)
-    font_descr.size = requested_size * Pango::SCALE
-    # This is a deprecated func call... but the proposed GTK3 API to do this is stupid...
-    @editor.override_font(font_descr)
+    self.font_size = config.editor_font_size
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  def font_size=(size : Int32)
+    size = size.clamp(1, 50)
+    return if size == @font_size
+
+    style_ctx = @editor.style_context
+    font_descr = style_ctx.font(:normal)
+    font_descr.size = size * Pango::SCALE
+    # This is a deprecated func call... but the proposed GTK3 API to do this is stupid...
+    @editor.override_font(font_descr)
+    @font_size = size
   end
 
   def create_mark(name : String, line : Int32, column : Int32)

@@ -97,6 +97,8 @@ focus_upper_split = "<Alt>Up"
 focus_right_split = "<Alt>Right"
 focus_lower_split = "<Alt>Down"
 focus_left_split  = "<Alt>Left"
+increase_font_size = "<Ctrl>equal"
+decrease_font_size = "<Ctrl>minus"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/

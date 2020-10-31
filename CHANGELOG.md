@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Silent reload readonly open files when they are externally modified.
  - Load the right syntax-highlighting when saving a new file first time or saving as another file name.
  - Embedded terminal! Works like any other view, Ctrl+T opens a terminal view in a new split.
- - Make some text editor parameters configurable (line wrap, tabwidth, etc...)
+ - Make some text editor parameters configurable (line wrap, tabwidth, font size, etc...)
+ - Added shortcut to increase/decrease text editor font size, Ctrl+-/Ctrl+=.
 
 ### Changed
  - Show tree lines on project tree.

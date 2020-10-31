@@ -194,8 +194,10 @@ module Split
       F2                 —  Go to definition                   F3        —  Find next text match
       Ctrl + G           —  Go to line/colum                   F9        —  Sort lines
       Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment code
-                                                               Ctrl + .  —  Insert emoji 😎️</span>
-
+                                                               Ctrl + .  —  Insert emoji 😎️
+                                                               Ctrl + -  —  Increase font size
+                                                               Ctrl + =  —  Decrease font size
+                                                               </span>
       <b>Split View</b>                                               <b>Project</b><span foreground="#DCDCD1">
       Ctrl + T           —  Split view with a new Terminal     Ctrl + N  —  New file
       Alt + ↑/→/←/↓      —  Focus editor in that direction     Ctrl + O  —  Open non-project file
