@@ -26,11 +26,6 @@ textview
 @define-color tijolo_orange1 #D68505;
 @define-color tijolo_orange2 #B37005;
 
-textview
-{
-  font: 9pt "JetBrainsMono Nerd Font", "Monospace";
-}
-
 popover {
   padding: 6px;
 }

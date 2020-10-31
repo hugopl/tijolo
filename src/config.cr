@@ -39,6 +39,7 @@ class Config
   getter? terminal_shared_view : Bool
 
   # editor
+  getter editor_font_size : Int32
   getter editor_wrap_mode : Gtk::WrapMode
   getter editor_show_line_numbers : Bool
   getter editor_insert_spaces_instead_of_tabs : Bool
@@ -102,6 +103,7 @@ class Config
     @terminal_shared_view = terminal_entry["shared_view"].as(Bool)
 
     editor_entry = toml["editor"].as(Hash)
+    @editor_font_size = editor_entry["font_size"].as(Int64).to_i32
     @editor_wrap_mode = parse_enum(editor_entry, "wrap_mode", Gtk::WrapMode)
     @editor_show_line_numbers = editor_entry["show_line_numbers"].as(Bool)
     @editor_insert_spaces_instead_of_tabs = editor_entry["insert_spaces_instead_of_tabs"].as(Bool)

@@ -151,6 +151,13 @@ class TextView < View
       notify_view_focused(self)
       false
     end
+
+    requested_size = config.editor_font_size
+    style_ctx = @editor.style_context
+    font_descr = style_ctx.font(:normal)
+    font_descr.size = requested_size * Pango::SCALE
+    # This is a deprecated func call... but the proposed GTK3 API to do this is stupid...
+    @editor.override_font(font_descr)
   ensure
     @buffer.end_not_undoable_action
   end

@@ -25,6 +25,9 @@ trim_trailing_white_space_on_save = true
 log_level = "info"
 
 [editor]
+# Editor font size in pt units
+# Default: 9
+font_size = 9
 # Line wrap mode, can be:
 # "none"      - Do not wrap lines; just make the text area wider.
 # "char"      - Wrap text, breaking lines anywhere the cursor can appear.
