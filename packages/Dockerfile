@@ -14,9 +14,10 @@ RUN apt-get update \
   git \
   make \
   crystal \
-  libyaml-dev \
-  libgtksourceview-4-dev \
-  libgit2-dev \
   libgirepository1.0-dev \
+  libgit2-dev \
+  libgtksourceview-4-dev \
+  libvte-2.91-dev \
+  libyaml-dev \
   lintian \
   && apt-get clean

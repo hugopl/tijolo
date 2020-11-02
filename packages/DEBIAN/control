@@ -4,7 +4,7 @@ Architecture: amd64
 Section: editors
 Priority: optional
 Homepage: https://github.com/hugopl/tijolo
-Depends: libc6 (>=2.31), libgtksourceview-4-0, libgit2-28, libyaml
+Depends: libc6 (>=2.31), libgtksourceview-4-0, libgit2-28, libvte-2.91-0
 Maintainer: Hugo Parente Lima <hugo.pl@gmail.com>
 Description: Lightweight, keyboard-oriented IDE for the masses.
  A general purpose IDE written in Crystal using GTK3 with
