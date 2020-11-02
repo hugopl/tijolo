@@ -11,7 +11,7 @@ EOF
 def create_text_view(text = SAMPLE_CODE, language = "crystal")
   view = TextView.new
   view.text = text
-  view.language = language
+  view.file_path = Path.new("foo.cr")
   view.goto(0, 0)
   view
 end

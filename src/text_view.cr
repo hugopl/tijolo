@@ -34,14 +34,6 @@ class TextView < View
     @buffer.set_text(text, -1)
   end
 
-  def language=(lang_id : String)
-    language = LanguageManager.find(lang_id)
-    if language
-      @language = language
-      @buffer.language = language.gtk_language
-    end
-  end
-
   def file_path=(file_path : Path) : Nil
     super
     guess_language!(text)
