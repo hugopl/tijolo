@@ -3,7 +3,8 @@ require "./lsp_client.cr"
 class Language
   include LspClientListener
 
-  NONE = "none"
+  NONE_ID = "none"
+  NONE    = Language.new
 
   getter line_comment : String
   getter id : String
@@ -12,7 +13,7 @@ class Language
   @views_to_open : Array(TextView)?
 
   def initialize
-    @id = NONE
+    @id = NONE_ID
     @line_comment = ""
   end
 
@@ -28,7 +29,7 @@ class Language
   end
 
   def none?
-    @id == NONE
+    @id == NONE_ID
   end
 
   private def lsp_disabled?
@@ -37,7 +38,10 @@ class Language
 
   private def lsp_ready?(feature : String, &proc : Proc(LspClient, Bool)) : Bool
     lsp_client = @lsp_client
-    raise AppError.new("This feature requires a Language Server.") if lsp_client.nil?
+    if lsp_client.nil?
+      msg = none? ? "This feature requires a Language Server" : "This feature requires a Language Server for #{@id}."
+      raise AppError.new(msg)
+    end
 
     return false unless lsp_client.initialized?
 

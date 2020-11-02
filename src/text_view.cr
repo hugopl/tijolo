@@ -10,7 +10,7 @@ class TextView < View
   getter buffer : GtkSource::Buffer
   getter version = 1
 
-  getter language : Language
+  getter language = Language::NONE
 
   Log = ::Log.for("TextView")
 
@@ -21,7 +21,6 @@ class TextView < View
     super(@editor, file_path, project_path)
 
     @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
-    @language = Language.new
     setup_editor
     update_header
   end
