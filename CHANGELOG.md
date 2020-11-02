@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Don't crash if project directory is removed while Tijolo is open.
  - Starting Tijolo and doing Ctrl+N, Ctrl+W, Ctrl+N works, and I'm too lazy to translate this into a better sentence.
  - Don't comment last line in multi-line code comment if there's no characters selected.
+ - Fix detection of Dockerfiles.
 
 ## [0.2.0] - 2020-09-13
 ### Added

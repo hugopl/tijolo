@@ -24,11 +24,23 @@ class LanguageManager
     @@languages[id]? || create_lang(gtk_lang_manager.language(id))
   end
 
-  def self.guess_language(file : String, mimetype : String?) : Language
-    gtk_lang = gtk_lang_manager.guess_language(file, mimetype)
+  def self.guess_language(file : Path) : Language
+    gtk_lang = gtk_lang_manager.guess_language(file.basename, nil)
+    if gtk_lang.nil?
+      content_type = content_type(file)
+      gtk_lang = gtk_lang_manager.guess_language(nil, content_type) if content_type
+    end
 
     id = gtk_lang ? gtk_lang.id : Language::NONE
     @@languages[id]? || create_lang(gtk_lang)
+  end
+
+  private def self.content_type(file : Path)
+    data = File.read(file).to_slice
+    contents, _uncertain = Gio.content_type_guess(file.basename, data)
+    contents
+  rescue IO::Error
+    nil
   end
 
   def self.shutdown

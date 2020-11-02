@@ -13,14 +13,6 @@ module GLib
   end
 end
 
-module Gio
-  def self.content_type_guess(filename : ::String, data : ::String)
-    __return_value = LibGio.content_type_guess(filename, data, data.size, out result_uncertain)
-    GObject.raise_unexpected_null("g_content_type_guess") if __return_value.null?
-    {::String.new(__return_value), result_uncertain}
-  end
-end
-
 module Gtk
   class TreeView
     def value(path : TreePath, column : Int32) : GObject::Value

@@ -212,16 +212,13 @@ class TextView < View
 
     text = File.read(file_path)
     @buffer.text = text
-
-    guess_language!(text)
   end
 
   private def guess_language!(text : String)
     file_path = @file_path
     return if file_path.nil?
 
-    file_path_str = file_path.to_s
-    @language = LanguageManager.guess_language(file_path_str, mimetype(file_path_str, text))
+    @language = LanguageManager.guess_language(file_path)
     @buffer.language = @language.gtk_language
   end
 
@@ -240,11 +237,6 @@ class TextView < View
 
   def next_version
     @version += 1
-  end
-
-  private def mimetype(file_name, file_contents)
-    contents, _uncertain = Gio.content_type_guess(file_name, file_contents)
-    contents
   end
 
   def cursor_pos
