@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.3.0] - 2020-11-02
 ### Added
  - log_level is now configurable via config file.
- - Cursor position history! Triggered on Alt+Shift+⬅️/Alt+Shift+➡️.
- - Split views!!
+ - Cursor position history, not working well yet 😕️. Triggered on Alt+Shift+⬅️/Alt+Shift+➡️.
+ - Split views!
    - Ctrl+Shift+P open the locator causing the result to be possibly opened by spliting the current view.
    - Shift+F2 go to symbol definition possibly (if file isn't already open) opened by spliting the current view.
    - Ctrl+Shift+O open an external file spliting the current view.
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Basic image view, *really* basic.
  - Silent reload readonly open files when they are externally modified.
  - Load the right syntax-highlighting when saving a new file first time or saving as another file name.
- - Embedded terminal! Works like any other view, Ctrl+T opens a terminal view in a new split.
+ - Embedded terminal! Using VTE, works like any other view, Ctrl+T opens a terminal view in a new split.
  - Make some text editor parameters configurable (line wrap, tabwidth, font size, etc...)
  - Added shortcut to increase/decrease text editor font size, Ctrl+-/Ctrl+=.
 

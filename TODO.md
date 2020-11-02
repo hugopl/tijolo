@@ -2,36 +2,35 @@
 
 # Tijolo Tasks
 
-This is a short-term TODO list in no special order. Things I'm already working on have a :no_entry:.
-
-## 0.3.0 release
-
-- [x] Location history, Alt+Shift⬅️/Alt+Shift➡️ navigate through cursor location history.
-- Split screen
-  - [x] Ctrl+Shift+P open locator targeting a split view.
-  - [x] Shift+F2 go to definition targeting a split view.
-  - [ ] Ctrl+Shift+X "zoom" view.
-  - [x] Alt + arrows change from one split view to another.
-  - [x] Ctrl+T split view opening a terminal.
+This is a short-term TODO list in no special order.
 
 ## 0.4.0 release
 
+- [ ] Maximinize split view on Ctrl+Shift+X.
+- Some ♥️ to LSP implementation.
+  - [ ] Make it work with yaml-language-server.
+  - [ ] Make it work with ccls language-server.
+  - [ ] Make it work with whatever language-server.
+  - [ ] Support LSP auto-complete feature.
+  - [ ] Better feedback on LSP when it fails, when it's ready, etc.
+- Some ♥️ to file monitoring.
+  - [ ] Better handle file renames by external processes.
+  - [ ] Better handle file removal by external processes.
+  - [ ] Work with non-project files open.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
-- [ ] LSP-based auto complete.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
-- [ ] :no_entry: Better feedback when failed to open language servers.
+- [ ] Better feedback when failed to open language servers.
+- [ ] Editorconfig support
 
 ## 0.5.0 release
 
-- [ ] :fire: Fix GC issue :fire:, this is the project major issue, Crystal GC doesn't like GTK.
+- [ ] 🔥️Fix GC issue🔥️, this is the project major issue, Crystal GC doesn't like GTK and just crash, any help would be appreciated here.
 
 ## Backlog, things that can go in any version...
 
 - [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
 - [ ] Rebind shortcuts after save config file.
 - [ ] Checkout git branch by clicking on branch in sidebar.
-- [ ] Warn if an open file was removed.
-- [ ] Warn if an open file was renamed.
 - [ ] Rename files.
 - [ ] Delete files.
 - [ ] Show LSP diagnostics.
@@ -40,7 +39,6 @@ This is a short-term TODO list in no special order. Things I'm already working o
 - [ ] Save sessions, with a config flag.
 - [ ] I18N support.
 - [ ] Smart indent (language specific) or check if using LSP is ok.
-- [ ] Notification system for things like "LSP for language X ready!".
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
 - [ ] In-editor git blame (maybe should better wait for GTK4 before dig into GTK drawing functions)
