@@ -57,7 +57,7 @@ describe TextView do
     view = TextView.new(Path.new(tempfile.path))
     view.readonly?.should eq(true)
     view.modified?.should eq(false)
-    view.header_text.should eq("#{tempfile.path} 🔒")
+    view.header_text.should eq("#{tempfile.path} <readonly>")
   ensure
     if tempfile
       File.chmod(tempfile.path, 0o600)

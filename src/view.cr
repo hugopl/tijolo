@@ -119,7 +119,7 @@ abstract class View
     modified = if modified?
                  "✱"
                elsif readonly?
-                 "🔒"
+                 "<readonly>"
                end
     maximized = "<maximized>" if @maximized
     separator = " " if maximized || modified
