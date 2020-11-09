@@ -20,7 +20,7 @@ This is a short-term TODO list in no special order.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] Better feedback when failed to open language servers.
-- [ ] Editorconfig support
+- [x] Editorconfig support
 
 ## 0.5.0 release
 

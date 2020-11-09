@@ -12,6 +12,10 @@
 # Default: false
 lazy_start_language_servers = false
 
+# Ignore project settings on .editorconfig files
+# See https://editorconfig.org/
+ignore_editor_config_files = false
+
 # Ignore these directories when loading any project.
 # Default: ["node_modules", "tmp/cache"]
 ignored_dirs = ["node_modules", "tmp/cache"]

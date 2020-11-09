@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - When using split views, hit Ctrl+Shift+X to maximized the current view and let it tak all screen space.
+ - Add .editorconfig support.
 
 ## [0.3.0] - 2020-11-02
 ### Added

@@ -37,6 +37,7 @@ class Config
   getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
   getter? terminal_shared_view : Bool
+  getter? ignore_editor_config_files : Bool
 
   # editor
   getter editor_font_size : Int32
@@ -93,6 +94,7 @@ class Config
     toml = load_toml(contents, mode)
 
     @lazy_start_language_servers = toml["lazy_start_language_servers"].as(Bool)
+    @ignore_editor_config_files = toml["ignore_editor_config_files"].as(Bool)
     @shortcuts = toml["shortcuts"].as(Hash).transform_values(&.as(String))
     @language_servers = toml["language-servers"].as(Hash).transform_values(&.as(String))
     @trim_trailing_white_space_on_save = toml["trim_trailing_white_space_on_save"].as(Bool)

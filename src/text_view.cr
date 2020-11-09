@@ -1,3 +1,4 @@
+require "./editor_config"
 require "./language_manager"
 require "./ui_builder_helper"
 require "./view"
@@ -6,6 +7,7 @@ class TextView < View
   getter! search_context : GtkSource::SearchContext?
 
   @editor = GtkSource::View.new
+  @trim_trailing_white_space_on_save = true
   getter font_size = -1
   getter buffer : GtkSource::Buffer
   getter version = 1
@@ -21,6 +23,14 @@ class TextView < View
     super(@editor, file_path, project_path)
 
     @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
+    @buffer.connect("notify::cursor-position") { cursor_changed }
+    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.on_modified_changed { update_header }
+    @editor.on_focus_in_event do
+      notify_view_focused(self)
+      false
+    end
     setup_editor
     update_header
   end
@@ -35,6 +45,8 @@ class TextView < View
 
   def file_path=(file_path : Path) : Nil
     super
+
+    apply_editor_config_settings
     guess_language!(text)
   end
 
@@ -85,7 +97,7 @@ class TextView < View
     file_path = @file_path
     raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
 
-    remove_all_trailing_spaces! if Config.instance.trim_trailing_white_space_on_save?
+    remove_all_trailing_spaces! if @trim_trailing_white_space_on_save
     super
     File.write(file_path, text)
     @buffer.modified = false
@@ -129,24 +141,45 @@ class TextView < View
     @editor.right_margin_position = config.editor_right_margin_position
     @editor.highlight_current_line = config.editor_highlight_current_line
     @editor.background_pattern = config.editor_background_pattern
+    @trim_trailing_white_space_on_save = Config.instance.trim_trailing_white_space_on_save?
+
+    apply_editor_config_settings unless config.ignore_editor_config_files?
 
     @editor.smart_home_end = :before
     @editor.monospace = true
     @editor.auto_indent = true
     @editor.smart_backspace = true
 
-    @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
-    @buffer.on_modified_changed { update_header }
-    @editor.on_focus_in_event do
-      notify_view_focused(self)
-      false
-    end
-
     self.font_size = config.editor_font_size
   ensure
     @buffer.end_not_undoable_action
+  end
+
+  private def apply_editor_config_settings
+    file_path = @file_path
+    return if file_path.nil?
+
+    EditorConfig.parse(file_path).each do |key, value|
+      case key
+      when EditorConfig::INDENT_STYLE
+        @editor.insert_spaces_instead_of_tabs = value == "space"
+      when EditorConfig::TAB_WIDTH
+        value = value.to_i?
+        @editor.tab_width = value if value && value > 0
+      when EditorConfig::CHARSET
+        Log.warn { "Tijolo is lame and is not tested at all with non-UTF-8 files!" } if value != "utf-8"
+      when EditorConfig::TRIM_TRAILING_WHITESPACE
+        @trim_trailing_white_space_on_save = value == "true"
+      when EditorConfig::MAX_LINE_LENGTH
+        value = value.to_i?
+        if value && value > 0
+          @editor.show_right_margin = true
+          @editor.right_margin_position = value
+        end
+      end
+    end
+  rescue e : EditorConfig::Error
+    Log.error { e.message }
   end
 
   def font_size=(size : Int32)
