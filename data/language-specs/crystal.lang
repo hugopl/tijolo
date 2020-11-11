@@ -58,6 +58,7 @@
     <style id="string"               name="String"                map-to="def:string"/>
     <style id="symbol"               name="Symbol"                map-to="def:decimal"/>
     <style id="variable"             name="Variable"              map-to="def:identifier"/>
+    <style id="macro"                name="Macro"                 map-to="def:preprocessor"/>
   </styles>
   <definitions>
     <define-regex id="identifier">[\._a-zA-Z0-9=\&lt;\&gt;\[\]\!\?]+</define-regex>
@@ -546,6 +547,11 @@
       </include>
     </context>
 
+    <context id="macro" style-ref="macro">
+      <start>{%</start>
+      <end>%}</end>
+    </context>
+
     <context id="crystal" class="no-spell-check">
       <include>
         <context ref="def:shebang"/>
@@ -556,6 +562,7 @@
         <context ref="here-doc-indented-string"/>
         <context ref="double-quoted-string"/>
         <context ref="backtick-quoted-string"/>
+        <context ref="macro"/>
         <context ref="object-macros"/>
         <context ref="function-definition"/>
         <context ref="type-definition"/>

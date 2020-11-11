@@ -84,7 +84,7 @@
   <style name="def:operator"                foreground="red"/>
 
   <!-- Others -->
-  <style name="def:preprocessor"            foreground="red"/>
+  <style name="def:preprocessor"            foreground="red" italic="true"/>
   <style name="def:error"                   foreground="red" bold="true"/>
   <style name="def:note"                    foreground="magenta" bold="true"/>
   <style name="def:net-address"             italic="true" underline="single"/>
