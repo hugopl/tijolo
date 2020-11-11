@@ -582,7 +582,7 @@
     </context>
 
     <context id="operators" style-ref="operator" extend-parent="false">
-      <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
+      <match>(!=|!~|!\b|[-^/\=\+\*&amp;&lt;&gt;~])</match>
     </context>
 
     <context id="ruby" class="no-spell-check">

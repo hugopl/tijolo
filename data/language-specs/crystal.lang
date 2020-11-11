@@ -518,7 +518,7 @@
     </context>
 
     <context id="operators" style-ref="operator" extend-parent="false">
-      <match>[-^/\=\+\*&amp;&lt;&gt;!~]</match>
+      <match>(!=|!~|!\b|[-^/\=\+\*&amp;&lt;&gt;~])</match>
     </context>
 
     <!-- 'def' is also present in the 'keyword' context, but has a lower
