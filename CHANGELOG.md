@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - When using split views, hit Ctrl+Shift+X to maximized the current view and let it tak all screen space.
  - Add .editorconfig support.
 
+### Fixed
+ - Added some ♥️ into Ruby and Crystal syntax highlighting language specs.
+
 ## [0.3.0] - 2020-11-02
 ### Added
  - log_level is now configurable via config file.

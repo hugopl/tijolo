@@ -577,7 +577,6 @@
         <context ref="symbols"/>
         <context ref="regexp-variables"/>
         <context ref="constants"/>
-        <context ref="operators"/>
         <context ref="boolean"/>
         <context ref="float"/>
         <context ref="decimal"/>
@@ -589,6 +588,7 @@
         <context ref="regex-simple"/>
         <context ref="non-interpolated-literal"/>
         <context ref="interpolated-literal"/>
+        <context ref="operators"/>
       </include>
     </context>
   </definitions>
