@@ -115,6 +115,7 @@
     </context>
 
     <context id="module-handlers" style-ref="module-handler">
+      <prefix>(?&lt;![\w\.])</prefix>
       <keyword>require</keyword>
       <keyword>include</keyword>
     </context>
