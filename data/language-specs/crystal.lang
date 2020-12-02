@@ -525,7 +525,7 @@
          priority, so 'def' is highlighted even if the function name doesn't match. -->
     <context id="function-definition">
       <match extended="true">
-        (def|macro)
+        (?&lt;![\w\.])(def|macro)
         \s+
         (\%{identifier})
       </match>
@@ -537,7 +537,7 @@
 
     <context id="type-definition">
       <match extended="true">
-        (class|module|struct|enum)
+        (?&lt;![\w\.])(class|module|struct|enum)
         \s+
         (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
       </match>
