@@ -12,10 +12,11 @@ require "./tijolo_log_backend"
 
 def setup_logger(options)
   logfile = options[:logfile]
-  backend = if logfile
+  is_tty = STDOUT.tty?
+  backend = if logfile || !is_tty
               logfile ||= File.join(Dir.tempdir, "tijolo.#{Process.pid}.log")
               Log::IOBackend.new(File.open(logfile, "w"))
-            elsif STDOUT.tty?
+            elsif is_tty
               Log::IOBackend.new
             end
   Log.setup do |config|
