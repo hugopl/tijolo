@@ -37,6 +37,7 @@ class Config
   getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
   getter? terminal_shared_view : Bool
+  getter? terminal_login_shell : Bool
   getter? ignore_editor_config_files : Bool
 
   # editor
@@ -103,6 +104,7 @@ class Config
 
     terminal_entry = toml["terminal"].as(Hash)
     @terminal_shared_view = terminal_entry["shared_view"].as(Bool)
+    @terminal_login_shell = terminal_entry["login_shell"].as(Bool)
 
     editor_entry = toml["editor"].as(Hash)
     @editor_font_size = editor_entry["font_size"].as(Int64).to_i32

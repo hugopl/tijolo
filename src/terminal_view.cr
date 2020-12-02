@@ -12,12 +12,14 @@ class TerminalView < View
     self.label = @@terminal_count > 1 ? "Terminal #{@@terminal_count}" : "Terminal"
     @@terminal_count += 1
 
+    argv0 = Config.instance.terminal_login_shell? ? "-#{TerminalView.default_shell}" : TerminalView.default_shell
+
     @vte.spawn_async(
       pty_flags: Vte::PtyFlags::DEFAULT,
       working_directory: nil,
-      argv: [TerminalView.default_shell],
+      argv: [TerminalView.default_shell, argv0],
       envv: nil,
-      spawn_flags: :default,
+      spawn_flags: :file_and_argv_zero,
       child_setup: nil,
       child_setup_data: nil,
       child_setup_data_destroy: nil,

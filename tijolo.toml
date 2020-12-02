@@ -57,6 +57,9 @@ background_pattern = "grid"
 # Default: false
 shared_view = false
 
+# Use a login shell, this mean the shell will load your /etc/profile, .bash_profile, etc.
+login_shell = true
+
 # Any valid strings accepted by gtk_accelerator_parse is a valid shortcut
 #
 # From GTK docs:

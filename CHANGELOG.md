@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - When using split views, hit Ctrl+Shift+X to maximized the current view and let it tak all screen space.
  - Add .editorconfig support.
+ - Use a login shell by default on terminals (configurable).
 ### Fixed
  - Log to `/tmp/tijolo.PID.log` when not running on a tty and user didn't pass --logfile. (regression)
 
