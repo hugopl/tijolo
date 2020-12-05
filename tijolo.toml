@@ -124,3 +124,6 @@ ruby = "solargraph stdio"
 # Bash language server
 # https://github.com/bash-lsp/bash-language-server
 sh = "bash-language-server start"
+
+# YAML language server - https://github.com/redhat-developer/yaml-language-server
+yaml = "yaml-language-server --stdio"

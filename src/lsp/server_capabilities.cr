@@ -30,12 +30,11 @@ module LSP
     include JSON::Serializable
 
     @[JSON::Field(key: "resolveProvider")]
-    property resolve_provider : Bool = false
+    @resolve_provider : Bool? = false
     @[JSON::Field(key: "triggerCharacters")]
-    property trigger_characters : Array(String)
-
-    def initialize(@resolve_provider = false, @trigger_characters = [] of String)
-    end
+    @trigger_characters : Array(String)?
+    @[JSON::Field(key: "allCommitCharacters")]
+    @all_commit_characters : Array(String)?
   end
 
   # FIXME: This struct is REALLY imcomplete... and will fail for a lot of servers, I'm fixing when I see a server using a
@@ -77,8 +76,7 @@ module LSP
     def initialize(*, @text_document_sync = TextDocumentSyncKind::None, @document_formatting_provider = false,
                    @document_range_formatting_provider = false,
                    @definition_provider = false, @document_highlight_provider = false, @references_provider = false,
-                   @document_symbol_provider = false, @workspace_symbol_provider = false, @hover_provider = false,
-                   @completion_provider = CompletionOptions.new(false))
+                   @document_symbol_provider = false, @workspace_symbol_provider = false, @hover_provider = false)
     end
 
     def open_close?
