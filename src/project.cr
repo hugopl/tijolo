@@ -244,7 +244,8 @@ class Project
   def scan_files
     return unless valid?
 
-    spawn do
+    # Can't use spawn here, or the Fiber will be stuck when the program flow is inside glib main loop.
+    Thread.new do
       start_t = Time.monotonic
       files = Set(Path).new
       directories = Set(Path).new

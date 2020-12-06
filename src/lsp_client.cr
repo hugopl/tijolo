@@ -43,10 +43,11 @@ class LspClient
       log.info { "Ready!" }
     end
 
-    spawn do
+    # Need to use Thread.new instead of `spawn` here, so a new SO thread is always really created independent of
+    # CRYSTAL_WORKERS variable.
+    Thread.new do
       receiver_loop
     end
-    Fiber.yield
   end
 
   def request(method : String, params : RequestType, &block : Proc(ResponseMessage, Nil))

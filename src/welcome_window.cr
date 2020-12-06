@@ -81,7 +81,7 @@ class WelcomeWindow < Window
     @open_btn.sensitive = false
     @tree_view.sensitive = false
     @spinner.show
-    spawn do
+    Thread.new do
       rc = TijoloRC.instance
 
       t = Time.measure do
@@ -96,7 +96,6 @@ class WelcomeWindow < Window
       # Execute this in main thread
       GLib.idle_add(&->scan_projects_finished)
     end
-    Fiber.yield # Let Crystal start the Fiber before we back to Glib mainloop.
   end
 
   private def scan_projects_finished
