@@ -206,6 +206,7 @@ class LspClient
   ###########################################
 
   private def receiver_loop
+    buffer = IO::Memory.new(1024)
     input = @server.output
     content_length = 0
     loop do
@@ -213,17 +214,19 @@ class LspClient
       if line =~ /Content-Length: (\d+)/
         content_length = $1.to_i
       elsif line.empty?
-        bytes = Bytes.new(content_length)
-        input.read_fully(bytes)
-        decode_server_message(String.new(bytes))
+        IO.copy(input, buffer, content_length)
+        log.debug { "<== #{buffer.to_s.colorize(:blue)}" }
+        buffer.rewind
+        decode_server_message(buffer)
+        buffer.clear
       end
     end
   rescue e : IO::EOFError
     log.fatal { "Server closed output." }
   end
 
-  private def decode_server_message(data : String)
-    json = JSON.parse(data)
+  private def decode_server_message(io : IO)
+    json = JSON.parse(io)
 
     msg_id = json["id"]?
     return if msg_id.nil?
@@ -231,15 +234,16 @@ class LspClient
     handler = @response_handlers[msg_id]?
     return if handler.nil?
 
-    log.debug { "<== #{data.colorize(:blue)}" }
     # TODO: Handle server requets
-    message = ResponseMessage.from_json(data)
+    # FIXME: Create a macro that build these values from a JSON::Any instead of double parse the JSON.
+    io.rewind
+    message = ResponseMessage.from_json(io)
     GLib.idle_add do
       handler.try(&.call(message))
       false
     end
     @response_handlers.delete(msg_id)
   rescue e
-    log.error(exception: e) { "Bad message from server:\n\n#{data.colorize(:red)}\n\n" }
+    log.error(exception: e) { "Bad message from server:\n\n#{io.to_s.colorize(:red)}\n\n" }
   end
 end
