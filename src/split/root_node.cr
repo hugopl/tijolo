@@ -226,20 +226,21 @@ module Split
       <b>Code Navigation</b>                                          <b>Editing</b><span foreground="#DCDCD1">
       Ctrl + P           —  Show locator                       Ctrl + F  —  Find text
       F2                 —  Go to definition                   F3        —  Find next text match
-      Ctrl + G           —  Go to line/colum                   F9        —  Sort lines
-      Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment code
-                                                               Ctrl + .  —  Insert emoji 😎️
-                                                               Ctrl + -  —  Increase font size
-                                                               Ctrl + =  —  Decrease font size
-                                                               </span>
-      <b>Split View</b>                                               <b>Project</b><span foreground="#DCDCD1">
-      Ctrl + T           —  Split view with a new Terminal     Ctrl + N  —  New file
-      Alt + ↑/→/←/↓      —  Focus editor in that direction     Ctrl + O  —  Open non-project file
-                                                               Ctrl + W  —  Close view
-      Press Shift on any action that could open a file e.g.    Alt  + G  —  Open Git locator
-      <i>Ctrl + Shift + P</i> and the file will be open in a new
-      split view.
-      </span>
+      Ctrl + G           —  Go to line/colum                   F9        —  Sort selected lines
+      Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment selected lines
+      Alt + 1            —  Focus Editor                       Ctrl + .  —  Insert emoji 😎️
+                                                               Ctrl + -  —  Increase font size</span>
+      <b>Split View</b><span foreground="#DCDCD1">                                               Ctrl + =  —  Decrease font size
+      Ctrl + T           —  Split view with a new Terminal
+      Alt + ↑/→/←/↓      —  Focus editor in that direction     </span><b>Project</b><span foreground="#DCDCD1">
+                                                               Ctrl + N  —  New file
+      Press Shift on any action that could open a file e.g.    Ctrl + O  —  Open non-project file
+      <i>Ctrl + Shift + P</i> and the file will be open in a new      Ctrl + W  —  Close view
+      split view.                                              Alt  + G  —  Open Git locator
+
+      </span><b>General</b><span foreground="#DCDCD1">
+      Alt + 0            —  Show/hide Project Tree
+      Alt + 2            —  Show/hide log</span>
     EOT
       widget = Gtk::Widget.cast(builder["root"])
       @stack.add_named(widget, NO_VIEW_WIDGET_NAME)
