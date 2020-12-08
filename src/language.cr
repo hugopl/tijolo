@@ -191,7 +191,7 @@ class Language
     params = LSP::DocumentSymbolParams.new(uri: uri(path))
     lsp_client.request("textDocument/documentSymbol", params) do |response|
       result = response.result.as?(Array(LSP::SymbolInformation))
-      block.call(result) if result
+      block.call(result || [] of LSP::SymbolInformation)
     end
   end
 end

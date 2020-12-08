@@ -5,6 +5,8 @@ struct SymbolCache
   property symbols : Array(LSP::SymbolInformation)
   property haystack : Fzy::PreparedHaystack
 
+  delegate empty?, to: @symbols
+
   def initialize(@version, @symbols, @haystack)
   end
 end
@@ -13,7 +15,8 @@ class DocumentSymbolLocator < FuzzyLocator
   @symbols = Hash(TextView, SymbolCache).new
   @current_view : TextView?
 
-  PLACEHOLDER = "Waiting for language server..."
+  PLACEHOLDER    = "Waiting for language server..."
+  NO_SYMBOLS_MSG = "No symbols were found"
 
   def initialize
     super(PLACEHOLDER)
@@ -37,6 +40,7 @@ class DocumentSymbolLocator < FuzzyLocator
     cache = symbol_cache
     if cache
       self.haystack = cache.haystack
+      self.placeholder = NO_SYMBOLS_MSG if cache.empty?
       return
     end
 
@@ -47,6 +51,7 @@ class DocumentSymbolLocator < FuzzyLocator
         haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
         @symbols[view] = SymbolCache.new(view.version, symbols, haystack)
         self.haystack = haystack
+        self.placeholder = NO_SYMBOLS_MSG if symbols.empty?
       end
     end
   rescue e : AppError
