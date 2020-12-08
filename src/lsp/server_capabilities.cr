@@ -94,6 +94,13 @@ module LSP
     @commands : Array(String)
   end
 
+  struct RenameOptions
+    include JSON::Serializable
+
+    @[JSON::Field(key: "prepareProvider")]
+    @prepare_provider : Bool? = false
+  end
+
   struct WorkspaceFoldersServerCapabilities
     include JSON::Serializable
 
@@ -164,7 +171,7 @@ module LSP
     @references_provider : Bool? = false
 
     @[JSON::Field(key: "renameProvider")]
-    @rename_provider : Bool? = false
+    @rename_provider : RenameOptions | Bool | Nil = false
 
     @[JSON::Field(key: "signatureHelpProvider")]
     @signature_help_provider : SignatureHelpOptions?
