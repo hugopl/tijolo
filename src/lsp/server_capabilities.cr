@@ -123,7 +123,7 @@ module LSP
     include JSON::Serializable
 
     @[JSON::Field(key: "codeActionProvider")]
-    @code_action_provider : CompletionOptions?
+    @code_action_provider : CompletionOptions | Bool | Nil = false
 
     @[JSON::Field(key: "codeLensProvider")]
     @code_lens_provider : CodeLensOptions?

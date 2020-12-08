@@ -117,6 +117,16 @@ maximize_view = "<Ctrl><Shift>X"
 # SCry, not very good but is what we have for Crystal
 crystal = "scry"
 
+# C/C++/Objective C Language server
+# https://github.com/MaskRay/ccls
+c = "ccls"
+cpp = "ccls"
+objc = "ccls"
+
+# Python language server
+# https://github.com/palantir/python-language-server
+python = "pyls"
+
 # SolarGraph for Ruby, slow but awesome.. but you probably need to change something here if you need to
 # run it with bundle exec, rvm do, etc...
 ruby = "solargraph stdio"
@@ -125,11 +135,6 @@ ruby = "solargraph stdio"
 # https://github.com/bash-lsp/bash-language-server
 sh = "bash-language-server start"
 
-# YAML language server - https://github.com/redhat-developer/yaml-language-server
+# YAML language server
+# https://github.com/redhat-developer/yaml-language-server
 yaml = "yaml-language-server --stdio"
-
-# C/C++/Objective C Language server
-# https://github.com/MaskRay/ccls
-c = "ccls"
-objc = "ccls"
-cpp = "ccls"
