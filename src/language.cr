@@ -173,8 +173,8 @@ class Language
     return unless lsp_ready?("Go To Definition", &.definition_provider?)
 
     params = LSP::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
-    lsp_client.request("textDocument/definition", params) do |response|
-      result = response.result.as?(Array(LSP::Location))
+    lsp_client.request("textDocument/definition", params) do |result|
+      result = result.as?(Array(LSP::Location))
       next if result.nil? || result.empty?
 
       location = result.first
@@ -189,8 +189,8 @@ class Language
     return unless lsp_ready?("Document Symbols", &.document_symbol_provider?)
 
     params = LSP::DocumentSymbolParams.new(uri: uri(path))
-    lsp_client.request("textDocument/documentSymbol", params) do |response|
-      result = response.result.as?(Array(LSP::SymbolInformation))
+    lsp_client.request("textDocument/documentSymbol", params) do |result|
+      result = result.as?(Array(LSP::SymbolInformation))
       block.call(result || [] of LSP::SymbolInformation)
     end
   end

@@ -11,7 +11,7 @@ class LspClient
 
   observable_by LspClientListener
 
-  alias ResponseCallback = Proc(ResponseMessage, Nil)
+  alias ResponseCallback = Proc(ResponseTypes, Nil)
 
   Log = ::Log.for("LSP")
 
@@ -21,7 +21,7 @@ class LspClient
   @server : Process
   # Next request ID
   @next_id = 0
-  @response_handlers = Hash(Int32, Proc(ResponseMessage, Nil)).new
+  @response_handlers = Hash(Int32, Proc(ResponseTypes, Nil)).new
   getter server_capabilities = ServerCapabilities.new
 
   delegate definition_provider?, to: @server_capabilities
@@ -32,10 +32,10 @@ class LspClient
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
     log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
 
-    initialize_request do |response|
+    initialize_request do |result|
       @initialized = true
 
-      result = response.result.as?(InitializeResult)
+      result = result.as(InitializeResult)
       @server_capabilities = result.capabilities if result
 
       notify("initialized", VoidParams.new)
@@ -50,7 +50,7 @@ class LspClient
     end
   end
 
-  def request(method : String, params : RequestType, &block : Proc(ResponseMessage, Nil))
+  def request(method : String, params : RequestType, &block : Proc(ResponseTypes, Nil))
     return unless initialized?
 
     id = next_id
@@ -58,7 +58,7 @@ class LspClient
     request(id, payload, &block)
   end
 
-  private def request(id : Int32, payload : String, &block : Proc(ResponseMessage, Nil))
+  private def request(id : Int32, payload : String, &block : Proc(ResponseTypes, Nil))
     @response_handlers[id] = block
     send(payload)
   end
@@ -229,20 +229,25 @@ class LspClient
     json = JSON.parse(io)
 
     msg_id = json["id"]?
-    return if msg_id.nil?
+    return if msg_id.nil?              # We are ignoring all notifications meanwhile
+    return unless json["method"]?.nil? # We are ignoring all server requests meanwhile
 
-    handler = @response_handlers[msg_id]?
-    return if handler.nil?
+    handler = @response_handlers.delete(msg_id)
+    if handler.nil?
+      Log.warn { "No response handler for request #{msg_id}." }
+      return
+    end
 
-    # TODO: Handle server requets
     # FIXME: Create a macro that build these values from a JSON::Any instead of double parse the JSON.
     io.rewind
     message = ResponseMessage.from_json(io)
+    result = message.result
+    return if result.nil?
+
     GLib.idle_add do
-      handler.try(&.call(message))
+      handler.not_nil!.call(result.not_nil!)
       false
     end
-    @response_handlers.delete(msg_id)
   rescue e
     log.error(exception: e) { "Bad message from server:\n\n#{io.to_s.colorize(:red)}\n\n" }
   end
