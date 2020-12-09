@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Use a login shell by default on terminals (configurable).
  - Add default configuration for ccls C/C++/ObjectiveC language server.
  - Add default configuration for yaml-language-server.
- - Tijolo now works without `-Dpreview_mt` compiler flag.
 ### Fixed
  - Log to `/tmp/tijolo.PID.log` when not running on a tty and user didn't pass --logfile. (regression)
  - Fix several issues in LSP implementation.

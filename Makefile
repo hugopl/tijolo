@@ -2,10 +2,10 @@
 PREFIX ?= /usr
 
 all:
-	shards build --release -s
+	shards build --release -s  -Dpreview_mt
 
 debug:
-	shards build --debug
+	shards build --debug -Dpreview_mt
 
 install:
 	install -D -m 0755 bin/tijolo $(DESTDIR)$(PREFIX)/bin/tijolo
