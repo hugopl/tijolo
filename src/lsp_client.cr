@@ -228,10 +228,17 @@ class LspClient
   private def decode_server_message(io : IO)
     json = JSON.parse(io)
 
-    msg_id = json["id"]?
-    return if msg_id.nil?              # We are ignoring all notifications meanwhile
-    return unless json["method"]?.nil? # We are ignoring all server requests meanwhile
+    msg_id = json["id"]?.try(&.as_i?)
+    if msg_id.nil?
+      handle_notification(json)
+    elsif json["method"]? != nil
+      handle_server_request(msg_id, json)
+    else
+      handle_server_response(msg_id, io)
+    end
+  end
 
+  private def handle_server_response(msg_id : Int32, io : IO)
     handler = @response_handlers.delete(msg_id)
     if handler.nil?
       Log.warn { "No response handler for request #{msg_id}." }
@@ -241,6 +248,7 @@ class LspClient
     # FIXME: Create a macro that build these values from a JSON::Any instead of double parse the JSON.
     io.rewind
     message = ResponseMessage.from_json(io)
+
     result = message.result
     return if result.nil?
 
@@ -250,5 +258,35 @@ class LspClient
     end
   rescue e
     log.error(exception: e) { "Bad message from server:\n\n#{io.to_s.colorize(:red)}\n\n" }
+  end
+
+  private def handle_server_request(msg_id : Int32, json : JSON::Any)
+    method = json["method"]?.try(&.to_s)
+    send(error_payload(msg_id, :method_not_found, "Unhandled method #{method}"))
+  end
+
+  private def error_payload(msg_id : Int32, code : LSP::ErrorCodes, message : String) : String
+    {"jsonrpc" => "2.0",
+     "id"      => msg_id,
+     "error"   => {"code" => code, "message" => message}}.to_json
+  end
+
+  private def handle_notification(json : JSON::Any)
+    method = json["method"]?.try(&.to_s)
+    if method == "window/logMessage" || method == "window/showMessage"
+      type = json.dig?("params", "type")
+      return if type.nil?
+
+      message = json.dig?("params", "message").try(&.to_s)
+      return if message.nil? || message.empty?
+
+      message = message.to_s
+      case MessageType.type_to_log_severity(type.as_i)
+      when ::Log::Severity::Error then log.error { message }
+      when ::Log::Severity::Warn  then log.warn { message }
+      else
+        log.info { message }
+      end
+    end
   end
 end
