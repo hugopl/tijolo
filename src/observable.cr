@@ -22,5 +22,14 @@ macro observable_by(lst)
     end
   end
 
+  def assync_notify_{{method.name}}(*args : *U) forall U
+    GLib.idle_add do
+      {{ listeners }}.each do |listener|
+        listener.{{method.name}}(*args)
+      end
+      false
+    end
+  end
+
   {% end %}
 end

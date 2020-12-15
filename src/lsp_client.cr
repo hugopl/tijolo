@@ -39,7 +39,7 @@ class LspClient
       @server_capabilities = result.capabilities if result
 
       notify("initialized", VoidParams.new)
-      notify_lsp_client_initialized
+      assync_notify_lsp_client_initialized
       log.info { "Ready!" }
     end
 
