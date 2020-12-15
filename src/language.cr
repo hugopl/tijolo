@@ -61,7 +61,7 @@ class Language
   def start_lsp(cmd)
     lsp = @@running_language_servers[cmd]?
     if lsp
-      Log.info { "Reusing LSP client for #{@id}." }
+      Log.info { %Q(Reusing "#{lsp.lang_id}" language server for "#{@id}".) }
       return lsp
     end
 

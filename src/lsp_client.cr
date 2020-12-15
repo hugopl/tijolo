@@ -16,6 +16,7 @@ class LspClient
   Log = ::Log.for("LSP")
 
   getter? initialized = false
+  getter lang_id : String
   private getter log : ::Log
 
   @server : Process
@@ -27,8 +28,8 @@ class LspClient
   delegate definition_provider?, to: @server_capabilities
   delegate document_symbol_provider?, to: @server_capabilities
 
-  def initialize(command : String, lang_id : String)
-    @log = Log.for(lang_id.titleize)
+  def initialize(command : String, @lang_id : String)
+    @log = Log.for(@lang_id.titleize)
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
     log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
 
