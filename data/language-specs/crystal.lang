@@ -107,6 +107,7 @@
     <context id="definitions" style-ref="keyword">
       <!-- do not highlight the .class method -->
       <prefix>(?&lt;![\w\.])</prefix>
+      <keyword>annotation</keyword>
       <keyword>alias</keyword>
       <keyword>class</keyword>
       <keyword>def</keyword>
@@ -537,7 +538,7 @@
 
     <context id="type-definition">
       <match extended="true">
-        (?&lt;![\w\.])(class|module|struct|enum)
+        (?&lt;![\w\.])(class|module|struct|enum|annotation)
         \s+
         (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
       </match>
