@@ -1,4 +1,6 @@
 require "colorize"
+
+require "./from_json_any"
 require "./observable"
 require "./lsp"
 
@@ -6,12 +8,29 @@ module LspClientListener
   abstract def lsp_client_initialized
 end
 
+abstract class LspAbstractResponseHandler
+  abstract def exec(json : JSON::Any)
+end
+
+class LspResponseHandler(T) < LspAbstractResponseHandler
+  @proc : Proc(T, Nil)
+
+  def initialize(@proc)
+  end
+
+  def exec(json : JSON::Any)
+    result = T.new(json)
+    GLib.idle_add do
+      @proc.call(result)
+      false
+    end
+  end
+end
+
 class LspClient
   include LSP
 
   observable_by LspClientListener
-
-  alias ResponseCallback = Proc(ResponseTypes, Nil)
 
   Log = ::Log.for("LSP")
 
@@ -22,7 +41,7 @@ class LspClient
   @server : Process
   # Next request ID
   @next_id = 0
-  @response_handlers = Hash(Int32, Proc(ResponseTypes, Nil)).new
+  @response_handlers = Hash(Int32, LspAbstractResponseHandler).new
   getter server_capabilities = ServerCapabilities.new
 
   delegate definition_provider?, to: @server_capabilities
@@ -33,11 +52,9 @@ class LspClient
     @server = Process.new(command, shell: true, input: :pipe, output: :pipe, error: :pipe)
     log.info { "Starting LSP for #{command.inspect} on pid #{@server.pid}" }
 
-    initialize_request do |result|
+    request_initialize do |result|
       @initialized = true
-
-      result = result.as(InitializeResult)
-      @server_capabilities = result.capabilities if result
+      @server_capabilities = result.capabilities
 
       notify("initialized", VoidParams.new)
       assync_notify_lsp_client_initialized
@@ -51,16 +68,43 @@ class LspClient
     end
   end
 
-  def request(method : String, params : RequestType, &block : Proc(ResponseTypes, Nil))
+  private def lsp_uri(path : Path)
+    "file://#{path}"
+  end
+
+  private def request_initialize(&block : Proc(InitializeResult, Nil))
+    handler = LspResponseHandler(InitializeResult).new(block)
+    request(0, initialize_request_payload, handler)
+  end
+
+  private def request_shutdown(&block : Proc(Nil, Nil))
+    handler = LspResponseHandler(Nil).new(block)
+    request("shutdown", nil, handler)
+  end
+
+  def request_text_document_definition(uri : Path, line : Int32, col : Int32, &block : Proc(Array(LSP::Location | LSP::LocationLink), Nil))
+    params = LSP::TextDocumentPositionParams.new(uri: lsp_uri(uri), line: line, character: col)
+    handler = LspResponseHandler(Array(LSP::Location | LSP::LocationLink)).new(block)
+    request("textDocument/definition", params, handler)
+  end
+
+  def request_text_document_document_symbols(uri : Path, &block : Proc(Array(LSP::SymbolInformation), Nil))
+    params = LSP::DocumentSymbolParams.new(uri: lsp_uri(uri))
+    handler = LspResponseHandler(Array(LSP::SymbolInformation)).new(block)
+    request("textDocument/documentSymbol", params, handler)
+  end
+
+  private def request(method : String, params : RequestType, handler : LspAbstractResponseHandler)
     return unless initialized?
 
     id = next_id
     payload = RequestMessage.new(id, method, params).to_json
-    request(id, payload, &block)
+    request(id, payload, handler)
   end
 
-  private def request(id : Int32, payload : String, &block : Proc(ResponseTypes, Nil))
-    @response_handlers[id] = block
+  # Initialize request use this directly... all others use the overload above
+  private def request(id : Int32, payload : String, handler : LspAbstractResponseHandler)
+    @response_handlers[id] = handler
     send(payload)
   end
 
@@ -69,10 +113,6 @@ class LspClient
 
     payload = NotificationMessage.new(method, params).to_json
     send(payload)
-  end
-
-  private def initialize_request(&block : ResponseCallback)
-    request(0, initialize_request_payload, &block)
   end
 
   private def initialize_request_payload : String
@@ -142,6 +182,11 @@ class LspClient
             # },
             "definition" => {
               "dynamicRegistration" => false,
+              "linkSupport"         => true,
+            },
+            "declaration" => {
+              "dynamicRegistration" => false,
+              "linkSupport"         => true,
             },
             # "references" => {
             #   "dynamicRegistration" => true,
@@ -193,12 +238,14 @@ class LspClient
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 
     log.debug { "==> #{payload.colorize(:green)}" }
+  rescue e : IO::EOFError
+    log.fatal { e.message }
   end
 
   def shutdown
     # FIXME: Need to block the thread to give time to the server to answer before we quit, breaking the server pipe.
     #        The way it's written now, the exit notify is never sent.
-    request("shutdown", nil) do
+    request_shutdown do
       notify("exit", nil)
     end
   end
@@ -235,30 +282,27 @@ class LspClient
     elsif json["method"]? != nil
       handle_server_request(msg_id, json)
     else
-      handle_server_response(msg_id, io)
+      handle_server_response(msg_id, json)
     end
+  rescue e : JSON::ParseException
+    log.error { "Bad message from server: #{e.message}" }
   end
 
-  private def handle_server_response(msg_id : Int32, io : IO)
+  private def handle_server_response(msg_id : Int32, json : JSON::Any) : Nil
     handler = @response_handlers.delete(msg_id)
     if handler.nil?
-      Log.warn { "No response handler for request #{msg_id}." }
+      log.warn { "No response handler for request #{msg_id}." }
       return
     end
 
-    # FIXME: Create a macro that build these values from a JSON::Any instead of double parse the JSON.
-    io.rewind
-    message = ResponseMessage.from_json(io)
-
-    result = message.result
-    return if result.nil?
-
-    GLib.idle_add do
-      handler.not_nil!.call(result.not_nil!)
-      false
+    result = json["result"]?
+    if result
+      handler.exec(result)
+    else
+      log.error { "Server sent empty result!" }
     end
   rescue e
-    log.error(exception: e) { "Bad message from server:\n\n#{io.to_s.colorize(:red)}\n\n" }
+    log.error { "Error reading LS response: #{e.message}" }
   end
 
   private def handle_server_request(msg_id : Int32, json : JSON::Any)

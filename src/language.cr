@@ -169,29 +169,15 @@ class Language
     lsp_client.notify("textDocument/didSave", params)
   end
 
-  def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(String, Int32, Int32, Nil))
+  def goto_definition(path : Path, line : Int32, col : Int32, &block : Proc(Array(LSP::Location | LSP::LocationLink), Nil))
     return unless lsp_ready?("Go To Definition", &.definition_provider?)
 
-    params = LSP::TextDocumentPositionParams.new(uri: uri(path), line: line, character: col)
-    lsp_client.request("textDocument/definition", params) do |result|
-      result = result.as?(Array(LSP::Location))
-      next if result.nil? || result.empty?
-
-      location = result.first
-      uri = URI.parse(location.uri).full_path
-      line = location.range.start.line
-      col = location.range.start.character
-      block.call(uri, line, col)
-    end
+    lsp_client.request_text_document_definition(path, line, col, &block)
   end
 
   def document_symbols(path : Path, &block : Proc(Array(LSP::SymbolInformation), Nil))
     return unless lsp_ready?("Document Symbols", &.document_symbol_provider?)
 
-    params = LSP::DocumentSymbolParams.new(uri: uri(path))
-    lsp_client.request("textDocument/documentSymbol", params) do |result|
-      result = result.as?(Array(LSP::SymbolInformation))
-      block.call(result || [] of LSP::SymbolInformation)
-    end
+    lsp_client.request_text_document_document_symbols(path, &block)
   end
 end

@@ -468,9 +468,15 @@ class IdeWindow < Window
     path = text_view.file_path
     return if path.nil?
 
-    text_view.language.goto_definition(path, *text_view.cursor_pos) do |file, line, col|
-      view = open_file(Path.new(file), split_view).as?(TextView)
-      view.goto(line, col) if view
+    text_view.language.goto_definition(path, *text_view.cursor_pos) do |locations|
+      next if locations.empty?
+
+      # TODO: Show a dropdown in case of multiple entries.
+      location = locations.first
+      cursor_location = location.range.start
+
+      view = open_file(location.uri_full_path, split_view).as?(TextView)
+      view.goto(cursor_location.line, cursor_location.character) if view
     end
   rescue e : AppError
     application.error(e)

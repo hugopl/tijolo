@@ -16,7 +16,7 @@ module LSP
 
     @server_info : ServerInfo?
 
-    def initialize(@capabilities)
+    def initialize(@capabilities : ServerCapabilities)
     end
   end
 end

@@ -9,5 +9,9 @@ module LSP
 
     def initialize(@uri, @range)
     end
+
+    def uri_full_path : Path
+      Path.new(URI.parse(@uri).full_path)
+    end
   end
 end
