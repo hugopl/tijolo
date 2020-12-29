@@ -95,6 +95,10 @@ module Gtk
   end
 
   class TextBuffer
+    def can_undo?
+      can_undo
+    end
+
     def place_cursor(pos : Int32)
       iter = Gtk::TextIter.new
       iter_at_offset(iter, pos)

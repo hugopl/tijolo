@@ -17,6 +17,7 @@ class TextView < View
   Log = ::Log.for("TextView")
 
   delegate focus?, to: @editor
+  delegate can_undo?, to: @buffer
 
   def initialize(file_path : Path? = nil, project_path : Path? = nil)
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
@@ -210,6 +211,7 @@ class TextView < View
   end
 
   private def text_inserted(_buffer, iter, text, _text_size)
+    return unless can_undo? # Need this to avoid send a text changed to LSP on text load.
     line = iter.line
     col = iter.line_offset
     language.file_changed_by_insertion(self, line, col, text)

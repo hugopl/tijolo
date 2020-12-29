@@ -290,11 +290,11 @@ class IdeWindow < Window
     view.grab_focus
   end
 
-  def open_file(file : Path, split_view = false) : View?
+  def open_file(file : Path, split_view = false, restore_state = true) : View?
     view = @open_files.view(file)
     if view.nil?
       view = create_view(file, split_view)
-      view.restore_state
+      view.restore_state if restore_state
     else
       @open_files.show_view(view)
     end
@@ -475,7 +475,7 @@ class IdeWindow < Window
       location = locations.first
       cursor_location = location.range.start
 
-      view = open_file(location.uri_full_path, split_view).as?(TextView)
+      view = open_file(location.uri_full_path, split_view, false).as?(TextView)
       view.goto(cursor_location.line, cursor_location.character) if view
     end
   rescue e : AppError
