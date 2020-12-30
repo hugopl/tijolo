@@ -27,7 +27,7 @@ abstract class View
   @@untitled_count = -1
 
   getter file_path : Path?
-  getter project_path : Path?
+  property project_path : Path?
   getter id : String
   property label = ""
   property? readonly = false

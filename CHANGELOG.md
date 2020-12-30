@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Add default configuration for ccls C/C++/ObjectiveC language server.
  - Add default configuration for yaml-language-server.
 ### Fixed
+ - Correct show project relative path on new saved files on editor header bar.
  - Log to `/tmp/tijolo.PID.log` when not running on a tty and user didn't pass --logfile. (regression)
  - Fix several issues in LSP implementation.
  - Added some ♥️ into Ruby and Crystal syntax highlighting language specs.

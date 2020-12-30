@@ -375,6 +375,8 @@ class IdeWindow < Window
       if res == Gtk::ResponseType::ACCEPT.to_i
         file_path = Path.new(dlg.filename.to_s).expand
         @project.add_path(file_path)
+        # New, unsaved files, have no project path until they are saved.
+        view.project_path = @project.root if view.project_path.nil?
         view.file_path = file_path
       end
 
