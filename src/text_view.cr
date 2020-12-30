@@ -23,17 +23,18 @@ class TextView < View
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
     super(@editor, file_path, project_path)
 
-    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
-    @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
-    @buffer.on_modified_changed { update_header }
     @editor.on_focus_in_event do
       notify_view_focused(self)
       false
     end
     setup_editor
     update_header
+
+    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
+    @buffer.connect("notify::cursor-position") { cursor_changed }
+    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.on_modified_changed { update_header }
   end
 
   def text
@@ -211,7 +212,6 @@ class TextView < View
   end
 
   private def text_inserted(_buffer, iter, text, _text_size)
-    return unless can_undo? # Need this to avoid send a text changed to LSP on text load.
     line = iter.line
     col = iter.line_offset
     language.file_changed_by_insertion(self, line, col, text)
