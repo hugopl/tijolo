@@ -111,7 +111,7 @@ maximize_view = "<Ctrl><Shift>X"
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/
 #
-# To disable a language server set the value to a empty string, just commenting the entry will cause Tijolo to use
+# To disable a language server set the value to an empty string, just commenting the entry will cause Tijolo to use
 # the default values
 [language-servers]
 # Crystal language server
@@ -123,6 +123,8 @@ crystal = "crystalline"
 c = "ccls"
 cpp = "ccls"
 objc = "ccls"
+# C/C++ headers
+chdr = "ccls"
 
 # Python language server
 # https://github.com/palantir/python-language-server
