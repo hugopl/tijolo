@@ -64,8 +64,10 @@ abstract class View
 
     variant_self = GLib::Variant.new_uint64(self.object_id)
     Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
-    Gtk::ModelButton.cast(builder["copy_path_and_line"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_full_path_and_line"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_file_name"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_relative_path_and_line"]).action_target_value = variant_self
+    Gtk::ModelButton.cast(builder["copy_relative_path"]).action_target_value = variant_self
   end
 
   def self.reset_untitled_count
@@ -144,6 +146,10 @@ abstract class View
     else
       ctx.remove_class("selected")
     end
+  end
+
+  def cursor_pos
+    {0, 0}
   end
 
   abstract def modified? : Bool

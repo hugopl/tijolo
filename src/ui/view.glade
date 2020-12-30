@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.36.0 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkPopover" id="file_menu">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">3</property>
         <child>
           <object class="GtkModelButton" id="copy_full_path">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="action_name">win.copy_full_path</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.copy_full_path</property>
             <property name="text" translatable="yes">Copy Full Path</property>
           </object>
           <packing>
@@ -25,12 +25,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkModelButton" id="copy_path_and_line">
+          <object class="GtkModelButton" id="copy_full_path_and_line">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="action_name">win.copy_path_and_line</property>
-            <property name="text" translatable="yes">Copy Path and Line Number</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.copy_full_path_and_line</property>
+            <property name="text" translatable="yes">Copy Full Path and Line Number</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -41,9 +41,9 @@
         <child>
           <object class="GtkModelButton" id="copy_file_name">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="action_name">win.copy_file_name</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.copy_file_name</property>
             <property name="text" translatable="yes">Copy File Name</property>
           </object>
           <packing>
@@ -52,23 +52,51 @@
             <property name="position">2</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkModelButton" id="copy_relative_path">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.copy_relative_path</property>
+            <property name="text" translatable="yes">Copy Relative Path</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkModelButton" id="copy_relative_path_and_line">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.copy_relative_path_and_line</property>
+            <property name="text" translatable="yes">Copy Relative Path and Line Number</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
       </object>
     </child>
   </object>
   <object class="GtkBox" id="root">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkBox" id="editor_header">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <child type="center">
           <object class="GtkMenuButton" id="file_path">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="focus_on_click">False</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="focus-on-click">False</property>
+            <property name="receives-default">True</property>
             <property name="relief">none</property>
             <property name="popover">file_menu</property>
             <child>
@@ -84,13 +112,13 @@
         <child>
           <object class="GtkLabel" id="line_column">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_end">6</property>
+            <property name="can-focus">False</property>
+            <property name="margin-end">6</property>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="pack_type">end</property>
+            <property name="pack-type">end</property>
             <property name="position">2</property>
           </packing>
         </child>
@@ -107,7 +135,7 @@
     <child>
       <object class="GtkScrolledWindow" id="container">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <child>
           <placeholder/>
         </child>

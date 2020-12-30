@@ -14,6 +14,12 @@ module GLib
 end
 
 module Gtk
+  class Clipboard
+    def text=(value : String)
+      set_text(value, value.bytesize)
+    end
+  end
+
   class TreeView
     def value(path : TreePath, column : Int32) : GObject::Value
       view_model = model.not_nil!

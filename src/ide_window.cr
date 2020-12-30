@@ -206,12 +206,20 @@ class IdeWindow < Window
     action.on_activate(&->copy_view_full_path(Gio::SimpleAction, GLib::Variant?))
     main_window.add_action(action)
 
-    action = Gio::SimpleAction.new("copy_path_and_line", uint64)
-    action.on_activate(&->copy_view_path_and_line(Gio::SimpleAction, GLib::Variant?))
+    action = Gio::SimpleAction.new("copy_full_path_and_line", uint64)
+    action.on_activate(&->copy_view_full_path_and_line(Gio::SimpleAction, GLib::Variant?))
     main_window.add_action(action)
 
     action = Gio::SimpleAction.new("copy_file_name", uint64)
     action.on_activate(&->copy_view_file_name(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(action)
+
+    action = Gio::SimpleAction.new("copy_relative_path", uint64)
+    action.on_activate(&->copy_view_relative_path(Gio::SimpleAction, GLib::Variant?))
+    main_window.add_action(action)
+
+    action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
+    action.on_activate(&->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
     main_window.add_action(action)
   end
 
@@ -500,37 +508,52 @@ class IdeWindow < Window
     Gtk::Clipboard.default(Gdk::Display.default.not_nil!)
   end
 
-  private def copy_view_full_path(_action, view_id : GLib::Variant?)
-    view = @open_files.view(view_id.uint64) unless view_id.nil?
+  private def with_view_and_path(view_id : UInt64?)
+    view = @open_files.view(view_id)
     return if view.nil?
 
     path = view.file_path
-    return if path.nil?
-
-    text = path.to_s
-    clipboard.set_text(text, text.bytesize)
+    yield(view, path) if path
   end
 
-  private def copy_view_path_and_line(_action, view_id : GLib::Variant?)
-    view = @open_files.view(view_id.uint64).as?(TextView) unless view_id.nil?
-    return if view.nil?
+  private def copy_view_full_path(_action, view_id : GLib::Variant?)
+    return if view_id.nil?
 
-    path = view.file_path
-    return if path.nil?
+    with_view_and_path(view_id.uint64) do |_view, path|
+      clipboard.text = path.to_s
+    end
+  end
 
-    text = "#{path}:#{view.cursor_pos[0] + 1}"
-    clipboard.set_text(text, text.bytesize)
+  private def copy_view_full_path_and_line(_action, view_id : GLib::Variant?)
+    return if view_id.nil?
+
+    with_view_and_path(view_id.uint64) do |view, path|
+      clipboard.text = "#{path}:#{view.cursor_pos[0] + 1}"
+    end
   end
 
   private def copy_view_file_name(_action, view_id : GLib::Variant?)
-    view = @open_files.view(view_id.uint64) unless view_id.nil?
-    return if view.nil?
+    return if view_id.nil?
 
-    path = view.file_path
-    return if path.nil?
+    with_view_and_path(view_id.uint64) do |_view, path|
+      clipboard.text = path.basename.to_s
+    end
+  end
 
-    text = path.basename.to_s
-    clipboard.set_text(text, text.bytesize)
+  private def copy_view_relative_path(_action, view_id : GLib::Variant?)
+    return if view_id.nil?
+
+    with_view_and_path(view_id.uint64) do |_view, path|
+      clipboard.text = path.relative_to(@project.root).to_s
+    end
+  end
+
+  private def copy_view_relative_path_and_line(_action, view_id : GLib::Variant?)
+    return if view_id.nil?
+
+    with_view_and_path(view_id.uint64) do |view, path|
+      clipboard.text = "#{path.relative_to(@project.root)}:#{view.cursor_pos[0] + 1}"
+    end
   end
 
   def view_escape_pressed(_view)
