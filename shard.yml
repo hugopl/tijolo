@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.5.0
   gobject:
     github: jhass/crystal-gobject
-    commit: 465b2f720d7d1724f6435b0986d23d7c08762dde
+    commit: 5bc0cc7481a713b22e332d1bab80c132a819d20e
   compiled_license:
     github: elorest/compiled_license
     version: ~> 0.1.3

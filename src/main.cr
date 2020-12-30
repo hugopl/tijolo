@@ -48,7 +48,7 @@ begin
   app = Application.new(options[:locations])
 
   if options[:gc_disabled] || options[:log_level].debug?
-    GLib.timeout(60) do # each 60 seconds...
+    GLib.timeout(60.seconds) do
       Log.info { "NonGTK memory usage: #{GC.stats.heap_size.humanize_bytes}" }
       true
     end
