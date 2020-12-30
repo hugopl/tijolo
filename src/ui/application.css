@@ -109,19 +109,19 @@ paned separator {
   color: @tijolo_orange1;
 }
 
-treeview button {
+#welcome-window treeview button, #ide-window treeview button {
   color: @tijolo_orange1;
   background-color: @tijolo_black;
   padding: 2px 6px 2px 6px;
   border: 0px;
 }
 
-treeview {
+#ide-window treeview {
   color: @tijolo_white2;
   background-color: @tijolo_black;
 }
 
-treeview:selected {
+#ide-window treeview:selected {
   color: @tijolo_black;
   background: @tijolo_white2;
 }

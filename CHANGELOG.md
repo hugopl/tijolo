@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Show an user friendly message when no git projects were found.
 ### Fixed
  - Don't show popup menu when clicking on editor bar on terminal views or unsaved files.
+ - Fix bad CSS on save/open dialog painting tree views.
  - Correct show project relative path on new saved files on editor header bar.
  - Log to `/tmp/tijolo.PID.log` when not running on a tty and user didn't pass --logfile. (regression)
  - Fix several issues in LSP implementation.
