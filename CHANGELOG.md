@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added default configuration for ccls C/C++/ObjectiveC language server.
  - Added default configuration for yaml-language-server.
  - Added options to copy relative file path on editor header.
+ - Show an user friendly message when no git projects were found.
 ### Fixed
  - Don't show popup menu when clicking on editor bar on terminal views or unsaved files.
  - Correct show project relative path on new saved files on editor header bar.

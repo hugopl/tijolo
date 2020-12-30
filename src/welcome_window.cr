@@ -49,7 +49,9 @@ class WelcomeWindow < Window
       @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>",
                                       project_path})
     end
-    @open_btn.sensitive = projects.any?
+    has_projects = projects.any?
+    @open_btn.sensitive = has_projects
+    inform_about_lack_of_projects unless has_projects
   end
 
   private def format_last_used(project)
@@ -118,5 +120,16 @@ class WelcomeWindow < Window
     iter = Gtk::TreeIter.new
     @tree_view.selection.selected(nil, iter)
     open_project(@projects_model.value(iter, 1).string)
+  end
+
+  private def inform_about_lack_of_projects
+    message = "Tijolo is meant to be used with git projects, but no git projects were found under " \
+              "<span allow_breaks=\"false\" font_family=\"monospace\">#{Path.home}</span>. " \
+              "Create a git project somewhere and ask Tijolo to rescan projects."
+    dialog = Gtk::MessageDialog.new(text: "No Git projects were found", secondary_text: message,
+      message_type: :info, buttons: :ok, secondary_use_markup: true, transient_for: main_window)
+    dialog.on_response { dialog.close }
+    dialog.run
+    dialog.destroy
   end
 end
