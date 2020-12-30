@@ -12,6 +12,7 @@ This is a short-term TODO list in no special order.
   - [x] Make it work with ccls language-server.
   - [ ] Make it work with whatever language-server.
   - [ ] Support LSP auto-complete feature.
+  - [ ] Support LSP diagnostics feature.
   - [ ] Better feedback on LSP when it fails, when it's ready, etc.
 - Some ♥️ to file monitoring.
   - [ ] Better handle file renames by external processes.
