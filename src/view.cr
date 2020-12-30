@@ -48,7 +48,7 @@ abstract class View
     @line_column_label = Gtk::Label.cast(builder["line_column"])
     @file_path_label = Gtk::MenuButton.cast(builder["file_path"])
     @file_path_label.on_button_press_event do |_widget, _event|
-      @file_path_label.clicked
+      @file_path_label.clicked unless @file_path.nil?
       true
     end
 
