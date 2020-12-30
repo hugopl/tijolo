@@ -26,7 +26,7 @@ dependencies:
     commit: 1d42ffdcf6f885a49ece5b2baac00a5146d0a556
   toml:
     github: crystal-community/toml.cr
-    commit: d02de85eed68a70dc97ab6d6e52831a4d0e890fe
+    version: ~> 0.7.0
 crystal: 0.35.1
 
 license: MIT

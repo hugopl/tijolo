@@ -18,7 +18,7 @@ shards:
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
-    version: 0.6.1+git.commit.d02de85eed68a70dc97ab6d6e52831a4d0e890fe
+    version: 0.7.0
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git
