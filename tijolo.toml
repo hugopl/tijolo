@@ -114,8 +114,9 @@ maximize_view = "<Ctrl><Shift>X"
 # To disable a language server set the value to a empty string, just commenting the entry will cause Tijolo to use
 # the default values
 [language-servers]
-# SCry, not very good but is what we have for Crystal
-crystal = "scry"
+# Crystal language server
+# https://github.com/elbywan/crystalline
+crystal = "crystalline"
 
 # C/C++/Objective C Language server
 # https://github.com/MaskRay/ccls
