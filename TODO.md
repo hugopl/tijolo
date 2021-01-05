@@ -10,7 +10,7 @@ This is a short-term TODO list in no special order.
 - Some ♥️ to LSP implementation.
   - [x] Make it work with yaml-language-server.
   - [x] Make it work with ccls language-server.
-  - [ ] Make it work with whatever language-server.
+  - [x] Make it work with whatever language-server.
   - [ ] Support LSP auto-complete feature.
   - [ ] Support LSP diagnostics feature.
   - [ ] Better feedback on LSP when it fails, when it's ready, etc.
@@ -37,10 +37,10 @@ This is a short-term TODO list in no special order.
 - [ ] Show LSP diagnostics.
 - [ ] Support folding (there's a very simple folding implementation in TEPL, just get it and use with LSP)
 - [ ] Clone repository dialog. (I really don't care about this task, since I don't use it)
-- [ ] Save sessions, with a config flag.
+- [ ] Save sessions.
 - [ ] I18N support.
-- [ ] Smart indent (language specific) or check if using LSP is ok.
 - [ ] Show passive popup "definition not found" when LSP can't find a definition.
 - [ ] Strip trailing whitespaces (ONLY) from modified lines.
 - [ ] In-editor git blame (maybe should better wait for GTK4 before dig into GTK drawing functions)
 - [ ] Subclass/fork GTK TextView class to try to implement multiple cursors, maybe in Crystal with a lot of C glue.
+- [ ] Write a text widget in Crystal and use it instead of GtkSourceView4 😱️, get some inspiration from Howl editor.
