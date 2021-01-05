@@ -70,7 +70,7 @@ describe Project do
       current_dir = FileUtils.pwd
       proj_root = Path.new(Dir.tempdir, "proj_#{Process.pid}")
       Dir.mkdir(proj_root)
-      Dir.cd(proj_root) { `git init .` }
+      Dir.cd(proj_root) { `git init --initial-branch=main .` }
       project = Project.new(proj_root.to_s)
       Dir.mkdir_p(proj_root.join("dir", "subdir"))
       File.write(proj_root.join("dir", "subdir", "file1"), "")
