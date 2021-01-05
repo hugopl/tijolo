@@ -80,12 +80,13 @@ class IdeWindow < Window
     @branches = GitBranches.new(@project)
     @branches_view = Gtk::TreeView.cast(builder["git_branches"])
     @branches_view.model = @branches.model
+    @branches_view.on_row_activated(&->switch_branch_from_branches_view(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
 
     # Setup Project Tree view
     @project_tree = ProjectTree.new(@project)
     @project_tree_view = Gtk::TreeView.cast(builder["project_tree"])
     @project_tree_view.model = @project_tree.model
-    @project_tree_view.on_row_activated &->open_file_from_project_tree(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn)
+    @project_tree_view.on_row_activated(&->open_file_from_project_tree(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
 
     main_window.on_key_press_event(&->key_press_event(Gtk::Widget, Gdk::EventKey))
     main_window.on_key_release_event(&->key_release_event(Gtk::Widget, Gdk::EventKey))
@@ -268,6 +269,12 @@ class IdeWindow < Window
     view = TextView.new(file_path, project_path)
     view.language.file_opened(view)
     view
+  end
+
+  private def switch_branch_from_branches_view(view : Gtk::TreeView, tree_path : Gtk::TreePath, _col : Gtk::TreeViewColumn)
+    @branches.switch_branch(tree_path)
+  rescue e : GitError
+    application.error("Git operation failed", e.message.to_s)
   end
 
   private def open_file_from_project_tree(view : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)

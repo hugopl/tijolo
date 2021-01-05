@@ -1,11 +1,11 @@
 require "git"
+require "./git_wrapper"
 require "./fuzzy_locator"
 require "./project"
 
-class GitError < AppError
-end
-
 class GitLocator < FuzzyLocator
+  include GitWrapper
+
   @project : Project
 
   def initialize(@project)
@@ -67,11 +67,7 @@ class GitLocator < FuzzyLocator
   end
 
   def git_cmd_with_output(locator, args)
-    output = IO::Memory.new
-    err_output = IO::Memory.new
-    status = Process.run("git", args, output: output, error: err_output)
-    raise GitError.new(err_output.to_s) unless status.success?
-
+    output = run_git(args)
     label = String.build do |str|
       str << "Git " << args.first.capitalize
       str << " — " << args.last if args.size > 1

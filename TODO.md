@@ -22,6 +22,7 @@ This is a short-term TODO list in no special order.
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] Better feedback when failed to open language servers.
 - [x] Editorconfig support
+- [x] Checkout git branch by clicking on branch in sidebar.
 
 ## 0.5.0 release
 
@@ -31,7 +32,6 @@ This is a short-term TODO list in no special order.
 
 - [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
 - [ ] Rebind shortcuts after save config file.
-- [ ] Checkout git branch by clicking on branch in sidebar.
 - [ ] Rename files.
 - [ ] Delete files.
 - [ ] Show LSP diagnostics.

@@ -1,22 +1,30 @@
 require "git"
+require "./git_wrapper"
 require "./project"
 
 # Responsible for display the available git branches
 class GitBranches
   include ProjectListener
+  include GitWrapper
 
-  BRANCH_NAME_COL = 0
+  BRANCH_NAME_COL  = 0
+  BRANCH_LABEL_COL = 1
 
   getter model : Gtk::ListStore
 
   def initialize(@project : Project)
-    @model = Gtk::ListStore.new({GObject::Type::UTF8})
+    @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UTF8})
     @project.add_project_listener(self)
   end
 
   def project_load_finished
     fill_model
     create_monitor
+  end
+
+  def switch_branch(tree_path : Gtk::TreePath)
+    branch = @model.value(tree_path, BRANCH_NAME_COL).string
+    run_git({"checkout", branch}) unless branch.empty?
   end
 
   private def fill_model
@@ -30,7 +38,7 @@ class GitBranches
               else
                 "  #{branch.name}"
               end
-      @model.append({BRANCH_NAME_COL}, {label})
+      @model.append({BRANCH_NAME_COL, BRANCH_LABEL_COL}, {branch.name, label})
     end
   rescue e : Git::Error
     Log.error { "Error reading git repository: #{e.message}" }

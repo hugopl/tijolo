@@ -41,6 +41,14 @@ module Gtk
     end
   end
 
+  module TreeModel
+    def value(path : Gtk::TreePath, column : Int32)
+      iter = Gtk::TreeIter.new
+      self.iter(iter, path)
+      value(iter, column)
+    end
+  end
+
   class TreeStore
     def append(parent : TreeIter?, columns : Tuple, values : Tuple) : TreeIter
       TreeIter.new.tap do |iter|
@@ -58,9 +66,7 @@ module Gtk
 
     def value(indices : Enumerable(Int32), column : Int32)
       path = TreePath.new_from_indices(indices)
-      iter = Gtk::TreeIter.new
-      self.iter(iter, path)
-      value(iter, column)
+      value(path, column)
     end
 
     def reorder(parent : TreeIter?, new_order : Array(Int32))
@@ -78,10 +84,8 @@ module Gtk
     end
 
     def value(row : Int32, column : Int32)
-      iter = Gtk::TreeIter.new
       path = TreePath.new_from_indices({row})
-      iter(iter, path)
-      value(iter, column)
+      value(path, column)
     end
 
     def set(row : Int32, columns : Tuple, values : Tuple) : TreeIter
