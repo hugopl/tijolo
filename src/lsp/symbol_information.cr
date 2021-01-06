@@ -30,19 +30,23 @@ module LSP
     Operator      = 25
     TypeParameter = 26
 
-    Unknown = 255 # CCLS use this, even not being part of the spec.
+    Unknown = 255 # CCLS use values not in the spec.
   end
 
   struct SymbolInformation
     include JSON::Serializable
 
-    property name : String
-    property kind : SymbolKind
-    property location : Location
+    getter name : String
+    @kind : Int32 # Some language servers like CCLS use values not specified in the spec here.
+    getter location : Location
     @[JSON::Field(key: "containerName")]
-    property container_name : String?
+    getter container_name : String?
 
     def initialize(@name, @kind, @location, @container_name = nil)
+    end
+
+    def kind : SymbolKind
+      SymbolKind.from_value?(@kind) || SymbolKind::Unknown
     end
   end
 end
