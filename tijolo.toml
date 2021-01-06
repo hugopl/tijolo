@@ -57,7 +57,7 @@ highlight_current_line = true
 background_pattern = "grid"
 
 [terminal]
-# If true, opening a file focused terminal view will open the file in the same view area instead of in a new split view.
+# If true, terminal views work as a stack (like normal editor views) and can have other views.
 # Default: false
 shared_view = false
 

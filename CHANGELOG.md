@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Log to `/tmp/tijolo.PID.log` when not running on a tty and user didn't pass --logfile. (regression)
  - Fix several issues in LSP implementation.
  - Added some ♥️ into Ruby and Crystal syntax highlighting language specs.
+ - Fixed some issues sorting the last used view when switching between views.
+ - Clicking on a terminal or image view now proper focus them.
 
 ## [0.3.0] - 2020-11-02
 ### Added

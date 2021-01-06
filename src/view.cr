@@ -62,6 +62,11 @@ abstract class View
       @label = untitled_name
     end
 
+    @view_widget.on_focus_in_event do
+      notify_view_focused(self)
+      false
+    end
+
     variant_self = GLib::Variant.new_uint64(self.object_id)
     Gtk::ModelButton.cast(builder["copy_full_path"]).action_target_value = variant_self
     Gtk::ModelButton.cast(builder["copy_full_path_and_line"]).action_target_value = variant_self

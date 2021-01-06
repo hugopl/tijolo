@@ -113,10 +113,12 @@ class OpenFiles
     @sorted_files.push(@sorted_files.delete_at(new_selected_index))
     @sorted_files_index = @sorted_files.size - 1
 
-    idx = @files.index(@sorted_files[@sorted_files_index])
+    idx = @files.index(@sorted_files.last)
     @model.set(idx, {OPEN_FILES_LAST_USED}, {last_used_counter}) unless idx.nil?
   end
 
+  # Cycle through open views and call reveal_view for the next view.
+  # If reorder = true, mark the current view as the last used, i.e. reorder @sorted_files
   def switch_current_view(reorder : Bool)
     return if @files.size < 2
 
@@ -131,7 +133,6 @@ class OpenFiles
   end
 
   def show_view(view : View)
-    reorder_open_files(view)
     reveal_view(view, true)
   end
 

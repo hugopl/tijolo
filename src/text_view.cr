@@ -23,10 +23,6 @@ class TextView < View
     @buffer = GtkSource::Buffer.cast(@editor.buffer)
     super(@editor, file_path, project_path)
 
-    @editor.on_focus_in_event do
-      notify_view_focused(self)
-      false
-    end
     setup_editor
     update_header
 
