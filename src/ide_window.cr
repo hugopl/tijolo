@@ -134,9 +134,7 @@ class IdeWindow < Window
     application.header_bar.subtitle = relative_path_label(@project.root)
     application.destroy_welcome
 
-    return if Config.instance.lazy_start_language_servers?
-
-    LanguageManager.start_languages_for(@project.files)
+    LanguageManager.start_languages_for(@project.files) unless Config.instance.lazy_start_language_servers?
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)

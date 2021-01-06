@@ -12,6 +12,10 @@
 # Default: false
 lazy_start_language_servers = false
 
+# Enable support for language servers, see [language-servers] section.
+# Default: true
+language_servers_enabled = true
+
 # Ignore project settings on .editorconfig files
 # See https://editorconfig.org/
 ignore_editor_config_files = false

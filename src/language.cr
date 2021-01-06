@@ -41,7 +41,13 @@ class Language
   private def lsp_ready?(feature : String, &proc : Proc(LspClient, Bool)) : Bool
     lsp_client = @lsp_client
     if lsp_client.nil?
-      msg = none? ? "This feature requires a Language Server" : "This feature requires a Language Server for #{@id}."
+      msg = if none?
+              "This feature doesn't work on files in unknown languages."
+            elsif !Config.instance.language_servers_enabled?
+              "Enable language server support to use this feature."
+            else
+              "This feature requires a Language Server for #{@id}."
+            end
       raise AppError.new(msg)
     end
 
@@ -59,6 +65,8 @@ class Language
   end
 
   def start_lsp(cmd)
+    return unless Config.instance.language_servers_enabled?
+
     lsp = @@running_language_servers[cmd]?
     if lsp
       Log.info { %Q(Reusing "#{lsp.lang_id}" language server for "#{@id}".) }

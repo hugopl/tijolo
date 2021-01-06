@@ -28,6 +28,7 @@ end
 
 options = parse_args(ARGV)
 setup_logger(options)
+Config.instance.language_servers_enabled = false if options[:no_lsp]
 
 # Yes, always leak memory...
 #

@@ -33,6 +33,7 @@ end
 
 def parse_args(argv)
   gc_disabled = true # Leak all the things! See main.cr
+  no_lsp = false
   logfile = nil
   log_level = Config.instance.log_level
 
@@ -43,6 +44,7 @@ def parse_args(argv)
       exit
     end
     parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { log_level = Log::Severity::Debug }
+    parser.on("--no-lsp", "Disable language server protocol support.") { no_lsp = true }
     parser.on("--enable-gc", "Enable garbage collector (see https://github.com/jhass/crystal-gobject/issues/69).") do
       gc_disabled = false
     end
@@ -64,5 +66,6 @@ def parse_args(argv)
   {locations:   argv,
    gc_disabled: gc_disabled,
    logfile:     logfile,
-   log_level:   log_level}
+   log_level:   log_level,
+   no_lsp:      no_lsp}
 end
