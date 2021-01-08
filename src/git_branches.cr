@@ -1,11 +1,9 @@
 require "./git"
-require "./git_wrapper"
 require "./project"
 
 # Responsible for display the available git branches
 class GitBranches
   include ProjectListener
-  include GitWrapper
 
   BRANCH_NAME_COL  = 0
   BRANCH_LABEL_COL = 1
@@ -24,7 +22,7 @@ class GitBranches
 
   def switch_branch(tree_path : Gtk::TreePath)
     branch = @model.value(tree_path, BRANCH_NAME_COL).string
-    run_git({"checkout", branch}) unless branch.empty?
+    Git.run_cli({"checkout", branch}) unless branch.empty?
   end
 
   private def fill_model

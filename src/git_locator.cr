@@ -1,11 +1,8 @@
 require "./git"
-require "./git_wrapper"
 require "./fuzzy_locator"
 require "./project"
 
 class GitLocator < FuzzyLocator
-  include GitWrapper
-
   @project : Project
 
   def initialize(@project)
@@ -47,7 +44,7 @@ class GitLocator < FuzzyLocator
     when "checkout"     then checkout(args)
     when "log", "blame" then git_cmd_with_output(locator, args)
     end
-  rescue e : GitError
+  rescue e : Git::Error
     title = "Git operation failed"
     dialog = Gtk::MessageDialog.new(text: title, secondary_text: e.message.to_s, message_type: :error, buttons: :ok)
     dialog.on_response { dialog.close }
@@ -55,15 +52,12 @@ class GitLocator < FuzzyLocator
   end
 
   # FIXME: Implement this on libgit and do it with libgit calls.
-  def checkout(args)
-    err_output = IO::Memory.new
-    status = Process.run("git", args, error: err_output)
-
-    raise GitError.new(err_output.to_s) unless status.success?
+  def checkout(args) : Nil
+    Git.run_cli(args)
   end
 
   def git_cmd_with_output(locator, args)
-    output = run_git(args)
+    output = Git.run_cli(args)
     label = String.build do |str|
       str << "Git " << args.first.capitalize
       str << " — " << args.last if args.size > 1

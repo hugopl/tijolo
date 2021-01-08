@@ -271,7 +271,7 @@ class IdeWindow < Window
 
   private def switch_branch_from_branches_view(view : Gtk::TreeView, tree_path : Gtk::TreePath, _col : Gtk::TreeViewColumn)
     @branches.switch_branch(tree_path)
-  rescue e : GitError
+  rescue e : Git::Error
     application.error("Git operation failed", e.message.to_s)
   end
 

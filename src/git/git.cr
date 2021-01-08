@@ -9,12 +9,25 @@ module Git
     def initialize(code : ErrorCode, message)
       super("#{code}: #{message}")
     end
+
+    def initialize(message)
+      super
+    end
   end
 
   class NotFoundError < Error
     def initialize(message)
       super(ErrorCode::NotFound, message)
     end
+  end
+
+  def run_cli(args)
+    output = IO::Memory.new
+    err_output = IO::Memory.new
+    status = Process.run("git", args, output: output, error: err_output)
+    raise Error.new(err_output.to_s) unless status.success?
+
+    output.to_s
   end
 
   protected def nerr(code : ErrorCode, message = "Git Error")
