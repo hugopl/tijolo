@@ -21,9 +21,6 @@ dependencies:
   compiled_license:
     github: elorest/compiled_license
     version: ~> 0.1.3
-  git:
-    github: smacker/libgit2.cr
-    commit: 1d42ffdcf6f885a49ece5b2baac00a5146d0a556
   toml:
     github: crystal-community/toml.cr
     version: ~> 0.7.0

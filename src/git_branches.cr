@@ -1,4 +1,4 @@
-require "git"
+require "./git"
 require "./git_wrapper"
 require "./project"
 
@@ -32,7 +32,7 @@ class GitBranches
 
     @model.clear
     repo = Git::Repo.open(@project.root.to_s)
-    repo.branches.each(:local).each do |branch|
+    repo.each_branch(:local) do |branch|
       label = if branch.head?
                 "<b>* #{branch.name}</b>"
               else

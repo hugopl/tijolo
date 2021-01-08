@@ -1,4 +1,4 @@
-require "git"
+require "./git"
 require "./git_wrapper"
 require "./fuzzy_locator"
 require "./project"
@@ -20,16 +20,12 @@ class GitLocator < FuzzyLocator
     'g'
   end
 
-  def repo
-    @repo ||= Git::Repo.open(@project.root.to_s)
-  end
-
   def selected(view : View?)
     # FIXME offer git init
     return unless @project.valid?
 
     cmds = [] of String
-    repo.branches.each.each do |branch|
+    Git::Repo.current.each_branch do |branch|
       cmds << "checkout #{branch.name}" unless branch.head?
     end
     cmds << "log"
