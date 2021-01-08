@@ -157,8 +157,6 @@ abstract class View
     {0, 0}
   end
 
-  abstract def modified? : Bool
-
   def externally_unmodified!
     @externally_modified = false
   end
@@ -166,6 +164,14 @@ abstract class View
   def externally_modified!
     last_saved_at = @last_saved_at
     @externally_modified = last_saved_at.nil? ? true : Time.monotonic - last_saved_at > 1.seconds
+  end
+
+  def can_reload? : Bool
+    return false if modified?
+
+    # A more accurate approach would check if the view contents matches the contents on disk, if not, return false. However
+    # meanwhile I think this will be slow as hell for a corner-case. This can change in the future.
+    Git::Repo.current.modified?(@file_path.not_nil!)
   end
 
   def reload : Nil

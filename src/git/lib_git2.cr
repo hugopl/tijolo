@@ -59,4 +59,29 @@ lib LibGit
 
   fun repository_free = git_repository_free(repo : Repository)
   fun repository_open = git_repository_open(out : Repository*, path : LibC::Char*) : ErrorCode
+  fun repository_workdir = git_repository_workdir(repo : Repository) : LibC::Char*
+
+  # Status
+  ########
+  @[Flags]
+  enum StatusT : UInt32
+    Current = 0
+
+    IndexNew        = (1_u32 << 0)
+    IndexModified   = (1_u32 << 1)
+    IndexDeleted    = (1_u32 << 2)
+    IndexRenamed    = (1_u32 << 3)
+    IndexTypechange = (1_u32 << 4)
+
+    WorkTreeNew        = (1_u32 << 7)
+    WorkTreeModified   = (1_u32 << 8)
+    WorkTreeDeleted    = (1_u32 << 9)
+    WorkTreeTypeChange = (1_u32 << 10)
+    WorkTreeRenamed    = (1_u32 << 11)
+    WorkTreeUnreadable = (1_u32 << 12)
+
+    Ignored    = (1_u32 << 14)
+    Conflicted = (1_u32 << 15)
+  end
+  fun status_file = git_status_file(status_flags : StatusT*, repo : Repository, path : LibC::Char*) : ErrorCode
 end

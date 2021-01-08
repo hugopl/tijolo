@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Show an user friendly message when no git projects were found.
  - Clicking on a branch name on `Git Branches` view changes the current branch.
  - Added `--no-lsp` to disable LSP suport.
+ - Automatic reload files if they were changed externally but are up to date on git.
 ### Fixed
  - Don't show popup menu when clicking on editor bar on terminal views or unsaved files.
  - Fix bad CSS on save/open dialog painting tree views.

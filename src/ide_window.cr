@@ -621,6 +621,17 @@ class IdeWindow < Window
     return if view.nil? || !view.externally_modified?
 
     modified_views = @open_files.files.select(&.externally_modified?)
+    # Auto reload views that can be reloaded and remove them from modified views.
+    modified_views.reject! do |v|
+      if v.can_reload?
+        v.reload
+        true
+      else
+        false
+      end
+    end
+    return if modified_views.empty?
+
     dlg = ConfirmReloadDialog.new(main_window, modified_views)
     case dlg.run
     when .cancel?

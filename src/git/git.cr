@@ -3,6 +3,7 @@ require "./lib_git2"
 module Git
   alias BranchType = LibGit::BranchT
   alias ErrorCode = LibGit::ErrorCode
+  alias Status = LibGit::StatusT
 
   class Error < Exception
     def initialize(code : ErrorCode, message)
@@ -25,6 +26,7 @@ module Git
 
   class Repo
     @@initied = false
+    getter root : Path
 
     def self.current
       @@current ||= Repo.new(Dir.current)
@@ -41,6 +43,7 @@ module Git
 
       Git.nerr(LibGit.repository_open(out repo, path.to_s), "Couldn't open repository at #{path}.")
       @repo = repo
+      @root = Path.new(String.new(LibGit.repository_workdir(repo)))
     end
 
     def finalize
@@ -58,6 +61,14 @@ module Git
       end
 
       LibGit.branch_iterator_free(iter)
+    end
+
+    def modified?(file : Path) : Bool
+      path = file.relative_to(@root).to_s
+      code = LibGit.status_file(out status, @repo, path)
+      return false unless code.ok?
+
+      status == Status::Current
     end
   end
 
