@@ -17,6 +17,7 @@
 textview
 {
   -gtk-key-bindings: TextViewKeyBindings;
+  font: 9pt "JetBrainsMono Nerd Font", "Monospace";
 }
 
 @define-color tijolo_white #DCDCD1;
