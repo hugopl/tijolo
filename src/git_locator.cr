@@ -41,8 +41,9 @@ class GitLocator < FuzzyLocator
   def activate(locator : Locator, match : Fzy::Match)
     args = match.value.split(' ', 2)
     case args.first
-    when "checkout"     then checkout(args)
-    when "log", "blame" then git_cmd_with_output(locator, args)
+    when "checkout" then checkout(args)
+    when "log"      then git_cmd_with_output(locator, args, "gitlog")
+    when "blame"    then git_cmd_with_output(locator, args, nil)
     end
   rescue e : Git::Error
     title = "Git operation failed"
@@ -56,12 +57,12 @@ class GitLocator < FuzzyLocator
     Git.run_cli(args)
   end
 
-  def git_cmd_with_output(locator, args)
+  def git_cmd_with_output(locator, args, syntax)
     output = Git.run_cli(args)
     label = String.build do |str|
       str << "Git " << args.first.capitalize
       str << " — " << args.last if args.size > 1
     end
-    locator.notify_locator_show_special_file(output.to_s, label)
+    locator.notify_locator_show_special_file(output.to_s, label, syntax)
   end
 end

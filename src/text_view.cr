@@ -236,6 +236,11 @@ class TextView < View
     @buffer.text = text
   end
 
+  # Note, this doesn't change the language object, just the syntax highlighting
+  def syntax_highlighting=(language : String)
+    @buffer.language = LanguageManager.find_gtk_lang(language)
+  end
+
   private def guess_language!(text : String)
     file_path = @file_path
     return if file_path.nil?

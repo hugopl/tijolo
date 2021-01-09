@@ -286,12 +286,13 @@ class IdeWindow < Window
     open_file(Path.new(file), split_view)
   end
 
-  def locator_show_special_file(contents : String, label : String)
+  def locator_show_special_file(contents : String, label : String, syntax : String?)
     view = create_view.as(TextView)
     view.text = contents
     view.readonly = true
     view.virtual = true
     view.label = label
+    view.syntax_highlighting = syntax if syntax
     view.cursor_pos = {0, 0}
   end
 

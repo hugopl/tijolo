@@ -94,7 +94,7 @@ class TestLocatorListener
     @line_col = {line, column}
   end
 
-  def locator_show_special_file(contents : String, label : String)
+  def locator_show_special_file(contents : String, label : String, syntax : String?)
   end
 end
 

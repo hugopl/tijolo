@@ -12,7 +12,7 @@ require "./ui_builder_helper"
 module LocatorListener
   abstract def locator_open_file(file : String, split_view : Bool)
   abstract def locator_goto_line_col(line : Int32, column : Int32)
-  abstract def locator_show_special_file(contents : String, label : String)
+  abstract def locator_show_special_file(contents : String, label : String, syntax : String?)
 end
 
 class Locator
