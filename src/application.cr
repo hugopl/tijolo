@@ -190,7 +190,7 @@ class Application
   def show_about_dlg
     dialog = Gtk::AboutDialog.new(application: @application,
       transient_for: main_window,
-      copyright: "© 2020 Hugo Parente Lima",
+      copyright: "© 2020-2021 Hugo Parente Lima",
       version: VERSION,
       program_name: "Tijolo",
       logo_icon_name: "io.github.hugopl.Tijolo",
