@@ -14,6 +14,7 @@ RUN apt-get update \
   git \
   make \
   crystal \
+  libeditorconfig-dev \
   libgirepository1.0-dev \
   libgit2-dev \
   libgtksourceview-4-dev \
