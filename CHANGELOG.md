@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Focus editor if press ESC on locator.
  - Do not let the editor useless on language server crashes.
+ - Do not show previous locator results after close the last editor and hit Ctrl+P.
 
 ## [0.4.0] - 2021-01-10
 ### Added

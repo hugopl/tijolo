@@ -73,7 +73,7 @@ class Locator
   def show(*, select_text : Bool, view : View?, split_view = false)
     @split_next = split_view
     self.results_cursor = 0
-    @current_locator_provider.selected(view) if view != @current_view
+    @current_locator_provider.selected(view) if view.nil? || view != @current_view
 
     @current_view = view
     @locator_widget.show
