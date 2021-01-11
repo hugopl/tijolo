@@ -112,7 +112,7 @@ class LspClient
     return unless initialized?
 
     payload = NotificationMessage.new(method, params).to_json
-    send(payload)
+    send?(payload)
   end
 
   private def initialize_request_payload : String
@@ -231,6 +231,13 @@ class LspClient
     @next_id += 1
   end
 
+  private def send?(payload : String) : Bool
+    send(payload)
+    true
+  rescue e : AppError
+    false
+  end
+
   private def send(payload : String) : Nil
     return log.fatal { "Server died" } unless @server.exists?
 
@@ -240,6 +247,7 @@ class LspClient
     log.debug { "==> #{payload.colorize(:green)}" }
   rescue e : IO::Error
     log.fatal { e.message }
+    raise AppError.new("#{@lang_id.titleize} language server crashed.")
   end
 
   def shutdown
@@ -271,7 +279,7 @@ class LspClient
     end
   rescue e : IO::EOFError
     log.fatal { "Server closed output." }
-  rescue e : IO::Error
+  rescue e : IO::Error | AppError
     log.fatal { e.message }
   end
 
