@@ -238,7 +238,7 @@ class LspClient
     output << "Content-Length: #{payload.bytesize}\r\n\r\n#{payload}"
 
     log.debug { "==> #{payload.colorize(:green)}" }
-  rescue e : IO::EOFError
+  rescue e : IO::Error
     log.fatal { e.message }
   end
 
@@ -271,6 +271,8 @@ class LspClient
     end
   rescue e : IO::EOFError
     log.fatal { "Server closed output." }
+  rescue e : IO::Error
+    log.fatal { e.message }
   end
 
   private def decode_server_message(io : IO)

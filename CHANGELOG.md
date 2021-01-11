@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Focus editor if press ESC on locator.
+ - Do not let the editor useless on language server crashes.
 
 ## [0.4.0] - 2021-01-10
 ### Added
