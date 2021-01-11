@@ -304,6 +304,11 @@ class IdeWindow < Window
     view.grab_focus
   end
 
+  def locator_hidden
+    view = @open_files.current_view
+    view.grab_focus if view
+  end
+
   def open_file(file : Path, split_view = false, restore_state = true) : View?
     view = @open_files.view(file)
     if view.nil?

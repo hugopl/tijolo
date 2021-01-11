@@ -13,6 +13,7 @@ module LocatorListener
   abstract def locator_open_file(file : String, split_view : Bool)
   abstract def locator_goto_line_col(line : Int32, column : Int32)
   abstract def locator_show_special_file(contents : String, label : String, syntax : String?)
+  abstract def locator_hidden
 end
 
 class Locator
@@ -86,6 +87,7 @@ class Locator
   def hide
     @current_view = nil
     @locator_widget.hide
+    notify_locator_hidden
   end
 
   def text=(text : String)
@@ -102,15 +104,12 @@ class Locator
     false
   end
 
-  macro hide_locator_on_esc!
+  private def entry_key_pressed(_widget, event : Gdk::EventKey)
+    # Hide locator on esc.
     if event.keyval == Gdk::KEY_Escape
       hide
       return true
     end
-  end
-
-  private def entry_key_pressed(_widget, event : Gdk::EventKey)
-    hide_locator_on_esc!
 
     if event.keyval == Gdk::KEY_Up
       self.results_cursor -= 1

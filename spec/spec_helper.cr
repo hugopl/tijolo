@@ -96,6 +96,9 @@ class TestLocatorListener
 
   def locator_show_special_file(contents : String, label : String, syntax : String?)
   end
+
+  def locator_hidden
+  end
 end
 
 # Just to make things accessible for testing
