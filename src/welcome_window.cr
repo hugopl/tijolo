@@ -46,8 +46,8 @@ class WelcomeWindow < Window
       project_path = project.path.to_s
       project_path_label = project_path.starts_with?(home) ? project_path.sub(home, "~") : project_path
       last_used = format_last_used(project)
-      @projects_model.append({0, 1}, {"<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>",
-                                      project_path})
+      @projects_model.append({0, 1, 2}, {"<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>",
+                                         project_path, project.name})
     end
     has_projects = projects.any?
     @open_btn.sensitive = has_projects

@@ -4,9 +4,11 @@
   <requires lib="gtk+" version="3.22"/>
   <object class="GtkListStore" id="projects_model">
     <columns>
-      <!-- column-name Project -->
+      <!-- column-name Project Label -->
       <column type="gchararray"/>
-      <!-- column-name Project1 -->
+      <!-- column-name Project Path -->
+      <column type="gchararray"/>
+      <!-- column-name Project Name -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -126,6 +128,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">projects_model</property>
+                        <property name="search-column">2</property>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection"/>
                         </child>
