@@ -207,5 +207,8 @@ class OpenFiles
 
     @root.current_view = view
     reorder_open_files(view)
+    ignore_focus_event do
+      notify_open_files_view_revealed(view, true)
+    end
   end
 end

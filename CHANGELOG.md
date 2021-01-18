@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - Basic project search now works on project list in Welcome screen, just type the first letters of a project name.
+### Fixed
+ - Fix some keyboard focus issues with find/replace widget.
 
 ## [0.4.1] - 2021-01-11
 ### Fixed

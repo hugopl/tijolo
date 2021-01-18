@@ -28,12 +28,11 @@ class FindReplace
     else
       remove_highlighting
     end
-    @text_view.try(&.grab_focus)
   end
 
   private def on_entry_activated
     find
-    @text_view.try(&.grab_focus)
+    grab_editor_focus
     hide
   end
 
@@ -44,10 +43,12 @@ class FindReplace
   end
 
   def find_next
+    grab_editor_focus
     @text_view.try(&.find_next)
   end
 
   def find_prev
+    grab_editor_focus
     @text_view.try(&.find_prev)
   end
 
@@ -58,9 +59,16 @@ class FindReplace
     text_view.search_context.highlight = false
   end
 
+  private def grab_editor_focus
+    text_view = @text_view
+    return if text_view.nil? || text_view.has_focus?
+
+    text_view.grab_focus
+  end
+
   private def entry_key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
     if event.keyval == Gdk::KEY_Escape
-      hide
+      grab_editor_focus # This will cause the find/repalce widget to hide
       true
     end
     false

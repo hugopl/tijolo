@@ -96,6 +96,10 @@ abstract class View
     notify_view_file_path_changed(self)
   end
 
+  def has_focus? : Bool
+    @view_widget.has_focus
+  end
+
   def maximized=(@maximized)
     update_header
   end
