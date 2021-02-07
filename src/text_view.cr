@@ -1,15 +1,15 @@
 require "./editor_config"
 require "./language_manager"
+require "./text_editor"
 require "./ui_builder_helper"
 require "./view"
 
 class TextView < View
   getter! search_context : GtkSource::SearchContext?
 
-  @editor = GtkSource::View.new
+  @editor = TextEditor.new
   @trim_trailing_white_space_on_save = true
-  getter font_size = -1
-  getter buffer : GtkSource::Buffer
+  getter buffer : TextBuffer
   getter version = 1
 
   getter language = Language::NONE
@@ -17,28 +17,26 @@ class TextView < View
   Log = ::Log.for("TextView")
 
   delegate focus?, to: @editor
+  delegate font_size, to: @editor
+  delegate :font_size=, to: @editor
   delegate can_undo?, to: @buffer
+  delegate has_selection?, to: @buffer
+  delegate text, to: @buffer
+  delegate :text=, to: @buffer
+  delegate :syntax_highlighting=, to: @buffer
 
   def initialize(file_path : Path? = nil, project_path : Path? = nil)
-    @buffer = GtkSource::Buffer.cast(@editor.buffer)
-    super(@editor, file_path, project_path)
+    @buffer = @editor.buffer
+    super(@editor.widget, file_path, project_path)
 
     setup_editor
     update_header
 
-    @editor.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
-    @buffer.connect("notify::cursor-position") { cursor_changed }
-    @buffer.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
-    @buffer.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
-    @buffer.on_modified_changed { update_header }
-  end
-
-  def text
-    @buffer.text(@buffer.start_iter, @buffer.end_iter, false)
-  end
-
-  def text=(text)
-    @buffer.set_text(text, -1)
+    @editor.widget.on_key_press_event(&->key_pressed(Gtk::Widget, Gdk::EventKey))
+    @buffer.gobject.connect("notify::cursor-position") { cursor_changed }
+    @buffer.gobject.after_insert_text(&->text_inserted(Gtk::TextBuffer, Gtk::TextIter, String, Int32))
+    @buffer.gobject.after_delete_range(&->text_deleted(Gtk::TextBuffer, Gtk::TextIter, Gtk::TextIter))
+    @buffer.gobject.on_modified_changed { update_header }
   end
 
   def file_path=(file_path : Path) : Nil
@@ -50,11 +48,11 @@ class TextView < View
 
   def readonly=(value : Bool)
     super
-    @editor.editable = !value
+    @editor.readonly = value
   end
 
   def modified? : Bool
-    virtual? ? false : @buffer.modified
+    virtual? ? false : @buffer.modified?
   end
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
@@ -79,13 +77,13 @@ class TextView < View
 
     start_iter, end_iter = @buffer.selection_bounds
     end_offset = end_iter.offset
-    @buffer.begin_user_action
-    @buffer.insert(start_iter, start_chr)
-    start_iter.offset = end_offset + 1
-    @buffer.insert(start_iter, end_chr)
-    start_iter.backward_char
-    @buffer.move_mark_by_name("selection_bound", start_iter)
-    @buffer.end_user_action
+    @buffer.user_action do
+      @buffer.insert(start_iter, start_chr)
+      start_iter.offset = end_offset + 1
+      @buffer.insert(start_iter, end_chr)
+      start_iter.backward_char
+      @buffer.move_mark("selection_bound", start_iter)
+    end
     true
   end
 
@@ -108,49 +106,42 @@ class TextView < View
     start_iter = Gtk::TextIter.new
     end_iter = Gtk::TextIter.new
 
-    @buffer.begin_user_action
-    original_text.split("\n").each_with_index do |line, line_index|
-      next if line.empty? || !line[-1].whitespace?
+    @buffer.user_action do
+      original_text.split("\n").each_with_index do |line, line_index|
+        next if line.empty? || !line[-1].whitespace?
 
-      match = line.match(/([ \t]+)\r?\z/)
-      next if match.nil?
+        match = line.match(/([ \t]+)\r?\z/)
+        next if match.nil?
 
-      @buffer.iter_at_line_offset(start_iter, line_index, match.begin(1).not_nil!)
-      @buffer.iter_at_line_offset(end_iter, line_index, match.end(1).not_nil!)
-      @buffer.delete(start_iter, end_iter)
+        @buffer.iter_at_line_offset(start_iter, line_index, match.begin(1).not_nil!)
+        @buffer.iter_at_line_offset(end_iter, line_index, match.end(1).not_nil!)
+        @buffer.delete(start_iter, end_iter)
+      end
     end
-    @buffer.end_user_action
   end
 
   private def setup_editor
-    @buffer.begin_not_undoable_action
-    reload
+    @buffer.not_undoable_action do
+      reload
 
-    config = Config.instance
-    file_path = @file_path
-    is_make_file = !file_path.nil? && file_path.basename == "Makefile"
+      config = Config.instance
+      file_path = @file_path
+      is_make_file = !file_path.nil? && file_path.basename == "Makefile"
 
-    @buffer.style_scheme = GtkSource::StyleSchemeManager.default.scheme(config.style_scheme)
-    @editor.wrap_mode = config.editor_wrap_mode
-    @editor.show_line_numbers = config.editor_show_line_numbers
-    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
-    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
-    @editor.show_right_margin = config.editor_show_right_margin
-    @editor.right_margin_position = config.editor_right_margin_position
-    @editor.highlight_current_line = config.editor_highlight_current_line
-    @editor.background_pattern = config.editor_background_pattern
-    @trim_trailing_white_space_on_save = Config.instance.trim_trailing_white_space_on_save?
+      @editor.wrap_mode = config.editor_wrap_mode
+      @editor.show_line_numbers = config.editor_show_line_numbers
+      @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
+      @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
+      @editor.show_right_margin = config.editor_show_right_margin
+      @editor.right_margin_position = config.editor_right_margin_position
+      @editor.highlight_current_line = config.editor_highlight_current_line
+      @editor.background_pattern = config.editor_background_pattern
+      @trim_trailing_white_space_on_save = Config.instance.trim_trailing_white_space_on_save?
 
-    apply_editor_config_settings unless config.ignore_editor_config_files?
+      apply_editor_config_settings unless config.ignore_editor_config_files?
 
-    @editor.smart_home_end = :before
-    @editor.monospace = true
-    @editor.auto_indent = true
-    @editor.smart_backspace = true
-
-    self.font_size = config.editor_font_size
-  ensure
-    @buffer.end_not_undoable_action
+      @editor.font_size = config.editor_font_size
+    end
   end
 
   private def apply_editor_config_settings
@@ -180,18 +171,6 @@ class TextView < View
     Log.error { e.message }
   end
 
-  def font_size=(size : Int32)
-    size = size.clamp(1, 50)
-    return if size == @font_size
-
-    style_ctx = @editor.style_context
-    font_descr = style_ctx.font(:normal)
-    font_descr.size = size * Pango::SCALE
-    # This is a deprecated func call... but the proposed GTK3 API to do this is stupid...
-    @editor.override_font(font_descr)
-    @font_size = size
-  end
-
   def create_mark(name : String, line : Int32, column : Int32)
     iter = @buffer.iter_at_line_offset(line, column)
     @buffer.create_mark(name, iter, true)
@@ -219,13 +198,12 @@ class TextView < View
 
   def reload
     super
-    @buffer.begin_user_action
-    pos = cursor_pos
-    load_contents
-    @buffer.modified = false
-    self.cursor_pos = pos
-  ensure
-    @buffer.end_user_action
+    @buffer.user_action do
+      pos = cursor_pos
+      load_contents
+      @buffer.modified = false
+      self.cursor_pos = pos
+    end
   end
 
   private def load_contents
@@ -236,17 +214,12 @@ class TextView < View
     @buffer.text = text
   end
 
-  # Note, this doesn't change the language object, just the syntax highlighting
-  def syntax_highlighting=(language : String)
-    @buffer.language = LanguageManager.find_gtk_lang(language)
-  end
-
   private def guess_language!(text : String)
     file_path = @file_path
     return if file_path.nil?
 
     @language = LanguageManager.guess_language(file_path)
-    @buffer.language = @language.gtk_language
+    @buffer.syntax_highlighting = @language.id
   end
 
   def restore_state
@@ -286,19 +259,10 @@ class TextView < View
     @buffer.create_mark(nil, iter, true)
   end
 
-  def has_selection?
-    @buffer.has_selection
-  end
-
-  def selected_text : String
-    return "" unless has_selection?
-
-    start_iter, end_iter = @buffer.selection_bounds
-    @buffer.text(start_iter, end_iter, false)
-  end
+  delegate selected_text, to: @buffer
 
   def create_search_context(settings : GtkSource::SearchSettings)
-    @search_context ||= GtkSource::SearchContext.new(@buffer, settings)
+    @search_context ||= GtkSource::SearchContext.new(@buffer.gobject, settings)
   end
 
   def find
@@ -330,7 +294,7 @@ class TextView < View
 
     if found
       @buffer.place_cursor(match_start)
-      @editor.scroll_to_iter(match_start, 0.0, true, 0.0, 0.5)
+      @editor.scroll_to(match_start)
       @buffer.select_range(match_start, match_end)
     end
   end
@@ -340,7 +304,7 @@ class TextView < View
     @buffer.iter_at_line(iter, line)
     iter.forward_chars(column)
     @buffer.place_cursor(iter)
-    @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+    @editor.scroll_to(iter)
   end
 
   def goto(cursor : CursorHistory::Cursor)
@@ -349,7 +313,7 @@ class TextView < View
       iter = Gtk::TextIter.new
       @buffer.iter_at_mark(iter, mark)
       @buffer.place_cursor(iter)
-      @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+      @editor.scroll_to(iter)
     else
       goto(cursor.line, cursor.column)
     end
@@ -361,21 +325,21 @@ class TextView < View
     start_iter, end_iter = @buffer.selection_bounds
     return if start_iter.line == end_iter.line
 
-    @buffer.begin_user_action
-    @buffer.sort_lines(start_iter, end_iter, :case_sensitive, 0)
-    @buffer.end_user_action
+    @buffer.user_action do
+      @buffer.sort_lines(start_iter, end_iter)
+    end
   end
 
   def comment_action
     return if readonly? || @language.none?
 
-    @buffer.begin_user_action
-    if has_selection?
-      comment_selection_action
-    else
-      comment_current_line_action
+    @buffer.user_action do
+      if has_selection?
+        comment_selection_action
+      else
+        comment_current_line_action
+      end
     end
-    @buffer.end_user_action
   end
 
   private def comment_regex

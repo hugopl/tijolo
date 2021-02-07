@@ -175,9 +175,4 @@ class Config
       return "expected all items to be #{item_type}" if value.any? { |i| i.class != item_type }
     end
   end
-
-  # This was a config flag in the past
-  def style_scheme
-    "monokai"
-  end
 end

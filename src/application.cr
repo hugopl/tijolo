@@ -15,7 +15,6 @@ class Application
 
   getter! main_window : Gtk::ApplicationWindow?
   getter! header_bar : Gtk::HeaderBar?
-  getter style_scheme : GtkSource::StyleScheme
   property? fullscreen = false
 
   delegate set_accels_for_action, to: @application
@@ -31,17 +30,12 @@ class Application
     GtkSource.init
     @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
-    @style_scheme = load_scheme
+    setup_scheme_search_path
   end
 
-  private def load_scheme : GtkSource::StyleScheme
+  private def setup_scheme_search_path
     manager = GtkSource::StyleSchemeManager.default
     manager.search_path = usr_share_paths("styles", manager.search_path.to_a)
-    # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
-    scheme = manager.scheme2(Config.instance.style_scheme)
-    return scheme unless scheme.nil?
-
-    raise AppError.new("Failed to open style scheme #{Config.instance.style_scheme}, looked at: #{manager.search_path}")
   end
 
   private def activate_ui(g_app)
