@@ -281,8 +281,7 @@ class TextView < View
     search_context = @search_context
     return if search_context.nil?
 
-    iter = Gtk::TextIter.new
-    @buffer.iter_at_offset(iter, offset)
+    iter = @buffer.iter_at_offset(offset)
 
     match_start = Gtk::TextIter.new
     match_end = Gtk::TextIter.new
@@ -347,8 +346,7 @@ class TextView < View
   end
 
   private def comment_current_line_action
-    iter = Gtk::TextIter.new
-    @buffer.iter_at_offset(iter, @buffer.cursor_position)
+    iter = @buffer.iter_at_offset(@buffer.cursor_position)
 
     iter.line_index = 0
     end_iter = @buffer.iter_at_line_offset(iter.line, Int32::MAX)
