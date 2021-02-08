@@ -28,10 +28,17 @@ class TextEditor
   delegate :show_right_margin=, to: @editor
   delegate :right_margin_position=, to: @editor
   delegate :highlight_current_line=, to: @editor
-  delegate :background_pattern=, to: @editor
   delegate :tab_width=, to: @editor
 
   delegate focus?, to: @editor
+
+  def background_pattern=(pattern : BackgroundPattern)
+    @editor.background_pattern = GtkSource::BackgroundPatternType.from_value(pattern.to_i)
+  end
+
+  def wrap_mode=(mode : WrapMode)
+    @editor.wrap_mode = Gtk::WrapMode.from_value(mode.to_i)
+  end
 
   def scroll_to(iter : TextIter) : Nil
     @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
