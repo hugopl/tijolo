@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
 ### Fixed
  - Fix some keyboard focus issues with find/replace widget.
+ - Monitor file changes/renames of open non-project files.
 
 ## [0.4.1] - 2021-01-11
 ### Fixed

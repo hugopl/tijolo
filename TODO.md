@@ -11,9 +11,9 @@ This is a short-term TODO list in no special order.
   - [ ] Support LSP diagnostics feature.
   - [ ] Better feedback on LSP when it fails, when it's ready, etc.
 - Some ♥️ to file monitoring.
-  - [ ] Better handle file renames by external processes.
-  - [ ] Better handle file removal by external processes.
-  - [ ] Work with non-project files open.
+  - [x] Better handle file renames by external processes.
+  - [x] Better handle file removal by external processes.
+  - [x] Work with non-project files open.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
 - [ ] Better feedback when failed to open language servers.

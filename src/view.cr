@@ -41,6 +41,11 @@ abstract class View
   delegate show_all, to: @view_widget
   delegate grab_focus, to: @view_widget
 
+  @monitor : Gio::FileMonitor?
+
+  # True during a saving operation
+  private getter? saving = false
+
   def initialize(@view_widget : Gtk::Widget, file_path : Path? = nil, @project_path = nil)
     builder = builder_for("view")
     @widget = Gtk::Widget.cast(builder["root"])
@@ -75,6 +80,10 @@ abstract class View
     Gtk::ModelButton.cast(builder["copy_relative_path"]).action_target_value = variant_self
   end
 
+  def finalize
+    @monitor.try(&.cancel)
+  end
+
   def self.reset_untitled_count
     @@untitled_count = -1
   end
@@ -84,11 +93,41 @@ abstract class View
   end
 
   def file_path=(file_path : Path) : Nil
+    return if file_path == @file_path
+
     @file_path = file_path
     self.readonly = !File.writable?(file_path) if File.exists?(file_path)
     @virtual = false
     self.label = relative_path_label(file_path, @project_path)
     notify_view_file_path_changed(self)
+    setup_monitor
+  end
+
+  private def setup_monitor
+    monitor = @monitor
+    file_path = @file_path
+    return if monitor || virtual? || file_path.nil?
+
+    @monitor = monitor = Gio::File.new_for_path(file_path.to_s).monitor_file(:none, nil)
+    monitor.on_changed(&->file_changed_event(Gio::FileMonitor, Gio::File, Gio::File?, Gio::FileMonitorEvent))
+  end
+
+  private def file_changed_event(_monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
+    return if saving?
+
+    case event
+    when .changes_done_hint? # At least on Linux I never see the RENAME event.
+      file_path = Path.new(file.parse_name)
+      self.file_path = file_path
+    when .changed?
+      if can_reload?
+        reload
+      else
+        was_modified_before = externally_modified?
+        externally_modified!
+        update_header unless was_modified_before
+      end
+    end
   end
 
   def label=(@label : String)
@@ -127,14 +166,14 @@ abstract class View
 
   def header_text : String
     # TODO: Find a better/nicer way to inform view status on UI
-    modified = if modified?
-                 "✱"
-               elsif readonly?
-                 "<readonly>"
-               end
-    maximized = "<maximized>" if @maximized
-    separator = " " if maximized || modified
-    "#{label}#{separator}#{modified}#{maximized}"
+    String.build do |str|
+      str << label
+      str << " " if readonly? || maximized? || externally_modified? || modified?
+      str << "*" if modified?
+      str << "<readonly>" if readonly?
+      str << "<maximized>" if maximized?
+      str << "<externally modified>" if externally_modified?
+    end
   end
 
   def modified? : Bool
@@ -171,6 +210,7 @@ abstract class View
   end
 
   def can_reload? : Bool
+    return true if readonly?
     return false if modified?
 
     # A more accurate approach would check if the view contents matches the contents on disk, if not, return false. However
@@ -184,9 +224,20 @@ abstract class View
   end
 
   def save : Nil
+    return if readonly?
+
+    file_path = @file_path
+    raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
+
     @last_saved_at = Time.monotonic
     @externally_modified = false
-    self.readonly = false
+    @saving = true
+    do_save
+  ensure
+    @saving = false
+  end
+
+  protected def do_save : Nil
   end
 
   def to_s(io : IO) : IO

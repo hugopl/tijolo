@@ -1,10 +1,12 @@
 require "log"
 require "./project"
 
+# Each directory under project root has a directory monitor.
+# Each open file has its own file monitor, handled by the View class itself.
 class ProjectMonitor
   include ProjectListener
 
-  # The is a directory path relative to the project root
+  # The string key is a directory path relative to the project root
   @monitors = Hash(String, Gio::FileMonitor).new
 
   def initialize(@project : Project)
@@ -41,8 +43,6 @@ class ProjectMonitor
       @project.remove_path(file_path)
     when .renamed?
       @project.rename_path(file_path, other_path) if other_path
-    when .changed?
-      @project.notify_project_file_content_changed(file_path)
     end
   end
 

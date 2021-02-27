@@ -87,15 +87,9 @@ class TextView < View
     true
   end
 
-  def save
-    return if readonly?
-
-    file_path = @file_path
-    raise AppError.new("Attempt to save a file without a name.") if file_path.nil?
-
+  def do_save
     remove_all_trailing_spaces! if @trim_trailing_white_space_on_save
-    super
-    File.write(file_path, text)
+    File.write(@file_path.not_nil!, text)
     @buffer.modified = false
 
     language.notify_did_save(self)
