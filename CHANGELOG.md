@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Fix some keyboard focus issues with find/replace widget.
  - Monitor file changes/renames of open non-project files.
+ - Only scroll view on text find if the match isn't in the viewport.
 
 ## [0.4.1] - 2021-01-11
 ### Fixed

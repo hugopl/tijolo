@@ -287,8 +287,8 @@ class TextView < View
 
     if found
       @buffer.place_cursor(match_start)
-      @editor.scroll_to(match_start)
       @buffer.select_range(match_start, match_end)
+      @editor.scroll_to(match_start) unless @editor.visible?(match_start)
     end
   end
 

@@ -59,4 +59,12 @@ class TextEditor
     @editor.override_font(font_descr)
     @font_size = size
   end
+
+  def visible?(iter : TextIter) : Bool
+    visible_rect = @editor.visible_rect
+    iter_rect = @editor.iter_location(iter)
+    result = visible_rect.intersect(iter_rect)
+
+    result.width > 0 && result.height > 0 && result.height >= @editor.line_height(iter)
+  end
 end

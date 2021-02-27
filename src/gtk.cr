@@ -13,6 +13,20 @@ module GLib
   end
 end
 
+module Gdk
+  class Rectangle
+    def intersect(other : self)
+      Gdk::Rectangle.new.tap do |rect|
+        intersect(other, rect)
+      end
+    end
+
+    def inspect(io : IO)
+      io << "<Rect x=" << x << " y=" << y << " width=" << width << " height=" << height << ">"
+    end
+  end
+end
+
 module Gtk
   class Clipboard
     def text=(value : String)
@@ -221,6 +235,25 @@ module Gtk
 end
 
 module GtkSource
+  class View
+    def iter_location(iter : Gtk::TextIter)
+      Gdk::Rectangle.new.tap do |rect|
+        iter_location(iter, rect)
+      end
+    end
+
+    def visible_rect
+      Gdk::Rectangle.new.tap do |rect|
+        visible_rect(rect)
+      end
+    end
+
+    def line_height(iter : Gtk::TextIter) : Int32
+      _y, height = line_yrange(iter)
+      height
+    end
+  end
+
   class StyleSchemeManager
     # TODO: Remove this workaround until https://gitlab.gnome.org/GNOME/gtksourceview/-/issues/133 get released.
     def scheme2(name : String) : StyleScheme?
