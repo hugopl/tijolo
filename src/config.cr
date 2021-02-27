@@ -125,7 +125,7 @@ class Config
   private def parse_enum(toml, key : String, enum_class)
     value = enum_class.parse?(toml[key].as(String))
     if value.nil?
-      valid_enums = enum_class.names.map(&.downcase).join(", ")
+      valid_enums = enum_class.names.join(", ", &.downcase)
       raise ConfigError.new("Unknown value for #{key}: #{toml[key].as(String)}, valid values are: #{valid_enums}.")
     end
     value

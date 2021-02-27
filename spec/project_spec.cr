@@ -83,7 +83,7 @@ describe Project do
       project.add_project_listener(listener)
 
       project.add_path(Path.new("dir"))
-      project.files.map(&.to_s).sort.should eq(%w(dir/subdir/file1 dir/subdir/file2))
+      project.files.map(&.to_s).sort!.should eq(%w(dir/subdir/file1 dir/subdir/file2))
 
       listener.dirs_added.should eq(%w(dir dir/subdir))
       listener.changed_count.should eq(1)

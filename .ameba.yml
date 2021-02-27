@@ -1,2 +1,6 @@
 Metrics/CyclomaticComplexity:
   MaxComplexity: 20
+Style/VerboseBlock:
+  Enabled: false
+Performance/AnyInsteadOfEmpty:
+  Enabled: false
