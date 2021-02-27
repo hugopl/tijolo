@@ -44,4 +44,12 @@ class TerminalView < View
   def can_share_node? : Bool
     Config.instance.terminal_shared_view?
   end
+
+  def copy_text_to_clipboard
+    @vte.copy_clipboard_format(:text)
+  end
+
+  def paste_text_from_clipboard
+    @vte.paste_primary
+  end
 end

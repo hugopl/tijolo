@@ -111,6 +111,9 @@ focus_left_split  = "<Alt>Left"
 increase_font_size = "<Ctrl>equal"
 decrease_font_size = "<Ctrl>minus"
 maximize_view = "<Ctrl><Shift>X"
+# Terminal view
+copy_in_terminal = "<Ctrl><Shift>C"
+paste_in_terminal = "<Ctrl><Shift>V"
 
 # Language servers are started using stdio communication, to know all possible language IDs
 # list file names /usr/share/gtksourceview-4/language-specs/

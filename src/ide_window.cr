@@ -189,6 +189,8 @@ class IdeWindow < Window
                increase_font_size:        ->increase_current_view_font_size,
                decrease_font_size:        ->decrease_current_view_font_size,
                maximize_view:             ->maximize_view,
+               copy_in_terminal:          ->copy_terminal_text,
+               paste_in_terminal:         ->paste_terminal_text,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -513,6 +515,16 @@ class IdeWindow < Window
 
   def focus_editor
     @open_files.current_view.try(&.grab_focus)
+  end
+
+  def copy_terminal_text
+    view = @open_files.current_view
+    view.copy_text_to_clipboard if view.is_a?(TerminalView)
+  end
+
+  def paste_terminal_text
+    view = @open_files.current_view
+    view.paste_text_from_clipboard if view.is_a?(TerminalView)
   end
 
   private def clipboard
