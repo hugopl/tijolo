@@ -113,13 +113,10 @@ abstract class View
   end
 
   private def file_changed_event(_monitor : Gio::FileMonitor, file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
-    return if saving?
-
-    case event
-    when .changes_done_hint? # At least on Linux I never see the RENAME event.
-      file_path = Path.new(file.parse_name)
-      self.file_path = file_path
-    when .changed?
+    if event.changes_done_hint? # At least on Linux I never see the RENAME event.
+      @saving = false
+      self.file_path = Path.new(file.parse_name)
+    elsif event.changed? && !saving?
       if can_reload?
         reload
       else
@@ -233,8 +230,9 @@ abstract class View
     @externally_modified = false
     @saving = true
     do_save
-  ensure
+  rescue e
     @saving = false
+    raise e
   end
 
   protected def do_save : Nil
