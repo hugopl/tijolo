@@ -32,6 +32,11 @@ trim_trailing_white_space_on_save = true
 # Default: "info"
 log_level = "info"
 
+[notifications]
+# Time notification waits to dissepear in seconds. A value <= zero means no notifications at all
+# All notifications can be later read in the output pane by pressing Alt+2.
+delay = 10
+
 [editor]
 # Editor font size in pt units
 # Default: 9

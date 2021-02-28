@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Basic project search now works on project list in Welcome screen, just type the first letters of a project name.
  - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
+ - Added passive notification to inform things like when a language server crashed or is ready.
 ### Fixed
  - Fix some keyboard focus issues with find/replace widget.
  - Monitor file changes/renames of open non-project files.

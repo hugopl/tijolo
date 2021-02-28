@@ -22,9 +22,9 @@ class Language
   def initialize(@id, @line_comment = "")
     cmd = Config.instance.language_servers[@id]?
     if cmd.nil?
-      Log.info { "No language server for \"#{@id}\" found." }
+      Log.info &.emit("No language server for \"#{@id}\" found.", notify: true)
     elsif cmd.blank?
-      Log.info { "Language server for \"#{@id}\" is disabled." }
+      Log.info &.emit("Language server for \"#{@id}\" is disabled.", notify: true)
     else
       @lsp_client = start_lsp(cmd)
     end
@@ -75,7 +75,7 @@ class Language
 
     program = cmd[0...(cmd.index(/\s/) || 0)]
     if Process.find_executable(program).nil?
-      Log.error { "Can't find a executable for: #{cmd}" }
+      Log.error &.emit("Can't find a executable for: #{cmd}", notify: true)
       return nil
     end
     lsp = LspClient.new(cmd, @id)
@@ -83,7 +83,7 @@ class Language
     @@running_language_servers[cmd] = lsp
     lsp
   rescue
-    Log.error { "Failed to start language server for #{@id}: #{cmd}" }
+    Log.error &.emit("Failed to start language server for #{@id}: #{cmd}", notify: true)
     nil
   end
 

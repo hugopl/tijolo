@@ -58,7 +58,7 @@ class LspClient
 
       notify("initialized", VoidParams.new)
       assync_notify_lsp_client_initialized
-      log.info { "Ready!" }
+      log.info &.emit("#{@lang_id.titleize} language server ready!", notify: true)
     end
 
     # Need to use Thread.new instead of `spawn` here, so a new SO thread is always really created independent of
@@ -246,8 +246,9 @@ class LspClient
 
     log.debug { "==> #{payload.colorize(:green)}" }
   rescue e : IO::Error
-    log.fatal { e.message }
-    raise AppError.new("#{@lang_id.titleize} language server crashed.")
+    msg = "#{@lang_id.titleize} language server crashed."
+    log.error &.emit(msg, notify: true)
+    raise AppError.new(msg)
   end
 
   def shutdown
@@ -278,9 +279,9 @@ class LspClient
       end
     end
   rescue e : IO::EOFError
-    log.fatal { "Server closed output." }
+    log.error { "Server closed output." }
   rescue e : IO::Error | AppError
-    log.fatal { e.message }
+    log.error &.emit(e.message.to_s, notify: true)
   end
 
   private def decode_server_message(io : IO)

@@ -149,3 +149,28 @@ paned separator {
 #no-view grid > box label {
   color: @tijolo_orange1;
 }
+
+/* Notifications */
+#notification-area {
+  padding: 6px;
+  border-width: 1px;
+  border-radius: 4px 0px 0px 0px;
+  color: @tijolo_black;
+  background-color: @tijolo_white2;
+}
+
+.notification progressbar progress {
+  background-color: @tijolo_black;
+  min-height: 1px;
+}
+
+.notification progressbar trough {
+  min-height: 3px;
+  background-color: transparent;
+}
+
+.notification .icon {
+  font-family: "Font Awesome 5 Free";
+  font-size: 120%;
+  margin-right: 6px;
+}

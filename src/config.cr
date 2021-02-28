@@ -52,6 +52,8 @@ class Config
   getter editor_highlight_current_line : Bool
   getter editor_background_pattern : TextEditor::BackgroundPattern
 
+  getter notification_delay : Time::Span
+
   def self.instance
     @@instance ||= begin
       Config.new(File.read(path), :relaxed)
@@ -120,6 +122,11 @@ class Config
     @editor_right_margin_position = editor_entry["right_margin_position"].as(Int64).to_i32
     @editor_highlight_current_line = editor_entry["highlight_current_line"].as(Bool)
     @editor_background_pattern = parse_enum(editor_entry, "background_pattern", TextEditor::BackgroundPattern)
+
+    notification_entry = toml["notifications"].as(Hash)
+    delay = notification_entry["delay"].as(Int64).to_i32
+    delay = 0 if delay < 0
+    @notification_delay = delay.seconds
   end
 
   private def parse_enum(toml, key : String, enum_class)
@@ -174,5 +181,9 @@ class Config
       item_type = default_value.as(Array).first.class
       return "expected all items to be #{item_type}" if value.any? { |i| i.class != item_type }
     end
+  end
+
+  def notification_enabled? : Bool
+    !@notification_delay.zero?
   end
 end

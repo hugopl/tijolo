@@ -6,14 +6,15 @@ require "./find_replace"
 require "./git_branches"
 require "./image_view"
 require "./locator"
+require "./notification_area"
 require "./open_files"
 require "./project_monitor"
 require "./project_tree"
 require "./terminal_view.cr"
 require "./text_view"
-require "./window"
 require "./tijolo_log_backend"
 require "./tijolo_rc"
+require "./window"
 
 class IdeWindow < Window
   include ViewListener
@@ -29,6 +30,7 @@ class IdeWindow < Window
   @branches_view : Gtk::TreeView
   @sidebar : Gtk::Box
   @output_pane : Gtk::Notebook
+  @notification_area : NotificationArea
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
   # True if user pressed cancel on dlg about reload externally modified files
@@ -60,6 +62,11 @@ class IdeWindow < Window
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)
+
+    @notification_area = NotificationArea.new
+    overlay.add_overlay(@notification_area.widget)
+    overlay.set_overlay_pass_through(@notification_area.widget, true)
+
     @cursor_history = CursorHistory.new
 
     # Find widget
