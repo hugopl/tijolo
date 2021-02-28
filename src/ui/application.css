@@ -117,6 +117,22 @@ paned separator {
   border: 0px;
 }
 
+#open_project_label {
+  color: @tijolo_orange1;
+  background-color: @tijolo_black;
+  padding: 2px 6px 2px 6px;
+  border: 0px;
+  font-weight: bold;
+}
+
+#welcome-window entry {
+  color: @tijolo_orange1;
+  background-color: @tijolo_black2;
+  caret-color: @tijolo_orange1;
+  border: none;
+  border-radius: 0;
+}
+
 #ide-window treeview {
   color: @tijolo_white2;
   background-color: @tijolo_black;
