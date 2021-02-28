@@ -83,7 +83,9 @@ abstract class FuzzyLocator < LocatorProvider
     String.build(str_size) do |str|
       value.each_char_with_index do |char, i|
         if i == next_pos
-          str << "<b>#{char}</b>"
+          str << %q(<span weight="heavy">)
+          str << char
+          str << "</span>"
           next_pos = pos_iter.next
         else
           str << char
