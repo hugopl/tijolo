@@ -573,7 +573,7 @@
       <match extended="true">
         (?&lt;![\w\.])(class|module)
         \s+
-        (\%{identifier}(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
+        ((?:\%{identifier}(?:::)?)+(?:\s+&lt;\s+(?:\%{identifier}(?:::)?)+)?)
       </match>
       <include>
         <context sub-pattern="1" style-ref="keyword"/>
