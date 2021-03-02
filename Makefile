@@ -9,7 +9,7 @@ debug:
 
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
-	LC_ALL=en_US.UTF8 crystal spec
+	GC_DONT_GC=1 LC_ALL=en_US.UTF8 crystal spec
 
 install:
 	install -D -m 0755 bin/tijolo $(DESTDIR)$(PREFIX)/bin/tijolo
