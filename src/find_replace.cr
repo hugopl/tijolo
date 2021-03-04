@@ -70,6 +70,21 @@ class FindReplace
     if event.keyval == Gdk::KEY_Escape
       grab_editor_focus # This will cause the find/repalce widget to hide
       true
+    elsif event.keyval == Gdk::KEY_F1
+      # FIXME: These text should reflect shortcuts configured by the user.
+      help = "Just type to start interactive search.\n" \
+             "\n" \
+             "Esc/Enter   — Hide search box and put focus back into editor.\n" \
+             "F3          — Next entry.\n" \
+             "Shift + F3  — Previous entry.\n" \
+             "Ctrl + R    — Show Find by regexp bar.\n" \
+             "Ctrl + H    — Show Find/Replace bar.\n"
+
+      dialog = Gtk::MessageDialog.new(text: "Help", secondary_text: help, message_type: :info, buttons: :close)
+      dialog.on_response { dialog.close }
+      dialog.run
+      dialog.destroy
+      true
     end
     false
   end

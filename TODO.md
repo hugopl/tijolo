@@ -15,7 +15,9 @@ This is a short-term TODO list in no special order.
   - [x] Better handle file removal by external processes.
   - [x] Work with non-project files open.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
-- [ ] Text find/replace (study something maybe vim style, but simpler and more intuitive).
+- [x] More ♥️ to text search UI.
+- [ ] Add find/replace.
+- [ ] Add search by regexp.
 
 ## 0.6.0 release
 
@@ -26,6 +28,7 @@ stuff that nowadays is impossible or very hard to do using GtkSourceView.
 
 ## Backlog, things that can go in any version...
 
+- [ ] Implement keyboard focused open dialog like Howl editor.
 - [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
 - [ ] Rebind shortcuts after save config file.
 - [ ] Rename files.

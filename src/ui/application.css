@@ -70,10 +70,6 @@ popover {
   caret-color: @tijolo_black2;
 }
 
-#find-box {
-  padding: 6px;
-}
-
 paned separator {
   background-color: alpha(#303029, 0.8);
   background-image: linear-gradient(transparent, transparent 1px, #999 1px, #999 4px, transparent 4px);
@@ -125,12 +121,13 @@ paned separator {
   font-weight: bold;
 }
 
-#welcome-window entry {
+#welcome-window entry, .command-bar entry {
   color: @tijolo_orange1;
   background-color: @tijolo_black2;
   caret-color: @tijolo_orange1;
   border: none;
   border-radius: 0;
+  font-weight: normal;
 }
 
 #ide-window treeview {
@@ -150,11 +147,6 @@ paned separator {
 
 #open-files {
   border: 1px solid @tijolo_orange1;
-}
-
-#find-box {
-  color: @tijolo_white;
-  background-color: @tijolo_black;
 }
 
 /* No view */
@@ -190,3 +182,15 @@ paned separator {
   font-size: 120%;
   margin-right: 6px;
 }
+
+.command-bar {
+  color: @tijolo_orange1;
+  background-color: @tijolo_black;
+  padding: 6px;
+  font-weight: bold;
+}
+
+messagedialog box box box label {
+  font: 9pt "JetBrainsMono Nerd Font", "Monospace";
+}
+
