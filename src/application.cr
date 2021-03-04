@@ -66,10 +66,6 @@ class Application
     about.on_activate { show_about_dlg }
     main_window.add_action(about)
 
-    new_tijolo = Gio::SimpleAction.new("new_tijolo", nil)
-    new_tijolo.on_activate { start_new_tijolo }
-    main_window.add_action(new_tijolo)
-
     string = GLib::VariantType.new("s")
     open_recent = Gio::SimpleAction.new("open_recent_file", string)
     open_recent.on_activate(&->open_recent_file(Gio::SimpleAction, GLib::Variant?))
@@ -81,6 +77,7 @@ class Application
                new_file_new_split:  ->{ new_file(true) },
                open_file:           ->open_file,
                open_file_new_split: ->{ open_file(true) },
+               open_project:        ->start_new_tijolo,
                new_terminal:        ->new_terminal,
                fullscreen:          ->fullscreen}
     actions.each do |name, closure|
