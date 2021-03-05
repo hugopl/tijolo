@@ -19,9 +19,13 @@ class LspResponseHandler(T) < LspAbstractResponseHandler
   end
 
   def exec(json : JSON::Any)
-    result = T.new(json)
     GLib.idle_add do
-      @proc.call(result)
+      {% if T == Nil %}
+        @proc.call(nil)
+      {% else %}
+        result = json.raw.nil? ? T.new : T.new(json)
+        @proc.call(result)
+      {% end %}
       false
     end
   end
@@ -306,14 +310,10 @@ class LspClient
       return
     end
 
-    result = json["result"]?
-    if result
-      handler.exec(result)
-    else
-      log.error { "Server sent empty result!" }
-    end
+    result = json["result"]? || JSON::Any.new(nil)
+    handler.exec(result)
   rescue e
-    log.error { "Error reading LS response: #{e.message}" }
+    log.error(exception: e) { "Error reading LS response: #{e.message}" }
   end
 
   private def handle_server_request(msg_id : Int32, json : JSON::Any)

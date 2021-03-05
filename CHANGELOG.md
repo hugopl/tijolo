@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
  - Added passive notification to inform things like when a language server crashed or is ready.
  - Add fuzzy search to Welcome Screen and improve its keyboard usability.
+ - Show a notification when no definition is found triggering _go to definition_ action.
 ### Fixed
  - Fix some keyboard focus issues with find/replace widget.
  - Monitor file changes/renames of open non-project files.

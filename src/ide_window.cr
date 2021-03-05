@@ -486,7 +486,10 @@ class IdeWindow < Window
     return if path.nil?
 
     text_view.language.goto_definition(path, *text_view.cursor_pos) do |locations|
-      next if locations.empty?
+      if locations.empty?
+        Log.info(&.emit("No definition found.", notify: true))
+        next
+      end
 
       # TODO: Show a dropdown in case of multiple entries.
       location = locations.first

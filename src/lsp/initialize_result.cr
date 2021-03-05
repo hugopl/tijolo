@@ -16,6 +16,10 @@ module LSP
 
     @server_info : ServerInfo?
 
+    def initialize
+      @capabilities = ServerCapabilities.new
+    end
+
     def initialize(@capabilities : ServerCapabilities)
     end
   end
