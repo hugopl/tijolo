@@ -2,9 +2,6 @@ require "./observable"
 require "./helper"
 
 module ViewListener
-  def view_escape_pressed(view : View)
-  end
-
   def view_file_path_changed(view : View)
   end
 
@@ -142,14 +139,6 @@ abstract class View
 
   def update_header
     @file_path_label.label = header_text
-  end
-
-  private def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey) : Bool
-    if event.keyval == Gdk::KEY_Escape
-      notify_view_escape_pressed(self)
-      return true
-    end
-    false
   end
 
   private def untitled_name

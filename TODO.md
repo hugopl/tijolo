@@ -16,8 +16,8 @@ This is a short-term TODO list in no special order.
   - [x] Work with non-project files open.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [x] More ♥️ to text search UI.
-- [ ] Add find/replace.
-- [ ] Add search by regexp.
+- [x] Add find/replace.
+- [x] Add search by regexp.
 
 ## 0.6.0 release
 

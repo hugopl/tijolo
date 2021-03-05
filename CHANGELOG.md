@@ -6,11 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
- - Basic project search now works on project list in Welcome screen, just type the first letters of a project name.
- - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
- - Added passive notification to inform things like when a language server crashed or is ready.
  - Add fuzzy search to Welcome Screen and improve its keyboard usability.
+ - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
+ - Add `Find By Regexp`, triggered on `CTRL+R`.
+ - Add `Find/Replace`, triggered on `CTRL+H`.
+ - Added passive notification to inform things like when a language server crashed or is ready.
  - Show a notification when no definition is found triggering _go to definition_ action.
+### Changed
+ - Some ♥️ to find/replace UI.
 ### Fixed
  - Fix some keyboard focus issues with find/replace widget.
  - Monitor file changes/renames of open non-project files.

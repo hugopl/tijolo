@@ -1,3 +1,5 @@
+require "./search_context_gsv"
+
 class Editor::TextBuffer
   @buffer : GtkSource::Buffer
 
@@ -43,6 +45,13 @@ class Editor::TextBuffer
 
     start_iter, end_iter = @buffer.selection_bounds
     @buffer.text(start_iter, end_iter, false)
+  end
+
+  def replace(range : TextRange, replacement : String)
+    @buffer.begin_user_action
+    @buffer.delete_interactive(*range, true)
+    @buffer.insert_interactive(range[0], replacement, replacement.bytesize, true)
+    @buffer.end_user_action
   end
 
   def sort_lines(start_iter, end_iter)

@@ -70,7 +70,10 @@ class IdeWindow < Window
     @cursor_history = CursorHistory.new
 
     # Find widget
-    @find_replace = FindReplace.new(Gtk::Revealer.cast(builder["find_revealer"]), Gtk::Entry.cast(builder["find_entry"]))
+    @find_replace = FindReplace.new
+    editor_box = Gtk::Box.cast(builder["editor_box"])
+    editor_box.pack_end(@find_replace.widget, fill: true, expand: false, padding: 0)
+    editor_box.reorder_child(@find_replace.widget, 1)
 
     # Open Files view
     @open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
@@ -132,6 +135,12 @@ class IdeWindow < Window
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
+    if event.keyval == Gdk::KEY_Escape
+      @locator.hide if @locator.visible?
+      @find_replace.hide
+      focus_editor
+      return true
+    end
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
       @switching_open_files = true
       if @open_files.any?
@@ -163,7 +172,9 @@ class IdeWindow < Window
                close_view:                ->close_current_view,
                save_view:                 ->save_current_view,
                save_view_as:              ->save_current_view_as,
-               find:                      ->find_in_current_view,
+               find:                      ->{ find_in_current_view(:find_by_text) },
+               find_by_regexp:            ->{ find_in_current_view(:find_by_regexp) },
+               find_replace:              ->{ find_in_current_view(:find_replace) },
                find_next:                 ->find_next_in_current_view,
                find_prev:                 ->find_prev_in_current_view,
                goto_line:                 ->show_goto_line_locator,
@@ -441,9 +452,9 @@ class IdeWindow < Window
     application.init_welcome if @open_files.empty? && !@project.valid?
   end
 
-  def find_in_current_view
+  def find_in_current_view(mode : FindReplace::Mode)
     view = @open_files.current_view.as?(TextView)
-    @find_replace.show(view) if view
+    @find_replace.show(view, mode) if view
   end
 
   def find_next_in_current_view
@@ -574,11 +585,6 @@ class IdeWindow < Window
     with_view_and_path(view_id.uint64) do |view, path|
       clipboard.text = "#{path.relative_to(@project.root)}:#{view.cursor_pos[0] + 1}"
     end
-  end
-
-  def view_escape_pressed(_view)
-    @output_pane.hide
-    @find_replace.hide
   end
 
   # Go back on cursor position history

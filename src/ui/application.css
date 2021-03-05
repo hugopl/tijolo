@@ -190,6 +190,14 @@ paned separator {
   font-weight: bold;
 }
 
+.command-bar .message {
+  color: @tijolo_white2;
+  background-color: @tijolo_black;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 90%
+}
+
 messagedialog box box box label {
   font: 9pt "JetBrainsMono Nerd Font", "Monospace";
 }

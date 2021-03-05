@@ -1,14 +1,24 @@
-class Editor::TextEditor
-  enum BackgroundPattern
-    None
-    Grid
+module Editor
+  alias TextRange = {TextIter, TextIter}
+
+  class TextEditor
+    enum BackgroundPattern
+      None
+      Grid
+    end
+
+    enum WrapMode
+      None
+      Char
+      Word
+      WordChar
+    end
   end
 
-  enum WrapMode
-    None
-    Char
-    Word
-    WordChar
+  class TextBuffer
+    def search_context : SearchContext
+      @search_context ||= Editor::SearchContext.new(self)
+    end
   end
 end
 

@@ -84,6 +84,8 @@ class Locator
     end
   end
 
+  delegate visible?, to: @locator_widget
+
   def hide
     @current_view = nil
     @locator_widget.hide
@@ -105,12 +107,6 @@ class Locator
   end
 
   private def entry_key_pressed(_widget, event : Gdk::EventKey)
-    # Hide locator on esc.
-    if event.keyval == Gdk::KEY_Escape
-      hide
-      return true
-    end
-
     if event.keyval == Gdk::KEY_Up
       self.results_cursor -= 1
       return true

@@ -41,7 +41,7 @@ class Editor::TextEditor
   end
 
   def scroll_to(iter : TextIter) : Nil
-    @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5)
+    @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5) unless visible?(iter)
   end
 
   def readonly=(value : Bool) : Nil

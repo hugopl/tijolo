@@ -164,7 +164,7 @@ module Gtk
     end
 
     def text
-      text(start_iter, end_iter)
+      text(start_iter, end_iter, false)
     end
 
     def text=(text : String)
@@ -251,6 +251,19 @@ module GtkSource
     def line_height(iter : Gtk::TextIter) : Int32
       _y, height = line_yrange(iter)
       height
+    end
+  end
+
+  class SearchContext
+    def regex_error : String
+      error_bug = LibGtkSource.search_context_get_regex_error(@pointer.as(LibGtkSource::SearchContext*))
+      error = error_bug.as(Pointer(LibGLib::Error))
+      return "" unless error
+
+      msg = String.new(error.value.message)
+      # FIXME: Call error_free
+      LibGLib.error_free(error)
+      msg
     end
   end
 

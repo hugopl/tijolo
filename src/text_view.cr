@@ -5,8 +5,6 @@ require "./ui_builder_helper"
 require "./view"
 
 class TextView < View
-  getter! search_context : GtkSource::SearchContext?
-
   @editor = Editor::TextEditor.new
   @trim_trailing_white_space_on_save = true
   getter buffer : Editor::TextBuffer
@@ -19,6 +17,7 @@ class TextView < View
   delegate focus?, to: @editor
   delegate font_size, to: @editor
   delegate :font_size=, to: @editor
+  delegate scroll_to, to: @editor
   delegate can_undo?, to: @buffer
   delegate has_selection?, to: @buffer
   delegate text, to: @buffer
@@ -56,8 +55,6 @@ class TextView < View
   end
 
   def key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
-    return true if super
-
     if event.keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
       return insert_char_around_selection(event.keyval)
     end
@@ -254,43 +251,7 @@ class TextView < View
   end
 
   delegate selected_text, to: @buffer
-
-  def create_search_context(settings : GtkSource::SearchSettings)
-    @search_context ||= GtkSource::SearchContext.new(@buffer.gobject, settings)
-  end
-
-  def find
-    find_impl(@buffer.cursor_position, true)
-  end
-
-  def find_next
-    find_impl(@buffer.cursor_position + 1, true)
-  end
-
-  def find_prev
-    find_impl(@buffer.cursor_position, false)
-  end
-
-  private def find_impl(offset, forward)
-    search_context = @search_context
-    return if search_context.nil?
-
-    iter = @buffer.iter_at_offset(offset)
-
-    match_start = Gtk::TextIter.new
-    match_end = Gtk::TextIter.new
-    found, _wrapped_around = if forward
-                               search_context.forward(iter, match_start, match_end)
-                             else
-                               search_context.backward(iter, match_start, match_end)
-                             end
-
-    if found
-      @buffer.place_cursor(match_start)
-      @buffer.select_range(match_start, match_end)
-      @editor.scroll_to(match_start) unless @editor.visible?(match_start)
-    end
-  end
+  delegate search_context, to: @buffer
 
   def goto(line, column)
     iter = Gtk::TextIter.new
