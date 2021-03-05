@@ -133,10 +133,12 @@
       <keyword>elsif</keyword>
       <keyword>end</keyword>
       <keyword>ensure</keyword>
-      <keyword>for</keyword>
       <keyword>forall</keyword>
+      <keyword>for</keyword>
+      <keyword>fun</keyword>
       <keyword>if</keyword>
       <keyword>in</keyword>
+      <keyword>lib</keyword>
       <keyword>macro</keyword>
       <keyword>next</keyword>
       <keyword>of</keyword>
