@@ -1,15 +1,15 @@
 require "./editor_config"
 require "./language_manager"
-require "./text_editor"
+require "./editor/text_editor"
 require "./ui_builder_helper"
 require "./view"
 
 class TextView < View
   getter! search_context : GtkSource::SearchContext?
 
-  @editor = TextEditor.new
+  @editor = Editor::TextEditor.new
   @trim_trailing_white_space_on_save = true
-  getter buffer : TextBuffer
+  getter buffer : Editor::TextBuffer
   getter version = 1
 
   getter language = Language::NONE

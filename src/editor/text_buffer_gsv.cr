@@ -1,4 +1,4 @@
-class TextBuffer
+class Editor::TextBuffer
   @buffer : GtkSource::Buffer
 
   def initialize(@buffer : GtkSource::Buffer)

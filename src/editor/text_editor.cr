@@ -1,4 +1,4 @@
-class TextEditor
+class Editor::TextEditor
   enum BackgroundPattern
     None
     Grid

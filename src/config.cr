@@ -43,14 +43,14 @@ class Config
 
   # editor
   getter editor_font_size : Int32
-  getter editor_wrap_mode : TextEditor::WrapMode
+  getter editor_wrap_mode : Editor::TextEditor::WrapMode
   getter editor_show_line_numbers : Bool
   getter editor_insert_spaces_instead_of_tabs : Bool
   getter editor_tab_width : Int32
   getter editor_show_right_margin : Bool
   getter editor_right_margin_position : Int32
   getter editor_highlight_current_line : Bool
-  getter editor_background_pattern : TextEditor::BackgroundPattern
+  getter editor_background_pattern : Editor::TextEditor::BackgroundPattern
 
   getter notification_delay : Time::Span
 
@@ -114,14 +114,14 @@ class Config
 
     editor_entry = toml["editor"].as(Hash)
     @editor_font_size = editor_entry["font_size"].as(Int64).to_i32
-    @editor_wrap_mode = parse_enum(editor_entry, "wrap_mode", TextEditor::WrapMode)
+    @editor_wrap_mode = parse_enum(editor_entry, "wrap_mode", Editor::TextEditor::WrapMode)
     @editor_show_line_numbers = editor_entry["show_line_numbers"].as(Bool)
     @editor_insert_spaces_instead_of_tabs = editor_entry["insert_spaces_instead_of_tabs"].as(Bool)
     @editor_tab_width = editor_entry["tab_width"].as(Int64).to_i32
     @editor_show_right_margin = editor_entry["show_right_margin"].as(Bool)
     @editor_right_margin_position = editor_entry["right_margin_position"].as(Int64).to_i32
     @editor_highlight_current_line = editor_entry["highlight_current_line"].as(Bool)
-    @editor_background_pattern = parse_enum(editor_entry, "background_pattern", TextEditor::BackgroundPattern)
+    @editor_background_pattern = parse_enum(editor_entry, "background_pattern", Editor::TextEditor::BackgroundPattern)
 
     notification_entry = toml["notifications"].as(Hash)
     delay = notification_entry["delay"].as(Int64).to_i32
