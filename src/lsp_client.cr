@@ -63,6 +63,9 @@ class LspClient
       notify("initialized", VoidParams.new)
       assync_notify_lsp_client_initialized
       log.info &.emit("#{@lang_id.titleize} language server ready!", notify: true)
+      if result.capabilities.text_document_sync.full?
+        log.warn &.emit("#{@lang_id.titleize} does not support incremental update! Get a better language server.", notify: true)
+      end
     end
 
     # Need to use Thread.new instead of `spawn` here, so a new SO thread is always really created independent of

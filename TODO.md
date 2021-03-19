@@ -47,7 +47,7 @@ depend on GtkSourceView.
 ## Backlog, things that can go in any version...
 
 - [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
-- [ ] Notify users that a language serve doesn't support incremental update.
+- [x] Notify users that a language serve doesn't support incremental update.
 - [ ] Implement keyboard focused open dialog like Howl editor.
 - [ ] Pass Ctrl+Key keystrokes to terminal views.
 - [x] Close all views on Ctrl+Shift+W.
