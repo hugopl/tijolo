@@ -81,6 +81,7 @@ login_shell = true
 # name, e.g. one would use "<Ctrl>minus" instead of "<Ctrl>-".
 [shortcuts]
 close_view       = "<Control>W"
+close_all_views  = "<Control><Shift>W"
 comment_code     = "<Control>slash"
 find             = "<Control>F"
 find_by_regexp   = "<Control>R"

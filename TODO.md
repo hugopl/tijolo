@@ -50,8 +50,8 @@ depend on GtkSourceView.
 - [ ] Notify users that a language serve doesn't support incremental update.
 - [ ] Implement keyboard focused open dialog like Howl editor.
 - [ ] Pass Ctrl+Key keystrokes to terminal views.
-- [ ] Close all views on Ctrl+Shift+W.
-- [ ] Open more than one file on command line, `tijolo file1 file2`.
+- [x] Close all views on Ctrl+Shift+W.
+- [ ] Open more than one file on command line in different splits, `tijolo file1 --split file2` or `tijolo file1 - file2`.
 - [ ] Show user configured shortcuts in help texts instead of hardcoded text with default shortcuts.
 - Some ♥️ to LSP implementation.
   - [ ] Support LSP auto-complete feature.

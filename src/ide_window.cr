@@ -170,6 +170,7 @@ class IdeWindow < Window
                show_locator_new_split:    ->{ show_locator(split_view: true) },
                show_git_locator:          ->show_git_locator,
                close_view:                ->close_current_view,
+               close_all_views:           ->close_all_views,
                save_view:                 ->save_current_view,
                save_view_as:              ->save_current_view_as,
                find:                      ->{ find_in_current_view(:find_by_text) },
@@ -428,6 +429,13 @@ class IdeWindow < Window
   def close_current_view
     view = @open_files.current_view
     close_view(view) if view
+  end
+
+  def close_all_views
+    # Close in reverse order to avoid a lot of things to run
+    @open_files.files.reverse.each do |view|
+      close_view(view)
+    end
   end
 
   def close_view(view : View)
