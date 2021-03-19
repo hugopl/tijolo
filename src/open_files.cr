@@ -11,7 +11,7 @@ class OpenFiles
 
   getter model : Gtk::ListStore
   getter sorted_model : Gtk::TreeModelSort
-  getter files = [] of View
+  getter views = [] of View
 
   @sorted_files = [] of View  # Files reverse sorted by last used
   @sorted_files_index = 0     # Selected file on open files model
@@ -24,8 +24,8 @@ class OpenFiles
 
   @root : Split::RootNode
 
-  delegate empty?, to: @files
-  delegate any?, to: @files
+  delegate empty?, to: @views
+  delegate any?, to: @views
   delegate widget, to: @root
   delegate current_view, to: @root
 
@@ -38,15 +38,15 @@ class OpenFiles
   end
 
   def view_by_id(id : String) : View?
-    @files.find { |view| view.id == id }
+    @views.find { |view| view.id == id }
   end
 
   def view(id : UInt64) : View?
-    @files.find { |view| view.object_id == id }
+    @views.find { |view| view.object_id == id }
   end
 
   def view(file_path : Path) : View?
-    @files.find { |view| view.file_path == file_path }
+    @views.find { |view| view.file_path == file_path }
   end
 
   private def ignore_focus_event
@@ -71,7 +71,7 @@ class OpenFiles
       split_view = true
     end
 
-    @files << view
+    @views << view
     @sorted_files << view
     @sorted_files_index = @sorted_files.size - 1
     @model.append({0, 1}, {view.label, last_used_counter})
@@ -90,7 +90,7 @@ class OpenFiles
   end
 
   def all_saved?
-    !@files.any?(&.modified?)
+    !@views.any?(&.modified?)
   end
 
   def current_row
@@ -113,14 +113,14 @@ class OpenFiles
     @sorted_files.push(@sorted_files.delete_at(new_selected_index))
     @sorted_files_index = @sorted_files.size - 1
 
-    idx = @files.index(@sorted_files.last)
+    idx = @views.index(@sorted_files.last)
     @model.set(idx, {OPEN_FILES_LAST_USED}, {last_used_counter}) unless idx.nil?
   end
 
   # Cycle through open views and call reveal_view for the next view.
   # If reorder = true, mark the current view as the last used, i.e. reorder @sorted_files
   def switch_current_view(reorder : Bool)
-    return if @files.size < 2
+    return if @views.size < 2
 
     @ignore_focus_event = !reorder
 
@@ -137,16 +137,16 @@ class OpenFiles
   end
 
   def close_current_view : View?
-    return if @files.empty?
+    return if @views.empty?
 
     view = current_view
     return if view.nil?
 
-    idx = @files.index(view)
+    idx = @views.index(view)
     @model.remove_row(idx) unless idx.nil?
 
     view.remove_view_listener(self)
-    @files.delete(view)
+    @views.delete(view)
     @sorted_files.delete(view)
     @sorted_files_index = @sorted_files.size - 1
 
@@ -168,7 +168,7 @@ class OpenFiles
   end
 
   def view_file_path_changed(view)
-    row = files.index(view)
+    row = @views.index(view)
     @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?
   end
 

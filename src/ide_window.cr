@@ -433,7 +433,7 @@ class IdeWindow < Window
 
   def close_all_views
     # Close in reverse order to avoid a lot of things to run
-    @open_files.files.reverse.each do |view|
+    @open_files.views.reverse.each do |view|
       close_view(view)
     end
   end
@@ -649,7 +649,7 @@ class IdeWindow < Window
     view = @open_files.current_view
     return if view.nil? || !view.externally_modified?
 
-    modified_views = @open_files.files.select(&.externally_modified?)
+    modified_views = @open_files.views.select(&.externally_modified?)
     # Auto reload views that can be reloaded and remove them from modified views.
     modified_views.reject! do |v|
       if v.can_reload?
@@ -678,7 +678,7 @@ class IdeWindow < Window
 
   def about_to_quit(_widget, event) : Bool
     unless @open_files.all_saved?
-      dlg = ConfirmSaveDialog.new(main_window, @open_files.files.select(&.modified?))
+      dlg = ConfirmSaveDialog.new(main_window, @open_files.views.select(&.modified?))
       result = dlg.run
       if result.cancel?
         return true
@@ -690,7 +690,7 @@ class IdeWindow < Window
     end
     LanguageManager.shutdown
     # Save all view cursors
-    @open_files.files.each do |view|
+    @open_files.views.each do |view|
       save_cursor(view) if view.is_a?(TextView)
     end
     @tijolorc.touch_project(@project.root)
