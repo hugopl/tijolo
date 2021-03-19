@@ -130,6 +130,8 @@ class IdeWindow < Window
     application.header_bar.title = @project.name
     application.header_bar.subtitle = relative_path_label(@project.root)
     application.destroy_welcome
+    # Need this to let GTK resize the git branches view
+    Gtk::Container.cast(root).check_resize
 
     LanguageManager.start_languages_for(@project.files) unless Config.instance.lazy_start_language_servers?
   end
