@@ -53,7 +53,7 @@ approach to build a deb package but works on non-deb machines.
 
 You will need:
 
- - Crystal compiler version 0.35.
+ - Crystal compiler version >= 1.0.0.
  - GTK3.
  - GTKSourceView4.
  - [Vte](https://gitlab.gnome.org/GNOME/vte).

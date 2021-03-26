@@ -133,7 +133,7 @@ class Application
     dlg.destroy
     return if uri.nil?
 
-    file_path = Path.new(URI.parse(uri).full_path)
+    file_path = Path.new(URI.parse(uri).request_target)
     # If this zillion questions are true... the user is opening a file from another project on this project
     # So we ask if the file should be opened in another Tijolo instance.
     if ide_wnd && ide_wnd.project.valid? && !ide_wnd.project.under_project?(file_path) &&

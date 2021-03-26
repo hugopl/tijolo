@@ -26,6 +26,7 @@ class NotificationEntry
   end
 end
 
+# FIXME: Split the notification area UI from the log backend, since only one backend instance should exists
 class NotificationArea < Log::Backend
   include UiBuilderHelper
 
@@ -34,6 +35,7 @@ class NotificationArea < Log::Backend
   @num_notifications = 0
 
   def initialize
+    super
     builder = builder_for("notification_area")
     @widget = Gtk::Widget.cast(builder["root"])
     @listbox = Gtk::Box.cast(builder["listbox"])

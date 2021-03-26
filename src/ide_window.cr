@@ -30,7 +30,6 @@ class IdeWindow < Window
   @branches_view : Gtk::TreeView
   @sidebar : Gtk::Box
   @output_pane : Gtk::Notebook
-  @notification_area : NotificationArea
 
   @switching_open_files = false # True if user is switching open files with Ctrl + Tab
   # True if user pressed cancel on dlg about reload externally modified files
@@ -63,9 +62,9 @@ class IdeWindow < Window
     @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)
 
-    @notification_area = NotificationArea.new
-    overlay.add_overlay(@notification_area.widget)
-    overlay.set_overlay_pass_through(@notification_area.widget, true)
+    notification_area = NotificationArea.new
+    overlay.add_overlay(notification_area.widget)
+    overlay.set_overlay_pass_through(notification_area.widget, true)
 
     @cursor_history = CursorHistory.new
 

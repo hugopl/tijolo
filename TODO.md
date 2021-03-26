@@ -6,7 +6,7 @@ This is a short-term TODO list in no special order.
 
 ## 0.5.0 release
 
-- [ ] Port to Crystal 0.36.1 (i.e. fix https://github.com/jhass/crystal-gobject/issues/82)
+- [x] Port to Crystal ~0.36.1~ 1.0.0
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - Some ♥️ to LSP implementation.
   - [x] Better feedback on LSP when it fails, when it's ready, etc.

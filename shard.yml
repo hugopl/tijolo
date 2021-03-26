@@ -11,19 +11,19 @@ targets:
 dependencies:
   version_from_shard:
     github: hugopl/version_from_shard
-    version: ~> 1.2.1
+    version: ~> 1.2
   fzy:
     github: hugopl/fzy
-    version: ~> 0.5.0
+    version: ~> 0.5
   gobject:
     github: jhass/crystal-gobject
-    commit: 5bc0cc7481a713b22e332d1bab80c132a819d20e
+    version: ~> 0.10
   compiled_license:
     github: elorest/compiled_license
-    version: ~> 0.1.3
+    version: ~> 0.1
   toml:
     github: crystal-community/toml.cr
     version: ~> 0.7.0
-crystal: 0.35.1
+crystal: ">= 1.0.0"
 
 license: MIT

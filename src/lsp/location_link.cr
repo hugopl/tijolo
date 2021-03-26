@@ -14,7 +14,7 @@ module LSP
     property target_selection_range : Range
 
     def uri_full_path : Path
-      Path.new(URI.parse(@target_uri).full_path)
+      Path.new(URI.parse(@target_uri).request_target)
     end
 
     def range

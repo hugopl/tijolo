@@ -11,7 +11,7 @@ module LSP
     end
 
     def uri_full_path : Path
-      Path.new(URI.parse(@uri).full_path)
+      Path.new(URI.parse(@uri).request_target)
     end
   end
 end

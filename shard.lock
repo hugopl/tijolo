@@ -6,11 +6,11 @@ shards:
 
   fzy:
     git: https://github.com/hugopl/fzy.git
-    version: 0.5.0
+    version: 0.5.2
 
   gobject:
     git: https://github.com/jhass/crystal-gobject.git
-    version: 0.9.1+git.commit.5bc0cc7481a713b22e332d1bab80c132a819d20e
+    version: 0.10.0
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
@@ -18,5 +18,5 @@ shards:
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git
-    version: 1.2.2
+    version: 1.2.4
 
