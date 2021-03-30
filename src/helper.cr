@@ -40,7 +40,7 @@ def parse_args(argv)
   OptionParser.parse(argv) do |parser|
     parser.banner = "Usage: tijolo [OPTIONS] [FILE|DIRECTORY]..."
     parser.on("-v", "--version", "Show tijolo version.") do
-      puts "Tijolo version #{VERSION}"
+      puts "Tijolo version #{VERSION} built with Crystal #{Crystal::VERSION}."
       exit
     end
     parser.on("--debug", "Enable some debug stuff, like log all LSP communication.") { log_level = Log::Severity::Debug }

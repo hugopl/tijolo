@@ -182,7 +182,7 @@ class Application
     dialog = Gtk::AboutDialog.new(application: @application,
       transient_for: main_window,
       copyright: "© 2020-2021 Hugo Parente Lima",
-      version: VERSION,
+      version: "#{VERSION} (Crystal #{Crystal::VERSION})",
       program_name: "Tijolo",
       logo_icon_name: "io.github.hugopl.Tijolo",
       comments: "Lightweight, keyboard-oriented IDE for the masses",
