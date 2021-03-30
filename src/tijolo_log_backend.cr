@@ -17,6 +17,11 @@ class TijoloLogBackend < Log::Backend
     @@instance ||= TijoloLogBackend.new
   end
 
+  def initialize
+    # This need to be sync, since assync create Fibers that may end up in the same thread of glib mainloop.
+    super(:sync)
+  end
+
   def gtk_buffer=(gtk_buffer : Gtk::TextBuffer)
     raise ArgumentError.new unless @gtk_buffer.nil?
 
