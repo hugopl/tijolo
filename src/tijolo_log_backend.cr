@@ -1,8 +1,17 @@
 require "log"
 
+require "./observable"
+
+module TijoloLogListener
+  abstract def tijolo_log_notification_arrived(entry : ::Log::Entry) : Nil
+end
+
+# FIXME: Remove GTK stuff from Tijolo log backend and let output pane use the TijoloLogListener interface
 class TijoloLogBackend < Log::Backend
+  observable_by TijoloLogListener
+
   @gtk_buffer : Gtk::TextBuffer?
-  @buffer = Array(Log::Entry).new
+  @buffer : Array(::Log::Entry)?
 
   def self.instance
     @@instance ||= TijoloLogBackend.new
@@ -16,23 +25,24 @@ class TijoloLogBackend < Log::Backend
 
   def write(entry : Log::Entry)
     if @gtk_buffer.nil?
-      @buffer << entry
+      if @buffer.nil?
+        @buffer = buffer = [] of Log::Entry
+        buffer << entry
+      end
     else
-      flush_buffer if @buffer.any?
+      flush_buffer
       write_to_gtk(entry)
     end
-  end
-
-  private def bufferize(entry)
-    @buffer = buffer = [] of Log::Entry if @buffer.nil?
-    buffer << entry
   end
 
   private def flush_buffer
-    @buffer.each do |entry|
+    buffer = @buffer
+    return if buffer.nil?
+
+    buffer.each do |entry|
       write_to_gtk(entry)
     end
-    @buffer.clear
+    @buffer = nil
   end
 
   def write_to_gtk(entry : Log::Entry)
@@ -43,6 +53,7 @@ class TijoloLogBackend < Log::Backend
     GLib.idle_add do
       iter = gtk_buffer.start_iter
       gtk_buffer.insert_markup(iter, str, str.bytesize)
+      notify_tijolo_log_notification_arrived(entry) if entry.data[:notify]?
       false
     end
   end

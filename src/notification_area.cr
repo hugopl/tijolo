@@ -1,3 +1,5 @@
+require "./tijolo_log_backend"
+
 class NotificationEntry
   include UiBuilderHelper
 
@@ -26,9 +28,9 @@ class NotificationEntry
   end
 end
 
-# FIXME: Split the notification area UI from the log backend, since only one backend instance should exists
-class NotificationArea < Log::Backend
+class NotificationArea
   include UiBuilderHelper
+  include TijoloLogListener
 
   getter widget : Gtk::Widget
   @listbox : Gtk::Box
@@ -41,18 +43,12 @@ class NotificationArea < Log::Backend
     @listbox = Gtk::Box.cast(builder["listbox"])
     @widget.hide
 
-    Log.builder.bind("*", :info, self)
+    TijoloLogBackend.instance.add_tijolo_log_listener(self)
   end
 
-  def write(entry : Log::Entry)
-    return if !entry.data[:notify]? || !Config.instance.notification_enabled?
-
-    # This can be called from other threads, so we make sure we touch UI on main thread.
-    GLib.idle_add do
-      notification = NotificationEntry.new(@listbox, entry)
-      start_counter_to_destroy_notification(notification)
-      false
-    end
+  def tijolo_log_notification_arrived(entry : ::Log::Entry) : Nil
+    notification = NotificationEntry.new(@listbox, entry)
+    start_counter_to_destroy_notification(notification)
   end
 
   private def start_counter_to_destroy_notification(notification)
