@@ -23,9 +23,11 @@ abstract class View
 
   @@untitled_count = -1
 
+  alias Id = String
+
   getter file_path : Path?
   property project_path : Path?
-  getter id : String
+  getter id : Id
   property label = ""
   property? readonly = false
   property? virtual = false

@@ -3,7 +3,7 @@ require "./split_node"
 module Split
   class ViewNode < Node
     @stack = Gtk::Stack.new
-    @views_count = 0
+    getter view_ids = [] of View::Id
 
     def initialize(parent : Node)
       super(parent)
@@ -14,27 +14,25 @@ module Split
       @stack
     end
 
-    def visible_view_id : String?
+    def visible_view_id : View::Id?
       @stack.visible_child_name
     end
 
     def add_view(view : View)
       @stack.add_named(view.widget, view.id)
       @stack.visible_child = view.widget
-      @views_count += 1
+      @view_ids << view.id
     end
 
     def remove_view(view : View) : Nil
       view_widget = @stack.child_by_name(view.id)
       if view_widget
         @stack.remove(view_widget)
-        @views_count -= 1
+        @view_ids.delete(view.id)
       end
     end
 
-    def empty?
-      @views_count.zero?
-    end
+    delegate empty?, to: @view_ids
 
     def reveal_view(view : View) : Nil
       view_widget = @stack.child_by_name(view.id)
@@ -66,7 +64,7 @@ module Split
     end
 
     def to_s(io : IO)
-      io << "\"View#{@id} (#{@views_count})\""
+      io << "\"View#{@id} (#{@view_ids.size})\""
     end
 
     def dump(io : IO) : Nil

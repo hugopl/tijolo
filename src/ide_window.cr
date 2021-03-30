@@ -143,8 +143,10 @@ class IdeWindow < Window
       return true
     end
     if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
+      was_switch_open_files_already = @switching_open_files
       @switching_open_files = true
       if @open_files.any?
+        @open_files.reorder_views_by_split unless was_switch_open_files_already
         @open_files.switch_current_view(false)
         @open_files_box.show_all
         # Focus need to be removed away from editor, or it will mess with open files model

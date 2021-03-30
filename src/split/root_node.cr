@@ -83,6 +83,11 @@ module Split
       end
     end
 
+    def current_node : ViewNode?
+      current_view = @current_view
+      return find_node(current_view) if current_view
+    end
+
     def find_node(view : View) : ViewNode?
       unmaximize_view if maximized?
 
