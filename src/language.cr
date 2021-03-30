@@ -64,7 +64,7 @@ class Language
     LanguageManager.find_gtk_lang(@id)
   end
 
-  def start_lsp(cmd)
+  def start_lsp(cmd) : LspClient?
     return unless Config.instance.language_servers_enabled?
 
     lsp = @@running_language_servers[cmd]?
@@ -73,15 +73,14 @@ class Language
       return lsp
     end
 
-    program = cmd[0...(cmd.index(/\s/) || 0)]
+    program = cmd.split.first
     if Process.find_executable(program).nil?
-      Log.error &.emit("Can't find a executable for: #{cmd}", notify: true)
-      return nil
+      Log.error &.emit("Can't find a executable for: #{program}", notify: true)
+      return
     end
     lsp = LspClient.new(cmd, @id)
     lsp.add_lsp_client_listener(self)
     @@running_language_servers[cmd] = lsp
-    lsp
   rescue
     Log.error &.emit("Failed to start language server for #{@id}: #{cmd}", notify: true)
     nil
