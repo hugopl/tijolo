@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - Improve Ctrl+Tab on multiple splits by prioritizing views in the current split.
+ - Reverse Ctrl+Tab on Ctrl+` (on US keyboards), unfortunately no yet configurable.
  - Add fuzzy search to Welcome Screen and improve its keyboard usability.
  - Added copy/paste on terminal view on Ctrl+Shift+C/Ctrl+Shift+V.
  - Add `Find By Regexp`, triggered on `CTRL+R`.

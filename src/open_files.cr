@@ -119,14 +119,19 @@ class OpenFiles
 
   # Cycle through open views and call reveal_view for the next view.
   # If reorder = true, mark the current view as the last used, i.e. reorder @sorted_views
-  def switch_current_view(reorder : Bool)
+  def switch_current_view(*, reorder : Bool, reverse : Bool = false)
     return if @views.size < 2
 
     @ignore_focus_event = !reorder
 
     unless reorder
-      @sorted_views_index -= 1
-      @sorted_views_index = @sorted_views.size - 1 if @sorted_views_index < 0
+      @sorted_views_index -= reverse ? -1 : 1
+      max_index = @sorted_views.size - 1
+      if @sorted_views_index < 0
+        @sorted_views_index = max_index
+      elsif @sorted_views_index > max_index
+        @sorted_views_index = 0
+      end
     end
 
     reveal_view(@sorted_views[@sorted_views_index], reorder)

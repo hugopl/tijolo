@@ -142,12 +142,13 @@ class IdeWindow < Window
       focus_editor
       return true
     end
-    if event.keyval == Gdk::KEY_Tab && event.state.control_mask?
+    # FIXME: This must be configurable, since I have no idea if this works on non-US keyboards
+    if event.state.control_mask? && event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
       was_switch_open_files_already = @switching_open_files
       @switching_open_files = true
       if @open_files.any?
         @open_files.reorder_views_by_split unless was_switch_open_files_already
-        @open_files.switch_current_view(false)
+        @open_files.switch_current_view(reorder: false, reverse: event.keyval == Gdk::KEY_dead_grave)
         @open_files_box.show_all
         # Focus need to be removed away from editor, or it will mess with open files model
         @open_files_view.grab_focus
@@ -158,9 +159,9 @@ class IdeWindow < Window
   end
 
   def key_release_event(widget : Gtk::Widget, event : Gdk::EventKey)
-    if @switching_open_files && event.keyval != Gdk::KEY_Tab && event.state.control_mask?
+    if @switching_open_files && event.state.control_mask? && !event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
       @switching_open_files = false
-      @open_files.switch_current_view(true)
+      @open_files.switch_current_view(reorder: true)
       @open_files_box.hide
       return true
     end
