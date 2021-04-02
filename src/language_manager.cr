@@ -3,10 +3,10 @@ require "./helper"
 
 # Thin wrapper for GtkSource::LanguageManager
 class LanguageManager
-  @@languages = Hash(String, Language).new
+  @languages = Hash(String, Language).new
   @@initied = false
 
-  private def self.gtk_lang_manager : GtkSource::LanguageManager
+  def self.gtk_lang_manager : GtkSource::LanguageManager
     return GtkSource::LanguageManager.default if @@initied
 
     manager = GtkSource::LanguageManager.default
@@ -16,26 +16,27 @@ class LanguageManager
     manager
   end
 
-  def self.find_gtk_lang(id : String)
-    gtk_lang_manager.language(id)
+  private def find_gtk_lang(id : String)
+    LanguageManager.gtk_lang_manager.language(id)
   end
 
-  def self.find(id : String) : Language
-    @@languages[id]? || create_lang(gtk_lang_manager.language(id))
+  def find(id : String) : Language
+    @languages[id]? || create_lang(find_gtk_lang(id))
   end
 
-  def self.guess_language(file : Path) : Language
-    gtk_lang = gtk_lang_manager.guess_language(file.basename, nil)
+  def guess_language(file : Path) : Language
+    manager = LanguageManager.gtk_lang_manager
+    gtk_lang = manager.guess_language(file.basename, nil)
     if gtk_lang.nil?
       content_type = content_type(file)
-      gtk_lang = gtk_lang_manager.guess_language(nil, content_type) if content_type
+      gtk_lang = manager.guess_language(nil, content_type) if content_type
     end
 
     id = gtk_lang ? gtk_lang.id : Language::NONE_ID
-    @@languages[id]? || create_lang(gtk_lang)
+    @languages[id]? || create_lang(gtk_lang)
   end
 
-  private def self.content_type(file : Path)
+  private def content_type(file : Path)
     data = File.read(file).to_slice
     contents, _uncertain = Gio.content_type_guess(file.basename, data)
     contents
@@ -43,14 +44,14 @@ class LanguageManager
     nil
   end
 
-  def self.shutdown
-    @@languages.each_value(&.shutdown)
+  def shutdown
+    @languages.each_value(&.shutdown)
   end
 
   private record LanguageGlob, language_id : String, glob : String
 
-  def self.start_languages_for(files : Enumerable(Path)) : Nil
-    manager = gtk_lang_manager
+  def start_languages_for(files : Enumerable(Path)) : Nil
+    manager = LanguageManager.gtk_lang_manager
     globs = Array(LanguageGlob).new
     Config.instance.language_servers.keys.each do |lang_id|
       lang_globs = manager.language(lang_id).try(&.globs)
@@ -73,12 +74,12 @@ class LanguageManager
     end
   end
 
-  private def self.create_lang(gtk_lang)
+  private def create_lang(gtk_lang)
     lang = if gtk_lang.nil?
              Language::NONE
            else
-             Language.new(gtk_lang.id, gtk_lang.metadata("line-comment-start").to_s)
+             Language.new(gtk_lang)
            end
-    @@languages[lang.id] = lang
+    @languages[lang.id] = lang
   end
 end

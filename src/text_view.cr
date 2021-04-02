@@ -6,6 +6,7 @@ require "./view"
 
 class TextView < View
   @editor = Editor::TextEditor.new
+  @lang_manager : LanguageManager
   @trim_trailing_white_space_on_save = true
   getter buffer : Editor::TextBuffer
   getter version = 1
@@ -22,9 +23,14 @@ class TextView < View
   delegate has_selection?, to: @buffer
   delegate text, to: @buffer
   delegate :text=, to: @buffer
-  delegate :syntax_highlighting=, to: @buffer
+  delegate :language=, to: @buffer
 
+  # Used just in tests
   def initialize(file_path : Path? = nil, project_path : Path? = nil)
+    initialize(LanguageManager.new, file_path, project_path)
+  end
+
+  def initialize(@lang_manager : LanguageManager, file_path : Path? = nil, project_path : Path? = nil)
     @buffer = @editor.buffer
     super(@editor.widget, file_path, project_path)
 
@@ -209,8 +215,8 @@ class TextView < View
     file_path = @file_path
     return if file_path.nil?
 
-    @language = LanguageManager.guess_language(file_path)
-    @buffer.syntax_highlighting = @language.id
+    @language = @lang_manager.guess_language(file_path)
+    @buffer.language = @language
   end
 
   def restore_state

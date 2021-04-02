@@ -9,6 +9,7 @@ class Language
   getter line_comment : String
   getter id : String
   getter! lsp_client : LspClient?
+  getter gtk_language : GtkSource::Language?
 
   @views_to_open : Array(TextView)?
 
@@ -19,7 +20,10 @@ class Language
 
   @@running_language_servers = Hash(String, LspClient).new
 
-  def initialize(@id, @line_comment = "")
+  def initialize(gtk_language : GtkSource::Language)
+    @id = gtk_language.id
+    @line_comment = gtk_language.metadata("line-comment-start").to_s
+    @gtk_language = gtk_language
     cmd = Config.instance.language_servers[@id]?
     if cmd.nil?
       Log.info &.emit("No language server for \"#{@id}\" found.", notify: true)
@@ -56,12 +60,6 @@ class Language
     has_feature = proc.call(lsp_client)
     raise AppError.new("#{@id} Language Server doesn't support #{feature}.") unless has_feature
     true
-  end
-
-  def gtk_language : GtkSource::Language?
-    return if none?
-
-    LanguageManager.find_gtk_lang(@id)
   end
 
   def start_lsp(cmd) : LspClient?

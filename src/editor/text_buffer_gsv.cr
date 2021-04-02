@@ -58,8 +58,8 @@ class Editor::TextBuffer
     @buffer.sort_lines(start_iter, end_iter, :case_sensitive, 0)
   end
 
-  def syntax_highlighting=(language : String)
-    @buffer.language = LanguageManager.find_gtk_lang(language)
+  def language=(language : Language)
+    @buffer.language = language.gtk_language
   end
 
   def modified? : Bool

@@ -42,6 +42,7 @@ class IdeWindow < Window
   @locator : Locator
   @branches : GitBranches
   @cursor_history : CursorHistory
+  @lang_manager : LanguageManager
 
   @tijolorc : TijoloRC
 
@@ -58,6 +59,7 @@ class IdeWindow < Window
     @tijolorc = TijoloRC.instance
     @tijolorc.touch_project(@project.root)
     @project_monitor = ProjectMonitor.new(@project)
+    @lang_manager = LanguageManager.new
     overlay = Gtk::Overlay.cast(builder["editor_overlay"])
     @locator = Locator.new(@project)
     overlay.add_overlay(@locator.locator_widget)
@@ -132,7 +134,7 @@ class IdeWindow < Window
     # Need this to let GTK resize the git branches view
     Gtk::Container.cast(root).check_resize
 
-    LanguageManager.start_languages_for(@project.files) unless Config.instance.lazy_start_language_servers?
+    @lang_manager.start_languages_for(@project.files) unless Config.instance.lazy_start_language_servers?
   end
 
   def key_press_event(widget : Gtk::Widget, event : Gdk::EventKey)
@@ -276,7 +278,7 @@ class IdeWindow < Window
 
   # Call create_view instead of this.
   private def create_text_view(file_path : Path? = nil, project_path : Path? = nil) : TextView
-    view = TextView.new(file_path, project_path)
+    view = TextView.new(@lang_manager, file_path, project_path)
     view.language.file_opened(view)
     view
   end
@@ -304,7 +306,11 @@ class IdeWindow < Window
     view.readonly = true
     view.virtual = true
     view.label = label
-    view.syntax_highlighting = syntax if syntax
+    if syntax
+      lang = @lang_manager.find(syntax)
+      view.language = lang
+    end
+
     view.cursor_pos = {0, 0}
   end
 
@@ -692,7 +698,7 @@ class IdeWindow < Window
         end
       end
     end
-    LanguageManager.shutdown
+    @lang_manager.shutdown
     # Save all view cursors
     @open_files.views.each do |view|
       save_cursor(view) if view.is_a?(TextView)
