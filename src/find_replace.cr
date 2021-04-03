@@ -31,7 +31,7 @@ class FindReplace
     @find_message = Gtk::Label.cast(builder["find_message"])
 
     @entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
-    @entry.connect("notify::text") { find }
+    @entry.connect("notify::text") { find(@text_view) }
     @entry.on_activate { activate }
   end
 
@@ -97,16 +97,15 @@ class FindReplace
       @revealer.reveal_child = false
     else
       remove_highlighting
-      @text_view = nil
     end
   end
 
   # Called when user press enter on text entry.
   def activate
     if @mode.find_replace?
-      find_replace
+      find_replace(@text_view)
     else
-      find
+      find(@text_view)
       grab_editor_focus
     end
   end
@@ -134,9 +133,8 @@ class FindReplace
     {$1, $2}
   end
 
-  def find : Bool
-    text_view = @text_view
-    return false if text_view.nil?
+  def find(text_view : TextView?) : Bool
+    return false if text_view.nil? || text_view != @text_view
 
     ctx = text_view.search_context
     match = ctx.find(search_text)
@@ -150,9 +148,8 @@ class FindReplace
     false
   end
 
-  def find_replace : Bool
-    text_view = @text_view
-    return false if text_view.nil?
+  def find_replace(text_view : TextView?) : Bool
+    return false if text_view.nil? || text_view != @text_view
 
     ctx = text_view.search_context
     match = ctx.find(search_text)
@@ -164,17 +161,15 @@ class FindReplace
     true
   end
 
-  def find_next
-    text_view = @text_view
-    return if text_view.nil?
+  def find_next(text_view : TextView?)
+    return if text_view.nil? || text_view != @text_view
 
     match = text_view.search_context.find_next
     text_view.scroll_to(match[0]) if match
   end
 
-  def find_prev
-    text_view = @text_view
-    return if text_view.nil?
+  def find_prev(text_view : TextView?)
+    return if text_view.nil? || text_view != @text_view
 
     match = text_view.search_context.find_prev
     text_view.scroll_to(match[0]) if match

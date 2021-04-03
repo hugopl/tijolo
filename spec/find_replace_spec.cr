@@ -55,6 +55,14 @@ describe FindReplace do
     ok.should eq(false)
   end
 
+  it "reject to find if the configured view is different from the requested view in find operation" do
+    fr, view = create_find_replace("AbcXXXdef XXX", :find_by_text)
+    fr.search_text = "Xxx"
+    fr.show(view, :find_by_text)
+    view2 = TextView.new
+    fr.find(view2).should eq(false)
+  end
+
   it "add a / when changing from find_by_text to find_replace" do
     fr, view = create_find_replace("AbcXXXdef XXX", :find_by_text)
     fr.search_text = "Hey"
@@ -77,15 +85,15 @@ describe FindReplace do
       view.buffer.selected_text.should eq("XXX")
       view.cursor_pos.should eq({0, 3})
 
-      fr.find_next
+      fr.find_next(view)
       view.buffer.selected_text.should eq("XXX")
       view.cursor_pos.should eq({0, 10})
 
-      fr.find_prev
+      fr.find_prev(view)
       view.buffer.selected_text.should eq("XXX")
       view.cursor_pos.should eq({0, 3})
 
-      fr.find_prev
+      fr.find_prev(view)
       view.buffer.selected_text.should eq("XXX")
       view.cursor_pos.should eq({0, 10})
     end

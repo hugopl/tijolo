@@ -476,11 +476,13 @@ class IdeWindow < Window
   end
 
   def find_next_in_current_view
-    @find_replace.find_next
+    view = @open_files.current_view.as?(TextView)
+    @find_replace.find_next(view)
   end
 
   def find_prev_in_current_view
-    @find_replace.find_prev
+    view = @open_files.current_view.as?(TextView)
+    @find_replace.find_prev(view)
   end
 
   def increase_current_view_font_size
