@@ -4,22 +4,16 @@
 
 This is a short-term TODO list in no special order.
 
-## 0.5.0 release
-
-- [x] Port to Crystal ~0.36.1~ 1.0.0
-- [ ] Fix the buggy location history introduced into 0.3.0 :-)
-- Some ♥️ to LSP implementation.
-  - [x] Better feedback on LSP when it fails, when it's ready, etc.
-  - [x] Show passive popup "definition not found" when LSP can't find a definition.
-- Some ♥️ to file monitoring.
-  - [x] Better handle file renames by external processes.
-  - [x] Better handle file removal by external processes.
-  - [x] Work with non-project files open.
-- [x] More ♥️ to text search UI.
-- [x] Add find/replace.
-- [x] Add search by regexp.
-
 ## 0.6.0 release
+
+- [ ] Fix the buggy location history introduced into 0.3.0 :-)
+- [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
+- [ ] Pass Ctrl+Key keystrokes to terminal views.
+- [ ] Rebind shortcuts after save config file.
+- [ ] Show shortcuts show in UI according the real configured shortcuts.
+- [ ] Fix race condition when different Tijolo instances update tijolorc.
+
+## 0.7.0 release
 
 Tijolo need to disable the GC to work without crash, this is due to a bug in the way Crystal uses the GC:
 
@@ -46,11 +40,7 @@ depend on GtkSourceView.
 
 ## Backlog, things that can go in any version...
 
-- [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
-- [x] Notify users that a language serve doesn't support incremental update.
 - [ ] Implement keyboard focused open dialog like Howl editor.
-- [ ] Pass Ctrl+Key keystrokes to terminal views.
-- [x] Close all views on Ctrl+Shift+W.
 - [ ] Open more than one file on command line in different splits, `tijolo file1 --split file2` or `tijolo file1 - file2`.
 - [ ] Show user configured shortcuts in help texts instead of hardcoded text with default shortcuts.
 - Some ♥️ to LSP implementation.
@@ -58,7 +48,6 @@ depend on GtkSourceView.
   - [ ] Support LSP diagnostics feature.
   - [ ] Support LSP code format feature.
 - [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
-- [ ] Rebind shortcuts after save config file.
 - [ ] Rename files (not sure about this... maybe a mouse-only action? since it's a rarely used action for a shortcut).
 - [ ] Delete files (not sure about this... maybe a mouse-only action? since it's a rarely used action for a shortcut).
 - [ ] Clone repository dialog. (I really don't care about this task, since I don't use it)

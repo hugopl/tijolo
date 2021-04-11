@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.5.0] - 2021-04-11
 ### Added
  - Improve Ctrl+Tab on multiple splits by prioritizing views in the current split.
  - Reverse Ctrl+Tab on Ctrl+` (on US keyboards), unfortunately no yet configurable.
@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Some ♥️ to find/replace UI.
 ### Fixed
+ - Fixed compilation with Crystal 0.36.x and 1.0.0.
  - Fix some keyboard focus issues with find/replace widget.
  - Monitor file changes/renames of open non-project files.
  - Only scroll view on text find if the match isn't in the viewport.
