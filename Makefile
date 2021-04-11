@@ -1,11 +1,14 @@
-.PHONY: all debug install install-fonts uninstall uninstall-fonts
+.PHONY: all debug install install-fonts uninstall uninstall-fonts shardsinstall
 PREFIX ?= /usr
 
-all:
+all: shardsinstall
 	shards build --release -s  -Dpreview_mt
 
-debug:
+debug: shardsinstall
 	shards build --debug -Dpreview_mt
+
+shardsinstall:
+	shards install --ignore-crystal-version
 
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".

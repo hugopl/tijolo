@@ -4,9 +4,8 @@ FROM ubuntu:focal
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y tzdata curl gpg && apt-get clean
 
-# Add Crystal repository
-RUN curl -L https://keybase.io/crystal/pgp_keys.asc | apt-key add -
-RUN echo "deb https://dist.crystal-lang.org/apt crystal main" > /etc/apt/sources.list.d/crystal.list
+RUN echo "deb https://dl.bintray.com/crystal/deb all stable" | tee /etc/apt/sources.list.d/crystal.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
 
 # Setup build environment
 RUN apt-get update \
