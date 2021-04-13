@@ -5,7 +5,7 @@
 Lightweight, keyboard-oriented IDE for the masses.
 
 [![AUR](https://img.shields.io/aur/version/tijolo)](https://aur.archlinux.org/packages/tijolo)
-![Build Status](https://github.com/hugopl/tijolo/actions/workflows/ci.yml/badge.svg?branch=master)
+![Build Status](https://github.com/hugopl/tijolo/actions/workflows/ci.yml/badge.svg?branch=main)
 
 ## Project status
 
