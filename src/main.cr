@@ -46,6 +46,7 @@ if options[:gc_disabled]
 end
 
 begin
+  setup_gtk_source_view
   app = Application.new(options[:locations])
 
   if options[:gc_disabled] || options[:log_level].debug?

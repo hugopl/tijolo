@@ -1,18 +1,13 @@
-.PHONY: all debug install install-fonts uninstall uninstall-fonts shardsinstall
+.PHONY: all debug install install-fonts uninstall uninstall-fonts
 PREFIX ?= /usr
 
-all: shardsinstall
-	shards build --release -s  -Dpreview_mt
-
-debug: shardsinstall
-	shards build --debug -Dpreview_mt
-
-shardsinstall:
-	shards install --ignore-crystal-version
-
+all:
+	shards build --ignore-crystal-version --release -s  -Dpreview_mt
+debug:
+	shards build --ignore-crystal-version --debug -Dpreview_mt
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
-	GC_DONT_GC=1 LC_ALL=en_US.UTF8 crystal spec
+	GC_DONT_GC=1 LC_ALL=en_US.UTF8 xvfb-run crystal spec
 
 install:
 	install -D -m 0755 bin/tijolo $(DESTDIR)$(PREFIX)/bin/tijolo

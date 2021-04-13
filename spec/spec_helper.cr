@@ -117,6 +117,4 @@ argc = argv.size
 unsafe_argv = argv.map(&.to_unsafe).to_unsafe
 LibGdk.init pointerof(argc), pointerof(unsafe_argv)
 
-GtkSource.init
-GtkSource::LanguageManager.default.search_path =
-  GtkSource::LanguageManager.default.search_path.to_a.unshift("#{__DIR__}/../share/tijolo/language-specs")
+setup_gtk_source_view

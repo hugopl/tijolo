@@ -31,6 +31,15 @@ def usr_share_paths(dir : String, paths = [] of String)
   paths
 end
 
+def setup_gtk_source_view
+  GtkSource.init
+  scheme_manager = GtkSource::StyleSchemeManager.default
+  scheme_manager.search_path = usr_share_paths("styles", scheme_manager.search_path.to_a)
+
+  lang_manager = GtkSource::LanguageManager.default
+  lang_manager.search_path = usr_share_paths("language-specs", lang_manager.search_path.to_a)
+end
+
 def parse_args(argv)
   gc_disabled = true # Leak all the things! See main.cr
   no_lsp = false

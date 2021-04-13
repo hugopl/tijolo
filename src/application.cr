@@ -27,7 +27,6 @@ class Application
   @recent_files_menu : Gio::Menu?
 
   def initialize(@argv_files : Array(String))
-    GtkSource.init
     @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
     setup_scheme_search_path

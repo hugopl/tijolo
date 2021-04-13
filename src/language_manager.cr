@@ -4,16 +4,9 @@ require "./helper"
 # Thin wrapper for GtkSource::LanguageManager
 class LanguageManager
   @languages = Hash(String, Language).new
-  @@initied = false
 
   def self.gtk_lang_manager : GtkSource::LanguageManager
-    return GtkSource::LanguageManager.default if @@initied
-
-    manager = GtkSource::LanguageManager.default
-    manager.search_path = usr_share_paths("language-specs", manager.search_path.to_a)
-
-    @@initied = true
-    manager
+    GtkSource::LanguageManager.default
   end
 
   private def find_gtk_lang(id : String)
