@@ -86,7 +86,7 @@ class Application
       main_window.add_action(action)
 
       shortcut = config.shortcuts[name.to_s]
-      set_accels_for_action("win.#{name}", {shortcut}) if shortcut
+      set_accels_for_action("win.#{name}", {shortcut})
     end
   end
 

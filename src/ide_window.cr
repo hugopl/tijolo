@@ -210,7 +210,7 @@ class IdeWindow < Window
       main_window.add_action(action)
 
       shortcut = config.shortcuts[name.to_s]
-      application.set_accels_for_action("win.#{name}", {shortcut}) if shortcut
+      application.set_accels_for_action("win.#{name}", {shortcut})
     end
 
     # View related actions
