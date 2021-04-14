@@ -43,6 +43,10 @@ module Split
       end
     end
 
+    def accept(visitor : NodeVisitor) : Bool
+      visitor.visit(self)
+    end
+
     def find_node(view : View) : ViewNode?
       return self if @stack.has_child?(view.id)
     end

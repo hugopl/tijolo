@@ -24,7 +24,6 @@ class IdeWindow < Window
 
   getter project : Project
 
-  @open_files_view : Gtk::TreeView
   @open_files_box : Gtk::Box
   @project_tree_view : Gtk::TreeView
   @branches_view : Gtk::TreeView
@@ -77,12 +76,11 @@ class IdeWindow < Window
     editor_box.reorder_child(@find_replace.widget, 1)
 
     # Open Files view
-    @open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
+    open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
     @open_files_box = Gtk::Box.cast(builder["open_files"])
-    @open_files = OpenFiles.new
+    @open_files = OpenFiles.new(open_files_view)
     editor_box = Gtk::Box.cast(builder["editor_box"])
     editor_box.pack_start(@open_files.widget, true, true, 0)
-    @open_files_view.model = @open_files.sorted_model
     overlay.add_overlay(@open_files_box)
 
     @sidebar = Gtk::Box.cast(builder["sidebar"])
@@ -146,14 +144,9 @@ class IdeWindow < Window
     end
     # FIXME: This must be configurable, since I have no idea if this works on non-US keyboards
     if event.state.control_mask? && event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
-      was_switch_open_files_already = @switching_open_files
-      @switching_open_files = true
-      if @open_files.any?
-        @open_files.reorder_views_by_split unless was_switch_open_files_already
-        @open_files.switch_current_view(reorder: false, reverse: event.keyval == Gdk::KEY_dead_grave)
+      if @open_files.rotate_views(reverse: event.keyval == Gdk::KEY_dead_grave)
         @open_files_box.show_all
-        # Focus need to be removed away from editor, or it will mess with open files model
-        @open_files_view.grab_focus
+        @switching_open_files = true
       end
       return true
     end
@@ -163,7 +156,7 @@ class IdeWindow < Window
   def key_release_event(widget : Gtk::Widget, event : Gdk::EventKey)
     if @switching_open_files && event.state.control_mask? && !event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
       @switching_open_files = false
-      @open_files.switch_current_view(reorder: true)
+      @open_files.change_to_highlighted_view
       @open_files_box.hide
       return true
     end
@@ -333,7 +326,7 @@ class IdeWindow < Window
       view = create_view(file, split_view)
       view.restore_state if restore_state
     else
-      @open_files.show_view(view)
+      @open_files.change_current_view(view)
     end
     view
   rescue e : IO::Error
@@ -356,7 +349,7 @@ class IdeWindow < Window
     if view.nil?
       view = create_view(cursor.file_path)
     else
-      @open_files.show_view(view)
+      @open_files.change_current_view(view)
     end
 
     path = view.file_path # FIXME Nto workign with unsaved file is a problem.
@@ -369,10 +362,7 @@ class IdeWindow < Window
     application.error(e)
   end
 
-  def open_files_view_revealed(view, definitive)
-    @open_files_view.selection.select_row(@open_files.current_row)
-    return unless definitive
-
+  def open_files_current_view_changed(view)
     ask_about_externally_modified_files
 
     @find_replace.hide

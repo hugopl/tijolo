@@ -47,6 +47,11 @@ module Split
       end
     end
 
+    def accept(visitor : NodeVisitor) : Bool
+      return false unless visitor.visit(self)
+      @child1.accept(visitor) || @child2.accept(visitor)
+    end
+
     def find_node(view : View) : ViewNode?
       @child1.find_node(view) || @child2.find_node(view)
     end

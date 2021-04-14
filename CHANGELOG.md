@@ -3,8 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+### Fixed
+ - Fixed some issues when switching views when using split views.
+### Changed
+ - When switching views, a split view indicator is show, so you know where are you going.
+
 ## [0.5.1] - 2021-04-11
-# Fixed
+### Fixed
  - Add  makefile `--ignore-crystal-version` to Makefile
 
 ## [0.5.0] - 2021-04-11

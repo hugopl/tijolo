@@ -28,6 +28,11 @@ module Split
       @stack
     end
 
+    def has_split? : Bool
+      child = @child
+      !child.nil? && child.is_a?(SplitNode)
+    end
+
     def add_view(view : View, reference : View?, split_view : Bool, orientation : Orientation? = nil)
       if @child.nil?
         add_first_view(view)
@@ -88,12 +93,43 @@ module Split
       return find_node(current_view) if current_view
     end
 
+    def accept(visitor : NodeVisitor) : Bool
+      visitor.visit(self)
+      child = @child
+      return false if child.nil?
+
+      child.accept(visitor)
+    end
+
     def find_node(view : View) : ViewNode?
       unmaximize_view if maximized?
 
       view_node = @child.not_nil!.find_node(view)
       Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
       view_node
+    end
+
+    class SplitLabelerVisitor < NodeVisitor
+      getter split_label = 0
+      @id_to_find : String
+
+      def initialize(view_to_find : View)
+        @id_to_find = view_to_find.id
+      end
+
+      def visit(view_node : ViewNode) : Bool
+        @split_label += 1
+        view_node.view_ids.includes?(@id_to_find)
+      end
+    end
+
+    def split_identification(view : View) : Int32
+      child = @child
+      return 0 if child.nil?
+
+      visitor = SplitLabelerVisitor.new(view)
+      child.accept(visitor)
+      visitor.split_label
     end
 
     def reveal_view(view : View) : Nil

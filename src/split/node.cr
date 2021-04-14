@@ -1,3 +1,5 @@
+require "./node_visitor"
+
 module Split
   enum Orientation
     Horizontal
@@ -26,6 +28,8 @@ module Split
       yield
     end
 
+    abstract def accept(visitor : NodeVisitor) : Bool
+    abstract def find_node(view : View) : ViewNode?
     abstract def dump(io : IO) : Nil
   end
 end

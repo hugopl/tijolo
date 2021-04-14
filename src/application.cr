@@ -219,7 +219,7 @@ class Application
     return false if !project.valid? && files_to_open.empty?
 
     ide = init_ide(project)
-    files_to_open.each do |file|
+    files_to_open.reverse_each do |file|
       ide.open_file(file)
     end
     true
