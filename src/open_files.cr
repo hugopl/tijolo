@@ -90,10 +90,9 @@ class OpenFiles
     end
   end
 
-  def rotate_views(reverse : Bool) : View?
+  def rotate_views(reverse : Bool) : Bool
     views_count = @views.size
-    return if views_count < 1
-    return current_view if views_count == 1
+    return false if views_count < 2
 
     first_rotation = !@gtk_views_view.visible?
 
@@ -116,7 +115,7 @@ class OpenFiles
     ignore_focus_event do
       highlight_view(selected_view)
     end
-    selected_view
+    true
   end
 
   def change_to_highlighted_view
@@ -164,6 +163,7 @@ class OpenFiles
     end
 
     @views.unshift(view)
+    @copy_of_views = nil
     ignore_focus_event do
       @root.add_view(view, reference_view, split_view)
       change_current_view(view)
@@ -192,6 +192,7 @@ class OpenFiles
 
     view.remove_view_listener(self)
     @views.delete(view)
+    @copy_of_views = nil
     change_current_view(@views.first) unless @views.empty?
     @root.remove_view(view)
     view
