@@ -7,18 +7,18 @@ require "./git_branches"
 require "./image_view"
 require "./locator"
 require "./notification_area"
-require "./open_files"
 require "./project_monitor"
 require "./project_tree"
 require "./terminal_view.cr"
 require "./text_view"
 require "./tijolo_log_backend"
 require "./tijolo_rc"
+require "./view_manager"
 require "./window"
 
 class IdeWindow < Window
   include ViewListener
-  include OpenFilesListener
+  include ViewManagerListener
   include LocatorListener
   include ProjectListener
 
@@ -36,7 +36,7 @@ class IdeWindow < Window
   @inhibit_modified_files_dlg = false
 
   @project_tree : ProjectTree
-  @open_files : OpenFiles
+  @view_manager : ViewManager
   @find_replace : FindReplace
   @locator : Locator
   @branches : GitBranches
@@ -45,11 +45,11 @@ class IdeWindow < Window
 
   @tijolorc : TijoloRC
 
-  delegate focus_upper_split, to: @open_files
-  delegate focus_right_split, to: @open_files
-  delegate focus_lower_split, to: @open_files
-  delegate focus_left_split, to: @open_files
-  delegate maximize_view, to: @open_files
+  delegate focus_upper_split, to: @view_manager
+  delegate focus_right_split, to: @view_manager
+  delegate focus_lower_split, to: @view_manager
+  delegate focus_left_split, to: @view_manager
+  delegate maximize_view, to: @view_manager
 
   def initialize(application : Application, @project : Project)
     builder = builder_for("ide_window")
@@ -76,11 +76,11 @@ class IdeWindow < Window
     editor_box.reorder_child(@find_replace.widget, 1)
 
     # Open Files view
-    open_files_view = Gtk::TreeView.cast(builder["open_files_view"])
+    view_manager_view = Gtk::TreeView.cast(builder["view_manager_view"])
     @open_files_box = Gtk::Box.cast(builder["open_files"])
-    @open_files = OpenFiles.new(open_files_view)
+    @view_manager = ViewManager.new(view_manager_view)
     editor_box = Gtk::Box.cast(builder["editor_box"])
-    editor_box.pack_start(@open_files.widget, true, true, 0)
+    editor_box.pack_start(@view_manager.widget, true, true, 0)
     overlay.add_overlay(@open_files_box)
 
     @sidebar = Gtk::Box.cast(builder["sidebar"])
@@ -105,7 +105,7 @@ class IdeWindow < Window
     logger = TijoloLogBackend.instance
     logger.gtk_buffer = Gtk::TextView.cast(builder["log"]).buffer
 
-    @open_files.add_open_files_listener(self)
+    @view_manager.add_view_manager_listener(self)
     @locator.add_locator_listener(self)
     @project.add_project_listener(self)
     @project.scan_files # To avoid a race condition we scan project files only after we add all listeners to it.
@@ -144,7 +144,7 @@ class IdeWindow < Window
     end
     # FIXME: This must be configurable, since I have no idea if this works on non-US keyboards
     if event.state.control_mask? && event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
-      if @open_files.rotate_views(reverse: event.keyval == Gdk::KEY_dead_grave)
+      if @view_manager.rotate_views(reverse: event.keyval == Gdk::KEY_dead_grave)
         @open_files_box.show_all
         @switching_open_files = true
       end
@@ -156,7 +156,7 @@ class IdeWindow < Window
   def key_release_event(widget : Gtk::Widget, event : Gdk::EventKey)
     if @switching_open_files && event.state.control_mask? && !event.keyval.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
       @switching_open_files = false
-      @open_files.change_to_highlighted_view
+      @view_manager.change_to_highlighted_view
       @open_files_box.hide
       return true
     end
@@ -230,19 +230,19 @@ class IdeWindow < Window
   end
 
   private def show_locator(split_view = false)
-    @locator.show(select_text: true, view: @open_files.current_view, split_view: split_view)
+    @locator.show(select_text: true, view: @view_manager.current_view, split_view: split_view)
   end
 
   private def show_git_locator
     @locator.text = "g "
-    @locator.show(select_text: false, view: @open_files.current_view)
+    @locator.show(select_text: false, view: @view_manager.current_view)
   end
 
   def show_goto_line_locator
-    return if @open_files.empty?
+    return if @view_manager.empty?
 
     @locator.text = "l "
-    @locator.show(select_text: false, view: @open_files.current_view)
+    @locator.show(select_text: false, view: @view_manager.current_view)
   end
 
   def create_view(file : Path? = nil, split_view = false) : View
@@ -258,14 +258,14 @@ class IdeWindow < Window
            else
              create_text_view(file, project_path)
            end
-    @open_files.add_view(view, split_view)
+    @view_manager.add_view(view, split_view)
     view.add_view_listener(self)
     view
   end
 
   def create_terminal
     view = TerminalView.new
-    @open_files.add_view(view, true)
+    @view_manager.add_view(view, true)
     view.add_view_listener(self)
   end
 
@@ -308,7 +308,7 @@ class IdeWindow < Window
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     return if view.nil?
 
     view.goto(line, column)
@@ -316,17 +316,17 @@ class IdeWindow < Window
   end
 
   def locator_hidden
-    view = @open_files.current_view
+    view = @view_manager.current_view
     view.grab_focus if view
   end
 
   def open_file(file : Path, split_view = false, restore_state = true) : View?
-    view = @open_files.view(file)
+    view = @view_manager.view(file)
     if view.nil?
       view = create_view(file, split_view)
       view.restore_state if restore_state
     else
-      @open_files.change_current_view(view)
+      @view_manager.change_current_view(view)
     end
     view
   rescue e : IO::Error
@@ -345,11 +345,11 @@ class IdeWindow < Window
       end
     end
 
-    view = @open_files.view(cursor.file_path)
+    view = @view_manager.view(cursor.file_path)
     if view.nil?
       view = create_view(cursor.file_path)
     else
-      @open_files.change_current_view(view)
+      @view_manager.change_current_view(view)
     end
 
     path = view.file_path # FIXME Nto workign with unsaved file is a problem.
@@ -362,7 +362,7 @@ class IdeWindow < Window
     application.error(e)
   end
 
-  def open_files_current_view_changed(view)
+  def view_manager_current_view_changed(view)
     ask_about_externally_modified_files
 
     @find_replace.hide
@@ -379,12 +379,12 @@ class IdeWindow < Window
   end
 
   def save_current_view
-    view = @open_files.current_view
+    view = @view_manager.current_view
     save_view(view) if view && !view.virtual?
   end
 
   def save_current_view_as
-    view = @open_files.current_view
+    view = @view_manager.current_view
     if view
       path = view.file_path
       save_view(view, path)
@@ -427,13 +427,13 @@ class IdeWindow < Window
   end
 
   def close_current_view
-    view = @open_files.current_view
+    view = @view_manager.current_view
     close_view(view) if view
   end
 
   def close_all_views
     # Close in reverse order to avoid a lot of things to run
-    @open_files.views.reverse.each do |view|
+    @view_manager.views.reverse.each do |view|
       close_view(view)
     end
   end
@@ -447,7 +447,7 @@ class IdeWindow < Window
 
       save_view(view) if result.do_action?
     end
-    @open_files.close_current_view
+    @view_manager.close_current_view
     view.remove_view_listener(self)
     @locator.view_closed(view)
 
@@ -457,50 +457,50 @@ class IdeWindow < Window
       save_cursor(text_view)
     end
 
-    application.init_welcome if @open_files.empty? && !@project.valid?
+    application.init_welcome if @view_manager.empty? && !@project.valid?
   end
 
   def find_in_current_view(mode : FindReplace::Mode)
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     @find_replace.show(view, mode) if view
   end
 
   def find_next_in_current_view
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     @find_replace.find_next(view)
   end
 
   def find_prev_in_current_view
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     @find_replace.find_prev(view)
   end
 
   def increase_current_view_font_size
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     return if view.nil?
 
     view.font_size += 1
   end
 
   def decrease_current_view_font_size
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     return if view.nil?
 
     view.font_size -= 1
   end
 
   def comment_code
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     view.comment_action if view && view.focus?
   end
 
   def sort_lines
-    view = @open_files.current_view.as?(TextView)
+    view = @view_manager.current_view.as?(TextView)
     view.sort_lines_action if view && view.focus?
   end
 
   def goto_definition(split_view = false)
-    text_view = @open_files.current_view.as?(TextView)
+    text_view = @view_manager.current_view.as?(TextView)
     return if text_view.nil? || !text_view.focus?
 
     path = text_view.file_path
@@ -532,16 +532,16 @@ class IdeWindow < Window
   end
 
   def focus_editor
-    @open_files.current_view.try(&.grab_focus)
+    @view_manager.current_view.try(&.grab_focus)
   end
 
   def copy_terminal_text
-    view = @open_files.current_view
+    view = @view_manager.current_view
     view.copy_text_to_clipboard if view.is_a?(TerminalView)
   end
 
   def paste_terminal_text
-    view = @open_files.current_view
+    view = @view_manager.current_view
     view.paste_text_from_clipboard if view.is_a?(TerminalView)
   end
 
@@ -550,7 +550,7 @@ class IdeWindow < Window
   end
 
   private def with_view_and_path(view_id : UInt64?)
-    view = @open_files.view(view_id)
+    view = @view_manager.view(view_id)
     return if view.nil?
 
     path = view.file_path
@@ -648,10 +648,10 @@ class IdeWindow < Window
   def ask_about_externally_modified_files
     return unless main_window.active?
 
-    view = @open_files.current_view
+    view = @view_manager.current_view
     return if view.nil? || !view.externally_modified?
 
-    modified_views = @open_files.views.select(&.externally_modified?)
+    modified_views = @view_manager.views.select(&.externally_modified?)
     # Auto reload views that can be reloaded and remove them from modified views.
     modified_views.reject! do |v|
       if v.can_reload?
@@ -679,8 +679,8 @@ class IdeWindow < Window
   end
 
   def about_to_quit(_widget, event) : Bool
-    unless @open_files.all_saved?
-      dlg = ConfirmSaveDialog.new(main_window, @open_files.views.select(&.modified?))
+    unless @view_manager.all_saved?
+      dlg = ConfirmSaveDialog.new(main_window, @view_manager.views.select(&.modified?))
       result = dlg.run
       if result.cancel?
         return true
@@ -692,7 +692,7 @@ class IdeWindow < Window
     end
     @lang_manager.shutdown
     # Save all view cursors
-    @open_files.views.each do |view|
+    @view_manager.views.each do |view|
       save_cursor(view) if view.is_a?(TextView)
     end
     @tijolorc.touch_project(@project.root)

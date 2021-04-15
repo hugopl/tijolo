@@ -1,13 +1,13 @@
 require "./split/root_node"
 
-module OpenFilesListener
-  abstract def open_files_current_view_changed(view : View)
+module ViewManagerListener
+  abstract def view_manager_current_view_changed(view : View)
 end
 
-class OpenFiles
+class ViewManager
   include ViewListener
 
-  observable_by OpenFilesListener
+  observable_by ViewManagerListener
 
   @gtk_views_view : Gtk::TreeView
   getter model : Gtk::ListStore
@@ -125,7 +125,7 @@ class OpenFiles
 
   def change_current_view(view : View)
     highlight_view(view)
-    notify_open_files_current_view_changed(view)
+    notify_view_manager_current_view_changed(view)
     view.grab_focus
 
     # User original copy of view, without changes to group views from same split
