@@ -51,6 +51,8 @@ module Split
         view_node.add_view(view)
       end
       self.current_view = view
+    ensure
+      relabel_views
     end
 
     private def add_first_view(view : View)
@@ -109,27 +111,24 @@ module Split
       view_node
     end
 
-    class SplitLabelerVisitor < NodeVisitor
-      getter split_label = 0
-      @id_to_find : String
-
-      def initialize(view_to_find : View)
-        @id_to_find = view_to_find.id
-      end
-
-      def visit(view_node : ViewNode) : Bool
-        @split_label += 1
-        view_node.view_ids.includes?(@id_to_find)
-      end
+    private def relabel_views : Nil
+      child = @child
+      child.accept(NodeLabelerVisitor.new) if child
     end
 
-    def split_identification(view : View) : Int32
-      child = @child
-      return 0 if child.nil?
+    def split_label(view : View) : String
+      node = find_node(view)
+      node.nil? ? "" : node.label
+    end
 
-      visitor = SplitLabelerVisitor.new(view)
-      child.accept(visitor)
-      visitor.split_label
+    def show_split_labels
+      child = @child
+      child.accept(ShowLabelVisitor.new) if child
+    end
+
+    def hide_split_labels
+      child = @child
+      child.accept(HideLabelVisitor.new) if child
     end
 
     def reveal_view(view : View) : Nil
@@ -149,6 +148,7 @@ module Split
       view_node.remove_view(view)
       destroy_node(view_node) if view_node.empty?
       @current_view = nil if view == @current_view
+      relabel_views
     end
 
     def current_view=(view : View)

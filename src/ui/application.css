@@ -140,6 +140,11 @@ paned separator {
   background: @tijolo_white2;
 }
 
+#ide-window .split-label {
+  font-size: 60px;
+  color: @tijolo_orange2;
+}
+
 #output-pane textview text {
   color: @tijolo_white2;
   background-color: @tijolo_black;
@@ -201,4 +206,3 @@ paned separator {
 messagedialog box box box label {
   font: 9pt "JetBrainsMono Nerd Font", "Monospace";
 }
-

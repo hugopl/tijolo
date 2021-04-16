@@ -52,24 +52,8 @@ class ViewManager
     @model.clear
     has_split = @root.has_split?
     @views.each do |view|
-      split_label = has_split ? fancy_split_identification_label(@root.split_identification(view)) : ""
+      split_label = has_split ? @root.split_label(view) : ""
       @model.append({OPEN_FILES_LABEL, OPEN_FILES_SPLIT_LABEL}, {view.label, split_label})
-    end
-  end
-
-  private def fancy_split_identification_label(label : Int32)
-    case label
-    when 1 then "➊"
-    when 2 then "➋"
-    when 3 then "➌"
-    when 4 then "➍"
-    when 5 then "➎"
-    when 6 then "➏"
-    when 7 then "➐"
-    when 8 then "➑"
-    when 9 then "➒"
-    else
-      "∞"
     end
   end
 
@@ -96,6 +80,8 @@ class ViewManager
 
     first_rotation = !@gtk_views_view.visible?
 
+    @root.show_split_labels
+
     @selected_view_index = 0 if first_rotation
     @selected_view_index += reverse ? -1 : 1
     max_index = views_count - 1
@@ -119,8 +105,9 @@ class ViewManager
   end
 
   def change_to_highlighted_view
-    view = @views[@selected_view_index]
-    change_current_view(view)
+    @root.hide_split_labels
+    view = @views[@selected_view_index]?
+    change_current_view(view) if view
   end
 
   def change_current_view(view : View)

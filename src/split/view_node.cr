@@ -2,16 +2,48 @@ require "./split_node"
 
 module Split
   class ViewNode < Node
-    @stack = Gtk::Stack.new
+    @stack : Gtk::Stack
+    @overlay : Gtk::Overlay
+    @gtk_label : Gtk::Label
+
     getter view_ids = [] of View::Id
+    @label = 0
 
     def initialize(parent : Node)
       super(parent)
-      @stack.show_all
+      @stack = Gtk::Stack.new
+      @overlay = Gtk::Overlay.new
+      @overlay.add(@stack)
+
+      @gtk_label = Gtk::Label.new
+      @gtk_label.style_context.add_class("split-label")
+
+      @overlay.add_overlay(@gtk_label)
+      @overlay.show_all
+    end
+
+    def label=(@label)
+      @gtk_label.text = self.label
+    end
+
+    def label : String
+      case @label
+      when 1 then "➊"
+      when 2 then "➋"
+      when 3 then "➌"
+      when 4 then "➍"
+      when 5 then "➎"
+      when 6 then "➏"
+      when 7 then "➐"
+      when 8 then "➑"
+      when 9 then "➒"
+      else
+        @label.to_s
+      end
     end
 
     def widget
-      @stack
+      @overlay
     end
 
     def visible_view_id : View::Id?
@@ -43,6 +75,14 @@ module Split
       end
     end
 
+    def show_label
+      @gtk_label.show
+    end
+
+    def hide_label
+      @gtk_label.hide
+    end
+
     def accept(visitor : NodeVisitor) : Bool
       visitor.visit(self)
     end
@@ -51,7 +91,7 @@ module Split
       return self if @stack.has_child?(view.id)
     end
 
-    def calc_orientation : Orientation
+    private def calc_orientation : Orientation
       width = @stack.allocated_width
       height = @stack.allocated_height
       width >= height ? Orientation::Horizontal : Orientation::Vertical
