@@ -24,7 +24,11 @@ class Language
     @id = gtk_language.id
     @line_comment = gtk_language.metadata("line-comment-start").to_s
     @gtk_language = gtk_language
-    cmd = Config.instance.language_servers[@id]?
+
+    config = Config.instance
+    return unless config.language_servers_enabled?
+
+    cmd = config.language_servers[@id]?
     if cmd.nil?
       Log.info &.emit("No language server for \"#{@id}\" found.", notify: true)
     elsif cmd.blank?

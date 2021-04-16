@@ -56,6 +56,8 @@ begin
     end
   end
 
+  Log.info { "Language server support disabled." } unless Config.instance.language_servers_enabled?
+
   app.run
 rescue e : AppError
   Log.fatal { e.message }

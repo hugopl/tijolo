@@ -44,9 +44,12 @@ class LanguageManager
   private record LanguageGlob, language_id : String, glob : String
 
   def start_languages_for(files : Enumerable(Path)) : Nil
+    config = Config.instance
+    return unless config.language_servers_enabled?
+
     manager = LanguageManager.gtk_lang_manager
     globs = Array(LanguageGlob).new
-    Config.instance.language_servers.keys.each do |lang_id|
+    config.language_servers.keys.each do |lang_id|
       lang_globs = manager.language(lang_id).try(&.globs)
       next if lang_globs.nil?
 
