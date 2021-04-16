@@ -122,6 +122,8 @@ module Split
     end
 
     def show_split_labels
+      return unless has_split?
+
       child = @child
       child.accept(ShowLabelVisitor.new) if child
     end

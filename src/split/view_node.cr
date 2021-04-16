@@ -20,6 +20,7 @@ module Split
 
       @overlay.add_overlay(@gtk_label)
       @overlay.show_all
+      @gtk_label.hide
     end
 
     def label=(@label)
