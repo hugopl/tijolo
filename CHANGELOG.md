@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fixed some issues when switching views when using split views.
 ### Changed
  - When switching views, a split view indicator is show, so you know where are you going.
+ - Restore split views state after finish Ctrl+Tab navigation, chaning just the split you choose.
 
 ## [0.5.1] - 2021-04-11
 ### Fixed

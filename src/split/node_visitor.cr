@@ -36,4 +36,18 @@ module Split
       true
     end
   end
+
+  class SaveStateVisitor < NodeVisitor
+    def visit(view_node : ViewNode) : Bool
+      view_node.save_state
+      true
+    end
+  end
+
+  class RestoreStateVisitor < NodeVisitor
+    def visit(view_node : ViewNode) : Bool
+      view_node.restore_state
+      true
+    end
+  end
 end

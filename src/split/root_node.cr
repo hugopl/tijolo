@@ -98,9 +98,7 @@ module Split
     def accept(visitor : NodeVisitor) : Bool
       visitor.visit(self)
       child = @child
-      return false if child.nil?
-
-      child.accept(visitor)
+      child ? child.accept(visitor) : false
     end
 
     def find_node(view : View) : ViewNode?
@@ -121,6 +119,16 @@ module Split
       node.nil? ? "" : node.label
     end
 
+    def save_state
+      child = @child
+      child.accept(SaveStateVisitor.new) if child
+    end
+
+    def restore_state
+      child = @child
+      child.accept(RestoreStateVisitor.new) if child
+    end
+
     def show_split_labels
       return unless has_split?
 
@@ -134,8 +142,6 @@ module Split
     end
 
     def reveal_view(view : View) : Nil
-      return if view == current_view
-
       view_node = find_node(view)
       return if view_node.nil?
 

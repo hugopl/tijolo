@@ -92,6 +92,7 @@ class ViewManager
     end
 
     if first_rotation
+      @root.save_state
       populate_gtk_model
       @gtk_views_view.grab_focus
     end
@@ -111,9 +112,12 @@ class ViewManager
   end
 
   def change_current_view(view : View)
+    @root.restore_state
     highlight_view(view)
     notify_view_manager_current_view_changed(view)
-    view.grab_focus
+    ignore_focus_event do
+      view.grab_focus
+    end
 
     # User original copy of view, without changes to group views from same split
     @views = @copy_of_views.not_nil! if @copy_of_views
@@ -162,13 +166,6 @@ class ViewManager
 
   def all_saved?
     !@views.any?(&.modified?)
-  end
-
-  # If definitive is false, the user is just navigating through Ctrl+Tab with Ctrl pressed.
-  private def reveal_view(view : View, definitive : Bool)
-    @root.reveal_view(view)
-    notify_open_files_view_revealed(view, definitive)
-    view.grab_focus if definitive
   end
 
   def close_current_view : View?

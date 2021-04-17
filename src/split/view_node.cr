@@ -6,6 +6,8 @@ module Split
     @overlay : Gtk::Overlay
     @gtk_label : Gtk::Label
 
+    @saved_state : String?
+
     getter view_ids = [] of View::Id
     @label = 0
 
@@ -68,12 +70,16 @@ module Split
     delegate empty?, to: @view_ids
 
     def reveal_view(view : View) : Nil
-      view_widget = @stack.child_by_name(view.id)
-      if view_widget
-        @stack.visible_child = view_widget
-      else
-        Log.error { "View not found on view node: #{view.label}" }
-      end
+      ok = reveal_view(view.id)
+      Log.error { "View not found on view node: #{view.label}" } unless ok
+    end
+
+    private def reveal_view(view_id : String) : Bool
+      view_widget = @stack.child_by_name(view_id)
+      return false unless view_widget
+
+      @stack.visible_child = view_widget
+      true
     end
 
     def show_label
@@ -106,6 +112,16 @@ module Split
         new_view.add_view(view)
         SplitNode.new(parent, orientation, self, new_view)
       end
+    end
+
+    def save_state
+      @saved_state = visible_view_id
+    end
+
+    def restore_state
+      saved_state = @saved_state
+      reveal_view(saved_state) if saved_state
+      @saved_state = nil
     end
 
     def to_s(io : IO)
