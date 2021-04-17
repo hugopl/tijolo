@@ -27,7 +27,6 @@
         <child>
           <object class="GtkTreeViewColumn">
             <property name="sizing">autosize</property>
-            <property name="fixed-width">100</property>
             <property name="expand">True</property>
             <child>
               <object class="GtkCellRendererText"/>
