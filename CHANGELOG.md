@@ -4,12 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+ - On Welcome Window, trigger a project rescan on F5.
+
 ## [0.6.0] - 2021-04-19
 ### Fixed
  - Fixed some issues when switching views when using split views.
 ### Changed
  - When switching views, a split view indicator is show, so you know where are you going.
- - Restore split views state after finish Ctrl+Tab navigation, chaning just the split you choose.
+ - Restore split views state after finish Ctrl+Tab navigation (i.e. changing just the split you choose).
 
 ## [0.5.1] - 2021-04-11
 ### Fixed

@@ -54,6 +54,8 @@ class WelcomeWindow < Window
 
       self.project_results_cursor += 1
       return true
+    elsif event.keyval == Gdk::KEY_F5 # This should be a GTK action, but who cares...
+      scan_projects
     end
     false
   end
