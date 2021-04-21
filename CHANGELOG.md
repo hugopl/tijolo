@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
- - On Welcome Window, trigger a project rescan on F5.
+ - On Welcome Window, trigger a projects rescan on F5.
+### Fixed
+ - Fixed regression on 0.6.0 that caused maximize view action stop working.
 
 ## [0.6.0] - 2021-04-19
 ### Fixed

@@ -34,6 +34,8 @@ module Split
     end
 
     def add_view(view : View, reference : View?, split_view : Bool, orientation : Orientation? = nil)
+      unmaximize_view if maximized?
+
       if @child.nil?
         add_first_view(view)
         return
@@ -102,8 +104,6 @@ module Split
     end
 
     def find_node(view : View) : ViewNode?
-      unmaximize_view if maximized?
-
       view_node = @child.not_nil!.find_node(view)
       Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
       view_node
@@ -142,6 +142,7 @@ module Split
     end
 
     def reveal_view(view : View) : Nil
+      unmaximize_view if maximized? && view != @current_view
       view_node = find_node(view)
       return if view_node.nil?
 
@@ -150,6 +151,8 @@ module Split
     end
 
     def remove_view(view) : Nil
+      unmaximize_view if maximized?
+
       view_node = find_node(view)
       return if view_node.nil?
 
@@ -194,6 +197,7 @@ module Split
     # 4.1 If you find a split node, down through horizontal_origin/vertical_origin node depending on the split orientation.
     # 5.0 Stop at the leaf node you want ☺️
     private def navigate(reference : View, child_to_go : Int32, orientation : Orientation) : ViewNode?
+      unmaximize_view if maximized?
       node = find_node(reference)
       return if node.nil?
 
@@ -243,7 +247,10 @@ module Split
       !@maximized_node.nil?
     end
 
-    def maximize_view(view : View) : Nil
+    def maximize_view : Nil
+      view = @current_view
+      return if view.nil?
+
       node = find_node(view)
       return if node.nil? || node.parent == self # return if screen isn't being split
 
@@ -252,16 +259,16 @@ module Split
       @stack.add_named(view.widget, view.id)
       @stack.visible_child = view.widget
       view.maximized = true
-      self.current_view = view
     end
 
     def unmaximize_view : Nil
       view = @current_view
-      return if view.nil?
+      maximized_node = @maximized_node
+      return if view.nil? || maximized_node.nil?
 
       view_widget = @stack.child_by_name(view.id)
       @stack.remove(view_widget) if view_widget
-      @maximized_node.not_nil!.add_view(view)
+      maximized_node.add_view(view)
       @maximized_node = nil
       view.maximized = false
 

@@ -188,9 +188,8 @@ class ViewManager
     if @root.maximized?
       @root.unmaximize_view
     else
-      @root.maximize_view(@views.first)
+      @root.maximize_view
     end
-    @views.first.grab_focus
   end
 
   def view_file_path_changed(view)
