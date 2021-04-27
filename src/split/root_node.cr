@@ -285,8 +285,8 @@ module Split
       Ctrl + G           —  Go to line/colum                   F9        —  Sort selected lines
       Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment selected lines
       Alt + 1            —  Focus Editor                       Ctrl + .  —  Insert emoji 😎️
-                                                               Ctrl + -  —  Increase font size</span>
-      <b>Split View</b><span foreground="#DCDCD1">                                               Ctrl + =  —  Decrease font size
+                                                               Ctrl + =  —  Increase font size</span>
+      <b>Split View</b><span foreground="#DCDCD1">                                               Ctrl + -  —  Decrease font size
       Ctrl + T           —  Split view with a new Terminal
       Alt + ↑/→/←/↓      —  Focus editor in that direction     </span><b>Project</b><span foreground="#DCDCD1">
                                                                Ctrl + N  —  New file
