@@ -4,8 +4,14 @@ FROM ubuntu:focal
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y tzdata curl gpg && apt-get clean
 
-RUN echo "deb https://dl.bintray.com/crystal/deb all stable" | tee /etc/apt/sources.list.d/crystal.list
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
+
+RUN echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/xUbuntu_21.04/ /" | \
+  tee /etc/apt/sources.list.d/crystal.list
+
+# Add signing key
+RUN curl -fsSL https://download.opensuse.org/repositories/devel:languages:crystal/xUbuntu_21.04/Release.key | \
+  gpg --dearmor | \
+  tee /etc/apt/trusted.gpg.d/crystal.gpg > /dev/null
 
 # Setup build environment
 RUN apt-get update \
