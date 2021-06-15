@@ -201,6 +201,7 @@
     </context>
 
     <context id="boolean" style-ref="boolean">
+      <prefix>(?&lt;![\._])</prefix>
       <keyword>false</keyword>
       <keyword>true</keyword>
     </context>
