@@ -193,8 +193,7 @@ class ViewManager
   end
 
   def view_file_path_changed(view)
-    row = @views.index(view)
-    @model.set(row, {OPEN_FILES_LABEL}, {view.label}) unless row.nil?
+    populate_gtk_model if @gtk_views_view.visible?
   end
 
   def focus_upper_split

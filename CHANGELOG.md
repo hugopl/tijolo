@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - On Welcome Window, trigger a projects rescan on F5.
 ### Fixed
  - Fixed regression on 0.6.0 that caused maximize view action stop working.
+ - Fixed GTK warnings when renaming files/changing git branches.
 
 ## [0.6.0] - 2021-04-19
 ### Fixed

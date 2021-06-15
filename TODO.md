@@ -13,7 +13,7 @@ This is a short-term TODO list in no special order.
   - [ ] Rebind shortcuts after save config file.
   - [ ] Show shortcuts in UI according the real configured shortcuts.
 - [ ] Fix race condition when different Tijolo instances update tijolorc.
-- [ ] Fix some weird GTK warnings show sometimes when checking out git branches.
+- [x] Fix some weird GTK warnings show sometimes when checking out git branches.
 
 ## 0.8.0 release
 
