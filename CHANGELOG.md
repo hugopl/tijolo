@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Fixed regression on 0.6.0 that caused maximize view action stop working.
  - Fixed GTK warnings when renaming files/changing git branches.
+ - Restore cursor position when re-opening a file.
+ - Set the cursor position to match current view cursor position on `git blame` command.
 
 ## [0.6.0] - 2021-04-19
 ### Fixed

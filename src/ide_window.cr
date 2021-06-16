@@ -293,18 +293,14 @@ class IdeWindow < Window
     open_file(Path.new(file), split_view)
   end
 
-  def locator_show_special_file(contents : String, label : String, syntax : String?)
+  def locator_show_special_file(contents : String, label : String, line : Int32, col : Int32, syntax : String?)
     view = create_view.as(TextView)
     view.text = contents
     view.readonly = true
     view.virtual = true
     view.label = label
-    if syntax
-      lang = @lang_manager.find(syntax)
-      view.language = lang
-    end
-
-    view.cursor_pos = {0, 0}
+    view.language = @lang_manager.find(syntax) if syntax
+    view.goto(line, col)
   end
 
   def locator_goto_line_col(line : Int32, column : Int32)

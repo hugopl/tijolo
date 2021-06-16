@@ -94,7 +94,7 @@ class TestLocatorListener
     @line_col = {line, column}
   end
 
-  def locator_show_special_file(contents : String, label : String, syntax : String?)
+  def locator_show_special_file(contents : String, label : String, line : Int32, col : Int32, syntax : String?)
   end
 
   def locator_hidden

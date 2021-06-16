@@ -12,7 +12,7 @@ require "./ui_builder_helper"
 module LocatorListener
   abstract def locator_open_file(file : String, split_view : Bool)
   abstract def locator_goto_line_col(line : Int32, column : Int32)
-  abstract def locator_show_special_file(contents : String, label : String, syntax : String?)
+  abstract def locator_show_special_file(contents : String, label : String, line : Int32, col : Int32, syntax : String?)
   abstract def locator_hidden
 end
 
@@ -34,6 +34,7 @@ class Locator
   getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
   private getter results_cursor = 0
+  @current_view : View?
 
   @locator_providers = Hash(Char, LocatorProvider).new
   @default_locator_provider : LocatorProvider

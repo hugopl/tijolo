@@ -220,13 +220,12 @@ class TextView < View
   end
 
   def restore_state
+    return if virtual?
+
     file_path = @file_path
     project_path = @project_path
     if file_path && project_path
-      GLib.idle_add do
-        goto(*TijoloRC.instance.cursor_position(project_path.not_nil!, file_path))
-        false
-      end
+      goto(*TijoloRC.instance.cursor_position(project_path.not_nil!, file_path))
     else
       @buffer.place_cursor(0)
     end
@@ -242,7 +241,15 @@ class TextView < View
   end
 
   def cursor_pos=(pos : {Int32, Int32})
-    @buffer.place_cursor(@buffer.iter_at_line_offset(*pos))
+    self.cursor_pos = iter_at(*pos)
+  end
+
+  def cursor_pos=(iter : TextIter)
+    @buffer.place_cursor(iter)
+  end
+
+  def iter_at(line : Int32, col : Int32) : TextIter
+    @buffer.iter_at_line_offset(line, col)
   end
 
   private def cursor_changed
@@ -259,11 +266,9 @@ class TextView < View
   delegate selected_text, to: @buffer
   delegate search_context, to: @buffer
 
-  def goto(line, column)
-    iter = Gtk::TextIter.new
-    @buffer.iter_at_line(iter, line)
-    iter.forward_chars(column)
-    @buffer.place_cursor(iter)
+  def goto(line, col)
+    iter = iter_at(line, col)
+    self.cursor_pos = iter
     @editor.scroll_to(iter)
   end
 

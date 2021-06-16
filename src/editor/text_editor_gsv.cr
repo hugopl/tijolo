@@ -41,7 +41,12 @@ class Editor::TextEditor
   end
 
   def scroll_to(iter : TextIter) : Nil
-    @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5) unless visible?(iter)
+    # This should be `GLib.idle_add`, but GtkSourceView doesn't work, so I got this random timeout that
+    # seems time enough for GtkSourceView to organize things up and scroll down the view.
+    GLib.timeout_milliseconds(100) do
+      @editor.scroll_to_iter(iter, 0.0, true, 0.0, 0.5) unless visible?(iter)
+      false
+    end
   end
 
   def readonly=(value : Bool) : Nil

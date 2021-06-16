@@ -4,6 +4,7 @@ require "./project"
 
 class GitLocator < FuzzyLocator
   @project : Project
+  @current_view : View?
 
   def initialize(@project)
     super("Git commands")
@@ -21,6 +22,7 @@ class GitLocator < FuzzyLocator
     # FIXME offer git init
     return unless @project.valid?
 
+    @current_view = view
     cmds = [] of String
     Git::Repo.current.each_branch do |branch|
       cmds << "checkout #{branch.name}" unless branch.head?
@@ -63,6 +65,13 @@ class GitLocator < FuzzyLocator
       str << "Git " << args.first.capitalize
       str << " — " << args.last if args.size > 1
     end
-    locator.notify_locator_show_special_file(output.to_s, label, syntax)
+
+    current_view = @current_view
+    line, col = if current_view.is_a?(TextView) && syntax.nil?
+                  current_view.cursor_pos
+                else
+                  {0, 0}
+                end
+    locator.notify_locator_show_special_file(output.to_s, label, line, col, syntax)
   end
 end
