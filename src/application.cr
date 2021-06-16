@@ -1,6 +1,3 @@
-require "gobject/gtk"
-require_gobject "GtkSource"
-
 require "./gtk.cr" # monkey patches to to make GTK API more tasty
 
 require "./error"
@@ -29,12 +26,6 @@ class Application
   def initialize(@argv_files : Array(String))
     @application = Gtk::Application.new(application_id: "io.github.hugopl.Tijolo", flags: :non_unique)
     @application.on_activate(&->activate_ui(Gio::Application))
-    setup_scheme_search_path
-  end
-
-  private def setup_scheme_search_path
-    manager = GtkSource::StyleSchemeManager.default
-    manager.search_path = usr_share_paths("styles", manager.search_path.to_a)
   end
 
   private def activate_ui(g_app)

@@ -2,6 +2,8 @@ require "log"
 require "option_parser"
 
 require "compiled_license"
+require "gobject/gtk"
+require_gobject "GtkSource"
 
 require "./ui_builder_helper"
 require "./observable"
