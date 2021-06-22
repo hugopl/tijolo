@@ -4,7 +4,7 @@
 
 This is a short-term TODO list in no special order.
 
-## 0.7.0 release
+## 0.8.0 release
 
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
@@ -13,9 +13,8 @@ This is a short-term TODO list in no special order.
   - [ ] Rebind shortcuts after save config file.
   - [ ] Show shortcuts in UI according the real configured shortcuts.
 - [ ] Fix race condition when different Tijolo instances update tijolorc.
-- [x] Fix some weird GTK warnings show sometimes when checking out git branches.
 
-## 0.8.0 release
+## 0.9.0 release
 
 Tijolo need to disable the GC to work without crashing, this is due to the way the GC (BoehmGC) used by Crystal works,
 fortunately even running Tijolo leaking memory few hours it may still consume less memory than electron based apps.
@@ -27,14 +26,10 @@ I have some weak clues that this bug seems to be related to GtkSourceView (GSV) 
 create some threads and those threads are not registered on BoehmGC. Some attempts to register these threads were made
 without much success, so I'm going into a more painful approach to fix the issue:
 
-- [ ] Test again using Tijolo without loading any GtkSourceView language, i.e. do not use the GSV, and see if it doesn't crash.
+- [x] Test again using Tijolo without loading any GtkSourceView language, i.e. do not use the GSV, and see if it doesn't crash.
   - I did this test already and it worked, but I need to do it again to be sure.
-- [ ] Implement a language engine in Crystal, probably using [GtkSourceView format](https://developer.gnome.org/gtksourceview/stable/lang-reference.html).
-- [ ] Use this language engine into GtkSourceView widget.
-  - At this point I can think about drop GtkSourceView and use bare GtkTextView.
-- [ ] If I few brave enough, create a code-focused GTK text widget that can load huge files and is fast enough.
-  - [This post](https://howl.io/blog/2016/05/26/introducing-aullar.html) encouraged me, so sad their editor was wrote in a
-    weird language (says the guy writting Crystal code).
+- [x] Implement a language engine in Crystal, probably using [GtkSourceView format](https://developer.gnome.org/gtksourceview/stable/lang-reference.html) (still buggy and slow, but is to be published soon).
+- [ ] Create a code-focused GTK text widget that can load huge files and is fast enough.
 - [ ] Be back on track of adding more features, mainly LSP related ones.
 
 This doesn't mean the editor will be dead until I finish all this, since I use Tijolo on daily basis, bugs and small features
