@@ -2,7 +2,7 @@ version: 2.0
 shards:
   compiled_license:
     git: https://github.com/elorest/compiled_license.git
-    version: 0.1.3
+    version: 1.0.0
 
   fzy:
     git: https://github.com/hugopl/fzy.git
@@ -14,7 +14,7 @@ shards:
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
-    version: 0.7.0
+    version: 0.7.0+git.commit.98512f65a24f7846e6279cf48bbc0e72cd69c5f8
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git

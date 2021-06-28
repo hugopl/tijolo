@@ -20,10 +20,10 @@ dependencies:
     version: ~> 0.10
   compiled_license:
     github: elorest/compiled_license
-    version: ~> 0.1
+    version: ~> 1.0
   toml:
     github: crystal-community/toml.cr
-    version: ~> 0.7.0
+    commit: 98512f65a24f7846e6279cf48bbc0e72cd69c5f8
 crystal: ">= 1.0.0"
 
 license: MIT
