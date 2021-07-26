@@ -79,8 +79,10 @@ abstract class View
     Gtk::ModelButton.cast(builder["copy_relative_path"]).action_target_value = variant_self
   end
 
-  def finalize
+  def destroy
+    @view_widget.destroy
     @monitor.try(&.cancel)
+    @monitor = nil
   end
 
   def self.reset_untitled_count

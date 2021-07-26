@@ -453,6 +453,7 @@ class IdeWindow < Window
       save_cursor(text_view)
     end
 
+    view.destroy
     application.init_welcome if @view_manager.empty? && !@project.valid?
   end
 
