@@ -50,7 +50,7 @@ If you want to create a package from git, clone the repository then run `./packa
 a docker image, build Tijolo inside that image, create a debian package then copy it back, out of the container. Not best
 approach to build a deb package but works on non-deb machines.
 
-## Compiling from source
+## Dependencies
 
 You will need:
 
@@ -62,7 +62,31 @@ You will need:
  - [libGit2](https://libgit2.org/).
  - [editorconfig-core](https://github.com/editorconfig/editorconfig-core-c).
 
-Then the usual:
+### via apt
+
+```shell
+$ sudo apt-get install -y \
+    git make crystal libeditorconfig-dev \
+    libgirepository1.0-dev libgit2-dev \
+    libgtksourceview-4-dev libvte-2.91-dev libyaml-dev
+```
+
+Names and versions may differ depending on distro and version
+
+### via Homebrew/Linuxbrew
+
+```shell
+$ brew install crystal gtk+3 gobject-introspection gtksourceview4 vte3 \
+               libgit2 editorconfig
+```
+
+### Other package managers
+
+Check your distro's package managers for the equivalent package names. You will
+need the install the `-dev` or `-devel` equivalent packages, in addition to the
+runtime packages.
+
+## Compiling from Source
 
 ```
 $ make

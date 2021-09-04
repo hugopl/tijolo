@@ -18,7 +18,8 @@ def relative_path_label(path : Path, project_path : Path? = nil) : String
 end
 
 def usr_share_paths(dir : String, paths = [] of String)
-  usr_path = Path[File.readlink("/proc/self/exe"), "../../"]
+  exe_path = Process.executable_path || raise AppError.new("Cannot find executable path")
+  usr_path = Path[exe_path, "../../"]
 
   paths.unshift(usr_path.join("./share/tijolo/#{dir}/").expand.to_s)
   paths.unshift(usr_path.join("./local/share/tijolo/#{dir}/").expand.to_s)
