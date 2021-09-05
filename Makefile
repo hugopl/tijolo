@@ -6,11 +6,11 @@ all:
 debug:
 	shards build --debug -Dpreview_mt
 test:
-  # Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
-	@if [ "$$(uname -s)" == "Darwin" ]; then
-		GC_DONT_GC=1 crystal spec; \
-	else \
-		GC_DONT_GC=1 LC_ALL=en_US.UTF8 xvfb-run crystal spec; \
+	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
+	@if [ "$$(uname -s)" == "Darwin" ]; then\
+	  GC_DONT_GC=1 crystal spec;\
+	else\
+	  GC_DONT_GC=1 LC_ALL=en_US.UTF8 xvfb-run crystal spec;\
 	fi
 
 install:
