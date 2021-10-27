@@ -6,6 +6,10 @@ This is a short-term TODO list in no special order.
 
 ## 0.8.0 release
 
+- [ ] GTK-4 Port
+
+## 0.9.0 release
+
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
 - Some ♥️ to shortcuts
@@ -14,7 +18,7 @@ This is a short-term TODO list in no special order.
   - [ ] Show shortcuts in UI according the real configured shortcuts.
 - [ ] Fix race condition when different Tijolo instances update tijolorc.
 
-## 0.9.0 release
+## 0.10.0 release
 
 Tijolo need to disable the GC to work without crashing, this is due to the way the GC (BoehmGC) used by Crystal works,
 fortunately even running Tijolo leaking memory few hours it may still consume less memory than electron based apps.
