@@ -200,7 +200,7 @@ describe "JSON.from_json(Any)" do
     Union(Bool, Array(Int32)).from_json(JSON.parse(%([42]))).should eq([42])
   end
 
-  {% for type in %w(Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64).map(&.id) %}
+  {% for type in %w(Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32).map(&.id) %}
   it "deserializes union with {{type}} (fast path)" do
     Union({{type}}, Array(Int32)).from_json(JSON.parse(%(#{ {{type}}::MAX }))).should eq({{type}}::MAX)
   end
