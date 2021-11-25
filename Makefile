@@ -2,9 +2,9 @@
 PREFIX ?= /usr
 
 all:
-	shards build --release -s  -Dpreview_mt
+	shards build --release -s  -Dpreview_mt --ignore-crystal-version
 debug:
-	shards build --debug -Dpreview_mt
+	shards build --debug -Dpreview_mt --ignore-crystal-version
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
 	@if [ "$$(uname -s)" == "Darwin" ]; then\
