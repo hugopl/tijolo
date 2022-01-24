@@ -23,7 +23,7 @@ dependencies:
     version: ~> 1.0
   toml:
     github: crystal-community/toml.cr
-    commit: 98512f65a24f7846e6279cf48bbc0e72cd69c5f8
+    version: ~> 0.7.0
 crystal: ">= 1.0.0"
 
 license: MIT
