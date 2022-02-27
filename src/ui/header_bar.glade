@@ -3,49 +3,37 @@
 <interface>
   <requires lib="gtk+" version="3.22"/>
   <object class="GtkPopover" id="hamburguer_popover">
-    <property name="can-focus">False</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkModelButton" id="preferences_btn">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
             <property name="action-name">win.preferences</property>
             <property name="text" translatable="yes">Preferences</property>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkSeparator">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="orientation">vertical</property>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
           <object class="GtkModelButton" id="about_btn">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
             <property name="action-name">win.about</property>
             <property name="text" translatable="yes">About</property>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
@@ -53,32 +41,28 @@
     </child>
   </object>
   <object class="GtkImage" id="img_hamburguer">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="icon-name">open-menu-symbolic</property>
   </object>
   <object class="GtkImage" id="img_recent_files">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="icon-name">pan-down-symbolic</property>
   </object>
   <object class="GtkImage" id="new">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="icon-name">document-new-symbolic</property>
   </object>
   <object class="GtkHeaderBar" id="root">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+    <property name="visible">1</property>
     <property name="title" translatable="yes">Tijolo</property>
-    <property name="has-subtitle">False</property>
-    <property name="show-close-button">True</property>
+    <property name="has-subtitle">0</property>
+    <property name="show-close-button">1</property>
     <child>
       <object class="GtkMenuButton" id="hamburguer_btn">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="focus-on-click">False</property>
-        <property name="receives-default">True</property>
+        <property name="visible">1</property>
+        <property name="can-focus">1</property>
+        <property name="focus-on-click">0</property>
+        <property name="receives-default">1</property>
         <property name="image">img_hamburguer</property>
         <property name="popover">hamburguer_popover</property>
       </object>
@@ -88,36 +72,29 @@
     </child>
     <child>
       <object class="GtkBox" id="open_btn_box">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <property name="halign">start</property>
         <child>
           <object class="GtkButton">
             <property name="label" translatable="yes">Open</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
             <property name="tooltip-markup" translatable="yes">Open non project file – &lt;i&gt;Ctrl+O&lt;/i&gt;</property>
             <property name="action-name">win.open_file</property>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkMenuButton" id="recent_files_btn">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="focus-on-click">False</property>
-            <property name="receives-default">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
+            <property name="focus-on-click">0</property>
+            <property name="receives-default">1</property>
             <property name="image">img_recent_files</property>
-            <property name="use-popover">False</property>
+            <property name="use-popover">0</property>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
+            <property name="fill">0</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -131,8 +108,8 @@
     </child>
     <child>
       <object class="GtkButton" id="new_tijolo_btn">
-        <property name="can-focus">True</property>
-        <property name="receives-default">True</property>
+        <property name="can-focus">1</property>
+        <property name="receives-default">1</property>
         <property name="tooltip-markup" translatable="yes">Open project – &lt;i&gt;Ctrl+Alt+O&lt;/i&gt;</property>
         <property name="action-name">win.open_project</property>
         <property name="image">new</property>

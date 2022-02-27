@@ -5,20 +5,18 @@
   <!-- interface-css-provider-path ide_window.css -->
   <object class="GtkBox" id="open_files">
     <property name="name">open-files</property>
-    <property name="can-focus">False</property>
     <property name="halign">center</property>
     <property name="valign">center</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkTreeView" id="view_manager_view">
         <property name="width-request">200</property>
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="headers-visible">False</property>
-        <property name="headers-clickable">False</property>
-        <property name="enable-search">False</property>
+        <property name="visible">1</property>
+        <property name="headers-visible">0</property>
+        <property name="headers-clickable">0</property>
+        <property name="enable-search">0</property>
         <property name="search-column">0</property>
-        <property name="show-expanders">False</property>
+        <property name="show-expanders">0</property>
         <child internal-child="selection">
           <object class="GtkTreeSelection">
             <property name="mode">browse</property>
@@ -27,7 +25,7 @@
         <child>
           <object class="GtkTreeViewColumn">
             <property name="sizing">autosize</property>
-            <property name="expand">True</property>
+            <property name="expand">1</property>
             <child>
               <object class="GtkCellRendererText"/>
               <attributes>
@@ -51,37 +49,33 @@
         </child>
       </object>
       <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
+        <property name="expand">1</property>
       </packing>
     </child>
   </object>
   <object class="GtkPaned" id="root">
     <property name="name">ide-window</property>
-    <property name="visible">True</property>
-    <property name="can-focus">True</property>
+    <property name="visible">1</property>
+    <property name="can-focus">1</property>
     <child>
       <object class="GtkBox" id="sidebar">
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="visible">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
                 <property name="vscrollbar-policy">never</property>
                 <child>
                   <object class="GtkTreeView" id="git_branches">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="headers-clickable">False</property>
-                    <property name="enable-search">False</property>
-                    <property name="show-expanders">False</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
+                    <property name="headers-clickable">0</property>
+                    <property name="enable-search">0</property>
+                    <property name="show-expanders">0</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection">
                         <property name="mode">none</property>
@@ -103,25 +97,22 @@
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
+                <property name="fill">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkScrolledWindow">
                 <property name="width-request">250</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
                 <child>
                   <object class="GtkTreeView" id="project_tree">
                     <property name="width-request">200</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="headers-clickable">False</property>
-                    <property name="enable-search">False</property>
+                    <property name="visible">1</property>
+                    <property name="headers-clickable">0</property>
+                    <property name="enable-search">0</property>
                     <property name="search-column">0</property>
-                    <property name="enable-tree-lines">True</property>
+                    <property name="enable-tree-lines">1</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection">
                         <property name="mode">browse</property>
@@ -143,93 +134,75 @@
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
+            <property name="expand">1</property>
           </packing>
         </child>
       </object>
       <packing>
-        <property name="resize">False</property>
-        <property name="shrink">True</property>
+        <property name="resize">0</property>
       </packing>
     </child>
     <child>
       <object class="GtkOverlay" id="editor_overlay">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="visible">1</property>
         <child>
           <object class="GtkPaned">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="visible">1</property>
+            <property name="can-focus">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox" id="editor_box">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="visible">1</property>
                 <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
               </object>
-              <packing>
-                <property name="resize">True</property>
-                <property name="shrink">True</property>
-              </packing>
             </child>
             <child>
               <object class="GtkNotebook" id="output_pane">
                 <property name="name">output-pane</property>
-                <property name="can-focus">True</property>
+                <property name="can-focus">1</property>
                 <property name="tab-pos">left</property>
-                <property name="show-tabs">False</property>
-                <property name="show-border">False</property>
+                <property name="show-tabs">0</property>
+                <property name="show-border">0</property>
                 <child>
                   <object class="GtkScrolledWindow">
                     <property name="height-request">200</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="visible">1</property>
+                    <property name="can-focus">1</property>
                     <child>
                       <object class="GtkTextView" id="log">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="editable">False</property>
+                        <property name="visible">1</property>
+                        <property name="can-focus">1</property>
+                        <property name="editable">0</property>
                         <property name="wrap-mode">word</property>
                         <property name="left-margin">6</property>
                         <property name="right-margin">6</property>
                         <property name="top-margin">6</property>
                         <property name="bottom-margin">6</property>
-                        <property name="cursor-visible">False</property>
-                        <property name="accepts-tab">False</property>
-                        <property name="monospace">True</property>
+                        <property name="cursor-visible">0</property>
+                        <property name="accepts-tab">0</property>
+                        <property name="monospace">1</property>
                       </object>
                     </child>
                   </object>
                 </child>
                 <child type="tab">
                   <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="visible">1</property>
                     <property name="icon-name">io.github.hugopl.Tijolo</property>
                   </object>
                   <packing>
-                    <property name="tab-fill">False</property>
+                    <property name="tab-fill">0</property>
                   </packing>
                 </child>
               </object>
               <packing>
-                <property name="resize">False</property>
-                <property name="shrink">True</property>
+                <property name="resize">0</property>
               </packing>
             </child>
           </object>
@@ -238,10 +211,6 @@
           </packing>
         </child>
       </object>
-      <packing>
-        <property name="resize">True</property>
-        <property name="shrink">True</property>
-      </packing>
     </child>
   </object>
 </interface>

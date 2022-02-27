@@ -13,37 +13,28 @@
     </columns>
   </object>
   <object class="GtkBox" id="contents">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="margin_start">16</property>
-    <property name="margin_end">16</property>
+    <property name="visible">1</property>
+    <property name="margin-start">16</property>
+    <property name="margin-end">16</property>
     <property name="orientation">vertical</property>
     <property name="spacing">6</property>
     <child>
       <object class="GtkLabel" id="model_label">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="visible">1</property>
         <property name="xalign">0</property>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="shadow_type">in</property>
-        <property name="propagate_natural_height">True</property>
+        <property name="visible">1</property>
+        <property name="shadow-type">in</property>
+        <property name="propagate-natural-height">1</property>
         <child>
           <object class="GtkTreeView" id="tree_view">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="visible">1</property>
             <property name="model">model</property>
-            <property name="headers_visible">False</property>
-            <property name="activate_on_single_click">True</property>
+            <property name="headers-visible">0</property>
+            <property name="activate-on-single-click">1</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection">
                 <property name="mode">none</property>
@@ -51,7 +42,7 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn">
-                <property name="expand">True</property>
+                <property name="expand">1</property>
                 <child>
                   <object class="GtkCellRendererToggle" id="toggle">
                     <property name="xpad">3</property>
@@ -76,88 +67,74 @@
         </child>
       </object>
       <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
         <property name="position">1</property>
       </packing>
     </child>
     <child>
       <object class="GtkLabel" id="secondary_label">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_top">12</property>
-        <property name="wrap">True</property>
+        <property name="visible">1</property>
+        <property name="margin-top">12</property>
+        <property name="wrap">1</property>
       </object>
       <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
         <property name="position">2</property>
       </packing>
     </child>
   </object>
   <object class="GtkMessageDialog" id="root">
-    <property name="can_focus">False</property>
-    <property name="modal">True</property>
-    <property name="type_hint">dialog</property>
-    <property name="use_markup">True</property>
+    <property name="modal">1</property>
+    <property name="type-hint">dialog</property>
+    <property name="use-markup">1</property>
     <signal name="response" handler="gtk_widget_hide" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
-        <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">expand</property>
+            <property name="homogeneous">1</property>
+            <property name="layout-style">expand</property>
             <child>
               <object class="GtkButton" id="destructive_btn">
                 <property name="label">destructive action</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
                 <style>
                   <class name="destructive-action"/>
                 </style>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="expand">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="button1">
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="action_btn">
                 <property name="label">action</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
+                <property name="visible">1</property>
+                <property name="can-focus">1</property>
+                <property name="can-default">1</property>
+                <property name="receives-default">1</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">1</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
+            <property name="fill">0</property>
           </packing>
         </child>
       </object>
