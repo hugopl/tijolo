@@ -1,31 +1,11 @@
 require "log"
 require "./config"
-require "./observable"
 
-module ProjectListener
-  def project_file_added(path : Path)
-  end
-
-  def project_file_removed(path : Path)
-  end
-
-  def project_dir_added(path : Path)
-  end
-
-  def project_dir_removed(path : Path)
-  end
-
-  def project_files_changed
-  end
-
-  def project_load_finished
-  end
+class ProjectError < TijoloError
 end
 
 class Project
-  observable_by ProjectListener
-
-  property root = Path.new
+  getter root : Path = Path.new
   getter? load_finished = false
 
   @files_mutex = Mutex.new
@@ -38,8 +18,19 @@ class Project
   def initialize
   end
 
-  def initialize(location : String)
-    try_load_project(Path.new(location))
+  def initialize(location : Path)
+    load(location)
+  end
+
+  def load(location : Path)
+    raise ProjectError.new("Project already loaded") if valid?
+
+    root = Project.find_root(location)
+    raise ProjectError.new("Root not found") if root.nil?
+
+    @root = root
+    Dir.cd(root)
+    @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: root))
   end
 
   def valid?
@@ -48,22 +39,6 @@ class Project
 
   def self.valid?(path : Path)
     !Project.find_root(path).nil?
-  end
-
-  # Try load project and scan files on success
-  def try_load_project!(path : Path) : Nil
-    scan_files if try_load_project(path)
-  end
-
-  def try_load_project(path : Path) : Bool
-    root = Project.find_root(path)
-    return false if root.nil?
-
-    @root = root
-    Log.info { "Project root: #{@root}" }
-    Dir.cd(@root)
-    @ignored_dirs = Config.instance.ignored_dirs.map(&.expand(base: @root))
-    true
   end
 
   def self.name(path)
@@ -238,9 +213,7 @@ class Project
     nil
   end
 
-  def scan_files
-    return unless valid?
-
+  def scan_files(on_finish : Proc(Nil))
     # Can't use spawn here, or the Fiber will be stuck when the program flow is inside glib main loop.
     Thread.new do
       start_t = Time.monotonic
@@ -254,7 +227,7 @@ class Project
       @load_finished = true
       Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
       GLib.idle_add do
-        notify_project_load_finished
+        on_finish.call
         false
       end
     end

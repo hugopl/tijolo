@@ -8,13 +8,21 @@ shards:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.2
 
-  gobject:
-    git: https://github.com/jhass/crystal-gobject.git
-    version: 0.10.0
+  gi-crystal:
+    git: https://github.com/hugopl/gi-crystal.git
+    version: 0.11.0+git.commit.2b2ab0c623b0dc686b2a0e034bdf56ea79b5b3a3
+
+  gtk4:
+    git: https://github.com/hugopl/gtk4.cr.git
+    version: 0.9.0+git.commit.9bf986d60713414609fbab3bfd1bdbefaa7e323b
+
+  libadwaita:
+    git: https://github.com/hugopl/libadwaita.cr.git
+    version: 1.0.0+git.commit.2722a65e0546e5bcb8bcb8d2bc8642767dae15e7
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
-    version: 0.7.0+git.commit.98512f65a24f7846e6279cf48bbc0e72cd69c5f8
+    version: 0.7.0
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git

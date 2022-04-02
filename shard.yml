@@ -1,5 +1,5 @@
 name: tijolo
-version: 0.7.1
+version: 0.8.0
 
 authors:
   - Hugo Parente Lima <hugo.pl@gmail.com>
@@ -15,9 +15,9 @@ dependencies:
   fzy:
     github: hugopl/fzy
     version: ~> 0.5
-  gobject:
-    github: jhass/crystal-gobject
-    version: ~> 0.10
+  libadwaita:
+    github: hugopl/libadwaita.cr
+    branch: main
   compiled_license:
     github: elorest/compiled_license
     version: ~> 1.0

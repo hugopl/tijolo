@@ -1,42 +1,40 @@
-require "./window"
+require "fzy"
 require "./tijolo_rc"
 
-class WelcomeWindow < Window
-  @entry : Gtk::Entry
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/welcome_widget.ui", children: %w(projects_model rescan_btn search_entry spinner tree_view))]
+class WelcomeWidget < Gtk::Box
+  include Gtk::WidgetTemplate
+
+  getter entry : Gtk::SearchEntry
   @projects_model : Gtk::ListStore
   @rescan_btn : Gtk::Button
   @projects_view : Gtk::TreeView
   @haystack : Fzy::PreparedHaystack?
   @available_projects = Array(RCData::Project).new
   private getter project_results_cursor = 0
-  @scanning_projects = false
+  private getter? scanning_projects = false
+  @spinner : Gtk::Spinner
 
-  delegate open_project, to: @application
+  @signal_connections = [] of GObject::SignalConnection
 
-  def initialize(application : Application)
-    builder = builder_for("welcome_window")
-    super(application, builder)
+  def initialize
+    super()
 
-    Gtk::Label.cast(builder["version"]).label = "v#{VERSION}"
+    @spinner = Gtk::Spinner.cast(template_child("spinner"))
+    @projects_model = Gtk::ListStore.cast(template_child("projects_model"))
 
-    @projects_view = Gtk::TreeView.cast(builder["tree_view"])
-    @projects_view.selection.mode = :browse
-    @projects_view.on_row_activated(&->project_activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
+    @projects_view = Gtk::TreeView.cast(template_child("tree_view"))
+    @signal_connections << @projects_view.row_activated_signal.connect(&->project_activated(Gtk::TreePath, Gtk::TreeViewColumn?))
 
-    @entry = Gtk::Entry.cast(builder["open_project_entry"])
-    @entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
-    @entry.on_activate(&->entry_activated(Gtk::Entry))
-    @entry.connect("notify::text", &->entry_text_changed)
+    @entry = Gtk::SearchEntry.cast(template_child("search_entry"))
+    @signal_connections << @entry.activate_signal.connect(&->entry_activated)
+    @signal_connections << @entry.notify_signal["text"].connect(&->entry_text_changed(GObject::ParamSpec))
+    event_ctl = Gtk::EventControllerKey.new
+    @signal_connections << event_ctl.key_pressed_signal.connect(&->entry_key_pressed(UInt32, UInt32, Gdk::ModifierType))
+    @entry.add_controller(event_ctl)
 
-    @rescan_btn = Gtk::Button.cast(builder["rescan_btn"])
-    @rescan_btn.on_clicked(&->scan_projects(Gtk::Button))
-
-    overlay = Gtk::Overlay.cast(builder["overlay"])
-    @spinner = Gtk::Spinner.cast(builder["spinner"])
-    overlay.add_overlay(@spinner)
-    @spinner.hide
-
-    @projects_model = Gtk::ListStore.cast(builder["projects_model"])
+    @rescan_btn = Gtk::Button.cast(template_child("rescan_btn"))
+    @signal_connections << @rescan_btn.clicked_signal.connect(&->scan_projects)
 
     if TijoloRC.instance.scan_projects?
       scan_projects
@@ -45,40 +43,40 @@ class WelcomeWindow < Window
     end
   end
 
-  private def entry_key_pressed(_widget : Gtk::Widget, event : Gdk::EventKey)
-    if event.keyval == Gdk::KEY_Up
-      self.project_results_cursor -= 1
-      return true
-    elsif event.keyval == Gdk::KEY_Down
-      return true if @projects_model.iter_n_children(nil) < 2 # First item is already selected...
-
-      self.project_results_cursor += 1
-      return true
-    elsif event.keyval == Gdk::KEY_F5 # This should be a GTK action, but who cares...
-      scan_projects
-    end
-    false
+  def disconnect_all_signals
+    @signal_connections.each(&.disconnect)
   end
 
-  private def entry_activated(_entry : Gtk::Entry)
+  private def entry_key_pressed(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
+    if keyval == Gdk::KEY_Up
+      self.project_results_cursor -= 1
+    elsif keyval == Gdk::KEY_Down
+      self.project_results_cursor += 1 if @projects_model.iter_n_children(nil) >= 2
+    elsif keyval == Gdk::KEY_F5 # This should be a GTK action, but who cares...
+      scan_projects
+    else
+      return false
+    end
+    true
+  end
+
+  private def entry_activated : Nil
     return if @projects_model.iter_n_children(nil).zero?
 
-    iter = Gtk::TreeIter.new
-    @projects_view.selection.selected(nil, iter)
-    open_project(@projects_model.value(iter, 1).string)
+    iter = @projects_view.selection.selected
+    open_project(@projects_model.value(iter, 1).as_s)
   end
 
-  private def entry_text_changed
+  private def entry_text_changed(_param : GObject::ParamSpec? = nil)
     haystack = @haystack
     return if haystack.nil? || haystack.empty?
 
     @projects_model.clear
     results = Fzy.search(@entry.text, haystack)
 
-    iter = Gtk::TreeIter.new
     results.each do |match|
       project = @available_projects[match.index]
-      @projects_model.append(iter)
+      iter = @projects_model.append
       @projects_model.set(iter, {0, 1}, {markup(project), project.path.to_s})
     end
     self.project_results_cursor = 0
@@ -87,6 +85,7 @@ class WelcomeWindow < Window
   def project_results_cursor=(row : Int32)
     row = row.clamp(0, @projects_model.iter_n_children(nil) - 1)
     @project_results_cursor = row
+
     @projects_view.set_cursor(row)
   end
 
@@ -120,7 +119,7 @@ class WelcomeWindow < Window
     " - opened #{ago_str}."
   end
 
-  private def scan_projects(_button = nil)
+  private def scan_projects : Nil
     return if @scanning_projects
 
     @scanning_projects = true
@@ -156,22 +155,27 @@ class WelcomeWindow < Window
     @entry.grab_focus
     @scanning_projects = false
 
-    inform_about_lack_of_projects unless @available_projects.any?
+    inform_about_lack_of_projects if @available_projects.empty?
     false
   end
 
-  private def project_activated(view, path, _column)
-    open_project(view.value(path, 1).string)
+  private def project_activated(path, _column) : Nil
+    open_project(@projects_view.value(path, 1).as_s)
+  end
+
+  delegate open_project, to: window
+
+  private def window : ApplicationWindow
+    ApplicationWindow.cast(root.not_nil!)
   end
 
   private def inform_about_lack_of_projects
     message = "Tijolo is meant to be used with git projects but no git projects were found under " \
               "<span allow_breaks=\"false\" font_family=\"monospace\">#{Path.home}</span>. " \
               "Create a git project somewhere and ask Tijolo to rescan projects."
-    dialog = Gtk::MessageDialog.new(text: "No Git projects were found", secondary_text: message,
-      message_type: :info, buttons: :ok, secondary_use_markup: true, transient_for: main_window)
-    dialog.on_response { dialog.close }
-    dialog.run
-    dialog.destroy
+    dialog = Gtk::MessageDialog.ok(message_type: :info,
+      text: "No Git projects were found", secondary_text: message,
+      secondary_use_markup: true, transient_for: window) do
+    end
   end
 end

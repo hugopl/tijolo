@@ -1,15 +1,11 @@
 require "./split/root_node"
 
-module ViewManagerListener
-  abstract def view_manager_current_view_changed(view : View)
-end
-
-class ViewManager
-  include ViewListener
-
-  observable_by ViewManagerListener
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w(contents_stack open_files_view overlay))]
+class ViewManager < Gtk::Box
+  include Gtk::WidgetTemplate
 
   @gtk_views_view : Gtk::TreeView
+  @overlay : Gtk::Overlay
   getter model : Gtk::ListStore
   getter views = [] of View # Views in the order they are stored in GTK model
   getter copy_of_views : Array(View)?
@@ -26,14 +22,19 @@ class ViewManager
 
   delegate empty?, to: @views
   delegate any?, to: @views
-  delegate widget, to: @root
   delegate current_view, to: @root
 
-  def initialize(@gtk_views_view)
-    @model = Gtk::ListStore.new({GObject::Type::UTF8, GObject::Type::UTF8})
-    @root = Split::RootNode.new
+  def initialize
+    super()
+    @model = Gtk::ListStore.new({GObject::TYPE_STRING, GObject::TYPE_STRING})
+    @gtk_views_view = Gtk::TreeView.cast(template_child("open_files_view"))
+    @overlay = Gtk::Overlay.cast(template_child("overlay"))
+    stack = Gtk::Stack.cast(template_child("contents_stack"))
+    @root = Split::RootNode.new(stack)
     @gtk_views_view.model = @model
   end
+
+  delegate add_overlay, to: @overlay
 
   def view_by_id(id : String) : View?
     @views.find { |view| view.id == id }
@@ -114,7 +115,7 @@ class ViewManager
   def change_current_view(view : View)
     @root.restore_state
     highlight_view(view)
-    notify_view_manager_current_view_changed(view)
+    # notify_view_manager_current_view_changed(view)
     ignore_focus_event do
       view.grab_focus
     end
@@ -160,7 +161,6 @@ class ViewManager
       change_current_view(view)
     end
     view.add_view_listener(self)
-    view.show_all
     view
   end
 

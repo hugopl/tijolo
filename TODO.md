@@ -9,8 +9,10 @@ This is a short-term TODO list in no special order.
 - [x] Create a [binding generator for GTK4](https://github.com/hugopl/gi-crystal).
 - [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
 - [ ] Port existing code to GTK4.
+- [ ] Check if GtkSourceView crash on this new binding
+- [ ] Isolate GtkSourceView code, so it can removed later.
 - [ ] Implement a new text widget to replace GtkSourceView.
-- [ ] Evaluate a [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal, there are 3 on github.
+- [ ] Use [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal, there are 3 on github.
 
 ## 0.9.0 release
 
@@ -20,7 +22,6 @@ This is a short-term TODO list in no special order.
   - [ ] Pass Ctrl+whatever keystrokes to terminal views.
   - [ ] Rebind shortcuts after save config file.
   - [ ] Show shortcuts in UI according the real configured shortcuts.
-- [ ] Fix race condition when different Tijolo instances update tijolorc.
 
 
 ## Backlog, things that can go in any version...

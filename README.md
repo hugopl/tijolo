@@ -9,7 +9,9 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-**Alpha**. I'm already using it in my daily work and also to write itself. Currently I'm porting it to GTK4 using the [bindings](https://github.com/hugopl/gtk4.cr) I'm creating with [GI Crystal](https://github.com/hugopl/gi-crystal), so the development pace here is reduced meanwhile since the GTK4 bindings still on going.
+Being rewrite using GTK4 and LibAdwaita, the re-write isn't done yet but if you want to check the old version check the v0.7.1 tag.
+
+CI still broken
 
 The [TODO](./TODO.md) works like a roadmap and also list things I'm working on, it can give you a better idea of the project
 status.

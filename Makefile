@@ -18,6 +18,7 @@ install:
 	install -D -m 0644 tijolo.desktop $(DESTDIR)$(PREFIX)/share/applications/io.github.hugopl.Tijolo.desktop
 	install -D -m 0644 icons/tijolo.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/io.github.hugopl.Tijolo.svg
 	# Data
+	install -D -m0644 icons/tijolo-banner.svg $(DESTDIR)$(PREFIX)/share/tijolo/tijolo-banner.svg
 	install -D -m0644 data/language-specs/crystal.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/crystal.lang
 	install -D -m0644 data/language-specs/ruby.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/ruby.lang
 	install -D -m0644 data/language-specs/haml.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/haml.lang
@@ -38,6 +39,7 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/tijolo
 	rm -f $(DESTDIR)$(PREFIX)/share/applications/io.github.hugopl.Tijolo.desktop
 	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/io.github.hugopl.Tijolo.svg
+	rm -f $(DESTDIR)$(PREFIX)/share/tijolo/tijolo-banner.svg
 	rm -rf $(DESTDIR)$(PREFIX)/share/tijolo
 	rm -rf $(DESTDIR)$(PREFIX)/share/licenses/tijolo
 	rm -rf $(DESTDIR)$(PREFIX)/share/doc/tijolo

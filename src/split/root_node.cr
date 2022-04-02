@@ -1,12 +1,11 @@
 require "./view_node"
+require "../view_place_holder"
 
 module Split
   # Split views are organized in a b-tree structure where the leaves are the node views and all other nodes
   # are split nodes, that split the view. An Exception is for root node, that take care of the special case
   # where there's no split views and works like a facade for the node operations.
   class RootNode < Node
-    include UiBuilderHelper
-
     NO_VIEW_WIDGET_NAME = "no-view"
 
     @child : Node?
@@ -15,17 +14,12 @@ module Split
     # Current selected view, this should be nil only if @child is nil
     @current_view : View?
     # This stack has only 2 faces... a widget to be show when there's no editors open and a widget tree of open editors.
-    @stack = Gtk::Stack.new
+    @stack : Gtk::Stack
     property current_view : View?
 
-    def initialize
+    def initialize(@stack)
       create_empty_view
       super(self)
-      @stack.show_all
-    end
-
-    def widget
-      @stack
     end
 
     def has_split? : Bool
@@ -61,7 +55,7 @@ module Split
       @child = child = ViewNode.new(self)
       self.current_view = view
       child.add_view(view)
-      @stack.add(child.widget)
+      @stack.add_child(child.widget)
       @stack.visible_child = child.widget
       @current_view = view
     end
@@ -73,7 +67,7 @@ module Split
         show_welcome_msg
       else
         new_child.parent = self
-        @stack.add(new_child.widget)
+        @stack.add_child(new_child.widget)
         @stack.visible_child = new_child.widget
       end
     end
@@ -276,30 +270,7 @@ module Split
     end
 
     private def create_empty_view : Nil
-      builder = builder_for("no_view")
-      # FIXME: Use the shortcuts from config file
-      Gtk::Label.cast(builder["welcome_label"]).label = <<-EOT
-      <b>Code Navigation</b>                                          <b>Editing</b><span foreground="#DCDCD1">
-      Ctrl + P           —  Show locator                       Ctrl + F  —  Find text
-      F2                 —  Go to definition                   F3        —  Find next text match
-      Ctrl + G           —  Go to line/colum                   F9        —  Sort selected lines
-      Alt + Shift + ←/→  —  Go back/forward                    Ctrl + /  —  Comment selected lines
-      Alt + 1            —  Focus Editor                       Ctrl + .  —  Insert emoji 😎️
-                                                               Ctrl + =  —  Increase font size</span>
-      <b>Split View</b><span foreground="#DCDCD1">                                               Ctrl + -  —  Decrease font size
-      Ctrl + T           —  Split view with a new Terminal
-      Alt + ↑/→/←/↓      —  Focus editor in that direction     </span><b>Project</b><span foreground="#DCDCD1">
-                                                               Ctrl + N  —  New file
-      Press Shift on any action that could open a file e.g.    Ctrl + O  —  Open non-project file
-      <i>Ctrl + Shift + P</i> and the file will be open in a new      Ctrl + W  —  Close view
-      split view.                                              Alt  + G  —  Open Git locator
-
-      </span><b>General</b><span foreground="#DCDCD1">
-      Alt + 0            —  Show/hide Project Tree
-      Alt + 2            —  Show/hide log</span>
-    EOT
-      widget = Gtk::Widget.cast(builder["root"])
-      @stack.add_named(widget, NO_VIEW_WIDGET_NAME)
+      @stack.add_named(ViewPlaceHolder.new, NO_VIEW_WIDGET_NAME)
       show_welcome_msg
     end
 

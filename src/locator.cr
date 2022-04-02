@@ -1,13 +1,11 @@
 require "fzy"
 
 require "./locator_provider"
-require "./document_symbol_locator"
+# require "./document_symbol_locator"
 require "./file_locator"
 require "./help_locator"
 require "./line_locator"
-require "./git_locator"
-require "./observable"
-require "./ui_builder_helper"
+# require "./git_locator"
 
 module LocatorListener
   abstract def locator_open_file(file : String, split_view : Bool)
@@ -16,13 +14,12 @@ module LocatorListener
   abstract def locator_hidden
 end
 
-class Locator
-  include UiBuilderHelper
-  include LocatorProviderListener
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry))]
+class Locator < Gtk::Box
+  include Gtk::WidgetTemplate
 
-  observable_by LocatorListener
-
-  getter locator_widget : Gtk::Widget # Root widget for locator
+  signal open_file(file : String, split_view : Bool)
+  signal goto_line(line : Int32, col : Int32)
 
   # project model columns
   PATH_COLUMN    = 0
@@ -30,7 +27,7 @@ class Locator
   SCORE_COLUMN   = 2
 
   @project : Project
-  @locator_entry : Gtk::Entry
+  @entry : Gtk::Entry
   getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
   private getter results_cursor = 0
@@ -41,34 +38,40 @@ class Locator
   @current_locator_provider : LocatorProvider
 
   def initialize(@project)
-    builder = builder_for("locator")
-    @locator_widget = Gtk::Widget.cast(builder["locator_widget"])
+    super()
 
-    @locator_entry = Gtk::Entry.cast(builder["locator_entry"])
-    @locator_entry.on_key_press_event(&->entry_key_pressed(Gtk::Widget, Gdk::EventKey))
-    @locator_entry.on_activate(&->activated(Gtk::Entry))
-    @locator_entry.connect("notify::text", &->search_changed)
-    @locator_entry.after_focus_out_event(&->focus_out_event(Gtk::Widget, Gdk::EventFocus))
+    @entry = Gtk::Entry.cast(template_child("locator_entry"))
+    @entry.activate_signal.connect(&->entry_activated)
+    @entry.notify_signal["text"].connect(&->search_changed(GObject::ParamSpec))
+
+    key_ctl = Gtk::EventControllerKey.new
+    key_ctl.key_pressed_signal.connect(&->entry_key_pressed(UInt32, UInt32, Gdk::ModifierType))
+    @entry.add_controller(key_ctl)
+
+    focus_ctl = Gtk::EventControllerFocus.new
+    focus_ctl.leave_signal.connect(->focus_leave, after: true)
+    @entry.add_controller(focus_ctl)
 
     @default_locator_provider = FileLocator.new(@project)
     @current_locator_provider = @help_locator_provider = HelpLocator.new
 
-    @locator_results = Gtk::TreeView.cast(builder["locator_results"])
-    @locator_results.selection.mode = :browse
+    @locator_results = Gtk::TreeView.cast(template_child("locator_results"))
     @locator_results.model = @help_locator_provider.model
-    @locator_results.on_row_activated(&->activated(Gtk::TreeView, Gtk::TreePath, Gtk::TreeViewColumn))
+    @locator_results.row_activated_signal.connect(&->row_activated(Gtk::TreePath, Gtk::TreeViewColumn?))
 
     init_locators
   end
 
   def init_locators
-    @default_locator_provider.add_locator_provider_listener(self)
-
-    [DocumentSymbolLocator.new, LineLocator.new, GitLocator.new(@project)].each do |locator|
+    [LineLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
-      locator.add_locator_provider_listener(self)
       @help_locator_provider.add(locator)
     end
+  end
+
+  def project_load_finished
+    @default_locator_provider.project_load_finished
+    @locator_providers.each_value(&.project_load_finished)
   end
 
   def show(*, select_text : Bool, view : View?, split_view = false)
@@ -77,41 +80,39 @@ class Locator
     @current_locator_provider.selected(view) if view.nil? || view != @current_view
 
     @current_view = view
-    @locator_widget.show
+    show
     if select_text
-      @locator_entry.grab_focus
+      @entry.grab_focus
     else
-      @locator_entry.grab_focus_without_selecting
+      @entry.grab_focus_without_selecting
     end
   end
 
-  delegate visible?, to: @locator_widget
-
   def hide
     @current_view = nil
-    @locator_widget.hide
-    notify_locator_hidden
+    super
   end
 
   def text=(text : String)
-    @locator_entry.text = text
-    @locator_entry.position = text.size
+    @entry.text = text
+    @entry.position = text.size
   end
 
   def view_closed(view : View)
     @locator_providers.each_value(&.view_closed(view))
   end
 
-  private def focus_out_event(widget, event : Gdk::EventFocus) : Bool
+  private def focus_leave : Nil
     hide
-    false
   end
 
-  private def entry_key_pressed(_widget, event : Gdk::EventKey)
-    if event.keyval == Gdk::KEY_Up
+  private def entry_key_pressed(key_val : UInt32, _key_code : UInt32, _modifier : Gdk::ModifierType)
+    if key_val == Gdk::KEY_Escape
+      hide
+    elsif key_val == Gdk::KEY_Up
       self.results_cursor -= 1
       return true
-    elsif event.keyval == Gdk::KEY_Down
+    elsif key_val == Gdk::KEY_Down
       return true if @current_locator_provider.results_size < 2 # First item is already selected...
 
       self.results_cursor += 1
@@ -120,8 +121,8 @@ class Locator
     false
   end
 
-  private def search_changed
-    text = @locator_entry.text
+  private def search_changed(_param : GObject::ParamSpec)
+    text = @entry.text
     locator = find_locator(text)
     if @current_locator_provider != locator
       locator.selected(@current_view)
@@ -154,16 +155,16 @@ class Locator
     @locator_providers[text[0]]? || @default_locator_provider
   end
 
-  private def activated(widget : Gtk::Entry)
-    activated(@results_cursor)
+  private def entry_activated
+    row_activated(@results_cursor)
   end
 
-  private def activated(widget : Gtk::TreeView, tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    indices, _depth = tree_path.indices
-    activated(indices.first)
+  private def row_activated(tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn?)
+    indices = tree_path.indices
+    row_activated(indices.first) if indices
   end
 
-  private def activated(index : Int32)
+  private def row_activated(index : Int32)
     hide if @current_locator_provider.activate(self, index)
   end
 end

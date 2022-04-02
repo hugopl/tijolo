@@ -1,0 +1,2 @@
+class TijoloError < RuntimeError
+end

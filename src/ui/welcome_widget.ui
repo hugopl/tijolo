@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+
+
+  <object class="GtkListStore" id="projects_model">
+    <columns>
+      <column type="gchararray"/>
+      <column type="gchararray"/>
+    </columns>
+  </object>
+
+  <template class="WelcomeWidget" parent="GtkBox">
+    <property name="name">welcome-window</property>
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkBox" id="contents">
+        <property name="halign">center</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkPicture">
+            <property name="margin-top">40</property>
+            <property name="margin-bottom">20</property>
+            <!-- FIXME: Use GResource here once it's available on GTK4 shard. -->
+            <property name="file">file:///usr/share/tijolo/tijolo-banner.svg</property>
+            <property name="height-request">50</property>
+            <property name="can-shrink">1</property>
+            <property name="keep-aspect-ratio">1</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="vexpand">1</property>
+            <property name="halign">center</property>
+            <property name="spacing">40</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkSearchEntry" id="search_entry">
+                    <property name="hexpand">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkOverlay" id="overlay">
+                    <property name="vexpand">1</property>
+                    <child type="overlay">
+                      <object class="GtkSpinner" id="spinner">
+                        <property name="can-focus">0</property>
+                        <property name="spinning">1</property>
+                        <property name="visible">0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="width-request">350</property>
+                        <property name="margin-bottom">40</property>
+                        <property name="vexpand">1</property>
+                        <property name="child">
+                          <object class="GtkTreeView" id="tree_view">
+                            <property name="can-focus">0</property>
+                            <property name="model">projects_model</property>
+                            <property name="headers-visible">0</property>
+                            <property name="enable-search">0</property>
+                            <property name="search-column">0</property>
+                            <property name="show-expanders">0</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection">
+                                <property name="mode">browse</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="title" translatable="1">Existing Projects</property>
+                                <child>
+                                  <object class="GtkCellRendererText"/>
+                                  <attributes>
+                                    <attribute name="markup">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
+                <child>
+                  <object class="GtkButton" id="clone_btn">
+                    <property name="label" translatable="1">Clone Repository...</property>
+                    <property name="sensitive">0</property>
+                    <property name="receives-default">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="rescan_btn">
+                    <property name="label" translatable="1">Rescan Projects</property>
+                    <property name="receives-default">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

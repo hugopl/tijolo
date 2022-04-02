@@ -44,9 +44,8 @@ class ProjectTree
       collection.insert(idx, node)
 
       if indices.any?
-        parent_iter = Gtk::TreeIter.new
         tree_path = Gtk::TreePath.new_from_indices(indices)
-        model.iter(parent_iter, tree_path)
+        parent_iter = model.iter(tree_path)
       end
 
       is_folder = node.is_a?(FolderNode)
@@ -89,9 +88,8 @@ class ProjectTree
       collection.delete_at(idx)
 
       indices << idx + idx_offset
-      iter = Gtk::TreeIter.new
       tree_path = Gtk::TreePath.new_from_indices(indices)
-      model.iter(iter, tree_path)
+      iter = model.iter(tree_path)
       model.remove(iter)
       indices.pop
       true
@@ -206,7 +204,7 @@ class ProjectTree
   end
 
   class Root < FolderNode
-    getter model = Gtk::TreeStore.new({GObject::Type::UTF8, GObject::Type::BOOLEAN})
+    getter model = Gtk::TreeStore.new(GObject::TYPE_STRING, GObject::TYPE_BOOL)
 
     def initialize
       super("<root>")
@@ -253,7 +251,7 @@ class ProjectTree
     end
   end
 
-  include ProjectListener
+  # include ProjectListener
   # Project tree model columns
   PROJECT_TREE_LABEL  = 0
   PROJECT_TREE_IS_DIR = 1
@@ -262,7 +260,7 @@ class ProjectTree
 
   def initialize(@project : Project)
     @root = Root.new
-    @project.add_project_listener(self)
+    # @project.add_project_listener(self)
   end
 
   def tree_path(file : String)
@@ -286,10 +284,8 @@ class ProjectTree
   end
 
   def file_path(tree_path : Gtk::TreePath) : String?
-    # FIXME: Gtk::TreePath.indices returns a tuple with a crashing pointer iterator.
-    # So I use this slow workaround
-    indices = tree_path.to_string
-    file_path(indices.split(":").map(&.to_i))
+    indices = tree_path.indices
+    file_path(indices) if indices
   end
 
   def project_file_added(path : Path)

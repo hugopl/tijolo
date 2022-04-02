@@ -1,8 +1,8 @@
 name: build
 on:
-  push:
+  push: [ci]
   pull_request:
-    branches: [master]
+    branches: [ci]
 jobs:
   build:
     runs-on: ubuntu-latest

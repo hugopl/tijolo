@@ -24,10 +24,9 @@ abstract class FuzzyLocator < LocatorProvider
     return if @placeholder.blank?
 
     @model.clear
-    iter = Gtk::TreeIter.new
-    @model.append(iter)
+    iter = @model.append
     @model.set(iter, {LABEL_COLUMN}, {@placeholder})
-    notify_locator_provider_model_changed(self)
+    # notify_locator_provider_model_changed(self)
   end
 
   def results_size : Int32
@@ -67,12 +66,11 @@ abstract class FuzzyLocator < LocatorProvider
     @last_results = Fzy.search(text, haystack)
     @last_results.delete_at(MAX_LOCATOR_ITEMS..-1) if @last_results.size > MAX_LOCATOR_ITEMS
 
-    iter = Gtk::TreeIter.new
     @last_results.each do |match|
-      @model.append(iter)
+      iter = @model.append
       @model.set(iter, {LABEL_COLUMN}, {markup(match)})
     end
-    notify_locator_provider_model_changed(self)
+    # notify_locator_provider_model_changed(self)
   end
 
   def markup(match)

@@ -1,18 +1,14 @@
-require "./observable"
-
 module LocatorProviderListener
   abstract def locator_provider_model_changed(provider : LocatorProvider)
 end
 
 abstract class LocatorProvider
-  observable_by LocatorProviderListener
-
   LABEL_COLUMN = 0
 
   getter model : Gtk::ListStore
 
   def initialize
-    @model = Gtk::ListStore.new({GObject::Type::UTF8})
+    @model = Gtk::ListStore.new({GObject::TYPE_STRING})
   end
 
   # Called when the locator was selected with the current_view focused.
@@ -22,6 +18,10 @@ abstract class LocatorProvider
   # Called when the view was closed, the locator may or may not be selected
   # Use this to free locator caches.
   def view_closed(view : View) : Nil
+  end
+
+  # Called when project load finishes.
+  def project_load_finished
   end
 
   # index is the index of the entry in the provided model.

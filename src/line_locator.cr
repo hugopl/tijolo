@@ -14,7 +14,7 @@ class LineLocator < LocatorProvider
 
     col = @col - 1
     col = 0 if col < 0
-    locator.notify_locator_goto_line_col(@line - 1, col)
+    locator.goto_line_signal.emit(@line - 1, col)
     true
   end
 

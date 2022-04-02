@@ -2,12 +2,10 @@ require "./fuzzy_locator"
 require "./project"
 
 class FileLocator < FuzzyLocator
-  include ProjectListener
-
   def initialize(@project : Project)
     place_holder = @project.valid? ? "Waiting project load to finish..." : "There's no project open."
     super(place_holder)
-    @project.add_project_listener(self)
+    # @project.add_project_listener(self)
   end
 
   def project_files_changed
@@ -28,6 +26,6 @@ class FileLocator < FuzzyLocator
 
   def activate(locator : Locator, match : Fzy::Match)
     file = match.value
-    locator.notify_locator_open_file(@project.root.join(file).to_s, locator.split_next?)
+    locator.open_file_signal.emit(@project.root.join(file).to_s, locator.split_next?)
   end
 end

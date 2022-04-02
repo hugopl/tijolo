@@ -1,36 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
-  <object class="GtkBox" id="locator_widget">
+  <requires lib="gtk" version="4.0"/>
+
+  <template class="Locator" parent="GtkBox">
+    <property name="visible">0</property>
     <property name="name">locator</property>
     <property name="width-request">550</property>
     <property name="halign">center</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkEntry" id="locator_entry">
-        <property name="visible">1</property>
-        <property name="can-focus">1</property>
+        <property name="valign">center</property>
+        <property name="focusable">1</property>
         <property name="margin-top">40</property>
         <property name="max-length">127</property>
         <property name="truncate-multiline">1</property>
-        <property name="shadow-type">none</property>
       </object>
-      <packing>
-        <property name="fill">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkViewport">
         <property name="height-request">300</property>
-        <property name="visible">1</property>
-        <child>
+        <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="visible">1</property>
-            <property name="can-focus">1</property>
-            <child>
+            <property name="focusable">1</property>
+            <property name="child">
               <object class="GtkTreeView" id="locator_results">
-                <property name="visible">1</property>
                 <property name="headers-visible">0</property>
                 <property name="enable-search">0</property>
                 <property name="show-expanders">0</property>
@@ -43,7 +37,6 @@
                 <child>
                   <object class="GtkTreeViewColumn">
                     <property name="sizing">fixed</property>
-                    <property name="title" translatable="yes">Open files</property>
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
@@ -53,13 +46,10 @@
                   </object>
                 </child>
               </object>
-            </child>
+            </property>
           </object>
-        </child>
+        </property>
       </object>
-      <packing>
-        <property name="position">1</property>
-      </packing>
     </child>
-  </object>
+  </template>
 </interface>

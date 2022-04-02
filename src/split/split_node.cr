@@ -13,12 +13,14 @@ module Split
     def initialize(parent, @orientation, @child1, @child2)
       super(parent)
 
-      @paned = Gtk::Paned.new(@orientation.vertical? ? Gtk::Orientation::VERTICAL : Gtk::Orientation::HORIZONTAL)
-      @paned.show_all
+      @paned = Gtk::Paned.new(@orientation.vertical? ? Gtk::Orientation::Vertical : Gtk::Orientation::Horizontal)
+      not_ported!
+      # @paned.show_all
       @child1.parent = self
       @child2.parent = self
-      @paned.pack1(@child1.widget, true, true)
-      @paned.pack2(@child2.widget, true, true)
+      not_ported!
+      # @paned.pack1(@child1.widget, true, true)
+      # @paned.pack2(@child2.widget, true, true)
 
       position = if @orientation.vertical?
                    parent.widget.allocated_height // 2
@@ -33,18 +35,19 @@ module Split
     end
 
     def replace_child(child : Node)
-      @paned.remove(child.widget)
-      new_child = yield
-      return if new_child.nil?
-
-      new_child.parent = self
-      if @child1 == child
-        @child1 = new_child
-        @paned.pack1(new_child.widget, true, true)
-      else
-        @child2 = new_child
-        @paned.pack2(new_child.widget, true, true)
-      end
+      not_ported!
+#       @paned.remove(child.widget)
+#       new_child = yield
+#       return if new_child.nil?
+#
+#       new_child.parent = self
+#       if @child1 == child
+#         @child1 = new_child
+#         @paned.pack1(new_child.widget, true, true)
+#       else
+#         @child2 = new_child
+#         @paned.pack2(new_child.widget, true, true)
+#       end
     end
 
     def accept(visitor : NodeVisitor) : Bool
