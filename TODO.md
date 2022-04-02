@@ -6,29 +6,11 @@ This is a short-term TODO list in no special order.
 
 ## 0.8.0 release
 
-- [ ] GTK-4 Port
-- [ ] New text widget
-
-Tijolo need to disable the GC to work without crashing, this is due to the way the GC (BoehmGC) used by Crystal works,
-fortunately even running Tijolo leaking memory few hours it may still consume less memory than electron based apps.
-
-- https://github.com/jhass/crystal-gobject/issues/69
-- https://github.com/crystal-lang/crystal/issues/9226
-
-I have some weak clues that this bug seems to be related to GtkSourceView (GSV) and their language engine, since the engine
-create some threads and those threads are not registered on BoehmGC. Some attempts to register these threads were made
-without much success, so I'm going into a more painful approach to fix the issue:
-
-- [x] Test again using Tijolo without loading any GtkSourceView language, i.e. do not use the GSV, and see if it doesn't crash.
-  - I did this test already and it worked, but I need to do it again to be sure.
-- [ ] Create a code-focused GTK text widget that can load huge files and is fast enough.
-- [ ] Create a [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal and use tree-sitter on this new widget.
-- [ ] Finally release a new GTK4 version with this new text-widget.
-- [ ] Be back on track of adding more features, mainly LSP related ones.
-
-This doesn't mean the editor will be dead until I finish all this, since I use Tijolo on daily basis, bugs and small features
-that make my daily work easier will for sure still be implemented, but I'm going to try to avoid implementing features that
-depend on GtkSourceView.
+- [x] Create a [binding generator for GTK4](https://github.com/hugopl/gi-crystal).
+- [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
+- [ ] Port existing code to GTK4.
+- [ ] Implement a new text widget to replace GtkSourceView.
+- [ ] Evaluate a [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal, there are 3 on github.
 
 ## 0.9.0 release
 
