@@ -7,18 +7,7 @@ This is a short-term TODO list in no special order.
 ## 0.8.0 release
 
 - [ ] GTK-4 Port
-
-## 0.9.0 release
-
-- [ ] Fix the buggy location history introduced into 0.3.0 :-)
-- [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
-- Some ♥️ to shortcuts
-  - [ ] Pass Ctrl+whatever keystrokes to terminal views.
-  - [ ] Rebind shortcuts after save config file.
-  - [ ] Show shortcuts in UI according the real configured shortcuts.
-- [ ] Fix race condition when different Tijolo instances update tijolorc.
-
-## 0.10.0 release
+- [ ] New text widget
 
 Tijolo need to disable the GC to work without crashing, this is due to the way the GC (BoehmGC) used by Crystal works,
 fortunately even running Tijolo leaking memory few hours it may still consume less memory than electron based apps.
@@ -32,13 +21,25 @@ without much success, so I'm going into a more painful approach to fix the issue
 
 - [x] Test again using Tijolo without loading any GtkSourceView language, i.e. do not use the GSV, and see if it doesn't crash.
   - I did this test already and it worked, but I need to do it again to be sure.
-- [x] Implement a language engine in Crystal, probably using [GtkSourceView format](https://developer.gnome.org/gtksourceview/stable/lang-reference.html) (still buggy and slow, but is to be published soon).
 - [ ] Create a code-focused GTK text widget that can load huge files and is fast enough.
+- [ ] Create a [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal and use tree-sitter on this new widget.
+- [ ] Finally release a new GTK4 version with this new text-widget.
 - [ ] Be back on track of adding more features, mainly LSP related ones.
 
 This doesn't mean the editor will be dead until I finish all this, since I use Tijolo on daily basis, bugs and small features
 that make my daily work easier will for sure still be implemented, but I'm going to try to avoid implementing features that
 depend on GtkSourceView.
+
+## 0.9.0 release
+
+- [ ] Fix the buggy location history introduced into 0.3.0 :-)
+- [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
+- Some ♥️ to shortcuts
+  - [ ] Pass Ctrl+whatever keystrokes to terminal views.
+  - [ ] Rebind shortcuts after save config file.
+  - [ ] Show shortcuts in UI according the real configured shortcuts.
+- [ ] Fix race condition when different Tijolo instances update tijolorc.
+
 
 ## Backlog, things that can go in any version...
 
