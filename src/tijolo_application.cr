@@ -49,15 +49,16 @@ class TijoloApplication < Adw::Application
       next if file_path.nil?
 
       window = @project_windows.find(&.project.under_project?(file_path))
-      if window
-        window.open(file_path.to_s)
-      elsif Project.valid?(file_path)
-        @project_windows << create_project_window(Project.new(file_path))
-      else
-        no_project_window = @no_project_window
-        @no_project_window = no_project_window = create_project_window(Project.new) if no_project_window.nil?
-        no_project_window.open(file_path.to_s)
+      if window.nil?
+        if Project.valid?(file_path)
+          window = create_project_window(Project.new(file_path))
+          @project_windows << window
+        else
+          window = @no_project_window
+          @no_project_window = window = create_project_window(Project.new) if window.nil?
+        end
       end
+      window.open(file_path.to_s) if File.file?(file_path)
     end
   end
 

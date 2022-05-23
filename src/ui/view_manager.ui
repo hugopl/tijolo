@@ -8,7 +8,7 @@
       <object class="GtkOverlay" id="overlay">
         <child>
           <object class="GtkStack" id="contents_stack">
-            <property name="halign">center</property>
+            <property name="halign">fill</property>
           </object>
         </child>
 

@@ -11,14 +11,14 @@ class View < Gtk::Box
   property? readonly = false
 
   # @header_label : Gtk::MenuButton
-  @container : Gtk::ScrolledWindow
 
-  def initialize(@resource)
+  def initialize(@resource, contents : Gtk::Widget)
     super()
     @id = object_id.to_s(16)
     @header_label = Gtk::MenuButton.cast(template_child(View.g_type, "header_label"))
     @header_label.label = @resource
-    @container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
+    container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
+    container.child = contents
   end
 
   def maximized=(@maximized)

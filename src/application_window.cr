@@ -36,6 +36,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     super.not_nil!.as(TijoloApplication)
   end
 
+  delegate focus_upper_split, to: view_manager
+  delegate focus_right_split, to: view_manager
+  delegate focus_lower_split, to: view_manager
+  delegate focus_left_split, to: view_manager
+  delegate maximize_view, to: view_manager
+
   def open_project(project_path : String)
     open_project(Path.new(project_path))
   end
@@ -43,7 +49,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   def open_project(project_path : Path)
     raise ArgumentError.new if @project.valid?
 
-    @project.load(project_path)
+    @project.root = project_path
     open_project
   rescue e : ProjectError
     Log.error { "Error loading project from #{project_path}: #{e.message}" }
@@ -105,13 +111,13 @@ class ApplicationWindow < Adw::ApplicationWindow
                # focus_editor:              ->focus_editor,
                # go_back:                   ->go_back,
                # go_forward:                ->go_forward,
-               # focus_upper_split:         ->focus_upper_split,
-               # focus_right_split:         ->focus_right_split,
-               # focus_lower_split:         ->focus_lower_split,
-               # focus_left_split:          ->focus_left_split,
+               focus_upper_split:         ->focus_upper_split,
+               focus_right_split:         ->focus_right_split,
+               focus_lower_split:         ->focus_lower_split,
+               focus_left_split:          ->focus_left_split,
                # increase_font_size:        ->increase_current_view_font_size,
                # decrease_font_size:        ->decrease_current_view_font_size,
-               # maximize_view:             ->maximize_view,
+               maximize_view:             ->maximize_view,
                # copy_in_terminal:          ->copy_terminal_text,
                # paste_in_terminal:         ->paste_terminal_text,
     }

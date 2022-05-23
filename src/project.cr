@@ -19,10 +19,10 @@ class Project
   end
 
   def initialize(location : Path)
-    load(location)
+    self.root = location
   end
 
-  def load(location : Path)
+  def root=(location : Path)
     raise ProjectError.new("Project already loaded") if valid?
 
     root = Project.find_root(location)

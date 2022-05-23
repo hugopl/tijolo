@@ -254,8 +254,8 @@ module Split
 
       @maximized_node = node
       node.remove_view(view)
-      @stack.add_named(view.widget, view.id)
-      @stack.visible_child = view.widget
+      @stack.add_named(view, view.id)
+      @stack.visible_child = view
       view.maximized = true
     end
 
