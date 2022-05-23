@@ -11,15 +11,19 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   getter project : Project
   @project_tree : ProjectTree
+  @project_tree_view : Gtk::TreeView
   private getter! view_manager : ViewManager?
   private getter! locator : Locator?
 
   def initialize(application : Gio::Application, @project : Project)
     super()
     @project_tree = ProjectTree.new(@project)
+    @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
+    @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
+
     self.application = application
 
-    Gtk::TreeView.cast(template_child("project_tree_view")).model = @project_tree.model
+    @project_tree_view.model = @project_tree.model
     if @project.valid?
       open_project
     else
@@ -154,6 +158,13 @@ class ApplicationWindow < Adw::ApplicationWindow
     view
   rescue e : IO::Error
     application.error(e)
+  end
+
+  private def open_from_project_tree(tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
+    return if @project_tree_view.value(tree_path, ProjectTree::PROJECT_TREE_IS_DIR).as_bool
+
+    file_path = @project_tree.file_path(tree_path)
+    open(file_path) if file_path
   end
 
   private def show_locator(split_view = false)
