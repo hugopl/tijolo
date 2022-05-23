@@ -44,8 +44,8 @@ class ViewManager < Gtk::Box
     @views.find { |view| view.object_id == id }
   end
 
-  def view(file_path : Path) : View?
-    @views.find { |view| view.file_path == file_path }
+  def view(resource : String) : View?
+    @views.find { |view| view.resource == resource }
   end
 
   private def populate_gtk_model
@@ -148,7 +148,7 @@ class ViewManager < Gtk::Box
 
   def add_view(view : View, split_view : Bool) : View
     reference_view = split_view ? @views.first? : first_shared_view
-    # If no views were found, e.g. there are just non-shared terminals, use the terminal and split the view
+    # If no views were found, e.g. there are just non-shared views, get the first view and split it
     if reference_view.nil? && @views.any?
       reference_view = @views.first
       split_view = true
@@ -160,7 +160,6 @@ class ViewManager < Gtk::Box
       @root.add_view(view, reference_view, split_view)
       change_current_view(view)
     end
-    view.add_view_listener(self)
     view
   end
 

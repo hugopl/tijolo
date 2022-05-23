@@ -28,6 +28,7 @@ module Split
       yield
     end
 
+    abstract def widget : Gtk::Widget
     abstract def accept(visitor : NodeVisitor) : Bool
     abstract def find_node(view : View) : ViewNode?
     abstract def dump(io : IO) : Nil

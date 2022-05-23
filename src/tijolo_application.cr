@@ -50,13 +50,13 @@ class TijoloApplication < Adw::Application
 
       window = @project_windows.find(&.project.under_project?(file_path))
       if window
-        window.open(file_path)
+        window.open(file_path.to_s)
       elsif Project.valid?(file_path)
         @project_windows << create_project_window(Project.new(file_path))
       else
         no_project_window = @no_project_window
         @no_project_window = no_project_window = create_project_window(Project.new) if no_project_window.nil?
-        no_project_window.open(file_path)
+        no_project_window.open(file_path.to_s)
       end
     end
   end
@@ -91,5 +91,14 @@ class TijoloApplication < Adw::Application
       license: LICENSE,
       authors: {"Hugo Parente Lima <hugo.pl@gmail.com>"},
       artists: {"Marília Riul <mmriul@gmail.com>"})
+  end
+
+  def error(exception : Exception) : Nil
+    error("Error", exception.message || exception.class.name)
+  end
+
+  def error(title : String, message : String) : Nil
+    Log.warn { message }
+    Gtk::MessageDialog.ok(text: title, secondary_text: message, message_type: :error, transient_for: active_window) {}
   end
 end

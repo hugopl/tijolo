@@ -45,7 +45,7 @@ module Split
       end
     end
 
-    def widget
+    def widget : Gtk::Widget
       @overlay
     end
 
@@ -54,8 +54,8 @@ module Split
     end
 
     def add_view(view : View)
-      @stack.add_named(view.widget, view.id)
-      @stack.visible_child = view.widget
+      @stack.add_named(view, view.id)
+      @stack.visible_child = view
       @view_ids << view.id
     end
 
@@ -71,7 +71,7 @@ module Split
 
     def reveal_view(view : View) : Nil
       ok = reveal_view(view.id)
-      Log.error { "View not found on view node: #{view.label}" } unless ok
+      Log.error { "View not found on view node: #{view}" } unless ok
     end
 
     private def reveal_view(view_id : String) : Bool

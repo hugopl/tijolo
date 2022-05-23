@@ -22,6 +22,10 @@ module Split
       super(self)
     end
 
+    def widget : Gtk::Widget
+      @stack
+    end
+
     def has_split? : Bool
       child = @child
       !child.nil? && child.is_a?(SplitNode)
@@ -99,7 +103,7 @@ module Split
 
     def find_node(view : View) : ViewNode?
       view_node = @child.not_nil!.find_node(view)
-      Log.warn { "Unable to find view for #{view.label} on split nodes." } if view_node.nil?
+      Log.warn { "Unable to find view for #{view} on split nodes." } if view_node.nil?
       view_node
     end
 
@@ -159,9 +163,9 @@ module Split
     def current_view=(view : View)
       return if view == @current_view
 
-      @current_view.try(&.selected=(false))
+      @current_view.try(&.unselect)
       @current_view = view
-      view.selected = true
+      view.select
     end
 
     def upper_split(reference : View) : ViewNode?
@@ -256,17 +260,17 @@ module Split
     end
 
     def unmaximize_view : Nil
-      view = @current_view
-      maximized_node = @maximized_node
-      return if view.nil? || maximized_node.nil?
+       view = @current_view
+       maximized_node = @maximized_node
+       return if view.nil? || maximized_node.nil?
 
-      view_widget = @stack.child_by_name(view.id)
-      @stack.remove(view_widget) if view_widget
-      maximized_node.add_view(view)
-      @maximized_node = nil
-      view.maximized = false
+       view_widget = @stack.child_by_name(view.id)
+       @stack.remove(view_widget) if view_widget
+       maximized_node.add_view(view)
+       @maximized_node = nil
+       view.maximized = false
 
-      @stack.visible_child = @child.not_nil!.widget
+       @stack.visible_child = @child.not_nil!.widget
     end
 
     private def create_empty_view : Nil

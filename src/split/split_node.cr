@@ -14,13 +14,10 @@ module Split
       super(parent)
 
       @paned = Gtk::Paned.new(@orientation.vertical? ? Gtk::Orientation::Vertical : Gtk::Orientation::Horizontal)
-      not_ported!
-      # @paned.show_all
+      @paned.start_child = @child1.widget
+      @paned.end_child = @child2.widget
       @child1.parent = self
       @child2.parent = self
-      not_ported!
-      # @paned.pack1(@child1.widget, true, true)
-      # @paned.pack2(@child2.widget, true, true)
 
       position = if @orientation.vertical?
                    parent.widget.allocated_height // 2
@@ -30,7 +27,7 @@ module Split
       @paned.position = position
     end
 
-    def widget
+    def widget : Gtk::Widget
       @paned
     end
 

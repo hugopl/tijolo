@@ -2,6 +2,7 @@ require "./project"
 require "./project_tree"
 require "./welcome_widget"
 require "./view_manager"
+require "./view_factory"
 require "./locator"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title_widget show_hide_sidebar_btn project_tree_view sidebar))]
@@ -25,6 +26,10 @@ class ApplicationWindow < Adw::ApplicationWindow
       welcome
     end
     setup_actions
+  end
+
+  def application : TijoloApplication
+    super.not_nil!.as(TijoloApplication)
   end
 
   def open_project(project_path : String)
@@ -138,12 +143,17 @@ class ApplicationWindow < Adw::ApplicationWindow
 #     main_window.add_action(action)
   end
 
-  def open(file : String, split_view : Bool)
-    puts "open #{file}"
-  end
-
-  def open(file, line = -1)
-    puts "open #{file}"
+  def open(resource : String, split_view : Bool = false)
+    view = view_manager.view(resource)
+    if view.nil?
+      view = ViewFactory.build(resource)
+      view_manager.add_view(view, split_view)
+    else
+      view_manager.change_current_view(view)
+    end
+    view
+  rescue e : IO::Error
+    application.error(e)
   end
 
   private def show_locator(split_view = false)
