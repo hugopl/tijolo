@@ -30,7 +30,7 @@
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="header">
         <child type="center">
           <object class="GtkMenuButton" id="header_label">
             <property name="focusable">1</property>
@@ -45,9 +45,6 @@
             <property name="margin-end">6</property>
           </object>
         </child>
-        <style>
-          <class name="editor-header"/>
-        </style>
       </object>
     </child>
     <child>

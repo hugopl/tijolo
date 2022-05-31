@@ -1,4 +1,4 @@
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header_label))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header header_label))]
 class View < Gtk::Box
   include Gtk::WidgetTemplate
 
@@ -10,11 +10,12 @@ class View < Gtk::Box
   getter? maximized = false
   property? readonly = false
 
-  # @header_label : Gtk::MenuButton
+  @header : Gtk::Box
 
   def initialize(@resource, contents : Gtk::Widget)
     super()
     @id = object_id.to_s(16)
+    @header = Gtk::Box.cast(template_child(View.g_type, "header"))
     @header_label = Gtk::MenuButton.cast(template_child(View.g_type, "header_label"))
     @header_label.label = @resource
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
@@ -26,11 +27,11 @@ class View < Gtk::Box
   end
 
   def select : Nil
-    # @editor_header.style_context.add_class("selected")
+    @header.style_context.add_class("selected")
   end
 
   def unselect : Nil
-    # @editor_header.style_context.remove_class("selected")
+    @header.style_context.remove_class("selected")
   end
 
   private def update_header

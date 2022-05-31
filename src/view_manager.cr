@@ -1,4 +1,5 @@
-require "./split/root_node"
+require "./view_place_holder"
+require "./view_manager_node"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w(overlay views_model views_ctrltab_box views_ctrltab_selection views_tree))]
 class ViewManager < Gtk::Box
@@ -11,27 +12,25 @@ class ViewManager < Gtk::Box
   getter views = [] of View # Views in the order they are stored in GTK model
   getter selected_view_index = 0
 
-  @place_holder : ViewPlaceHolder
-  @stack : Gtk::Stack
+  @root_node : ViewManagerNode
 
   def initialize
     super()
 
-    @place_holder = ViewPlaceHolder.new
+    @root_node = ViewManagerNode.new(ViewPlaceHolder.new)
 
     @overlay = Gtk::Overlay.cast(template_child("overlay"))
     @views_model = Gtk::ListStore.cast(template_child("views_model"))
     @view_ctrltab_box = Gtk::Box.cast(template_child("views_ctrltab_box"))
     @view_ctrltab_selection = Gtk::TreeSelection.cast(template_child("views_ctrltab_selection"))
 
-    @stack = Gtk::Stack.new
-    @stack.add_child(@place_holder)
-    @overlay.child = @stack
+    @overlay.child = @root_node
   end
 
   delegate empty?, to: @views
   delegate any?, to: @views
   delegate add_overlay, to: @overlay
+  delegate show_view, to: @root_node
 
   private def populate_views_model
     @views_model.clear
@@ -76,7 +75,7 @@ class ViewManager < Gtk::Box
     @view_ctrltab_selection.select_row(@selected_view_index)
     selected_view = @views[@selected_view_index]
     @view_ctrltab_box.visible = true
-    show(selected_view)
+    show_view(selected_view)
   end
 
   def stop_rotate : Nil
@@ -97,23 +96,16 @@ class ViewManager < Gtk::Box
     nil
   end
 
-  def add_view(view : View, split_view : Bool) : View
-    reference_view = split_view ? @views.first? : first_shared_view
+  def add_view(view : View, split_view : Bool)
+    reference_view = split_view ? current_view : first_shared_view
     # If no views were found, e.g. there are just non-shared views, get the first view and split it
     if reference_view.nil? && @views.any?
-      reference_view = @views.first
+      reference_view = current_view.not_nil!
       split_view = true
     end
 
     @views.unshift(view)
-    # @root.add_view(view, reference_view, split_view)
-    @stack.add_child(view)
-    @stack.visible_child = view
-    view
-  end
-
-  def show(view : View)
-    @stack.visible_child = view
+    @root_node.add_view(view, reference_view, split_view)
   end
 
   def close_current_view
@@ -121,13 +113,9 @@ class ViewManager < Gtk::Box
     return if view.nil?
 
     @views.delete(view)
-    @stack.remove(view)
+    @root_node.remove_view(view)
 
-    if @views.size.zero?
-      @stack.visible_child = @place_holder
-    else
-      show(@views.first)
-    end
+    show_view(@views.first) if @views.any?
   end
 
   def close_all_views

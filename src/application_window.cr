@@ -185,7 +185,7 @@ class ApplicationWindow < Adw::ApplicationWindow
       view = ViewFactory.build(resource)
       view_manager.add_view(view, split_view)
     else
-      view_manager.show(view)
+      view_manager.show_view(view)
     end
     view
   rescue e : IO::Error
