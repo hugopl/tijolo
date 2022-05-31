@@ -100,6 +100,6 @@ class TijoloApplication < Adw::Application
 
   def error(title : String, message : String) : Nil
     Log.warn { message }
-    Gtk::MessageDialog.ok(text: title, secondary_text: message, message_type: :error, transient_for: active_window) {}
+    Gtk::MessageDialog.ok(text: title, secondary_text: message, message_type: :error, transient_for: active_window) { }
   end
 end

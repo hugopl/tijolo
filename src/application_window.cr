@@ -24,6 +24,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     self.application = application
 
     @project_tree_view.model = @project_tree.model
+
+    key_ctl = Gtk::EventControllerKey.new
+    key_ctl.key_pressed_signal.connect(->key_pressed(UInt32, UInt32, Gdk::ModifierType))
+    key_ctl.key_released_signal.connect(->key_released(UInt32, UInt32, Gdk::ModifierType))
+    add_controller(key_ctl)
+
     if @project.valid?
       open_project
     else
@@ -70,7 +76,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     flap.content = @view_manager = view_manager = ViewManager.new
     @locator = locator = Locator.new(@project)
     view_manager.add_overlay(locator)
-    locator.open_file_signal.connect(->open(String,Bool))
+    locator.open_file_signal.connect(->open(String, Bool))
 
     @project.scan_files(on_finish: ->project_load_finished)
   end
@@ -89,11 +95,11 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:              ->show_locator,
-               show_locator_new_split:    ->{ show_locator(split_view: true) },
+    actions = {show_locator:           ->show_locator,
+               show_locator_new_split: ->{ show_locator(split_view: true) },
                # show_git_locator:          ->show_git_locator,
-               # close_view:                ->close_current_view,
-               # close_all_views:           ->close_all_views,
+               close_view:      ->{ @view_manager.try(&.close_current_view) },
+               close_all_views: ->{ @view_manager.try(&.close_all_views) },
                # save_view:                 ->save_current_view,
                # save_view_as:              ->save_current_view_as,
                # find:                      ->{ find_in_current_view(:find_by_text) },
@@ -111,13 +117,13 @@ class ApplicationWindow < Adw::ApplicationWindow
                # focus_editor:              ->focus_editor,
                # go_back:                   ->go_back,
                # go_forward:                ->go_forward,
-               focus_upper_split:         ->focus_upper_split,
-               focus_right_split:         ->focus_right_split,
-               focus_lower_split:         ->focus_lower_split,
-               focus_left_split:          ->focus_left_split,
+               # focus_upper_split:         ->focus_upper_split,
+               # focus_right_split:         ->focus_right_split,
+               # focus_lower_split:         ->focus_lower_split,
+               # focus_left_split:          ->focus_left_split,
                # increase_font_size:        ->increase_current_view_font_size,
                # decrease_font_size:        ->decrease_current_view_font_size,
-               maximize_view:             ->maximize_view,
+               # maximize_view:             ->maximize_view,
                # copy_in_terminal:          ->copy_terminal_text,
                # paste_in_terminal:         ->paste_terminal_text,
     }
@@ -131,35 +137,53 @@ class ApplicationWindow < Adw::ApplicationWindow
     end
 
     # View related actions
-#     uint64 = GLib::VariantType.new("t")
-#     action = Gio::SimpleAction.new("copy_full_path", uint64)
-#     action.activate_signal.connect(->copy_view_full_path(Gio::SimpleAction, GLib::Variant?))
-#     main_window.add_action(action)
-#
-#     action = Gio::SimpleAction.new("copy_full_path_and_line", uint64)
-#     action.activate_signal.connect(->copy_view_full_path_and_line(Gio::SimpleAction, GLib::Variant?))
-#     main_window.add_action(action)
-#
-#     action = Gio::SimpleAction.new("copy_file_name", uint64)
-#     action.activate_signal.connect(->copy_view_file_name(Gio::SimpleAction, GLib::Variant?))
-#     main_window.add_action(action)
-#
-#     action = Gio::SimpleAction.new("copy_relative_path", uint64)
-#     action.activate_signal.connect(->copy_view_relative_path(Gio::SimpleAction, GLib::Variant?))
-#     main_window.add_action(action)
-#
-#     action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
-#     action.activate_signal.connect(->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
-#     main_window.add_action(action)
+    #     uint64 = GLib::VariantType.new("t")
+    #     action = Gio::SimpleAction.new("copy_full_path", uint64)
+    #     action.activate_signal.connect(->copy_view_full_path(Gio::SimpleAction, GLib::Variant?))
+    #     main_window.add_action(action)
+    #
+    #     action = Gio::SimpleAction.new("copy_full_path_and_line", uint64)
+    #     action.activate_signal.connect(->copy_view_full_path_and_line(Gio::SimpleAction, GLib::Variant?))
+    #     main_window.add_action(action)
+    #
+    #     action = Gio::SimpleAction.new("copy_file_name", uint64)
+    #     action.activate_signal.connect(->copy_view_file_name(Gio::SimpleAction, GLib::Variant?))
+    #     main_window.add_action(action)
+    #
+    #     action = Gio::SimpleAction.new("copy_relative_path", uint64)
+    #     action.activate_signal.connect(->copy_view_relative_path(Gio::SimpleAction, GLib::Variant?))
+    #     main_window.add_action(action)
+    #
+    #     action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
+    #     action.activate_signal.connect(->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
+    #     main_window.add_action(action)
+  end
+
+  def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
+    view_manager = @view_manager
+    if view_manager && modifier.control_mask? && key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+      view_manager.rotate_views(reverse: key_val == Gdk::KEY_dead_grave)
+      return true
+    end
+    false
+  end
+
+  def key_released(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
+    view_manager = @view_manager
+    if view_manager && modifier.control_mask? && !key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+      view_manager.stop_rotate
+      return true
+    end
+    false
   end
 
   def open(resource : String, split_view : Bool = false)
-    view = view_manager.view(resource)
+    view = view_manager.find_view(resource)
     if view.nil?
       view = ViewFactory.build(resource)
       view_manager.add_view(view, split_view)
     else
-      view_manager.change_current_view(view)
+      view_manager.show(view)
     end
     view
   rescue e : IO::Error
@@ -178,5 +202,4 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     locator.show(select_text: true, view: view_manager.current_view, split_view: split_view)
   end
-
 end

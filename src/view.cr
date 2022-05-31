@@ -36,7 +36,11 @@ class View < Gtk::Box
   private def update_header
   end
 
+  def label : String
+    File.basename(@resource)
+  end
+
   def to_s(io : IO)
-    io << @resource
+    io << label
   end
 end

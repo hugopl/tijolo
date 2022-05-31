@@ -5,6 +5,7 @@ require "./locator_provider"
 require "./file_locator"
 require "./help_locator"
 require "./line_locator"
+
 # require "./git_locator"
 
 module LocatorListener

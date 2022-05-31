@@ -32,19 +32,18 @@ module Split
     end
 
     def replace_child(child : Node)
-      not_ported!
-#       @paned.remove(child.widget)
-#       new_child = yield
-#       return if new_child.nil?
-#
-#       new_child.parent = self
-#       if @child1 == child
-#         @child1 = new_child
-#         @paned.pack1(new_child.widget, true, true)
-#       else
-#         @child2 = new_child
-#         @paned.pack2(new_child.widget, true, true)
-#       end
+      @paned.remove(child.widget)
+      new_child = yield
+      return if new_child.nil?
+
+      new_child.parent = self
+      if @child1 == child
+        @child1 = new_child
+        @paned.pack1(new_child.widget, true, true)
+      else
+        @child2 = new_child
+        @paned.pack2(new_child.widget, true, true)
+      end
     end
 
     def accept(visitor : NodeVisitor) : Bool

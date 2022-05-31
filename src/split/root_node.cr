@@ -260,17 +260,17 @@ module Split
     end
 
     def unmaximize_view : Nil
-       view = @current_view
-       maximized_node = @maximized_node
-       return if view.nil? || maximized_node.nil?
+      view = @current_view
+      maximized_node = @maximized_node
+      return if view.nil? || maximized_node.nil?
 
-       view_widget = @stack.child_by_name(view.id)
-       @stack.remove(view_widget) if view_widget
-       maximized_node.add_view(view)
-       @maximized_node = nil
-       view.maximized = false
+      view_widget = @stack.child_by_name(view.id)
+      @stack.remove(view_widget) if view_widget
+      maximized_node.add_view(view)
+      @maximized_node = nil
+      view.maximized = false
 
-       @stack.visible_child = @child.not_nil!.widget
+      @stack.visible_child = @child.not_nil!.widget
     end
 
     private def create_empty_view : Nil
