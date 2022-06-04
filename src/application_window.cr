@@ -12,6 +12,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   getter project : Project
   @project_tree : ProjectTree
   @project_tree_view : Gtk::TreeView
+  @sidebar : Adw::Flap
   private getter! view_manager : ViewManager?
   private getter! locator : Locator?
 
@@ -20,6 +21,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_tree = ProjectTree.new(@project)
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
     @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
+
+    @sidebar = Adw::Flap.cast(template_child("sidebar"))
 
     self.application = application
 
@@ -69,11 +72,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     title_widget.subtitle = @project.root.to_s
 
     Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
-    flap = Adw::Flap.cast(template_child("sidebar"))
-    flap.locked = false
-    flap.reveal_flap = true
-    flap.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
-    flap.content = @view_manager = view_manager = ViewManager.new
+    @sidebar.locked = false
+    @sidebar.reveal_flap = true
+    @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
+    @sidebar.content = @view_manager = view_manager = ViewManager.new
     @locator = locator = Locator.new(@project)
     view_manager.add_overlay(locator)
     locator.open_file_signal.connect(->open(String, Bool))
@@ -112,7 +114,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                # sort_lines:                ->sort_lines,
                # goto_definition:           ->goto_definition,
                # goto_definition_new_split: ->{ goto_definition(split_view: true) },
-               # show_hide_sidebar:         ->show_hide_sidebar,
+               show_hide_sidebar: ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
                # show_hide_output_pane:     ->show_hide_output_pane,
                # focus_editor:              ->focus_editor,
                # go_back:                   ->go_back,

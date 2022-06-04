@@ -8,8 +8,7 @@ VersionFromShard.declare
 LICENSE = {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").stringify }}
 
 class TijoloApplication < Adw::Application
-  @project_windows = [] of ApplicationWindow
-  @no_project_window : ApplicationWindow?
+  @windows = [] of ApplicationWindow
 
   def initialize
     super
@@ -29,18 +28,20 @@ class TijoloApplication < Adw::Application
   end
 
   private def setup_actions
-    about = Gio::SimpleAction.new("about", nil)
-    about.activate_signal.connect { show_about_dlg }
-    add_action(about)
+    action = Gio::SimpleAction.new("about", nil)
+    action.activate_signal.connect { show_about_dlg }
+    add_action(action)
+
+    action = Gio::SimpleAction.new("activate", nil)
+    action.activate_signal.connect { activate }
+    add_action(action)
+    set_accels_for_action("app.activate", {"<Control><Alt>o"})
   end
 
   def activate
-    no_project_window = @no_project_window
-    if no_project_window.nil?
-      @no_project_window = create_project_window(Project.new)
-    else
-      no_project_window.present
-    end
+    window = create_project_window(Project.new)
+    @windows << window
+    window.present
   end
 
   def open(files : Enumerable(Gio::File), _hint : String)
@@ -48,15 +49,15 @@ class TijoloApplication < Adw::Application
       file_path = file.path
       next if file_path.nil?
 
-      window = @project_windows.find(&.project.under_project?(file_path))
+      window = @windows.find(&.project.under_project?(file_path))
       if window.nil?
-        if Project.valid?(file_path)
-          window = create_project_window(Project.new(file_path))
-          @project_windows << window
-        else
-          window = @no_project_window
-          @no_project_window = window = create_project_window(Project.new) if window.nil?
-        end
+        window = if Project.valid?(file_path)
+                   create_project_window(Project.new(file_path))
+                 else
+                   create_project_window(Project.new)
+                 end
+        @windows << window
+        window.present
       end
       window.open(file_path.to_s) if File.file?(file_path)
     end
