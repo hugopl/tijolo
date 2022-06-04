@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/tijolo">
+  <gresource prefix="/io/github/hugopl/Tijolo">
     <file alias="tijolo-banner.svg" preprocess="xml-stripblanks">./data/tijolo-banner.svg</file>
+    <file alias="style.css">./data/tijolo.css</file>
   </gresource>
 </gresources>

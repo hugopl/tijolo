@@ -11,9 +11,7 @@ class TijoloApplication < Adw::Application
   @windows = [] of ApplicationWindow
 
   def initialize
-    super
-    self.application_id = "io.github.hugopl.Tijolo"
-    self.flags = Gio::ApplicationFlags::HandlesOpen
+    super(application_id: "io.github.hugopl.Tijolo", flags: Gio::ApplicationFlags::HandlesOpen)
     self.option_context_parameter_string = "[FILE[:LINE]…]"
     self.add_main_option("version", 0, :none, :none, "Show version information and exit", nil)
     self.add_main_option("license", 0, :none, :none, "Show license information and exit", nil)
