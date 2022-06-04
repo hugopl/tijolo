@@ -22,8 +22,7 @@
           <object class="GtkPicture">
             <property name="margin-top">40</property>
             <property name="margin-bottom">20</property>
-            <!-- FIXME: Use GResource here once it's available on GTK4 shard. -->
-            <property name="file">file:///usr/share/tijolo/tijolo-banner.svg</property>
+            <property name="file">resource:///tijolo/tijolo-banner.svg</property>
             <property name="height-request">50</property>
             <property name="can-shrink">1</property>
             <property name="keep-aspect-ratio">1</property>
