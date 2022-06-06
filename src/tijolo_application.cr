@@ -1,6 +1,7 @@
 require "version_from_shard"
 
 require "./tijolo_error"
+require "./tijolo_log_format"
 require "./application_window"
 
 VersionFromShard.declare
@@ -13,8 +14,9 @@ class TijoloApplication < Adw::Application
   def initialize
     super(application_id: "io.github.hugopl.Tijolo", flags: Gio::ApplicationFlags::HandlesOpen)
     self.option_context_parameter_string = "[FILE[:LINE]…]"
-    self.add_main_option("version", 0, :none, :none, "Show version information and exit", nil)
-    self.add_main_option("license", 0, :none, :none, "Show license information and exit", nil)
+    add_main_option("version", 0, :none, :none, "Show version information and exit", nil)
+    add_main_option("license", 0, :none, :none, "Show license information and exit", nil)
+    add_main_option("log-level", 0, :none, :string, "Log level to be used", nil)
 
     setup_actions
 
@@ -70,13 +72,26 @@ class TijoloApplication < Adw::Application
   def handle_local_options(options : GLib::VariantDict) : Int32
     if options.remove("version")
       puts "Tijolo version #{VERSION} build with Crystal #{Crystal::VERSION}."
-      0
+      return 0
     elsif options.remove("license")
       puts {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").stringify }}
-      0
-    else
-      -1
+      return 0
     end
+
+    log_level = options.lookup_value("log-level", GLib::VariantType.new("s")).try(&.as_s?)
+    setup_logger(log_level)
+
+    -1
+  rescue e : ArgumentError
+    STDERR.puts(e.message)
+    0
+  end
+
+  private def setup_logger(log_level : String?)
+    level = log_level ? Log::Severity.parse(log_level) : Log::Severity::Info
+
+    backend = Log::IOBackend.new(formatter: TijoloLogFormat, dispatcher: Log::DispatchMode::Direct)
+    Log.setup(level, backend)
   end
 
   private def show_about_dlg
