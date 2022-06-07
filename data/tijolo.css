@@ -1,3 +1,7 @@
 box.selected {
   color: @accent_color;
 }
+
+#sidebar treeview {
+  background-color: @window_bg_color;
+}
