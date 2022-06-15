@@ -10,11 +10,11 @@ shards:
 
   gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.12.0+git.commit.ce61e6ccdb08fd5ee36b7eecf0c71655a305fbe1
+    version: 0.12.0+git.commit.2b4e5b4dbec0a5243ee8d70e86ee12b13526be09
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.10.0+git.commit.7e60c6db6462a70a4ee36645560479eac547a863
+    version: 0.10.0+git.commit.77c98c350166baedc44d10e2030aaf7946d04e6b
 
   libadwaita:
     git: https://github.com/hugopl/libadwaita.cr.git
