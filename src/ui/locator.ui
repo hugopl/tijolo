@@ -48,11 +48,9 @@
     <property name="width-request">550</property>
     <property name="halign">center</property>
     <child>
-      <object class="GtkEntry" id="locator_entry">
+      <object class="GtkSearchEntry" id="locator_entry">
         <property name="valign">center</property>
         <property name="focusable">1</property>
-        <property name="max-length">127</property>
-        <property name="truncate-multiline">1</property>
       </object>
     </child>
   </template>

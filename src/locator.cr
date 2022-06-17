@@ -28,7 +28,7 @@ class Locator < Adw::Bin
   SCORE_COLUMN   = 2
 
   @project : Project
-  @entry : Gtk::Entry
+  @entry : Gtk::SearchEntry
   getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
   @popover : Gtk::Popover
@@ -44,9 +44,11 @@ class Locator < Adw::Bin
 
     @popover = Gtk::Popover.cast(template_child("popover"))
 
-    @entry = Gtk::Entry.cast(template_child("locator_entry"))
+    @entry = Gtk::SearchEntry.cast(template_child("locator_entry"))
     @entry.activate_signal.connect(&->entry_activated)
-    @entry.notify_signal["text"].connect(&->search_changed(GObject::ParamSpec))
+    @entry.search_changed_signal.connect(&->search_changed)
+    # only works on GTK >= 4.8
+    # @entry.search_delay = 0
 
     key_ctl = Gtk::EventControllerKey.new
     key_ctl.key_pressed_signal.connect(&->entry_key_pressed(UInt32, UInt32, Gdk::ModifierType))
@@ -90,8 +92,10 @@ class Locator < Adw::Bin
 
     if select_text
       @entry.grab_focus
+      @entry.select_region(0, -1)
     else
-      @entry.grab_focus_without_selecting
+      @entry.grab_focus
+      # @entry.grab_focus_without_selecting
     end
   end
 
@@ -133,7 +137,7 @@ class Locator < Adw::Bin
   end
 
 
-  private def search_changed(_param : GObject::ParamSpec)
+  private def search_changed
     text = @entry.text
     locator = find_locator(text)
     if @current_locator_provider != locator
