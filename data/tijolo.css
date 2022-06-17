@@ -4,4 +4,14 @@ box.selected {
 
 #sidebar treeview {
   background-color: @window_bg_color;
+
+}
+
+#locator treeview {
+  background-color: @popover_bg_color;
+}
+
+#locator treeview:selected {
+  color: @accent_color;
+  background-color: @view_bg_color;
 }

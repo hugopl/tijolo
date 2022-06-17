@@ -15,8 +15,8 @@ module LocatorListener
   abstract def locator_hidden
 end
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry))]
-class Locator < Gtk::Box
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry popover))]
+class Locator < Adw::Bin
   include Gtk::WidgetTemplate
 
   signal open_file(file : String, split_view : Bool)
@@ -31,6 +31,7 @@ class Locator < Gtk::Box
   @entry : Gtk::Entry
   getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
+  @popover : Gtk::Popover
   private getter results_cursor = 0
   @current_view : View?
 
@@ -41,6 +42,8 @@ class Locator < Gtk::Box
   def initialize(@project)
     super()
 
+    @popover = Gtk::Popover.cast(template_child("popover"))
+
     @entry = Gtk::Entry.cast(template_child("locator_entry"))
     @entry.activate_signal.connect(&->entry_activated)
     @entry.notify_signal["text"].connect(&->search_changed(GObject::ParamSpec))
@@ -50,8 +53,9 @@ class Locator < Gtk::Box
     @entry.add_controller(key_ctl)
 
     focus_ctl = Gtk::EventControllerFocus.new
-    focus_ctl.leave_signal.connect(->focus_leave, after: true)
+    focus_ctl.enter_signal.connect(&->on_focus_in)
     @entry.add_controller(focus_ctl)
+
 
     @default_locator_provider = FileLocator.new(@project)
     @current_locator_provider = @help_locator_provider = HelpLocator.new
@@ -60,6 +64,7 @@ class Locator < Gtk::Box
     @locator_results.model = @help_locator_provider.model
     @locator_results.row_activated_signal.connect(&->row_activated(Gtk::TreePath, Gtk::TreeViewColumn?))
 
+    @popover.parent = self
     init_locators
   end
 
@@ -81,7 +86,8 @@ class Locator < Gtk::Box
     @current_locator_provider.selected(view) if view.nil? || view != @current_view
 
     @current_view = view
-    show
+    @popover.visible = true
+
     if select_text
       @entry.grab_focus
     else
@@ -91,7 +97,7 @@ class Locator < Gtk::Box
 
   def hide
     @current_view = nil
-    super
+    @popover.hide
   end
 
   def text=(text : String)
@@ -103,14 +109,13 @@ class Locator < Gtk::Box
     @locator_providers.each_value(&.view_closed(view))
   end
 
-  private def focus_leave : Nil
-    hide
-  end
-
   private def entry_key_pressed(key_val : UInt32, _key_code : UInt32, _modifier : Gdk::ModifierType)
     if key_val == Gdk::KEY_Escape
       hide
-    elsif key_val == Gdk::KEY_Up
+      return false
+    end
+
+    if key_val == Gdk::KEY_Up
       self.results_cursor -= 1
       return true
     elsif key_val == Gdk::KEY_Down
@@ -122,6 +127,12 @@ class Locator < Gtk::Box
     false
   end
 
+  private def on_focus_in
+    @popover.visible = true
+    false
+  end
+
+
   private def search_changed(_param : GObject::ParamSpec)
     text = @entry.text
     locator = find_locator(text)
@@ -129,13 +140,14 @@ class Locator < Gtk::Box
       locator.selected(@current_view)
       @current_locator_provider = locator
       @locator_results.model = @current_locator_provider.model
-      self.results_cursor = 0 # Reset the cursor just in case the new provider do nothing, e.g. waiting language server
     end
 
     if text.size > 0
       text = text[2..-1] if @current_locator_provider != @default_locator_provider
       @current_locator_provider.search_changed(text)
     end
+    @popover.visible = true
+    self.results_cursor = 0
   end
 
   def locator_provider_model_changed(provider : LocatorProvider)

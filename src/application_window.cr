@@ -5,7 +5,7 @@ require "./view_manager"
 require "./view_factory"
 require "./locator"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title_widget show_hide_sidebar_btn project_tree_view sidebar))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -14,15 +14,16 @@ class ApplicationWindow < Adw::ApplicationWindow
   @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
   private getter! view_manager : ViewManager?
-  private getter! locator : Locator?
+  private getter locator : Locator
 
   def initialize(application : Gio::Application, @project : Project)
     super()
     @project_tree = ProjectTree.new(@project)
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
     @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
-
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
+    Gtk::HeaderBar.cast(template_child("headerbar")).title_widget = @locator = Locator.new(@project)
+    @locator.open_file_signal.connect(->open(String, Bool))
 
     self.application = application
 
@@ -67,18 +68,11 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def open_project
     raise ArgumentError.new unless @view_manager.nil?
 
-    title_widget = Adw::WindowTitle.cast(template_child("title_widget"))
-    title_widget.title = @project.name
-    title_widget.subtitle = @project.root.to_s
-
     Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
     @sidebar.locked = false
     @sidebar.reveal_flap = true
     @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
     @sidebar.content = @view_manager = view_manager = ViewManager.new
-    @locator = locator = Locator.new(@project)
-    view_manager.add_overlay(locator)
-    locator.open_file_signal.connect(->open(String, Bool))
 
     @project.scan_files(on_finish: ->project_load_finished)
   end
