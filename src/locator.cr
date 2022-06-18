@@ -58,7 +58,6 @@ class Locator < Adw::Bin
     focus_ctl.enter_signal.connect(&->on_focus_in)
     @entry.add_controller(focus_ctl)
 
-
     @default_locator_provider = FileLocator.new(@project)
     @current_locator_provider = @help_locator_provider = HelpLocator.new
 
@@ -135,7 +134,6 @@ class Locator < Adw::Bin
     @popover.visible = true
     false
   end
-
 
   private def search_changed
     text = @entry.text

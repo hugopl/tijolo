@@ -83,6 +83,7 @@ class ViewManager < Gtk::Box
 
     @view_ctrltab_box.visible = false
     reorder_views
+    current_view.try(&.focus)
   end
 
   def rotating_views? : Bool
@@ -106,6 +107,7 @@ class ViewManager < Gtk::Box
 
     @views.unshift(view)
     @root_node.add_view(view, reference_view, split_view)
+    view.focus
   end
 
   def close_current_view

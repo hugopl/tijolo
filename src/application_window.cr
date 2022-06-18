@@ -29,7 +29,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     @project_tree_view.model = @project_tree.model
 
-    key_ctl = Gtk::EventControllerKey.new
+    key_ctl = Gtk::EventControllerKey.new(propagation_phase: :capture)
     key_ctl.key_pressed_signal.connect(->key_pressed(UInt32, UInt32, Gdk::ModifierType))
     key_ctl.key_released_signal.connect(->key_released(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key_ctl)
@@ -156,8 +156,10 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
-    view_manager = @view_manager
-    if view_manager && modifier.control_mask? && key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+    if modifier.control_mask? && key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+      view_manager = @view_manager
+      return false if view_manager.nil?
+
       view_manager.rotate_views(reverse: key_val == Gdk::KEY_dead_grave)
       return true
     end
@@ -166,9 +168,12 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   def key_released(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
     view_manager = @view_manager
-    if view_manager && modifier.control_mask? && !key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+    return false if view_manager.nil?
+
+    if modifier.control_mask?
+      return true if key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+
       view_manager.stop_rotate
-      return true
     end
     false
   end

@@ -1,5 +1,5 @@
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header header_label))]
-class View < Gtk::Box
+abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
   alias Id = String
@@ -33,6 +33,8 @@ class View < Gtk::Box
   def unselect : Nil
     @header.style_context.remove_class("selected")
   end
+
+  abstract def focus
 
   private def update_header
   end
