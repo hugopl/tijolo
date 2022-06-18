@@ -81,9 +81,8 @@
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkMenuButton">
-                    <property name="label" translatable="yes">_master</property>
-                    <property name="use-underline">True</property>
-                    <property name="tooltip-text" translatable="yes">Change git branch</property>
+                    <property name="label" translatable="yes">ProjectName on master</property>
+                    <property name="tooltip-text" translatable="yes">Git operations</property>
                     <property name="halign">start</property>
                     <style><class name="flat"/></style>
 <!--                    <property name="popover">
