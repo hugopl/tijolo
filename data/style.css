@@ -12,6 +12,6 @@ box.selected {
 }
 
 #locator treeview:selected {
-  color: @accent_color;
-  background-color: @view_bg_color;
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
 }
