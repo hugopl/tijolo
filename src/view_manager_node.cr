@@ -2,77 +2,198 @@ require "colorize"
 
 class ViewManagerNode < Adw::Bin
   @paned : Gtk::Paned
-  @stack1 : Gtk::Stack
-  @stack2 : Gtk::Stack?
-  @place_holder : Gtk::Widget?
+  getter stack1 : Gtk::Stack?
+  getter stack2 : Gtk::Stack?
 
-  @views = [] of View
+  @child1 : ViewManagerNode?
+  @child2 : ViewManagerNode?
+
+  @views : Hash(View, Gtk::Stack)
   @previous_view : View?
 
-  def initialize(place_holder : Gtk::Widget? = nil)
+  @placeholder : ViewPlaceHolder?
+
+  private PLACEHOLDER_NAME = "placeholder"
+
+  def initialize
+    super()
+    @views = Hash(View, Gtk::Stack).new
+    @placeholder = placeholder = ViewPlaceHolder.new
+    @paned = Gtk::Paned.new
+    @stack1 = stack1 = Gtk::Stack.new
+    stack1.add_child(placeholder)
+    @paned.start_child = stack1
+    self.child = @paned
+    Log.trace { "Root node: #{@paned}" }
+  end
+
+  def initialize(stack1 : Gtk::Stack, stack_views : Hash(View, Gtk::Stack), view : View, orientation : Gtk::Orientation)
     super()
 
-    @place_holder = place_holder
-    @paned = Gtk::Paned.new
-    @stack1 = Gtk::Stack.new
+    @views = stack_views
+    @stack1 = stack1
+    @stack2 = stack2 = Gtk::Stack.new
+    @paned = Gtk::Paned.new(orientation: orientation)
+    @paned.start_child = stack1
+    @paned.end_child = stack2
+    stack2.add_child(view)
+    @views[view] = stack2
 
-    @stack1.add_child(place_holder) if place_holder
-    @paned.start_child = @stack1
     self.child = @paned
   end
 
   def add_view(view : View, reference_view : View?, new_split : Bool)
-    Log.trace { "#{"add_view".colorize.green}(#{view.label.inspect}, ref: #{reference_view.try &.label}, new_split: #{new_split})" }
+    if reference_view.nil?
+      add_first_view(view)
+    else
+      node = find_node(reference_view)
+      raise TijoloError.new if node.nil?
 
-    if reference_view.nil? # First view
-      Log.trace { "first view".colorize.magenta }
-      @stack1.add_child(view)
-    elsif !new_split # New view on an existing stack
-      Log.trace { "existing stack".colorize.magenta }
-      find_view_stack(reference_view).add_child(view)
-    else # New stack or node must be created
-      Log.trace { "NEW stack".colorize.red }
-      split_view(reference_view, with: view)
+      if new_split
+        node.split(view, reference_view)
+      else
+        node.add_another_view(view, reference_view)
+      end
     end
-    @views << view
-    show_view(view)
+  end
+
+  private def add_first_view(view : View)
+    Log.trace { "first view".colorize.magenta }
+    stack = @stack1
+    raise TijoloError.new if stack.nil?
+
+    add_view_to_stack(view, stack)
+  end
+
+  def add_another_view(view : View, reference_view : View)
+    Log.trace { "existing stack".colorize.magenta }
+    stack = find_view_stack(reference_view)
+    add_view_to_stack(view, stack)
+  end
+
+  private def add_view_to_stack(view, stack)
+    stack.add_child(view)
+    @views[view] = stack
   end
 
   def remove_view(view : View)
-    @stack1.remove(view)
+    stack = find_view_stack(view)
+    stack.remove(view)
     @views.delete(view)
-    place_holder = @place_holder
-    @stack1.visible_child = place_holder if place_holder && @views.empty?
+
+    if @views.empty?
+      placeholder = @placeholder
+      stack.visible_child = placeholder if placeholder
+    end
+    # If stack is empty then remove stack from paned
   end
 
   def show_view(view : View) : Nil
     @previous_view.try(&.unselect)
 
-    stack = find_view_stack?(view)
-    stack.visible_child = view if stack
+    node = find_node(view)
+    stack = node.find_view_stack(view)
+    stack.visible_child = view
     view.select
     @previous_view = view
   end
 
-  private def find_view_stack(view : View) : Gtk::Stack
-    find_view_stack?(view) || raise TijoloError.new
+  def find_view_stack(view : View) : Gtk::Stack
+    @views[view]? || raise TijoloError.new("View #{view.label} not found in any stack.")
   end
 
-  private def find_view_stack?(view : View) : Gtk::Stack?
-    return @stack1 if @stack1.has_child?(view)
-
-    stack2 = @stack2
-    return stack2 if stack2 && stack2.has_child?(view)
+  def find_node(view : View) : self
+    find_node?(view) || raise TijoloError.new("Can't find node for #{view.label}")
   end
 
-  private def split_view(ref_view, *, with view : View)
+  def find_node?(view : View) : self?
+  Log.debug { "find_node #{view.label} - my views: #{@views.keys.map(&.label)}" }
+    return self if @views.has_key?(view)
+
+Log.debug { "checking on child1 #{@child1}" }
+    node = @child1.try(&.find_node?(view))
+    return node if node
+
+Log.debug { "checking on child2 #{@child2}" }
+    @child2.try(&.find_node?(view))
+  end
+
+  def split(view : View, reference_view : View)
+    Log.trace { "split".colorize.magenta }
+
+    stack = find_view_stack(reference_view)
+    stack1 = @stack1
     stack2 = @stack2
-    if stack2
-      raise TijoloError.new "Not implemented yet 😉️"
-    else
+    target_stack = nil
+
+    if stack1.nil? && stack == stack2
+      Log.trace { "  to stack 1".colorize.magenta }
+      @stack1 = stack1 = Gtk::Stack.new
+      @paned.start_child = stack1
+      target_stack = stack1
+    elsif stack2.nil? && stack == stack1
+      Log.trace { "  to stack 2".colorize.magenta }
       @stack2 = stack2 = Gtk::Stack.new
-      stack2.add_child(view)
-      @paned.end_child = @stack2
+      @paned.end_child = stack2
+      target_stack = stack2
+    else
+      Log.trace { "  to new node".colorize.magenta }
+      create_new_node(view, stack)
     end
+
+    if target_stack
+      target_stack.add_child(view)
+      @views[view] = target_stack
+    end
+  end
+
+  def create_new_node(view : View, moved_stack : Gtk::Stack) : Nil
+    moved_views = Hash(View, Gtk::Stack).new
+    @views.reject! do |v, v_stack|
+      move_view = v_stack == moved_stack
+      moved_views[v] = moved_stack if move_view
+      move_view
+    end
+
+    # Calculate new nodle orientation before unparent the stack
+    node_orientation = calc_orientation(moved_stack)
+
+    # Remove stack from old Paned
+    if moved_stack == @stack1
+      @stack1 = @child1 = nil
+      @paned.start_child = nil
+      target_stack = 1
+    elsif moved_stack == @stack2
+      @stack2 = @child2 = nil
+      @paned.end_child = nil
+      target_stack = 2
+    end
+
+    # Create new node
+    node = ViewManagerNode.new(moved_stack, moved_views, view, node_orientation)
+
+    # Add child node into this node
+    if target_stack == 1
+      @paned.start_child = node
+      @child1 = node
+    elsif target_stack == 2
+      @paned.end_child = node
+      @child2 = node
+    end
+  end
+
+  private def calc_orientation(widget : Gtk::Widget) : Gtk::Orientation
+    Log.trace { "#{widget.allocated_width} x #{widget.allocated_height}" }
+    widget.allocated_width >= widget.allocated_height ? Gtk::Orientation::Horizontal : Gtk::Orientation::Vertical
+  end
+
+  def to_dot(io : IO)
+    io << "#{self} -> (child1) #{@child1}\n" if @child1
+    io << "#{self} -> (child2) #{@child2}\n" if @child1
+    io << "#{self} -> (stack1) #{@stack1}\n" if @stack1
+    io << "#{self} -> (stack2) #{@stack2}\n" if @stack2
+
+    @child1.try(&.to_dot(io))
+    @child2.try(&.to_dot(io))
   end
 end

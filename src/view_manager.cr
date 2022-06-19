@@ -17,7 +17,7 @@ class ViewManager < Gtk::Box
   def initialize
     super()
 
-    @root_node = ViewManagerNode.new(ViewPlaceHolder.new)
+    @root_node = ViewManagerNode.new
 
     @overlay = Gtk::Overlay.cast(template_child("overlay"))
     @views_model = Gtk::ListStore.cast(template_child("views_model"))
@@ -107,6 +107,8 @@ class ViewManager < Gtk::Box
 
     @views.unshift(view)
     @root_node.add_view(view, reference_view, split_view)
+    @root_node.show_view(view)
+
     view.focus
   end
 
