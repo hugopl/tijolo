@@ -5,7 +5,7 @@ require "./view_manager"
 require "./view_factory"
 require "./locator"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar git_branches_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -22,7 +22,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
     @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
-    Gtk::HeaderBar.cast(template_child("headerbar")).title_widget = @locator = Locator.new(@project)
+    @locator = Locator.new(@project)
     @locator.open_file_signal.connect(->open(String, Bool))
 
     self.application = application
@@ -67,6 +67,9 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def open_project
     raise ArgumentError.new unless @view_manager.nil?
+
+    Gtk::HeaderBar.cast(template_child("headerbar")).title_widget = @locator
+    Gtk::MenuButton.cast(template_child("git_branches_menu")).visible = true
 
     Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
     @sidebar.locked = false
@@ -199,7 +202,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def show_locator(split_view = false)
-    raise TijoloError.new if @locator.nil?
+    return if @locator.nil? || @view_manager.nil?
 
     locator.show(select_text: true, view: view_manager.current_view, split_view: split_view)
   end
