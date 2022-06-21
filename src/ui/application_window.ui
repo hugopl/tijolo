@@ -49,10 +49,9 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkMenuButton" id="open_menu_button">
-                    <property name="label" translatable="yes">_Open</property>
-                    <property name="use-underline">True</property>
-                    <property name="tooltip-text" translatable="yes">Open recent document</property>
+                  <object class="AdwSplitButton" id="open_menu_button">
+                    <property name="label" translatable="yes">Open</property>
+                    <property name="tooltip-text" translatable="yes">Open document</property>
 <!--                    <property name="popover">
                       <object class="FileOpenPopover" id="open_menu_popover">
                       </object>

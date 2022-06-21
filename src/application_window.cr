@@ -5,7 +5,7 @@ require "./view_manager"
 require "./view_factory"
 require "./locator"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar git_branches_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar git_branches_menu open_menu_button))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -24,6 +24,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
     @locator.open_file_signal.connect(->open(String, Bool))
+
+    Adw::SplitButton.cast(template_child("open_menu_button")).clicked_signal.connect(&->show_open_file_dialog)
 
     self.application = application
 
@@ -61,6 +63,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     @project.root = project_path
     open_project
+    open(project_path.to_s) if File.file?(project_path)
   rescue e : ProjectError
     Log.error { "Error loading project from #{project_path}: #{e.message}" }
   end
@@ -97,10 +100,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     actions = {show_locator:           ->show_locator,
                show_locator_new_split: ->{ show_locator(split_view: true) },
                # show_git_locator:          ->show_git_locator,
-               close_view:         ->{ @view_manager.try(&.close_current_view) },
-               close_all_views:    ->{ @view_manager.try(&.close_all_views) },
-               new_file:           ->{ new_file },
-               new_file_new_split: ->{ new_file(split: true) },
+               close_view:          ->{ @view_manager.try(&.close_current_view) },
+               close_all_views:     ->{ @view_manager.try(&.close_all_views) },
+               new_file:            ->{ new_file },
+               new_file_new_split:  ->{ new_file(split: true) },
+               open_file:           ->show_open_file_dialog,
+               open_file_new_split: ->{ show_open_file_dialog(true) },
                # save_view:                 ->save_current_view,
                # save_view_as:              ->save_current_view_as,
                # find:                      ->{ find_in_current_view(:find_by_text) },
@@ -183,11 +188,33 @@ class ApplicationWindow < Adw::ApplicationWindow
     false
   end
 
+  def show_open_file_dialog(split_view : Bool = false)
+    # FIXME: Something is storing `dialog` address and not letting it be garbage collected
+    dialog = Gtk::FileChooserNative.new("Open File", self, :open, "_Open", "_Cancel")
+    Log.info { dialog.ref_count }
+
+    dialog.response_signal.connect do |response|
+      if Gtk::ResponseType.from_value(response).accept?
+        path = dialog.file.try(&.path)
+        open(path.to_s, split_view) if path
+      end
+      dialog.destroy
+    end
+
+    dialog.show
+  end
+
   def new_file(*, split : Bool = false)
     view_manager.add_view(TextView.new, split)
   end
 
-  def open(resource : String, split_view : Bool = false)
+  def open(resource : String, split_view : Bool = false) : Nil
+    view_manager = @view_manager
+    if view_manager.nil?
+      open_project(resource)
+      return
+    end
+
     view = view_manager.find_view(resource)
     if view.nil?
       view = ViewFactory.build(resource)
@@ -195,7 +222,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     else
       view_manager.show_view(view)
     end
-    view
   rescue e : IO::Error
     application.error(e)
   end
