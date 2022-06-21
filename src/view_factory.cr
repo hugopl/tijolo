@@ -12,7 +12,4 @@ class ViewFactory
       TextView.new(resource)
     end
   end
-
-  private def self.create_text_view
-  end
 end

@@ -97,8 +97,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     actions = {show_locator:           ->show_locator,
                show_locator_new_split: ->{ show_locator(split_view: true) },
                # show_git_locator:          ->show_git_locator,
-               close_view:      ->{ @view_manager.try(&.close_current_view) },
-               close_all_views: ->{ @view_manager.try(&.close_all_views) },
+               close_view:         ->{ @view_manager.try(&.close_current_view) },
+               close_all_views:    ->{ @view_manager.try(&.close_all_views) },
+               new_file:           ->{ new_file },
+               new_file_new_split: ->{ new_file(split: true) },
                # save_view:                 ->save_current_view,
                # save_view_as:              ->save_current_view_as,
                # find:                      ->{ find_in_current_view(:find_by_text) },
@@ -179,6 +181,10 @@ class ApplicationWindow < Adw::ApplicationWindow
       view_manager.stop_rotate
     end
     false
+  end
+
+  def new_file(*, split : Bool = false)
+    view_manager.add_view(TextView.new, split)
   end
 
   def open(resource : String, split_view : Bool = false)

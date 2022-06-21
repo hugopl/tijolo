@@ -107,14 +107,14 @@ class ViewManagerNode < Adw::Bin
   end
 
   def find_node?(view : View) : self?
-  Log.debug { "find_node #{view.label} - my views: #{@views.keys.map(&.label)}" }
+    Log.debug { "find_node #{view.label} - my views: #{@views.keys.map(&.label)}" }
     return self if @views.has_key?(view)
 
-Log.debug { "checking on child1 #{@child1}" }
+    Log.debug { "checking on child1 #{@child1}" }
     node = @child1.try(&.find_node?(view))
     return node if node
 
-Log.debug { "checking on child2 #{@child2}" }
+    Log.debug { "checking on child2 #{@child2}" }
     @child2.try(&.find_node?(view))
   end
 

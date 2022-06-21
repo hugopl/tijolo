@@ -90,21 +90,8 @@ class ViewManager < Gtk::Box
     @view_ctrltab_box.visible?
   end
 
-  private def first_shared_view : View?
-    @views.each do |view|
-      return view if view.can_share_node?
-    end
-    nil
-  end
-
   def add_view(view : View, split_view : Bool)
-    reference_view = split_view ? current_view : first_shared_view
-    # If no views were found, e.g. there are just non-shared views, get the first view and split it
-    if reference_view.nil? && @views.any?
-      reference_view = current_view.not_nil!
-      split_view = true
-    end
-
+    reference_view = current_view if split_view
     @views.unshift(view)
     @root_node.add_view(view, reference_view, split_view)
     @root_node.show_view(view)

@@ -2,24 +2,29 @@
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
-  alias Id = String
+  @@untitled_count = 0
 
-  getter id : Id
-  getter resource : String
-  getter? can_share_node = true
+  getter label : String
   getter? maximized = false
   property? readonly = false
 
   @header : Gtk::Box
 
-  def initialize(@resource, contents : Gtk::Widget)
+  def initialize(contents : Gtk::Widget, label : String? = nil)
     super()
-    @id = object_id.to_s(16)
+    # @id = object_id.to_s(16)
     @header = Gtk::Box.cast(template_child(View.g_type, "header"))
     @header_label = Gtk::MenuButton.cast(template_child(View.g_type, "header_label"))
-    @header_label.label = @resource
+    @header_label.label = @label = (label || untitled_label)
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
     container.child = contents
+  end
+
+  private def untitled_label : String
+    @@untitled_count += 1
+    return "Untitled" if @@untitled_count == 1
+
+    "Untitled #{@@untitled_count}"
   end
 
   def maximized=(@maximized)
@@ -34,13 +39,14 @@ abstract class View < Gtk::Box
     @header.style_context.remove_class("selected")
   end
 
-  abstract def focus
+  abstract def focus : Nil
+  abstract def resource : String
 
   private def update_header
   end
 
-  def label : String
-    File.basename(@resource)
+  def label=(@label : String)
+    @header_label.label = @label
   end
 
   def to_s(io : IO)
