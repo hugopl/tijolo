@@ -1,4 +1,4 @@
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header header_label))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
@@ -8,13 +8,13 @@ abstract class View < Gtk::Box
   getter? maximized = false
   property? readonly = false
 
-  @header : Gtk::Box
+  @header : Gtk::Widget
 
   def initialize(contents : Gtk::Widget, label : String? = nil)
     super()
     # @id = object_id.to_s(16)
-    @header = Gtk::Box.cast(template_child(View.g_type, "header"))
-    @header_label = Gtk::MenuButton.cast(template_child(View.g_type, "header_label"))
+    @header = Gtk::Widget.cast(template_child(View.g_type, "header"))
+    @header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
     @header_label.label = @label = (label || untitled_label)
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
     container.child = contents

@@ -30,17 +30,43 @@
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox" id="header">
+      <object class="GtkCenterBox" id="header">
+        <style><class name="tjl-header"/></style>
         <child type="center">
-          <object class="GtkMenuButton" id="header_label">
+          <object class="GtkBox">
+            <child>
+              <object class="GtkLabel" id="label">
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="modified">
+                <property name="label">•</property>
+                <property name="margin-start">12</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkBox">
+            <child>
+              <object class="GtkLabel" id="line_column">
+                <property name="label">23:4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="close_btn">
+                <property name="icon-name">window-close-symbolic</property>
+                <property name="margin-start">12</property>
+                <style><class name="flat"/></style>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="start">
+          <object class="GtkMenuButton">
             <property name="focus-on-click">0</property>
             <property name="menu-model">view_menu</property>
             <style><class name="flat"/></style>
-          </object>
-        </child>
-        <child>
-          <object class="GtkLabel" id="line_column">
-            <property name="margin-end">6</property>
           </object>
         </child>
       </object>

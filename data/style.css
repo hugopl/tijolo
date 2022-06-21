@@ -15,3 +15,13 @@ box.selected {
   background-color: @accent_bg_color;
   color: @accent_fg_color;
 }
+
+.tjl-header button {
+  border-radius: 0;
+  padding: 1px;
+}
+
+textview
+{
+  font: 9pt "Monospace";
+}
