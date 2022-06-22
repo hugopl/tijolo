@@ -80,7 +80,7 @@ class ViewManager < Gtk::Box
     @selected_view_index = index
     reorder_views
     select_view(view)
-    view.focus
+    view.grab_focus
   end
 
   def rotate_views(reverse : Bool) : Nil

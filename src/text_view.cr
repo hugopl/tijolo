@@ -1,22 +1,28 @@
 require "./view"
+require "./text_view_impl"
+require "./text_view_gsv"
+require "./text_view_tijolo"
 
 class TextView < View
-  @view : Gtk::TextView
-  getter resource : String
+  @impl : TextViewImpl
 
-  def initialize(@resource : String)
-    @view = Gtk::TextView.new
-    super(@view, File.basename(@resource))
-    @view.buffer.text = File.read(resource)
+  {% if flag?(:gsv) %}
+  alias Impl = TextViewGSV
+  {% else %}
+  alias Impl = TextViewTijolo
+  {% end %}
+
+  def initialize(resource : String? = nil)
+    @impl = Impl.new(resource)
+    label = File.basename(resource) if resource
+    super(@impl, label)
   end
 
-  def initialize
-    @view = Gtk::TextView.new
-    @resource = ""
-    super(@view)
+  def grab_focus : Nil
+    @impl.grab_focus
   end
 
-  def focus : Nil
-    @view.grab_focus
+  def resource : String
+    @impl.resource
   end
 end
