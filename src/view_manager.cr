@@ -9,28 +9,36 @@ class ViewManager < Gtk::Box
   @view_ctrltab_box : Gtk::Box
   @view_ctrltab_selection : Gtk::TreeSelection
   @overlay : Gtk::Overlay
-  getter views = [] of View # Views in the order they are stored in GTK model
+
+  # List of view in Ctrl+Tab menu
+  getter views = [] of View
+  # Current selected view in Ctrl+Tab menu
   getter selected_view_index = 0
+
+  # ViewManager instance, used to simplify things and avoid a lot of signal connections
+  class_getter! instance : ViewManager?
+  @focused_view : View?
 
   @root_node : ViewManagerNode
 
   def initialize
     super()
 
-    @root_node = ViewManagerNode.new
+    raise ArgumentError.new unless @@instance.nil?
 
+    @root_node = ViewManagerNode.new
     @overlay = Gtk::Overlay.cast(template_child("overlay"))
     @views_model = Gtk::ListStore.cast(template_child("views_model"))
     @view_ctrltab_box = Gtk::Box.cast(template_child("views_ctrltab_box"))
     @view_ctrltab_selection = Gtk::TreeSelection.cast(template_child("views_ctrltab_selection"))
 
     @overlay.child = @root_node
+    @@instance = self
   end
 
   delegate empty?, to: @views
   delegate any?, to: @views
   delegate add_overlay, to: @overlay
-  delegate show_view, to: @root_node
 
   private def populate_views_model
     @views_model.clear
@@ -52,6 +60,27 @@ class ViewManager < Gtk::Box
 
   def current_view : View?
     @views.first?
+  end
+
+  def show_view(view : View)
+    @root_node.show_view(view)
+    select_view(view)
+  end
+
+  def select_view(view : View)
+    @focused_view.try(&.unselect)
+    view.select
+    @focused_view = view
+  end
+
+  def focus_view(view : View)
+    index = @views.index(view)
+    raise ArgumentError.new if index.nil?
+
+    @selected_view_index = index
+    reorder_views
+    select_view(view)
+    view.focus
   end
 
   def rotate_views(reverse : Bool) : Nil
@@ -83,20 +112,20 @@ class ViewManager < Gtk::Box
 
     @view_ctrltab_box.visible = false
     reorder_views
-    current_view.try(&.focus)
+
+    focus_view(current_view.not_nil!)
   end
 
   def rotating_views? : Bool
-    @view_ctrltab_box.visible?
+    @views.size > 1 && @view_ctrltab_box.visible?
   end
 
   def add_view(view : View, split_view : Bool)
-    reference_view = current_view if split_view
-    @views.unshift(view)
-    @root_node.add_view(view, reference_view, split_view)
+    @root_node.add_view(view, current_view, split_view)
     @root_node.show_view(view)
+    @views.unshift(view)
 
-    view.focus
+    focus_view(view)
   end
 
   def close_current_view

@@ -18,6 +18,10 @@ abstract class View < Gtk::Box
     @header_label.label = @label = (label || untitled_label)
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
     container.child = contents
+
+    gesture = Gtk::GestureClick.new(button: 0)
+    gesture.pressed_signal.connect { ViewManager.instance.focus_view(self) }
+    add_controller(gesture)
   end
 
   private def untitled_label : String

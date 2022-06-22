@@ -9,7 +9,6 @@ class ViewManagerNode < Adw::Bin
   @child2 : ViewManagerNode?
 
   @views : Hash(View, Gtk::Stack)
-  @previous_view : View?
 
   @placeholder : ViewPlaceHolder?
 
@@ -42,7 +41,10 @@ class ViewManagerNode < Adw::Bin
     self.child = @paned
   end
 
+  delegate orientation, to: @paned
+
   def add_view(view : View, reference_view : View?, new_split : Bool)
+    Log.trace { "---- add view #{view}, ref: #{reference_view}, split: #{new_split} ----".colorize.green }
     if reference_view.nil?
       add_first_view(view)
     else
@@ -89,13 +91,9 @@ class ViewManagerNode < Adw::Bin
   end
 
   def show_view(view : View) : Nil
-    @previous_view.try(&.unselect)
-
     node = find_node(view)
     stack = node.find_view_stack(view)
     stack.visible_child = view
-    view.select
-    @previous_view = view
   end
 
   def find_view_stack(view : View) : Gtk::Stack
@@ -107,37 +105,31 @@ class ViewManagerNode < Adw::Bin
   end
 
   def find_node?(view : View) : self?
-    Log.debug { "find_node #{view.label} - my views: #{@views.keys.map(&.label)}" }
     return self if @views.has_key?(view)
 
-    Log.debug { "checking on child1 #{@child1}" }
     node = @child1.try(&.find_node?(view))
     return node if node
 
-    Log.debug { "checking on child2 #{@child2}" }
     @child2.try(&.find_node?(view))
   end
 
   def split(view : View, reference_view : View)
-    Log.trace { "split".colorize.magenta }
-
     stack = find_view_stack(reference_view)
     stack1 = @stack1
     stack2 = @stack2
     target_stack = nil
 
-    if stack1.nil? && stack == stack2
-      Log.trace { "  to stack 1".colorize.magenta }
+    if stack1.nil? && @child1.nil? && stack == stack2
+      Log.trace { "split to stack 1".colorize.magenta }
       @stack1 = stack1 = Gtk::Stack.new
       @paned.start_child = stack1
       target_stack = stack1
-    elsif stack2.nil? && stack == stack1
-      Log.trace { "  to stack 2".colorize.magenta }
+    elsif stack2.nil? && @child2.nil? && stack == stack1
+      Log.trace { "split to stack 2".colorize.magenta }
       @stack2 = stack2 = Gtk::Stack.new
       @paned.end_child = stack2
       target_stack = stack2
     else
-      Log.trace { "  to new node".colorize.magenta }
       create_new_node(view, stack)
     end
 
@@ -155,15 +147,16 @@ class ViewManagerNode < Adw::Bin
       move_view
     end
 
-    # Calculate new nodle orientation before unparent the stack
+    # Calculate new node orientation before unparent the stack
     node_orientation = calc_orientation(moved_stack)
+    Log.trace { "split to new #{node_orientation} node".colorize.magenta }
 
     # Remove stack from old Paned
-    if moved_stack == @stack1
+    if moved_stack == @stack1 && @child1.nil?
       @stack1 = @child1 = nil
       @paned.start_child = nil
       target_stack = 1
-    elsif moved_stack == @stack2
+    elsif moved_stack == @stack2 && @child2.nil?
       @stack2 = @child2 = nil
       @paned.end_child = nil
       target_stack = 2
