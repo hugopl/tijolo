@@ -7,9 +7,9 @@ class TextView < View
   @impl : TextViewImpl
 
   {% if flag?(:gsv) %}
-  alias Impl = TextViewGSV
+    alias Impl = TextViewGSV
   {% else %}
-  alias Impl = TextViewTijolo
+    alias Impl = TextViewTijolo
   {% end %}
 
   def initialize(resource : String? = nil)
