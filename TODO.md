@@ -8,18 +8,15 @@ This is a short-term TODO list in no special order.
 
 - [x] Create a [binding generator for GTK4](https://github.com/hugopl/gi-crystal).
 - [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
-- [ ] Port existing code to GTK4.
-- [ ] Check if GtkSourceView crash on this new binding
-- [ ] Isolate GtkSourceView code, so it can removed later.
-- [ ] Implement a new text widget to replace GtkSourceView.
+- [ ] Implement a new text widget from scratch using a dummy array of lines buffer.
 - [ ] Use [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal, there are 3 on github.
 
 ## 0.9.0 release
 
+- [ ] Replace dummy line array text buffer by a Piece Table implementation.
 - [ ] Fix the buggy location history introduced into 0.3.0 :-)
 - [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
 - Some ♥️ to shortcuts
-  - [ ] Pass Ctrl+whatever keystrokes to terminal views.
   - [ ] Rebind shortcuts after save config file.
   - [ ] Show shortcuts in UI according the real configured shortcuts.
 
@@ -27,7 +24,7 @@ This is a short-term TODO list in no special order.
 ## Backlog, things that can go in any version...
 
 - [ ] Implement keyboard focused open dialog like Howl editor.
-- [ ] Open more than one file on command line in different splits, `tijolo file1 --split file2` or `tijolo file1 - file2`.
+- [x] Open more than one file on command line in different splits, `tijolo file1 --split file2` or `tijolo file1 - file2`.
 - Some ♥️ to LSP implementation.
   - [ ] Support LSP auto-complete feature.
   - [ ] Support LSP diagnostics feature.
