@@ -43,7 +43,7 @@ abstract class View < Gtk::Box
     @header.style_context.remove_class("selected")
   end
 
-  abstract def grab_focus : Nil
+  abstract def grab_focus
   abstract def resource : String
 
   private def update_header

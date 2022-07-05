@@ -1,5 +1,5 @@
-require "./text_buffer"
-require "./text_cursor"
+require "./code_buffer"
+require "./code_cursor"
 
 # Current state of text widget: Far from done.
 #
@@ -16,16 +16,12 @@ require "./text_cursor"
 # - [ ] Highlight code with tree sitter
 # - [ ] Handle text input
 # - [ ] Replace dummy text buffer by a piece table
-class TextViewTijolo < Gtk::Widget
-  include TextViewImpl
-
-  getter resource : String
-
+class CodeEditor < Gtk::Widget
   private MARGIN        = 4.0_f32
   private DOUBLE_MARGIN = 8.0_f32
 
   @pango_ctx : Pango::Context
-  @buffer : TextBuffer
+  getter buffer : CodeBuffer
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -35,7 +31,7 @@ class TextViewTijolo < Gtk::Widget
   @font_height : Float32
   @font_width : Float32
 
-  @cursors : Array(TextCursor)
+  @cursors : Array(CodeCursor)
   @line_offset = 0
 
   # Widget width/height
@@ -44,8 +40,7 @@ class TextViewTijolo < Gtk::Widget
 
   def initialize(resource : String? = nil)
     super()
-    @resource = resource || ""
-    @buffer = TextBuffer.new(resource)
+    @buffer = CodeBuffer.new(resource)
 
     @pango_ctx = pango_context
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
@@ -62,7 +57,7 @@ class TextViewTijolo < Gtk::Widget
     @font_height = 14.639648
     @font_width = 7.2001953
 
-    @cursors = [TextCursor.new]
+    @cursors = [CodeCursor.new]
   end
 
   @[GObject::Virtual]

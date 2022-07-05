@@ -1,6 +1,6 @@
 # Meanwhile this is just a stupid implementation, but the plan is to implement a piece table here
 # after the widget be capable of editing a text and show it highlighted
-class TextBuffer
+class CodeBuffer
   @lines = [] of String
 
   def initialize(file : String?)
