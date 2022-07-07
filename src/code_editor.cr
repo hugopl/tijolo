@@ -10,12 +10,12 @@ require "./code_cursor"
 # - [x] Draw cursors
 # - [ ] Make cursors blink
 # - [ ] Hide mouse when typing
-# - [ ] Move cursors
+# - [x] Move cursors
 # - [ ] Add feature to implement interface properties on gi-crystal
 # - [ ] Implement Scrollable interface
-# - [ ] Study tree-sitter
+# - [/] Study tree-sitter
 # - [ ] Highlight code with tree sitter
-# - [ ] Handle text input
+# - [/] Handle text input
 # - [ ] Replace dummy text buffer by a piece table
 class CodeEditor < Gtk::Widget
   private MARGIN        = 4.0_f32
@@ -70,6 +70,8 @@ class CodeEditor < Gtk::Widget
 
   private def commit_text(text : String)
     Log.info { "commit text: #{text}" }
+    @cursors.commit_text(text)
+    queue_draw
   end
 
   private def key_pressed(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
@@ -91,13 +93,9 @@ class CodeEditor < Gtk::Widget
 
   @[GObject::Virtual]
   def snapshot(snapshot : Gtk::Snapshot)
-    orig = Graphene::Point.new(0.0, 0.0)
-    size = Graphene::Size.new(@width, @height)
-    rect = Graphene::Rect.new(orig, size)
-
     Log.notice { "snapshot!" }
 
-    snapshot.append_color(@bg_color, rect)
+    snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
 
     draw_gutter(snapshot)
     draw_line_numbers(snapshot)
@@ -122,7 +120,7 @@ class CodeEditor < Gtk::Widget
   private def draw_line_numbers(snapshot : Gtk::Snapshot)
     layout = Pango::Layout.new(@pango_ctx)
 
-    snapshot.translate(Graphene::Point.new(MARGIN, 0.0))
+    snapshot.translate(MARGIN, 0.0_f32)
     trans = Graphene::Point.new(0.0, @font_height)
 
     height_trans = 0.0_f32
@@ -134,7 +132,7 @@ class CodeEditor < Gtk::Widget
       height_trans += @font_height
       break if height_trans > @height
     end
-    snapshot.translate(Graphene::Point.new(-MARGIN, -height_trans))
+    snapshot.translate(-MARGIN, -height_trans)
   end
 
   private def draw_gutter(snapshot : Gtk::Snapshot)
@@ -142,10 +140,8 @@ class CodeEditor < Gtk::Widget
 
   private def draw_text(snapshot : Gtk::Snapshot)
     digits = digits_count(@buffer.line_count)
-    trans = Graphene::Point.new(digits * @font_width + DOUBLE_MARGIN, 0.0)
-    snapshot.translate(trans)
+    snapshot.translate(digits * @font_width + DOUBLE_MARGIN, 0.0)
 
-    trans = Graphene::Point.new(0.0, @font_height)
     layout = Pango::Layout.new(@pango_ctx)
 
     height_trans = 0.0_f32
@@ -154,10 +150,10 @@ class CodeEditor < Gtk::Widget
       snapshot.append_layout(layout, @text_color)
 
       @cursors.at_line(line) do |cursor|
-        snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column, :ltr)
+        snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
       end
 
-      snapshot.translate(trans)
+      snapshot.translate(0.0, @font_height)
       height_trans += @font_height
       break if height_trans > @height
     end

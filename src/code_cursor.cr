@@ -14,9 +14,11 @@ class CodeCursors
 
   def move(step : Gtk::MovementStep, count : Int32) : Nil
     # FIXME: This mess with multiple cursors, but we just plan to support multiple cursors, we do not support yet 😉️
-    @cursors.each do |cursor|
-      cursor.move(step, count)
-    end
+    @cursors.each(&.move(step, count))
+  end
+
+  def commit_text(text : String)
+    @cursors.each(&.commit_text(text))
   end
 end
 
@@ -29,6 +31,10 @@ class CodeCursor
   @buffer : CodeBuffer
 
   def initialize(@buffer)
+  end
+
+  def column_byte : Int32
+    @buffer.column_byte_index(@line, @column)
   end
 
   def move(step : Gtk::MovementStep, count : Int32) : Nil
@@ -48,5 +54,10 @@ class CodeCursor
     else
       Log.warn { "Not implemented" }
     end
+  end
+
+  def commit_text(text : String)
+    @buffer.insert(@line, @column, text)
+    @old_column_value = @column += text.size
   end
 end
