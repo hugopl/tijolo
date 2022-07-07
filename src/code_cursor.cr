@@ -57,7 +57,12 @@ class CodeCursor
   end
 
   def commit_text(text : String)
-    @buffer.insert(@line, @column, text)
-    @old_column_value = @column += text.size
+    if text.size != 1
+      Log.error { "Multiple character insertion not implemented 😅️" }
+      return
+    end
+
+    @line, @column = @buffer.insert(@line, @column, text)
+    @old_column_value = @column
   end
 end

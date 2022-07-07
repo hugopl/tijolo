@@ -28,8 +28,21 @@ class CodeBuffer
     end
   end
 
-  def insert(line : Int32, col : Int32, text : String) : Nil
-    # 🤠️
-    @lines[line] = @lines[line].insert(col, text)
+  def insert(line : Int32, col : Int32, text : String) : {Int32, Int32}
+    current_line = @lines[line]
+    if text == "\n"
+      if col == current_line.size
+        @lines.insert(line + 1, "")
+        {line + 1, 0}
+      else
+        @lines[line] = current_line[0...col]
+        @lines.insert(line + 1, current_line[col..-1])
+        {line + 1, 0}
+      end
+    else
+      # 🤠️
+      @lines[line] = current_line.insert(col, text)
+      {line, col + text.size}
+    end
   end
 end

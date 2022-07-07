@@ -23,6 +23,7 @@ class CodeEditor < Gtk::Widget
 
   @pango_ctx : Pango::Context
   getter buffer : CodeBuffer
+  property editable = true
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -69,6 +70,8 @@ class CodeEditor < Gtk::Widget
   end
 
   private def commit_text(text : String)
+    return unless @editable
+
     Log.info { "commit text: #{text}" }
     @cursors.commit_text(text)
     queue_draw
@@ -79,10 +82,13 @@ class CodeEditor < Gtk::Widget
     return false unless state.none?
 
     case keyval
-    when Gdk::KEY_Up, Gdk::KEY_KP_Up       then @cursors.move(:display_lines, -1)
-    when Gdk::KEY_Down, Gdk::KEY_KP_Down   then @cursors.move(:display_lines, 1)
-    when Gdk::KEY_Right, Gdk::KEY_KP_Right then @cursors.move(:visual_positions, 1)
-    when Gdk::KEY_Left, Gdk::KEY_KP_Left   then @cursors.move(:visual_positions, -1)
+    when Gdk::KEY_Up, Gdk::KEY_KP_Up                            then @cursors.move(:display_lines, -1)
+    when Gdk::KEY_Down, Gdk::KEY_KP_Down                        then @cursors.move(:display_lines, 1)
+    when Gdk::KEY_Right, Gdk::KEY_KP_Right                      then @cursors.move(:visual_positions, 1)
+    when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
+    when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
+    when Gdk::KEY_Tab, Gdk::KEY_KP_Tab, Gdk::KEY_ISO_Left_Tab
+      Log.error { "tab insertion not implemented yet" }
     else
       return false
     end
