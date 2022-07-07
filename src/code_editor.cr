@@ -110,15 +110,13 @@ class CodeEditor < Gtk::Widget
     @height = height.to_f32
   end
 
-  private def digits_count(n : Int32) : Int32
-    (Math.log(n.to_f + 1) / Math::LOG10).ceil.to_i
-  end
-
   private def draw_grid(snapshot : Gtk::Snapshot)
   end
 
   private def draw_line_numbers(snapshot : Gtk::Snapshot)
     layout = Pango::Layout.new(@pango_ctx)
+    layout.width = (@font_width * line_number_digits).to_i * Pango::SCALE
+    layout.alignment = :right
 
     snapshot.translate(MARGIN, 0.0_f32)
     trans = Graphene::Point.new(0.0, @font_height)
@@ -135,12 +133,16 @@ class CodeEditor < Gtk::Widget
     snapshot.translate(-MARGIN, -height_trans)
   end
 
+  private def line_number_digits : Float32
+    n = @buffer.line_count
+    (Math.log(n.to_f + 1) / Math::LOG10).ceil.to_f32
+  end
+
   private def draw_gutter(snapshot : Gtk::Snapshot)
   end
 
   private def draw_text(snapshot : Gtk::Snapshot)
-    digits = digits_count(@buffer.line_count)
-    snapshot.translate(digits * @font_width + DOUBLE_MARGIN, 0.0)
+    snapshot.translate(line_number_digits * @font_width + DOUBLE_MARGIN, 0.0)
 
     layout = Pango::Layout.new(@pango_ctx)
 
