@@ -10,7 +10,7 @@ shards:
 
   gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.13.1+git.commit.1d72c81d4e41a679300468fe611882a18d925ee2
+    version: 0.13.1+git.commit.6383125b77e59d8aea45ff1da254410354c07cee
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git

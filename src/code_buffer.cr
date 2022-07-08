@@ -45,4 +45,11 @@ class CodeBuffer
       {line, col + text.size}
     end
   end
+
+  def delete_chars(line : Int32, col : Int32, count : Int32) : {Int32, Int32}
+    current_line = @lines[line]
+    Log.info { "delete chars not yet implemented..." }
+
+    {line, col}
+  end
 end

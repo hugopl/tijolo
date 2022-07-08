@@ -20,6 +20,10 @@ class CodeCursors
   def commit_text(text : String)
     @cursors.each(&.commit_text(text))
   end
+
+  def delete_chars(count : Int32)
+    @cursors.each(&.delete_chars(count))
+  end
 end
 
 class CodeCursor
@@ -64,5 +68,9 @@ class CodeCursor
 
     @line, @column = @buffer.insert(@line, @column, text)
     @old_column_value = @column
+  end
+
+  def delete_chars(count : Int32)
+    @line, @column = @buffer.delete_chars(@line, @column, count)
   end
 end

@@ -18,8 +18,20 @@ require "./code_cursor"
 # - [/] Handle text input
 # - [ ] Replace dummy text buffer by a piece table
 class CodeEditor < Gtk::Widget
+  include Gtk::Scrollable
+
   private MARGIN        = 4.0_f32
   private DOUBLE_MARGIN = 8.0_f32
+
+  @[GObject::Property]
+  property hadjustment : Gtk::Adjustment?
+  @[GObject::Property]
+  property vadjustment : Gtk::Adjustment?
+
+  @[GObject::Property]
+  getter vscroll_policy : Gtk::ScrollablePolicy
+  @[GObject::Property]
+  getter hscroll_policy : Gtk::ScrollablePolicy
 
   @pango_ctx : Pango::Context
   getter buffer : CodeBuffer
@@ -34,7 +46,6 @@ class CodeEditor < Gtk::Widget
   @font_width : Float32
 
   @cursors : CodeCursors
-  @line_offset = 0
 
   # Widget width/height
   @width = 0.0_f32
@@ -60,6 +71,11 @@ class CodeEditor < Gtk::Widget
     @font_width = 7.2001953
 
     @cursors = CodeCursors.new(@buffer)
+
+    @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
+
+    notify_signal["vadjustment"].connect { @vadjustment.try(&.value_changed_signal.connect(&->queue_draw)) }
+    notify_signal["hadjustment"].connect { @hadjustment.try(&.value_changed_signal.connect(&->queue_draw)) }
 
     im_context = Gtk::IMMulticontext.new
     im_context.commit_signal.connect(&->commit_text(String))
@@ -87,6 +103,8 @@ class CodeEditor < Gtk::Widget
     when Gdk::KEY_Right, Gdk::KEY_KP_Right                      then @cursors.move(:visual_positions, 1)
     when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
     when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
+    when Gdk::KEY_BackSpace                                     then @cursors.delete_chars(-1)
+    when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
     when Gdk::KEY_Tab, Gdk::KEY_KP_Tab, Gdk::KEY_ISO_Left_Tab
       Log.error { "tab insertion not implemented yet" }
     else
@@ -111,9 +129,25 @@ class CodeEditor < Gtk::Widget
 
   @[GObject::Virtual]
   def size_allocate(width : Int32, height : Int32, baseline : Int32)
-    Log.notice { "size_allocate! #{width}, #{height}, #{baseline}" }
     @width = width.to_f32
     @height = height.to_f32
+
+    vadjustment = @vadjustment
+    return if vadjustment.nil?
+
+    vadjustment.configure(line_offset.to_f32, 0.0, @buffer.line_count.to_f32,
+      1.0, 10.0, lines_per_view)
+  end
+
+  private def line_offset : Int32
+    vadjustment = @vadjustment
+    return 0 if vadjustment.nil?
+
+    vadjustment.value.to_i
+  end
+
+  private def lines_per_view : Int32
+    (@height / @font_height).to_i
   end
 
   private def draw_grid(snapshot : Gtk::Snapshot)
@@ -128,7 +162,7 @@ class CodeEditor < Gtk::Widget
     trans = Graphene::Point.new(0.0, @font_height)
 
     height_trans = 0.0_f32
-    @line_offset.upto(@buffer.line_count - 1) do |i|
+    line_offset.upto(@buffer.line_count - 1) do |i|
       i += 1
       layout.set_text(i.to_s, i.to_s.bytesize) # Maybe is worth to cache the strings with line numbers?
       snapshot.append_layout(layout, @text_color)
@@ -153,7 +187,7 @@ class CodeEditor < Gtk::Widget
     layout = Pango::Layout.new(@pango_ctx)
 
     height_trans = 0.0_f32
-    @buffer.each_line(offset: @line_offset) do |text, line|
+    @buffer.each_line(offset: line_offset) do |text, line|
       layout.set_text(text)
       snapshot.append_layout(layout, @text_color)
 
