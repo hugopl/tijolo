@@ -1,3 +1,5 @@
+require "./code_buffer"
+
 class CodeCursors
   @buffer : CodeBuffer
   @cursors : Array(CodeCursor)
@@ -37,6 +39,10 @@ class CodeCursor
   def initialize(@buffer)
   end
 
+  def pos : {Int32, Int32}
+    {@line, @column}
+  end
+
   def column_byte : Int32
     @buffer.column_byte_index(@line, @column)
   end
@@ -46,8 +52,19 @@ class CodeCursor
 
     if step.visual_positions?
       column = @column + count
-      @column = column.clamp(0, @buffer.line_size(@line))
-      @old_column_value = @column
+      if column < 0
+        if @line == 0
+          @column = 0
+        else
+          move(:display_lines, -1)
+          move(:display_line_ends, 1)
+        end
+      elsif column > @buffer.line_size(@line)
+        @old_column_value = @column = 0
+        return move(:display_lines, 1)
+      else
+        @column = column
+      end
     elsif step.display_lines?
       old_line = @line
       @line = (@line + count).clamp(0, @buffer.line_count - 1)
@@ -55,6 +72,8 @@ class CodeCursor
       if old_line != @line
         @column = @old_column_value.clamp(0, @buffer.line_size(@line))
       end
+    elsif step.display_line_ends?
+      @column = @old_column_value = @buffer.line_size(@line)
     else
       Log.warn { "Not implemented" }
     end

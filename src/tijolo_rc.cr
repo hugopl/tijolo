@@ -1,4 +1,5 @@
 require "json"
+require "./project"
 
 module RCData
   struct ViewCursor

@@ -30,7 +30,7 @@ describe TijoloRC do
           "last_used": "2020-05-09T14:12:22Z"
         },
         {
-          "path": "#{__DIR__}/project_spec.cr"
+          "path": "#{__DIR__}/tijolo_rc_spec.cr"
         },
         {
           "path": "#{__FILE__}",
@@ -43,7 +43,7 @@ describe TijoloRC do
     rc.projects.size.should eq(3)
     rc.projects[0].path.to_s.should eq(__FILE__)
     rc.projects[1].path.to_s.should eq("#{__DIR__}/spec_helper.cr")
-    rc.projects[2].path.to_s.should eq("#{__DIR__}/project_spec.cr")
+    rc.projects[2].path.to_s.should eq("#{__DIR__}/tijolo_rc_spec.cr")
   end
 
   it "store only X files in recent files list" do

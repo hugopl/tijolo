@@ -1,5 +1,6 @@
 require "log"
 require "./config"
+require "./tijolo_error"
 
 class ProjectError < TijoloError
 end

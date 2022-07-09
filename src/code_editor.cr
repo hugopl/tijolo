@@ -53,7 +53,7 @@ class CodeEditor < Gtk::Widget
 
   def initialize(resource : String? = nil)
     super(focusable: true)
-    @buffer = CodeBuffer.new(resource)
+    @buffer = CodeBuffer.new(file: resource)
 
     @pango_ctx = pango_context
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")

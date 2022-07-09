@@ -5,8 +5,10 @@
 class CodeBuffer
   @lines : Array(String)
 
-  def initialize(file : String?)
-    @lines = file ? File.read(file).split("\n") : Array(String).new
+  def initialize(*, file : String? = nil, contents : String? = nil)
+    contents = File.read(file) if file
+
+    @lines = contents ? contents.split("\n") : Array(String).new
     @lines << "" if @lines.empty?
   end
 
