@@ -1,4 +1,4 @@
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label modified))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
@@ -7,15 +7,20 @@ abstract class View < Gtk::Box
   getter label : String
   getter? maximized = false
   property? readonly = false
+  @[GObject::Property]
+  property modified = false
 
   @header : Gtk::Widget
 
   def initialize(contents : Gtk::Widget, label : String? = nil)
     super()
-    # @id = object_id.to_s(16)
     @header = Gtk::Widget.cast(template_child(View.g_type, "header"))
     @header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
     @header_label.label = @label = (label || untitled_label)
+
+    modified_label = Gtk::Label.cast(template_child(View.g_type, "modified"))
+    bind_property("modified", modified_label, "visible", :default)
+
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
     container.child = contents
 

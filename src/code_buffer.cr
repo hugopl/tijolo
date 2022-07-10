@@ -2,10 +2,14 @@
 # after the widget be capable of editing a text and show it highlighted
 #
 # The buffer will only accept UTF-8 strings with \n ending.
-class CodeBuffer
+class CodeBuffer < GObject::Object
   @lines : Array(String)
 
+  @[GObject::Property]
+  getter modified = false
+
   def initialize(file : String?)
+    super()
     @lines = file ? File.read(file).split("\n") : Array(String).new
     @lines << "" if @lines.empty?
   end
@@ -29,6 +33,11 @@ class CodeBuffer
   end
 
   def insert(line : Int32, col : Int32, text : String) : Nil
+    if !@modified
+      @modified = true
+      _emit_notify_signal("modified")
+    end
+
     # 🤠️
     @lines[line] = @lines[line].insert(col, text)
   end

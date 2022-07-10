@@ -40,6 +40,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="modified">
+                <property name="visible">0</property>
                 <property name="label">•</property>
                 <property name="margin-start">12</property>
               </object>

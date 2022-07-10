@@ -10,6 +10,8 @@ class TextView < View
     @resource = resource || ""
     label = File.basename(resource.to_s)
     super(@editor, label)
+
+    @editor.buffer.bind_property("modified", self, "modified", :default)
   end
 
   delegate grab_focus, to: @editor
