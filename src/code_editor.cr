@@ -43,7 +43,7 @@ class CodeEditor < Gtk::Widget
     super(focusable: true)
     @buffer = CodeBuffer.new(resource)
 
-    @pango_ctx = pango_context
+    @pango_ctx = create_pango_context
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
 
     # Colors
