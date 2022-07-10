@@ -6,7 +6,7 @@ require "./code_cursor"
 # - [ ] Fix pango metrics crash on gi-crystal
 # - [ ] Implement `gtk_widget_class_add_binding_signal` on gtk4 shard
 # - [ ] Add a bunch of overloads to Gtk::Snapshot to avoid keep creating graphene points on stack
-# - [ ] Draw grid
+# - [x] Draw grid
 # - [x] Draw cursors
 # - [ ] Make cursors blink
 # - [ ] Hide mouse when typing
@@ -23,6 +23,8 @@ class CodeEditor < Gtk::Widget
 
   @pango_ctx : Pango::Context
   getter buffer : CodeBuffer
+
+  property? draw_grid = true
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -47,9 +49,9 @@ class CodeEditor < Gtk::Widget
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
 
     # Colors
-    @bg_color = Gdk::RGBA.new(0.14, 0.14, 0.14, 1.0)
-    @text_color = Gdk::RGBA.new(1.0, 1.0, 1.0, 1.0)
-    @grid_color = Gdk::RGBA.new(0.14, 0.14, 0.14, 1.0)
+    @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
+    @text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
+    @grid_color = Gdk::RGBA.new(0.188, 0.188, 0.161, 1.0)
 
     # FIXME: Pango::FontMetrics is crashing with a double free!
     # metric = @pango_ctx.metrics(nil, nil)
@@ -99,7 +101,7 @@ class CodeEditor < Gtk::Widget
 
     draw_gutter(snapshot)
     draw_line_numbers(snapshot)
-    draw_grid(snapshot)
+    draw_grid(snapshot) if draw_grid?
     draw_text(snapshot)
   end
 
@@ -115,6 +117,17 @@ class CodeEditor < Gtk::Widget
   end
 
   private def draw_grid(snapshot : Gtk::Snapshot)
+    digits = digits_count(@buffer.line_count)
+    snapshot.translate(digits * @font_width + DOUBLE_MARGIN, 0.0) do
+      # FIXME: grid_height is not aligned
+      grid_height = @font_height / 2.0_f32
+      snapshot.push_repeat(0.0, 0.0, @width, @height, 0.0, 0.0, @width, grid_height)
+      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, @width, 1)
+      snapshot.pop
+      snapshot.push_repeat(0.0, 0.0, @width, @height, 0.0, 0.0, grid_height, @height)
+      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, 1, @height)
+      snapshot.pop
+    end
   end
 
   private def draw_line_numbers(snapshot : Gtk::Snapshot)
