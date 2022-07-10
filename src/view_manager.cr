@@ -54,7 +54,7 @@ class ViewManager < Gtk::Box
     @selected_view_index = 0
   end
 
-  def find_view(resource : String) : View?
+  def find_view(resource : Path) : View?
     @views.find { |view| view.resource == resource }
   end
 

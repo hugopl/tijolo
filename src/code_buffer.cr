@@ -6,9 +6,9 @@ class CodeBuffer < GObject::Object
   @lines : Array(String)
 
   @[GObject::Property]
-  getter modified = false
+  property modified = false
 
-  def initialize(file : String?)
+  def initialize(file : Path?)
     super()
     @lines = file ? File.read(file).split("\n") : Array(String).new
     @lines << "" if @lines.empty?
@@ -33,12 +33,19 @@ class CodeBuffer < GObject::Object
   end
 
   def insert(line : Int32, col : Int32, text : String) : Nil
-    if !@modified
-      @modified = true
-      _emit_notify_signal("modified")
-    end
+    self.modified = true if !@modified
 
     # 🤠️
     @lines[line] = @lines[line].insert(col, text)
+  end
+
+  def save(io : IO) : Nil
+    line_count = self.line_count - 1
+    @lines.each_with_index do |line, i|
+      io << line
+      io << '\n' if i < line_count
+    end
+
+    self.modified = false
   end
 end

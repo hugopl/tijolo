@@ -4,19 +4,28 @@ abstract class View < Gtk::Box
 
   @@untitled_count = 0
 
-  getter label : String
+  @[GObject::Property]
+  property label : String
+  getter? resource : Path?
   getter? maximized = false
   property? readonly = false
   @[GObject::Property]
   property modified = false
 
+  getter resource : Path?
+
   @header : Gtk::Widget
 
-  def initialize(contents : Gtk::Widget, label : String? = nil)
+  def initialize(contents : Gtk::Widget, @resource : Path?, label : String? = nil)
     super()
+
+    resource = @resource
+    @label = label || (resource.nil? ? "" : File.basename(resource))
+
     @header = Gtk::Widget.cast(template_child(View.g_type, "header"))
-    @header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
-    @header_label.label = @label = (label || untitled_label)
+    header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
+    header_label.label = @label
+    bind_property("label", header_label, "label", :default)
 
     modified_label = Gtk::Label.cast(template_child(View.g_type, "modified"))
     bind_property("modified", modified_label, "visible", :default)
@@ -36,6 +45,18 @@ abstract class View < Gtk::Box
     "Untitled #{@@untitled_count}"
   end
 
+  # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`
+  def modified?
+    @modified
+  end
+
+  def resource=(resource : Path?)
+    @resource = resource
+    self.label = resource.nil? ? "" : File.basename(resource)
+
+    pp! @label
+  end
+
   def maximized=(@maximized)
     update_header
   end
@@ -49,13 +70,14 @@ abstract class View < Gtk::Box
   end
 
   abstract def grab_focus
-  abstract def resource : String
+  abstract def save : Nil
 
-  private def update_header
+  def save_as(resource : Path) : Nil
+    self.resource = resource
+    save
   end
 
-  def label=(@label : String)
-    @header_label.label = @label
+  private def update_header
   end
 
   def to_s(io : IO)

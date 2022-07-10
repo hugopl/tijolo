@@ -22,6 +22,7 @@ class CodeEditor < Gtk::Widget
   private DOUBLE_MARGIN = 8.0_f32
 
   @pango_ctx : Pango::Context
+  @[GObject::Property]
   getter buffer : CodeBuffer
 
   property? draw_grid = true
@@ -41,7 +42,7 @@ class CodeEditor < Gtk::Widget
   @width = 0.0_f32
   @height = 0.0_f32
 
-  def initialize(resource : String? = nil)
+  def initialize(resource : Path? = nil)
     super(focusable: true)
     @buffer = CodeBuffer.new(resource)
 

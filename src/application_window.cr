@@ -63,7 +63,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     @project.root = project_path
     open_project
-    open(project_path.to_s) if File.file?(project_path)
+    open(project_path) if File.file?(project_path)
   rescue e : ProjectError
     Log.error { "Error loading project from #{project_path}: #{e.message}" }
   end
@@ -106,8 +106,8 @@ class ApplicationWindow < Adw::ApplicationWindow
                new_file_new_split:  ->{ new_file(split: true) },
                open_file:           ->show_open_file_dialog,
                open_file_new_split: ->{ show_open_file_dialog(true) },
-               # save_view:                 ->save_current_view,
-               # save_view_as:              ->save_current_view_as,
+               save_view:           ->save_current_view,
+               save_view_as:        ->save_current_view_as,
                # find:                      ->{ find_in_current_view(:find_by_text) },
                # find_by_regexp:            ->{ find_in_current_view(:find_by_regexp) },
                # find_replace:              ->{ find_in_current_view(:find_replace) },
@@ -188,6 +188,39 @@ class ApplicationWindow < Adw::ApplicationWindow
     false
   end
 
+  def with_current_view
+    view_manager = @view_manager
+    return if view_manager.nil?
+
+    view = view_manager.current_view
+    yield(view) if view
+  end
+
+  def save_current_view
+    with_current_view do |view|
+      if view.resource?
+        view.save if view.modified?
+      else
+        save_current_view_as
+      end
+    end
+  end
+
+  def save_current_view_as
+    with_current_view do |view|
+      dialog = Gtk::FileChooserNative.new("Save File", self, :save, "_Spen", "_Cancel")
+      dialog.response_signal.connect do |response|
+        if Gtk::ResponseType.from_value(response).accept?
+          path = dialog.file.try(&.path)
+          view.save_as(path) if path
+        end
+        dialog.destroy
+      end
+
+      dialog.show
+    end
+  end
+
   def show_open_file_dialog(split_view : Bool = false)
     # FIXME: Something is storing `dialog` address and not letting it be garbage collected
     dialog = Gtk::FileChooserNative.new("Open File", self, :open, "_Open", "_Cancel")
@@ -209,6 +242,10 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def open(resource : String, split_view : Bool = false) : Nil
+    open(Path.new(resource), split_view)
+  end
+
+  def open(resource : Path, split_view : Bool = false) : Nil
     view_manager = @view_manager
     if view_manager.nil?
       open_project(resource)
@@ -230,7 +267,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     return if @project_tree_view.value(tree_path, ProjectTree::PROJECT_TREE_IS_DIR).as_bool
 
     file_path = @project_tree.file_path(tree_path)
-    open(file_path) if file_path
+    open(Path.new(file_path)) if file_path
   end
 
   private def show_locator(split_view = false)

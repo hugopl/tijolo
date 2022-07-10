@@ -3,16 +3,28 @@ require "./code_editor"
 
 class TextView < View
   @editor : CodeEditor
-  getter resource : String
 
-  def initialize(resource : String? = nil)
+  def initialize(resource : Path? = nil)
     @editor = CodeEditor.new(resource)
-    @resource = resource || ""
-    label = File.basename(resource.to_s)
-    super(@editor, label)
+    super(@editor, resource)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
   end
 
   delegate grab_focus, to: @editor
+
+  def save : Nil
+    resource = self.resource
+    if resource.nil?
+      Log.warn { "Trying to save a text view with no name!" }
+      return
+    end
+
+    Log.info { "Saving buffer to #{resource}" }
+    File.open(resource, "w") do |file|
+      @editor.buffer.save(file)
+    end
+
+    self.modified = false
+  end
 end
