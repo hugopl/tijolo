@@ -3,20 +3,27 @@ require "./code_cursor"
 
 # Current state of text widget: Far from done.
 #
+# All code here still a proof of concept, things are done just the enough to be able to advance to the next step and
+# check if I did the right choices. When I see that the things I want are possible with the current code then I stop and
+# fill the (many) missing bits.
+#
+# TODO list:
 # - [ ] Fix pango metrics crash on gi-crystal
 # - [ ] Implement `gtk_widget_class_add_binding_signal` on gtk4 shard
-# - [ ] Add a bunch of overloads to Gtk::Snapshot to avoid keep creating graphene points on stack
+# - [x] Add a bunch of overloads to Gtk::Snapshot to avoid keep creating graphene points on stack
 # - [x] Draw grid
 # - [x] Draw cursors
 # - [ ] Make cursors blink
 # - [ ] Hide mouse when typing
 # - [x] Move cursors
-# - [ ] Add feature to implement interface properties on gi-crystal
-# - [ ] Implement Scrollable interface
-# - [/] Study tree-sitter
+# - [ ] Multiple cursors
+# - [x] Add feature to implement interface properties on gi-crystal
+# - [x] Implement Scrollable interface
+# - [x] Study tree-sitter
 # - [ ] Highlight code with tree sitter
-# - [/] Handle text input
-# - [ ] Replace dummy text buffer by a piece table
+# - [x] Handle text input (just really basic stuff to be able to test few things)
+# - [ ] Refactor the code editor and cursors code that must be a mess at this point.
+# - [ ] Replace dummy text buffer by a piece table 🔥️
 class CodeEditor < Gtk::Widget
   private MARGIN        = 4.0_f32
   private DOUBLE_MARGIN = 8.0_f32
