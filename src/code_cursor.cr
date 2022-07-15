@@ -1,6 +1,7 @@
 class CodeCursors
   @buffer : CodeBuffer
   @cursors : Array(CodeCursor)
+  @cursor_changed_callback : Proc(Int32, Int32, Nil)?
 
   def initialize(@buffer : CodeBuffer)
     @cursors = [CodeCursor.new(@buffer)]
@@ -12,13 +13,31 @@ class CodeCursors
     end
   end
 
+  def on_cursor_change(&callback : Proc(Int32, Int32, Nil))
+    @cursor_changed_callback = callback
+  end
+
+  private def watch_cursor
+    pos = @cursors.first.pos
+    yield
+    cursor_changed_callback = @cursor_changed_callback
+    return if cursor_changed_callback.nil?
+
+    new_pos = @cursors.first.pos
+    cursor_changed_callback.call(*new_pos) if new_pos != pos
+  end
+
   def move(step : Gtk::MovementStep, count : Int32) : Nil
-    # FIXME: This mess with multiple cursors, but we just plan to support multiple cursors, we do not support yet 😉️
-    @cursors.each(&.move(step, count))
+    watch_cursor do
+      # FIXME: This mess with multiple cursors, but we just plan to support multiple cursors, we do not support yet 😉️
+      @cursors.each(&.move(step, count))
+    end
   end
 
   def commit_text(text : String)
-    @cursors.each(&.commit_text(text))
+    watch_cursor do
+      @cursors.each(&.commit_text(text))
+    end
   end
 end
 
@@ -31,6 +50,10 @@ class CodeCursor
   @buffer : CodeBuffer
 
   def initialize(@buffer)
+  end
+
+  def pos : {Int32, Int32}
+    {line, column}
   end
 
   def column_byte : Int32

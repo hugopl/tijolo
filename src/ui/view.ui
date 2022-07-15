@@ -50,9 +50,7 @@
         <child type="end">
           <object class="GtkBox">
             <child>
-              <object class="GtkLabel" id="line_column">
-                <property name="label">23:4</property>
-              </object>
+              <object class="GtkLabel" id="line_column" />
             </child>
             <child>
               <object class="GtkButton" id="close_btn">

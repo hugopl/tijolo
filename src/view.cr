@@ -1,4 +1,4 @@
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label modified))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label line_column modified))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
@@ -15,6 +15,7 @@ abstract class View < Gtk::Box
   getter resource : Path?
 
   @header : Gtk::Widget
+  @line_column : Gtk::Label
 
   def initialize(contents : Gtk::Widget, @resource : Path?, label : String? = nil)
     super()
@@ -26,6 +27,8 @@ abstract class View < Gtk::Box
     header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
     header_label.label = @label
     bind_property("label", header_label, "label", :default)
+
+    @line_column = Gtk::Label.cast(template_child(View.g_type, "line_column"))
 
     modified_label = Gtk::Label.cast(template_child(View.g_type, "modified"))
     bind_property("modified", modified_label, "visible", :default)
@@ -75,6 +78,11 @@ abstract class View < Gtk::Box
   def save_as(resource : Path) : Nil
     self.resource = resource
     save
+  end
+
+  def set_cursor(line : Int32, col : Int32)
+    # Internally lines starts at 0, just on UI they start at 1.
+    @line_column.label = line.negative? ? "?" : "#{line + 1}:#{col}"
   end
 
   private def update_header

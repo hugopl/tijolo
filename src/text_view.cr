@@ -9,6 +9,9 @@ class TextView < View
     super(@editor, resource)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
+    @editor.cursor_changed_signal.connect do |line, col|
+      set_cursor(line, col)
+    end
   end
 
   delegate grab_focus, to: @editor

@@ -26,6 +26,7 @@ class CodeEditor < Gtk::Widget
   getter buffer : CodeBuffer
 
   property? draw_grid = true
+  signal cursor_changed(line : Int32, col : Int32)
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -62,6 +63,9 @@ class CodeEditor < Gtk::Widget
     @font_width = 7.2001953
 
     @cursors = CodeCursors.new(@buffer)
+    @cursors.on_cursor_change do |line, col|
+      cursor_changed_signal.emit(line, col)
+    end
 
     im_context = Gtk::IMMulticontext.new
     im_context.commit_signal.connect(&->commit_text(String))
@@ -74,6 +78,7 @@ class CodeEditor < Gtk::Widget
   private def commit_text(text : String)
     Log.info { "commit text: #{text}" }
     @cursors.commit_text(text)
+
     queue_draw
   end
 
