@@ -9,7 +9,7 @@ class LineLocator < LocatorProvider
     @model.append({LABEL_COLUMN}, {DEFAULT_TEXT})
   end
 
-  def activate(locator, _index) : Bool
+  def activate(locator, index) : Bool
     return false if @line <= 0
 
     col = @col - 1
