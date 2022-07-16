@@ -108,14 +108,15 @@ class CodeEditor < Gtk::Widget
 
   @[GObject::Virtual]
   def snapshot(snapshot : Gtk::Snapshot)
-    Log.notice { "snapshot!" }
+    render_time = Time.measure do
+      snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
 
-    snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
-
-    draw_gutter(snapshot)
-    draw_line_numbers(snapshot)
-    draw_grid(snapshot) if draw_grid?
-    draw_text(snapshot)
+      draw_gutter(snapshot)
+      draw_line_numbers(snapshot)
+      draw_grid(snapshot) if draw_grid?
+      draw_text(snapshot)
+    end
+    Log.notice { "text rendered in #{render_time}" }
   end
 
   @[GObject::Virtual]
