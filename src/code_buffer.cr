@@ -8,9 +8,11 @@ class CodeBuffer < GObject::Object
   @[GObject::Property]
   property modified = false
 
-  def initialize(file : Path?)
+  def initialize(*, file : Path? = nil, contents : String? = nil)
     super()
-    @lines = file ? File.read(file).split("\n") : Array(String).new
+    contents = File.read(file) if file
+
+    @lines = contents ? contents.split("\n") : Array(String).new
     @lines << "" if @lines.empty?
   end
 
@@ -32,11 +34,31 @@ class CodeBuffer < GObject::Object
     end
   end
 
-  def insert(line : Int32, col : Int32, text : String) : Nil
+  def insert(line : Int32, col : Int32, text : String) : {Int32, Int32}
     self.modified = true if !@modified
 
-    # 🤠️
-    @lines[line] = @lines[line].insert(col, text)
+    current_line = @lines[line]
+    if text == "\n"
+      if col == current_line.size
+        @lines.insert(line + 1, "")
+        {line + 1, 0}
+      else
+        @lines[line] = current_line[0...col]
+        @lines.insert(line + 1, current_line[col..-1])
+        {line + 1, 0}
+      end
+    else
+      # 🤠️
+      @lines[line] = current_line.insert(col, text)
+      {line, col + text.size}
+    end
+  end
+
+  def delete_chars(line : Int32, col : Int32, count : Int32) : {Int32, Int32}
+    current_line = @lines[line]
+    Log.info { "delete chars not yet implemented..." }
+
+    {line, col}
   end
 
   def save(io : IO) : Nil

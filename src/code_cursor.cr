@@ -1,3 +1,5 @@
+require "./code_buffer"
+
 class CodeCursors
   @buffer : CodeBuffer
   @cursors : Array(CodeCursor)
@@ -39,6 +41,10 @@ class CodeCursors
       @cursors.each(&.commit_text(text))
     end
   end
+
+  def delete_chars(count : Int32)
+    @cursors.each(&.delete_chars(count))
+  end
 end
 
 class CodeCursor
@@ -53,7 +59,7 @@ class CodeCursor
   end
 
   def pos : {Int32, Int32}
-    {line, column}
+    {@line, @column}
   end
 
   def column_byte : Int32
@@ -65,8 +71,19 @@ class CodeCursor
 
     if step.visual_positions?
       column = @column + count
-      @column = column.clamp(0, @buffer.line_size(@line))
-      @old_column_value = @column
+      if column < 0
+        if @line == 0
+          @column = 0
+        else
+          move(:display_lines, -1)
+          move(:display_line_ends, 1)
+        end
+      elsif column > @buffer.line_size(@line)
+        @old_column_value = @column = 0
+        return move(:display_lines, 1)
+      else
+        @column = column
+      end
     elsif step.display_lines?
       old_line = @line
       @line = (@line + count).clamp(0, @buffer.line_count - 1)
@@ -74,13 +91,24 @@ class CodeCursor
       if old_line != @line
         @column = @old_column_value.clamp(0, @buffer.line_size(@line))
       end
+    elsif step.display_line_ends?
+      @column = @old_column_value = @buffer.line_size(@line)
     else
       Log.warn { "Not implemented" }
     end
   end
 
   def commit_text(text : String)
-    @buffer.insert(@line, @column, text)
-    @old_column_value = @column += text.size
+    if text.size != 1
+      Log.error { "Multiple character insertion not implemented 😅️" }
+      return
+    end
+
+    @line, @column = @buffer.insert(@line, @column, text)
+    @old_column_value = @column
+  end
+
+  def delete_chars(count : Int32)
+    @line, @column = @buffer.delete_chars(@line, @column, count)
   end
 end
