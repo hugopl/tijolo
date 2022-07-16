@@ -14,7 +14,7 @@ shards:
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.11.1+git.commit.2a568a7fed24cfaf1788dec40ffc8dcc49c77ee7
+    version: 0.11.1+git.commit.027e5196e896ebf55aa4b469c05ac874ea29c136
 
   libadwaita:
     git: https://github.com/hugopl/libadwaita.cr.git

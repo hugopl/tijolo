@@ -131,7 +131,8 @@ class CodeEditor < Gtk::Widget
 
   private def draw_grid(snapshot : Gtk::Snapshot)
     digits = digits_count(@buffer.line_count)
-    snapshot.translate(digits * @font_width + DOUBLE_MARGIN, 0.0) do
+    snapshot.save do
+      snapshot.translate(digits * @font_width + DOUBLE_MARGIN, 0.0)
       # FIXME: grid_height is not aligned
       grid_height = @font_height / 2.0_f32
       snapshot.push_repeat(0.0, 0.0, @width, @height, 0.0, 0.0, @width, grid_height)
@@ -144,21 +145,22 @@ class CodeEditor < Gtk::Widget
   end
 
   private def draw_line_numbers(snapshot : Gtk::Snapshot)
-    layout = Pango::Layout.new(@pango_ctx)
+    snapshot.save do
+      layout = Pango::Layout.new(@pango_ctx)
 
-    snapshot.translate(MARGIN, 0.0_f32)
-    trans = Graphene::Point.new(0.0, @font_height)
+      snapshot.translate(MARGIN, 0.0_f32)
+      trans = Graphene::Point.new(0.0, @font_height)
 
-    height_trans = 0.0_f32
-    @line_offset.upto(@buffer.line_count - 1) do |i|
-      i += 1
-      layout.set_text(i.to_s, i.to_s.bytesize) # Maybe is worth to cache the strings with line numbers?
-      snapshot.append_layout(layout, @text_color)
-      snapshot.translate(trans)
-      height_trans += @font_height
-      break if height_trans > @height
+      height_trans = 0.0_f32
+      @line_offset.upto(@buffer.line_count - 1) do |i|
+        i += 1
+        layout.set_text(i.to_s, i.to_s.bytesize) # Maybe is worth to cache the strings with line numbers?
+        snapshot.append_layout(layout, @text_color)
+        snapshot.translate(trans)
+        height_trans += @font_height
+        break if height_trans > @height
+      end
     end
-    snapshot.translate(-MARGIN, -height_trans)
   end
 
   private def draw_gutter(snapshot : Gtk::Snapshot)
