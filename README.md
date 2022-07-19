@@ -9,7 +9,7 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-Being rewrite using GTK4 and LibAdwaita, the re-write isn't done yet but if you want to check the old version check the v0.7.1 tag.
+Being rewrite using new [GTK4 bindings](https://github.com/hugopl/gtk4.cr) and [LibAdwaita](https://github.com/GeopJr/libadwaita.cr), the re-write isn't done yet but if you want to check the old version check the v0.7.1 tag.
 
 CI still broken
 
