@@ -1,3 +1,6 @@
+Excluded:
+- src/bindings
+
 Metrics/CyclomaticComplexity:
   MaxComplexity: 20
 Style/VerboseBlock:

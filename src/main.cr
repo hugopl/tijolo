@@ -1,5 +1,23 @@
 require "log"
 require "option_parser"
+require "gobject"
+
+# Overide this macro, so we skip bindings auto generation
+macro require_gobject(namespace, version = nil)
+end
+
+# Include previously generated bindings, since the generator doesn't work with recent versions of these libraries.
+require "./bindings/glib.cr"
+require "./bindings/gobject.cr"
+require "./bindings/gio.cr"
+require "./bindings/pango.cr"
+require "./bindings/cairo.cr"
+require "./bindings/gdk.cr"
+require "./bindings/gdk_pixbuf.cr"
+require "./bindings/atk.cr"
+require "./bindings/gtk3.cr"
+require "./bindings/vte.cr"
+require "./bindings/gtk_source.cr"
 
 require "compiled_license"
 require "gobject/gtk"
