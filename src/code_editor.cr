@@ -16,19 +16,22 @@ class CodeEditor < Gtk::Widget
   property hadjustment : Gtk::Adjustment?
   @[GObject::Property]
   property vadjustment : Gtk::Adjustment?
-
   @[GObject::Property]
   getter vscroll_policy : Gtk::ScrollablePolicy
   @[GObject::Property]
   getter hscroll_policy : Gtk::ScrollablePolicy
-
-  @pango_ctx : Pango::Context
   @[GObject::Property]
   getter buffer : CodeBuffer
+  @[GObject::Property]
   property editable = true
 
+  # FIXME: Fix this bug in gi-crystal, property declared with property? macro doesn't compile
+  # @[GObject::Property]
   property? draw_grid = true
+
   signal cursor_changed(line : Int32, col : Int32)
+
+  @pango_ctx : Pango::Context
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -39,11 +42,10 @@ class CodeEditor < Gtk::Widget
   @font_width : Float32
 
   @cursors : CodeCursors
-  @line_offset = 0
 
   # Widget width/height
-  @width = 0.0_f32
-  @height = 0.0_f32
+  @width = 0_f32
+  @height = 0_f32
 
   def initialize(resource : Path? = nil)
     super(focusable: true)
@@ -57,12 +59,9 @@ class CodeEditor < Gtk::Widget
     @text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
     @grid_color = Gdk::RGBA.new(0.188, 0.188, 0.161, 1.0)
 
-    # FIXME: Pango::FontMetrics is crashing with a double free!
-    # metric = @pango_ctx.metrics(nil, nil)
-    # @font_height = (metric.height / Pango::SCALE).to_f32
-    # @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
-    @font_height = 14.639648
-    @font_width = 7.2001953
+    metric = @pango_ctx.metrics(nil, nil)
+    @font_height = (metric.height / Pango::SCALE).to_f32
+    @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
 
     @cursors = CodeCursors.new(@buffer)
     @cursors.on_cursor_change do |line, col|
@@ -71,15 +70,19 @@ class CodeEditor < Gtk::Widget
 
     @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
 
-    notify_signal["vadjustment"].connect { @vadjustment.try(&.value_changed_signal.connect(&->queue_draw)) }
-    notify_signal["hadjustment"].connect { @hadjustment.try(&.value_changed_signal.connect(&->queue_draw)) }
-
     im_context = Gtk::IMMulticontext.new
     im_context.commit_signal.connect(&->commit_text(String))
     key_controller = Gtk::EventControllerKey.new(propagation_phase: :target)
     key_controller.im_context = im_context
     add_controller(key_controller)
     key_controller.key_pressed_signal.connect(&->key_pressed(UInt32, UInt32, Gdk::ModifierType))
+  end
+
+  def vadjustment=(vadjustment : Gtk::Adjustment?)
+    previous_def
+
+    # FIXME: Disconnect value_changed_signal from old @vadjustment
+    vadjustment.value_changed_signal.connect(&->queue_draw) if vadjustment
   end
 
   private def commit_text(text : String)
@@ -134,8 +137,9 @@ class CodeEditor < Gtk::Widget
     vadjustment = @vadjustment
     return if vadjustment.nil?
 
-    vadjustment.configure(line_offset.to_f32, 0.0, @buffer.line_count.to_f32,
-      1.0, 10.0, lines_per_view)
+    upper = @buffer.line_count.to_f64
+    page_size = lines_per_view
+    vadjustment.configure(line_offset.to_f64, 0.0, upper, page_size * 0.1, page_size * 0.9, page_size)
   end
 
   private def line_offset : Int32
@@ -145,8 +149,8 @@ class CodeEditor < Gtk::Widget
     vadjustment.value.to_i
   end
 
-  private def lines_per_view : Int32
-    (@height / @font_height).to_i
+  private def lines_per_view : Float64
+    (@height / @font_height).to_f64
   end
 
   private def draw_grid(snapshot : Gtk::Snapshot)
@@ -173,7 +177,7 @@ class CodeEditor < Gtk::Widget
       trans = Graphene::Point.new(0.0, @font_height)
 
       height_trans = 0.0_f32
-      @line_offset.upto(@buffer.line_count - 1) do |i|
+      line_offset.upto(@buffer.line_count - 1) do |i|
         i += 1
         layout.set_text(i.to_s, i.to_s.bytesize) # Maybe is worth to cache the strings with line numbers?
         snapshot.append_layout(layout, @text_color)
