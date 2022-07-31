@@ -8,6 +8,10 @@ class CodeBuffer < GObject::Object
   @[GObject::Property]
   property modified = false
 
+  signal lines_changed(offset : Int32, count : Int32)
+  signal lines_inserted(offset : Int32, count : Int32)
+  signal lines_removed(offset : Int32, count : Int32)
+
   def initialize(*, file : Path? = nil, contents : String? = nil)
     super()
     contents = File.read(file) if file
@@ -28,6 +32,11 @@ class CodeBuffer < GObject::Object
     @lines[line].char_index_to_byte_index(column) || -1
   end
 
+  def line(n : Int32) : Bytes?
+    line = @lines[n]?
+    line.to_slice if line
+  end
+
   def each_line(offset : Int32 = 0) : Nil
     @lines.each.skip(offset).with_index(offset) do |text, i|
       yield(text.to_slice, i)
@@ -40,16 +49,22 @@ class CodeBuffer < GObject::Object
     current_line = @lines[line]
     if text == "\n"
       if col == current_line.size
-        @lines.insert(line + 1, "")
-        {line + 1, 0}
+        new_line = line + 1
+        @lines.insert(new_line, "")
+        lines_inserted_signal.emit(new_line, 1)
+        {new_line, 0}
       else
         @lines[line] = current_line[0...col]
-        @lines.insert(line + 1, current_line[col..-1])
-        {line + 1, 0}
+        lines_changed_signal.emit(line, 1)
+        new_line = line + 1
+        @lines.insert(new_line, current_line[col..-1])
+        lines_inserted_signal.emit(new_line, 1)
+        {new_line, 0}
       end
     else
       # 🤠️
       @lines[line] = current_line.insert(col, text)
+      lines_changed_signal.emit(line, 1)
       {line, col + text.size}
     end
   end

@@ -1,5 +1,6 @@
 require "./code_buffer"
 require "./code_cursor"
+require "./code_layout"
 
 # Current state of text widget: Far from done.
 #
@@ -31,7 +32,9 @@ class CodeEditor < Gtk::Widget
 
   signal cursor_changed(line : Int32, col : Int32)
 
+  # Text rendering
   @pango_ctx : Pango::Context
+  @code_layout : CodeLayout
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -53,6 +56,7 @@ class CodeEditor < Gtk::Widget
 
     @pango_ctx = create_pango_context
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
+    @code_layout = CodeLayout.new(@pango_ctx, @buffer)
 
     # Colors
     @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
@@ -121,7 +125,6 @@ class CodeEditor < Gtk::Widget
     render_time = Time.measure do
       snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
 
-      draw_gutter(snapshot)
       draw_line_numbers(snapshot)
       draw_grid(snapshot) if draw_grid?
       draw_text(snapshot)
@@ -138,7 +141,7 @@ class CodeEditor < Gtk::Widget
     return if vadjustment.nil?
 
     upper = @buffer.line_count.to_f64
-    page_size = lines_per_view
+    page_size = visible_lines_count
     vadjustment.configure(line_offset.to_f64, 0.0, upper, page_size * 0.1, page_size * 0.9, page_size)
   end
 
@@ -149,7 +152,7 @@ class CodeEditor < Gtk::Widget
     vadjustment.value.to_i
   end
 
-  private def lines_per_view : Float64
+  private def visible_lines_count : Float64
     (@height / @font_height).to_f64
   end
 
@@ -167,6 +170,7 @@ class CodeEditor < Gtk::Widget
     end
   end
 
+  # TODO: Move this to CodeLine, so the glyphs cna be cached as well
   private def draw_line_numbers(snapshot : Gtk::Snapshot)
     snapshot.save do
       layout = Pango::Layout.new(@pango_ctx)
@@ -193,26 +197,16 @@ class CodeEditor < Gtk::Widget
     (Math.log(n.to_f + 1) / Math::LOG10).ceil.to_f32
   end
 
-  private def draw_gutter(snapshot : Gtk::Snapshot)
-  end
-
   private def draw_text(snapshot : Gtk::Snapshot)
-    snapshot.translate(line_number_digits * @font_width + DOUBLE_MARGIN, 0.0)
+    snapshot.save do
+      snapshot.translate(line_number_digits * @font_width + DOUBLE_MARGIN, 0.0)
 
-    layout = Pango::Layout.new(@pango_ctx)
-
-    height_trans = 0.0_f32
-    @buffer.each_line(offset: line_offset) do |text, line|
-      layout.set_text(text)
-      snapshot.append_layout(layout, @text_color)
-
-      @cursors.at_line(line) do |cursor|
-        snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
+      @code_layout.line_offset = line_offset
+      @code_layout.render(snapshot, width, height) do |layout, n|
+        @cursors.at_line(n) do |cursor|
+          snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
+        end
       end
-
-      snapshot.translate(0.0, @font_height)
-      height_trans += @font_height
-      break if height_trans > @height
     end
   end
 end
