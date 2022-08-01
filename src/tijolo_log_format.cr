@@ -14,6 +14,7 @@ struct TijoloLogFormat
     color = case entry.severity
             when .error? then Colorize::ColorANSI::Red
             when .fatal? then Colorize::ColorANSI::Red
+            when .notice? then Colorize::ColorANSI::Blue
             when .info?  then Colorize::ColorANSI::Green
             when .warn?  then Colorize::ColorANSI::Yellow
             when .trace? then Colorize::ColorANSI::Cyan

@@ -37,12 +37,6 @@ class CodeBuffer < GObject::Object
     line.to_slice if line
   end
 
-  def each_line(offset : Int32 = 0) : Nil
-    @lines.each.skip(offset).with_index(offset) do |text, i|
-      yield(text.to_slice, i)
-    end
-  end
-
   def insert(line : Int32, col : Int32, text : String) : {Int32, Int32}
     self.modified = true if !@modified
 
@@ -71,7 +65,7 @@ class CodeBuffer < GObject::Object
 
   def delete_chars(line : Int32, col : Int32, count : Int32) : {Int32, Int32}
     current_line = @lines[line]
-    Log.info { "delete chars not yet implemented..." }
+    Log.error { "Delete chars not yet implemented..." }
 
     {line, col}
   end

@@ -92,14 +92,11 @@ class CodeEditor < Gtk::Widget
   private def commit_text(text : String)
     return unless @editable
 
-    Log.info { "commit text: #{text}" }
     @cursors.commit_text(text)
-
     queue_draw
   end
 
   private def key_pressed(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
-    Log.info { "key pressed!" }
     return false unless state.none?
 
     case keyval
@@ -111,7 +108,7 @@ class CodeEditor < Gtk::Widget
     when Gdk::KEY_BackSpace                                     then @cursors.delete_chars(-1)
     when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
     when Gdk::KEY_Tab, Gdk::KEY_KP_Tab, Gdk::KEY_ISO_Left_Tab
-      Log.error { "tab insertion not implemented yet" }
+      Log.error { "Tab insertion not implemented yet" }
     else
       return false
     end
@@ -129,7 +126,7 @@ class CodeEditor < Gtk::Widget
       draw_grid(snapshot) if draw_grid?
       draw_text(snapshot)
     end
-    Log.notice { "text rendered in #{render_time}" }
+    Log.notice { "Text rendered in #{render_time}" }
   end
 
   @[GObject::Virtual]
