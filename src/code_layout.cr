@@ -19,13 +19,17 @@ class CodeLayout
     @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
 
     @buffer.lines_changed_signal.connect(&->lines_changed(Int32, Int32))
-    @buffer.lines_changed_signal.connect(&->lines_inserted(Int32, Int32))
-    @buffer.lines_changed_signal.connect(&->lines_removed(Int32, Int32))
+    @buffer.lines_inserted_signal.connect(&->lines_inserted(Int32, Int32))
+    @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
   end
 
   def lines_changed(n : Int32, count : Int32)
-    # TODO: Proper handle cache here by invalidating the code lines, etc...
-    reset
+    (n...(n + count)).each do |i|
+      line = @lines[i]?
+      break if line.nil?
+
+      line.dirty!
+    end
   end
 
   def lines_inserted(n : Int32, count : Int32)
@@ -43,10 +47,12 @@ class CodeLayout
   end
 
   def line_offset=(offset : Int32)
-    # Current implementation is dummy, it just speed up things if nothing was scrolled
-    # Future implementation can be smarter
-
-    reset if offset != @line_offset
+    if offset > @line_offset
+      @lines.delete_at(0...(offset - @line_offset))
+    elsif offset < @line_offset
+      # FIXME: Do a better job here, invalidating only the necessary rows
+      reset
+    end
     @line_offset = offset
   end
 
@@ -78,7 +84,8 @@ class CodeLayout
 
         line = CodeLine.new(@pango_ctx, text, @width)
         @lines << line
-        Log.debug { "New codeline, #{i}: #{String.new(text)}" }
+      elsif line.dirty?
+        line.text = @buffer.line(line_n)
       end
       yield(line, line_n)
     end
