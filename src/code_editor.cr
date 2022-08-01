@@ -122,7 +122,6 @@ class CodeEditor < Gtk::Widget
     render_time = Time.measure do
       snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
 
-      draw_line_numbers(snapshot)
       draw_grid(snapshot) if draw_grid?
       draw_text(snapshot)
     end
@@ -137,8 +136,9 @@ class CodeEditor < Gtk::Widget
     vadjustment = @vadjustment
     return if vadjustment.nil?
 
+    @code_layout.width = width
     upper = @buffer.line_count.to_f64
-    page_size = visible_lines_count
+    page_size = @code_layout.visible_lines_count
     vadjustment.configure(line_offset.to_f64, 0.0, upper, page_size * 0.1, page_size * 0.9, page_size)
   end
 
@@ -149,57 +149,25 @@ class CodeEditor < Gtk::Widget
     vadjustment.value.to_i
   end
 
-  private def visible_lines_count : Float64
-    (@height / @font_height).to_f64
-  end
-
   private def draw_grid(snapshot : Gtk::Snapshot)
     snapshot.save do
-      snapshot.translate(line_number_digits * @font_width + DOUBLE_MARGIN, 0.0)
+      snapshot.translate(@code_layout.text_left_margin, 0.0)
+      width = @code_layout.text_area_width
       # FIXME: grid_height is not aligned
-      grid_height = @font_height / 2.0_f32
-      snapshot.push_repeat(0.0, 0.0, @width, @height, 0.0, 0.0, @width, grid_height)
-      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, @width, 1)
+      grid_height = @code_layout.font_height / 2.0_f32
+      snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, width, grid_height)
+      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, width, 1)
       snapshot.pop
-      snapshot.push_repeat(0.0, 0.0, @width, @height, 0.0, 0.0, grid_height, @height)
+      snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, grid_height, @height)
       snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, 1, @height)
       snapshot.pop
     end
   end
 
-  # TODO: Move this to CodeLine, so the glyphs cna be cached as well
-  private def draw_line_numbers(snapshot : Gtk::Snapshot)
-    snapshot.save do
-      layout = Pango::Layout.new(@pango_ctx)
-      layout.width = (@font_width * line_number_digits).to_i * Pango::SCALE
-      layout.alignment = :right
-
-      snapshot.translate(MARGIN, 0.0_f32)
-      trans = Graphene::Point.new(0.0, @font_height)
-
-      height_trans = 0.0_f32
-      line_offset.upto(@buffer.line_count - 1) do |i|
-        i += 1
-        layout.set_text(i.to_s, i.to_s.bytesize) # Maybe is worth to cache the strings with line numbers?
-        snapshot.append_layout(layout, @text_color)
-        snapshot.translate(trans)
-        height_trans += @font_height
-        break if height_trans > @height
-      end
-    end
-  end
-
-  private def line_number_digits : Float32
-    n = @buffer.line_count
-    (Math.log(n.to_f + 1) / Math::LOG10).ceil.to_f32
-  end
-
   private def draw_text(snapshot : Gtk::Snapshot)
     snapshot.save do
-      snapshot.translate(line_number_digits * @font_width + DOUBLE_MARGIN, 0.0)
-
       @code_layout.line_offset = line_offset
-      @code_layout.render(snapshot, width, height) do |layout, n|
+      @code_layout.render(snapshot, height) do |layout, n|
         @cursors.at_line(n) do |cursor|
           snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
         end
