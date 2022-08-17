@@ -224,7 +224,6 @@ class ApplicationWindow < Adw::ApplicationWindow
   def show_open_file_dialog(split_view : Bool = false)
     # FIXME: Something is storing `dialog` address and not letting it be garbage collected
     dialog = Gtk::FileChooserNative.new("Open File", self, :open, "_Open", "_Cancel")
-    Log.info { dialog.ref_count }
 
     dialog.response_signal.connect do |response|
       if Gtk::ResponseType.from_value(response).accept?

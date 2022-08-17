@@ -92,6 +92,7 @@ class TijoloApplication < Adw::Application
 
     backend = Log::IOBackend.new(formatter: TijoloLogFormat, dispatcher: Log::DispatchMode::Direct)
     Log.setup(level, backend)
+    Log.info { "Tijolo v#{VERSION} started at #{Time.local}, pid: #{Process.pid}, log level: #{level}" }
   end
 
   private def show_about_dlg
@@ -113,7 +114,7 @@ class TijoloApplication < Adw::Application
   end
 
   def error(title : String, message : String) : Nil
-    Log.warn { message }
+    Log.error { message }
     Gtk::MessageDialog.ok(text: title, secondary_text: message, message_type: :error, transient_for: active_window) { }
   end
 end
