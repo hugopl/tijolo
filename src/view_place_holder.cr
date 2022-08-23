@@ -1,8 +1,8 @@
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_place_holder.ui", children: %w())]
 class ViewPlaceHolder < Gtk::Box
+  include Gtk::WidgetTemplate
+
   def initialize
     super
-    self.vexpand = true
-    self.halign = :center
-    append(Gtk::Label.new("[View Place Holder]"))
   end
 end
