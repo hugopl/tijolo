@@ -105,7 +105,7 @@ class CodeEditor < Gtk::Widget
     when Gdk::KEY_Right, Gdk::KEY_KP_Right                      then @cursors.move(:visual_positions, 1)
     when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
     when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
-    when Gdk::KEY_BackSpace                                     then @cursors.delete_chars(-1)
+    when Gdk::KEY_BackSpace                                     then @cursors.backspace
     when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
     when Gdk::KEY_Tab, Gdk::KEY_KP_Tab, Gdk::KEY_ISO_Left_Tab
       Log.error { "Tab insertion not implemented yet" }

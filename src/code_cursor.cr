@@ -45,6 +45,10 @@ class CodeCursors
   def delete_chars(count : Int32)
     @cursors.each(&.delete_chars(count))
   end
+
+  def backspace
+    @cursors.each(&.backspace)
+  end
 end
 
 class CodeCursor
@@ -109,6 +113,13 @@ class CodeCursor
   end
 
   def delete_chars(count : Int32)
-    @line, @column = @buffer.delete_chars(@line, @column, count)
+    @buffer.delete_chars(@line, @column, count)
+  end
+
+  def backspace
+    old_line = @line
+    old_column = @column
+    move(:visual_positions, -1)
+    @buffer.delete_chars(@line, @column, 1) if old_line != @line || old_column != @column
   end
 end

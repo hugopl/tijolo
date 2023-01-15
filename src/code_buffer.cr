@@ -14,9 +14,14 @@ class CodeBuffer < GObject::Object
 
   def initialize(*, file : Path? = nil, contents : String? = nil)
     super()
-    contents = File.read(file) if file
 
-    @lines = contents ? contents.split("\n") : Array(String).new
+    @lines = if file
+               File.read_lines(file, chomp: false)
+             elsif contents
+               contents.lines(chomp: false)
+             else
+               [] of String
+             end
     @lines << "" if @lines.empty?
   end
 
@@ -25,11 +30,25 @@ class CodeBuffer < GObject::Object
   end
 
   def line_size(n : Int32) : Int32
-    @lines[n]?.try(&.size) || -1
+    line = @lines[n]?
+    return -1 if line.nil?
+
+    size = line.size
+    size -= 1 if line.ends_with?("\n")
+    size
   end
 
   def column_byte_index(line : Int32, column : Int32) : Int32
     @lines[line].char_index_to_byte_index(column) || -1
+  end
+
+  # Allocate a new String and copy the buffer contents into it.
+  def contents : String
+    String.build do |str|
+      @lines.each do |line|
+        str << line
+      end
+    end
   end
 
   def line(n : Int32) : Bytes?
@@ -63,18 +82,42 @@ class CodeBuffer < GObject::Object
     end
   end
 
-  def delete_chars(line : Int32, col : Int32, count : Int32) : {Int32, Int32}
+  # Delete *count* chars starting from *col* at line *line*.
+  def delete_chars(line : Int32, col : Int32, count : Int32) : Nil
     current_line = @lines[line]
-    Log.error { "Delete chars not yet implemented..." }
 
-    {line, col}
+    if current_line.size > col + count
+      @lines[line] = current_line.delete_at(start: col, count: count)
+      lines_changed_signal.emit(line, 1)
+      return
+    end
+
+    # deleting multiple lines
+    new_count = current_line.size - col
+    rest = count - new_count
+    current_line = current_line.delete_at(start: col, count: new_count)
+
+    while rest >= 0
+      next_line = @lines[line + 1]?
+      if next_line.nil?
+        @lines[line] = current_line
+        break
+      end
+      @lines.delete_at(line + 1)
+      lines_removed_signal.emit(line + 1, 1)
+
+      if rest < next_line.size
+        @lines[line] = current_line + next_line.delete_at(start: 0, count: rest)
+        lines_changed_signal.emit(line, 1)
+        break
+      end
+      rest -= next_line.size
+    end
   end
 
   def save(io : IO) : Nil
-    line_count = self.line_count - 1
-    @lines.each_with_index do |line, i|
+    @lines.each do |line|
       io << line
-      io << '\n' if i < line_count
     end
 
     self.modified = false
