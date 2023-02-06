@@ -251,12 +251,12 @@ class ApplicationWindow < Adw::ApplicationWindow
       return
     end
 
-    view = view_manager.find_view(resource)
+    view = view_manager.find_view_by_resource(resource)
     if view.nil?
       view = ViewFactory.build(resource)
       view_manager.add_view(view, split_view)
     else
-      view_manager.show_view(view)
+      view_manager.focus_view(view)
     end
   rescue e : IO::Error
     application.error(e)

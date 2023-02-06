@@ -42,12 +42,12 @@ class Project
     !Project.find_root(path).nil?
   end
 
-  def self.name(path)
+  def self.name_from_path(path)
     File.basename(path).tr("-_", " ").titleize
   end
 
   def name
-    Project.name(@root)
+    Project.name_from_path(@root)
   end
 
   def under_project?(path : Path) : Bool

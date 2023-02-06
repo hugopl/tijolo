@@ -27,7 +27,7 @@ module RCData
     end
 
     def name
-      ::Project.name(@path)
+      ::Project.name_from_path(@path)
     end
 
     def <=>(other)
