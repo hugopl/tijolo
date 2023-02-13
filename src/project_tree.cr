@@ -260,7 +260,12 @@ class ProjectTree
 
   def initialize(@project : Project)
     @root = Root.new
-    # @project.add_project_listener(self)
+    @project.file_added_signal.connect do |path|
+      project_file_added(path)
+    end
+    @project.file_removed_signal.connect do |path|
+      project_file_removed(path)
+    end
   end
 
   def tree_path(file : String)

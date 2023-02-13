@@ -20,10 +20,6 @@ abstract class LocatorProvider
   def view_closed(view : View) : Nil
   end
 
-  # Called when project load finishes.
-  def project_load_finished
-  end
-
   # index is the index of the entry in the provided model.
   # This must return true if the locator should hide after activation
   abstract def activate(locator : Locator, index : Int32) : Bool

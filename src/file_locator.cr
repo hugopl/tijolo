@@ -5,15 +5,10 @@ class FileLocator < FuzzyLocator
   def initialize(@project : Project)
     place_holder = @project.valid? ? "Waiting project load to finish..." : "There's no project open."
     super(place_holder)
-    # @project.add_project_listener(self)
-  end
 
-  def project_files_changed
-    project_load_finished
-  end
-
-  def project_load_finished
-    self.haystack = Fzy::PreparedHaystack.new(@project.files.map(&.to_s))
+    @project.files_changed_signal.connect do
+      update_haystack(Fzy::PreparedHaystack.new(@project.files.map(&.to_s)))
+    end
   end
 
   def shortcut : Char

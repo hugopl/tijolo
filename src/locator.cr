@@ -76,11 +76,6 @@ class Locator < Adw::Bin
     end
   end
 
-  def project_load_finished
-    @default_locator_provider.project_load_finished
-    @locator_providers.each_value(&.project_load_finished)
-  end
-
   def show(*, select_text : Bool, view : View?, split_view = false)
     @split_next = split_view
     self.results_cursor = 0

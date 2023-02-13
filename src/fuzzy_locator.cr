@@ -48,7 +48,7 @@ abstract class FuzzyLocator < LocatorProvider
 
   abstract def activate(locator : Locator, match : Fzy::Match)
 
-  def haystack=(@haystack : Fzy::PreparedHaystack?)
+  def update_haystack(@haystack : Fzy::PreparedHaystack?)
     install_placeholder if @haystack.nil?
     fuzzy_search(@search_text)
   end

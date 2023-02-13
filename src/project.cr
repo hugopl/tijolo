@@ -5,7 +5,9 @@ require "./tijolo_error"
 class ProjectError < TijoloError
 end
 
-class Project
+class Project < GObject::Object
+  Log = ::Log.for("Project")
+
   getter root : Path = Path.new
   getter? load_finished = false
 
@@ -16,10 +18,18 @@ class Project
   @directories = Set(Path).new
   @files = Set(Path).new
 
+  signal file_added(path : Path)
+  signal file_removed(path : Path)
+  # Emitted when a file was added or removed from project
+  signal files_changed
+  @files_changed = false
+
   def initialize
+    super
   end
 
   def initialize(location : Path)
+    super()
     self.root = location
   end
 
@@ -63,114 +73,79 @@ class Project
     end
   end
 
-  def add_path(path : Path) : Bool
-    path = path.relative_to(@root)
-    return false unless under_project?(path)
+  def files_changed!
+    return if @files_changed
 
-    if File.directory?(path)
-      add_files_in_dir(path)
-    else
-      add_single_file_path(path)
+    @files_changed = true
+    GLib.idle_add(:low) do
+      files_changed_signal.emit
+      @files_changed = false
+      false
     end
   end
 
-  private def add_files_in_dir(dir_path) : Bool
-    files = [] of Path
-    directories = [] of Path
-    scan_dir(dir_path, files, directories)
-
-    @files_mutex.synchronize do
-      files.each { |file| @files.add?(file) }
-      directories.each { |dir| @directories.add?(dir) }
-    end
-    files.each do |file|
-      notify_project_file_added(file)
-    end
-    directories.each do |dir|
-      notify_project_dir_added(dir)
-    end
-    notify_project_files_changed if files.any?
-
-    files.any? || directories.any?
+  def add_path(path : Path)
+    Dir.exists?(path) ? add_dir(path) : add_file(path)
+    files_changed!
   end
 
-  private def add_single_file_path(relative_path) : Bool
-    added = false
-    missing_dirs = missing_directories(relative_path)
-    @files_mutex.synchronize do
-      added = @files.add?(relative_path)
-    end
-    if added
-      missing_dirs.each do |dir|
-        notify_project_dir_added(dir)
-      end
-      notify_project_file_added(relative_path)
-      notify_project_files_changed
-    end
-    added
-  end
-
-  private def missing_directories(relative_file_path) : Array(Path)
-    path = Path.new(relative_file_path.dirname)
-    missing_dirs = [] of Path
-    @files_mutex.synchronize do
-      while path.to_s != "." && !@directories.includes?(path)
-        missing_dirs << path
-        path = Path.new(path.dirname)
-      end
-    end
-    missing_dirs
-  end
-
-  def remove_path(path : Path) : Bool
-    path = path.relative_to(@root)
-    return true if remove_file_path(path)
-
-    files_to_delete = [] of Path
-    dirs_to_delete = [] of Path
-    @files_mutex.synchronize do
-      return false unless @directories.includes?(path)
-
-      # Remove all files under this dir.
-      path_str = "#{path}/"
-      files_to_delete = @files.select(&.to_s.starts_with?(path_str))
-      files_to_delete.not_nil!.each do |file|
-        @files.delete(file)
-      end
-
-      # Remove all directories under this dir
-      dirs_to_delete = @directories.select(&.to_s.starts_with?(path_str)).uniq!
-      dirs_to_delete << path
-      dirs_to_delete.each do |file|
-        @directories.delete(file)
-      end
-    end
-    files_to_delete.each do |file|
-      notify_project_file_removed(file)
-    end
-    dirs_to_delete.each do |dir|
-      notify_project_dir_removed(dir)
-    end
-    notify_project_files_changed
-    files_to_delete.any? || dirs_to_delete.any?
-  end
-
-  # file_path should already be relative to the project
-  private def remove_file_path(relative_path : Path) : Bool
-    @files_mutex.synchronize do
-      return false unless @files.includes?(relative_path)
-
-      @files.delete(relative_path)
-    end
-    notify_project_file_removed(relative_path)
-    notify_project_files_changed
-    true
+  def remove_path(path : Path)
+    @directories.includes?(path) ? remove_dir(path) : remove_file(path)
+    files_changed!
   end
 
   def rename_path(old_path : Path, new_path : Path)
     # FIXME: Proper rename folders
     remove_path(old_path)
     add_path(new_path)
+  end
+
+  private def add_file(path : Path) : Nil
+    path = path.relative_to(@root)
+    Log.debug { "add file: #{path}" }
+
+    @files_mutex.synchronize do
+      file_added_signal.emit(path) if @files.add?(path)
+    end
+  end
+
+  private def add_dir(path : Path) : Nil
+    path = path.relative_to(@root)
+    Log.debug { "add dir: #{path}" }
+
+    files = Set(Path).new
+    directories = Set(Path).new
+    scan_dir(path, files, directories)
+
+    @files_mutex.synchronize do
+      files.each do |file|
+        file_added_signal.emit(file) if @files.add?(file)
+      end
+      directories.each { |f| @directories.add(f) }
+    end
+  end
+
+  private def remove_dir(path : Path) : Nil
+    path = path.relative_to(@root)
+    # Remove all files under this dir.
+    path_str = "#{path}/"
+    files_to_remove : Array(Path)? = nil
+    @files_mutex.synchronize do
+      files_to_remove = @files.select(&.to_s.starts_with?(path_str))
+      @files.subtract(files_to_remove)
+    end
+    return if files_to_remove.nil?
+
+    files_to_remove.each do |file|
+      file_removed_signal.emit(file)
+    end
+  end
+
+  private def remove_file(path : Path) : Nil
+    path = path.relative_to(@root)
+    @files_mutex.synchronize do
+      file_removed_signal.emit(path) if @files.delete(path)
+    end
   end
 
   def each_directory
@@ -238,7 +213,7 @@ class Project
     @ignored_dirs.any?(path)
   end
 
-  private def scan_dir(dir : Path, files, directories)
+  private def scan_dir(dir : Path, files : Set(Path), directories : Set(Path))
     return if should_ignore_dir?(dir)
 
     directories << dir.relative_to(@root) if dir != @root

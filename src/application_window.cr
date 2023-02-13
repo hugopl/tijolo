@@ -1,4 +1,5 @@
 require "./project"
+require "./project_monitor"
 require "./project_tree"
 require "./welcome_widget"
 require "./view_manager"
@@ -10,6 +11,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
   getter project : Project
+  @project_monitor : ProjectMonitor
   @project_tree : ProjectTree
   @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
@@ -19,6 +21,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   def initialize(application : Gio::Application, @project : Project)
     super()
     @project_tree = ProjectTree.new(@project)
+    @project_monitor = ProjectMonitor.new(@project)
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
     @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
@@ -41,6 +44,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     else
       welcome
     end
+
     setup_actions
   end
 
@@ -85,7 +89,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   def project_load_finished
     @project_tree.project_load_finished
-    locator.project_load_finished
+    @project_monitor.project_load_finished
   end
 
   private def welcome
