@@ -235,7 +235,9 @@ class Project
         break if path == root
       end
     end
-    nil
+
+    return unless File.exists?(location)
+    File.directory?(location) ? location : Path.new(File.dirname(location))
   end
 
   def scan_files
