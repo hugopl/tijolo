@@ -21,7 +21,7 @@ require "./bindings/gtk_source.cr"
 
 require "compiled_license"
 require "gobject/gtk"
-require_gobject "GtkSource"
+require_gobject "GtkSource", "4"
 
 require "./ui_builder_helper"
 require "./observable"

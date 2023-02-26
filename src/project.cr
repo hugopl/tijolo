@@ -278,7 +278,7 @@ class Project
         next
       elsif info.file?
         files << path.relative_to(@root)
-      elsif info.directory? && entry[0] != '.'
+      elsif info.directory?
         scan_dir(path, files, directories)
       end
     end

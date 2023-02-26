@@ -1,6 +1,6 @@
 require "spec"
 require "gobject/gtk"
-require_gobject "GtkSource"
+require_gobject "GtkSource", "4"
 
 require "../src/tijolo_rc"
 require "../src/error"
