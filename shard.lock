@@ -6,19 +6,31 @@ shards:
 
   fzy:
     git: https://github.com/hugopl/fzy.git
-    version: 0.5.2
+    version: 0.5.5
 
   gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.13.1+git.commit.31e2a991b7bba35162b1a231f4293d1ff46a1f6c
+    version: 0.15.2
+
+  gio:
+    git: https://github.com/hugopl/gio.cr.git
+    version: 0.1.0
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.11.1+git.commit.a26d9214724a12fab776d11d9d3f6a071eaa5993
+    version: 0.13.0+git.commit.64d99e579bf7ff3023bd79735e3d070e4e5ab29d
+
+  harfbuzz:
+    git: https://github.com/hugopl/harfbuzz.cr.git
+    version: 0.1.0
 
   libadwaita:
     git: https://github.com/hugopl/libadwaita.cr.git
     version: 1.0.0+git.commit.a3afbc851b51c6f874e0524afe0e9829f5b0fd05
+
+  pango:
+    git: https://github.com/hugopl/pango.cr.git
+    version: 0.2.0
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
