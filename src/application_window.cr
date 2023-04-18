@@ -6,7 +6,7 @@ require "./view_manager"
 require "./view_factory"
 require "./locator"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar git_branches_menu open_menu_button))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -27,8 +27,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
     @locator.open_file_signal.connect(->open(String, Bool))
-
-    Adw::SplitButton.cast(template_child("open_menu_button")).clicked_signal.connect(&->show_open_file_dialog)
 
     self.application = application
 
@@ -76,7 +74,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     raise ArgumentError.new unless @view_manager.nil?
 
     Gtk::HeaderBar.cast(template_child("headerbar")).title_widget = @locator
-    Gtk::MenuButton.cast(template_child("git_branches_menu")).visible = true
 
     Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
     @sidebar.locked = false

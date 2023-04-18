@@ -49,13 +49,13 @@
                   </object>
                 </child>
                 <child>
-                  <object class="AdwSplitButton" id="open_menu_button">
-                    <property name="label" translatable="yes">Open</property>
+                  <object class="GtkButton">
                     <property name="tooltip-text" translatable="yes">Open document</property>
-<!--                    <property name="popover">
-                      <object class="FileOpenPopover" id="open_menu_popover">
-                      </object>
-                    </property>-->
+                    <property name="action-name">win.open_file</property>
+                    <property name="icon-name">document-open-symbolic</property>
+                    <accessibility>
+                      <property name="label" translatable="yes">Open (Ctrl+O)</property>
+                    </accessibility>
                   </object>
                 </child>
                 <child>
@@ -75,6 +75,7 @@
               <object class="GtkBox">
                 <property name="halign">end</property>
                 <property name="spacing">6</property>
+<!-- This is a git menu supposed to be right aligned in the header bar, hidden while not implemented yet.
                 <child>
                   <object class="GtkMenuButton" id="git_branches_menu">
                     <property name="label" translatable="yes">ProjectName on master</property>
@@ -82,12 +83,13 @@
                     <property name="visible">0</property>
                     <property name="halign">start</property>
                     <style><class name="flat"/></style>
-<!--                    <property name="popover">
+                    <property name="popover">
                       <object class="GitBranchesPopover" id="git_menu_popover">
                       </object>
-                    </property>-->
+                    </property>
                   </object>
                 </child>
+-->
                 <child>
                   <object class="GtkMenuButton">
                     <property name="menu-model">primary_menu</property>
