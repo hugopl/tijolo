@@ -186,7 +186,10 @@ class Project < GObject::Object
         break if path == root
       end
     end
-    nil
+
+    return unless File.exists?(location)
+
+    File.directory?(location) ? location : Path.new(File.dirname(location))
   end
 
   def scan_files(on_finish : Proc(Nil))
@@ -228,7 +231,7 @@ class Project < GObject::Object
         next
       elsif info.file?
         files << path.relative_to(@root)
-      elsif info.directory? && entry[0] != '.'
+      elsif info.directory?
         scan_dir(path, files, directories)
       end
     end
