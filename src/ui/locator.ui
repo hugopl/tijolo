@@ -51,6 +51,7 @@
       <object class="GtkSearchEntry" id="locator_entry">
         <property name="valign">center</property>
         <property name="focusable">1</property>
+        <property name="search-delay">0</property>
         <property name="placeholder-text">Press Ctrl+P to locate stuff</property>
       </object>
     </child>

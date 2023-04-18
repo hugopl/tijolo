@@ -47,8 +47,6 @@ class Locator < Adw::Bin
     @entry = Gtk::SearchEntry.cast(template_child("locator_entry"))
     @entry.activate_signal.connect(&->entry_activated)
     @entry.search_changed_signal.connect(&->search_changed)
-    # only works on GTK >= 4.8
-    # @entry.search_delay = 0
 
     key_ctl = Gtk::EventControllerKey.new
     key_ctl.key_pressed_signal.connect(&->entry_key_pressed(UInt32, UInt32, Gdk::ModifierType))
@@ -132,6 +130,11 @@ class Locator < Adw::Bin
 
   private def search_changed
     text = @entry.text
+
+    # Due to https://gitlab.gnome.org/GNOME/gtk/-/issues/5340
+    # GTK emit search_changed signal for no reasons at begining, so we need this check here.
+    return if text.empty? && !@popover.visible
+
     locator = find_locator(text)
     if @current_locator_provider != locator
       locator.selected(@current_view)
