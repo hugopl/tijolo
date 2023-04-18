@@ -204,6 +204,7 @@ class Project < GObject::Object
       Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
       GLib.idle_add do
         on_finish.call
+        files_changed!
         false
       end
     end
