@@ -12,7 +12,14 @@ box.selected {
 }
 
 #locator treeview:selected {
-  background-color: @accent_bg_color;
+  /*
+    @accent_bg_color seems broken at some version of GTK/Adwaita
+    So we hardcode here the color in the docs for dark theme... worst solution ever.
+  */
+  background-color: #3584e4;
+  /*
+    accent_fg_color seems broken as well
+  */
   color: @accent_fg_color;
 }
 
