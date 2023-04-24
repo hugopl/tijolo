@@ -131,7 +131,6 @@ class CodeLayout
       if line.nil?
         text = @buffer.line(line_n)
         break if text.nil?
-
         line = CodeLine.new(@pango_ctx, text, @text_width)
         @lines << line
       elsif line.dirty?

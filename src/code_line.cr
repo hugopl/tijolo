@@ -22,9 +22,4 @@ class CodeLine
   def width=(value : Int32)
     @layout.width = value * Pango::SCALE
   end
-
-  def height : Int32
-    # FIXME: Fix this in gi-crystal
-    width, height = @layout.pixel_size
-  end
 end

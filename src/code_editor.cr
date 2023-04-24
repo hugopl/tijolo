@@ -10,9 +10,6 @@ require "./code_layout"
 class CodeEditor < Gtk::Widget
   include Gtk::Scrollable
 
-  private MARGIN        = 4.0_f32
-  private DOUBLE_MARGIN = 8.0_f32
-
   @[GObject::Property]
   property hadjustment : Gtk::Adjustment?
   @[GObject::Property]
@@ -41,8 +38,7 @@ class CodeEditor < Gtk::Widget
   @text_color : Gdk::RGBA
   @grid_color : Gdk::RGBA
 
-  @font_height : Float32
-  @font_width : Float32
+  @line_height : Float64
 
   @cursors : CodeCursors
 
@@ -58,14 +54,15 @@ class CodeEditor < Gtk::Widget
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
     @code_layout = CodeLayout.new(@pango_ctx, @buffer)
 
+    metric = @pango_ctx.metrics(nil, nil)
+    @line_height = (metric.height / Pango::SCALE).ceil
+
     # Colors
     @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
     @text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
     @grid_color = Gdk::RGBA.new(0.188, 0.188, 0.161, 1.0)
 
     metric = @pango_ctx.metrics(nil, nil)
-    @font_height = (metric.height / Pango::SCALE).to_f32
-    @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
 
     @cursors = CodeCursors.new(@buffer)
     @cursors.on_cursor_change do |line, col|
@@ -83,6 +80,7 @@ class CodeEditor < Gtk::Widget
   end
 
   def vadjustment=(vadjustment : Gtk::Adjustment?)
+    Log.error { "vadjustment for code editor double initiated, a gobject will leak." } unless @vadjustment.nil?
     previous_def
 
     # FIXME: Disconnect value_changed_signal from old @vadjustment
@@ -130,16 +128,17 @@ class CodeEditor < Gtk::Widget
 
   @[GObject::Virtual]
   def size_allocate(width : Int32, height : Int32, baseline : Int32)
-    @width = width.to_f32
-    @height = height.to_f32
-
     vadjustment = @vadjustment
     return if vadjustment.nil?
+
+    @width = width.to_f32
+    @height = height.to_f32
+    visible_lines = @height / @line_height
 
     @code_layout.width = width
     upper = @buffer.line_count.to_f64
     page_size = @code_layout.visible_lines_count
-    vadjustment.configure(line_offset.to_f64, 0.0, upper, page_size * 0.1, page_size * 0.9, page_size)
+    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, visible_lines)
   end
 
   private def line_offset : Int32
