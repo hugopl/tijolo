@@ -18,6 +18,12 @@ class CodeLine
     @layout.set_text(text)
   end
 
+  # Return -1 if the column is out of index
+  def char_at(x : Float64) : Int32
+    x = (x * Pango::SCALE).to_i
+    @layout.xy_to_index(x, 0)
+  end
+
   # Width in pango units.
   def width=(value : Int32)
     @layout.width = value * Pango::SCALE

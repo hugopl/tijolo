@@ -33,6 +33,22 @@ class CodeLayout
     @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
   end
 
+  def x_y_to_line_column(x : Float64, y : Float64, line_offset : Int32 = 0) : {Int32, Int32}
+    code_line_index = (y / line_height).floor.to_i
+    code_line = @lines[code_line_index]?
+    line = code_line_index + line_offset
+
+    if code_line.nil?
+      Log.warn { "Mouse click out of render area or before we render something!?" }
+      return {line, 0}
+    end
+
+    column = code_line.char_at(x - text_left_margin)
+    return {line, 0} if column < 0
+
+    {line, column}
+  end
+
   def lines_changed(n : Int32, count : Int32)
     (n...(n + count)).each do |i|
       line = @lines[i]?

@@ -9,3 +9,5 @@ require "./tijolo_application"
 Gio.register_resource("data/resources.xml", source_dir: "data")
 app = TijoloApplication.new
 exit(app.run)
+
+require "./monkey_patches"

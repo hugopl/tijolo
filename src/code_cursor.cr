@@ -9,6 +9,15 @@ class CodeCursors
     @cursors = [CodeCursor.new(@buffer)]
   end
 
+  def keep_just_one_cursor_at(line : Int32, column : Int32)
+    @cursors.delete_at(1, @cursors.size - 1) if @cursors.size > 1
+    cursor = @cursors.first
+
+    watch_cursor do
+      cursor.move(line, column)
+    end
+  end
+
   def at_line(line : Int32)
     @cursors.each do |cursor|
       yield(cursor) if cursor.line == line
@@ -68,6 +77,11 @@ class CodeCursor
 
   def column_byte : Int32
     @buffer.column_byte_index(@line, @column)
+  end
+
+  def move(line : Int32, column : Int32)
+    @line = line.clamp(0, @buffer.line_count - 1)
+    @column = column.clamp(0, @buffer.line_size(@line))
   end
 
   def move(step : Gtk::MovementStep, count : Int32) : Nil

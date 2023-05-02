@@ -62,6 +62,7 @@ class CodeEditor < Gtk::Widget
     @cursors = CodeCursors.new(@buffer)
     @cursors.on_cursor_change do |line, col|
       cursor_changed_signal.emit(line, col)
+      queue_draw
     end
 
     @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
@@ -72,6 +73,10 @@ class CodeEditor < Gtk::Widget
     key_controller.im_context = im_context
     add_controller(key_controller)
     key_controller.key_pressed_signal.connect(&->key_pressed(UInt32, UInt32, Gdk::ModifierType))
+
+    gesture_controller = Gtk::GestureClick.new
+    gesture_controller.pressed_signal.connect(&->clicked(Int32, Float64, Float64))
+    add_controller(gesture_controller)
   end
 
   delegate line_height, to: @code_layout
@@ -110,6 +115,12 @@ class CodeEditor < Gtk::Widget
 
     queue_draw
     true
+  end
+
+  private def clicked(n_press : Int32, x : Float64, y : Float64)
+    line, column = @code_layout.x_y_to_line_column(x, y, line_offset)
+    @cursors.keep_just_one_cursor_at(line, column)
+    Log.info { "CLICK! n_press: #{n_press}, x: #{x}, y: #{y} -> line: #{line}, column: #{column}." }
   end
 
   @[GObject::Virtual]
