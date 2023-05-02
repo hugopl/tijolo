@@ -16,7 +16,7 @@ class CodeLayout
   @height = 0
 
   getter visible_lines_count = 0
-  getter font_height : Float32
+  getter line_height : Float32
   getter font_width : Float32
   property text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
 
@@ -25,7 +25,7 @@ class CodeLayout
     @line_numbers_layout.alignment = :right
 
     metric = @pango_ctx.metrics(nil, nil)
-    @font_height = (metric.height / Pango::SCALE).to_f32
+    @line_height = (metric.height / Pango::SCALE).ceil.to_f32
     @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
 
     @buffer.lines_changed_signal.connect(&->lines_changed(Int32, Int32))
@@ -105,7 +105,7 @@ class CodeLayout
       # We set the width instead of do a translation when rendering, so MARGIN*2 here
       @line_numbers_layout.width = (text_left_margin * Pango::SCALE - MARGIN * 2).to_i
     end
-    @visible_lines_count = height // @font_height
+    @visible_lines_count = height // @line_height
 
     snapshot.translate(MARGIN, 0.0)
     each_code_line do |code_line, line_n|
@@ -120,7 +120,7 @@ class CodeLayout
 
       yield(layout, line_n)
 
-      snapshot.translate(-line_numbers_width, @font_height)
+      snapshot.translate(-line_numbers_width, @line_height)
     end
   end
 

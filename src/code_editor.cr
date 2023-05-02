@@ -38,8 +38,6 @@ class CodeEditor < Gtk::Widget
   @text_color : Gdk::RGBA
   @grid_color : Gdk::RGBA
 
-  @line_height : Float64
-
   @cursors : CodeCursors
 
   # Widget width/height
@@ -53,9 +51,6 @@ class CodeEditor < Gtk::Widget
     @pango_ctx = create_pango_context
     @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
     @code_layout = CodeLayout.new(@pango_ctx, @buffer)
-
-    metric = @pango_ctx.metrics(nil, nil)
-    @line_height = (metric.height / Pango::SCALE).ceil
 
     # Colors
     @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
@@ -78,6 +73,8 @@ class CodeEditor < Gtk::Widget
     add_controller(key_controller)
     key_controller.key_pressed_signal.connect(&->key_pressed(UInt32, UInt32, Gdk::ModifierType))
   end
+
+  delegate line_height, to: @code_layout
 
   def vadjustment=(vadjustment : Gtk::Adjustment?)
     Log.error { "vadjustment for code editor double initiated, a gobject will leak." } unless @vadjustment.nil?
@@ -133,7 +130,7 @@ class CodeEditor < Gtk::Widget
 
     @width = width.to_f32
     @height = height.to_f32
-    visible_lines = @height / @line_height
+    visible_lines = @height / line_height
 
     @code_layout.width = width
     upper = @buffer.line_count.to_f64
@@ -152,8 +149,7 @@ class CodeEditor < Gtk::Widget
     snapshot.save do
       snapshot.translate(@code_layout.text_left_margin, 0.0)
       width = @code_layout.text_area_width
-      # FIXME: grid_height is not aligned
-      grid_height = @code_layout.font_height / 2.0_f32
+      grid_height = line_height / 2.0_f32
       snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, width, grid_height)
       snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, width, 1)
       snapshot.pop
