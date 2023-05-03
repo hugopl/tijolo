@@ -4,6 +4,7 @@ class CodeLine
 
   def initialize(ctx : Pango::Context, text : Bytes, width : Int32)
     @layout = Pango::Layout.new(ctx)
+    @layout.ellipsize = :end
     @layout.set_text(text)
     self.width = width
   end
