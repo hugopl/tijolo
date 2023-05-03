@@ -126,7 +126,7 @@ class CodeLayout
     snapshot.translate(MARGIN, 0.0)
     each_code_line do |code_line, line_n|
       # Render line number
-      @line_numbers_layout.set_text(line_number_to_string(line_n))
+      @line_numbers_layout.set_text(line_number_to_string(line_n + 1))
       snapshot.append_layout(@line_numbers_layout, @text_color)
 
       # Render code line
