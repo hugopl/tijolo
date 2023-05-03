@@ -109,8 +109,8 @@ class CodeCursor
       if old_line != @line
         @column = @old_column_value.clamp(0, @buffer.line_size(@line))
       end
-    elsif step.display_line_ends?
-      @column = @old_column_value = @buffer.line_size(@line)
+    elsif step.paragraph_ends? || step.display_line_ends?
+      @column = @old_column_value = count < 0 ? 0 : @buffer.line_size(@line)
     else
       Log.warn { "Not implemented" }
     end

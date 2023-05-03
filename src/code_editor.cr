@@ -79,8 +79,6 @@ class CodeEditor < Gtk::Widget
     add_controller(gesture_controller)
   end
 
-  delegate line_height, to: @code_layout
-
   def vadjustment=(vadjustment : Gtk::Adjustment?)
     Log.error { "vadjustment for code editor double initiated, a gobject will leak." } unless @vadjustment.nil?
     previous_def
@@ -104,6 +102,10 @@ class CodeEditor < Gtk::Widget
     when Gdk::KEY_Down, Gdk::KEY_KP_Down                        then @cursors.move(:display_lines, 1)
     when Gdk::KEY_Right, Gdk::KEY_KP_Right                      then @cursors.move(:visual_positions, 1)
     when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
+    when Gdk::KEY_Home                                          then @cursors.move(:paragraph_ends, -1)
+    when Gdk::KEY_End                                           then @cursors.move(:paragraph_ends, 1)
+    when Gdk::KEY_Page_Up, Gdk::KEY_KP_Page_Up                  then @cursors.move(:display_lines, -@code_layout.page_size // 2)
+    when Gdk::KEY_Page_Down, Gdk::KEY_KP_Page_Down              then @cursors.move(:display_lines, @code_layout.page_size // 2)
     when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
     when Gdk::KEY_BackSpace                                     then @cursors.backspace
     when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
@@ -141,12 +143,11 @@ class CodeEditor < Gtk::Widget
 
     @width = width.to_f32
     @height = height.to_f32
-    visible_lines = @height / line_height
 
     @code_layout.width = width
+    @code_layout.height = height
     upper = @buffer.line_count.to_f64
-    page_size = @code_layout.visible_lines_count
-    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, visible_lines)
+    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, @code_layout.page_size.to_f32)
   end
 
   private def line_offset : Int32
@@ -160,7 +161,7 @@ class CodeEditor < Gtk::Widget
     snapshot.save do
       snapshot.translate(@code_layout.text_left_margin, 0.0)
       width = @code_layout.text_area_width
-      grid_height = line_height / 2.0_f32
+      grid_height = @code_layout.line_height / 2.0_f32
       snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, width, grid_height)
       snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, width, 1)
       snapshot.pop

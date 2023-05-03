@@ -10,12 +10,11 @@ class CodeLayout
 
   @line_numbers_layout : Pango::Layout
   @line_numbers_string_buffer = IO::Memory.new
-  @width = 0      # Width of whole widget
+  getter width = 0 # Width of whole widget
+  property height = 0
   @text_width = 0 # Width of text without margins
   @width_changed = false
-  @height = 0
 
-  getter visible_lines_count = 0
   getter line_height : Float32
   getter font_width : Float32
   property text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
@@ -77,6 +76,11 @@ class CodeLayout
     @width_changed = true
   end
 
+  # Page size in lines
+  def page_size : Int32
+    (@height / @line_height).to_i
+  end
+
   def line_offset=(offset : Int32)
     if offset > @line_offset
       @lines.delete_at(0...(offset - @line_offset))
@@ -121,7 +125,6 @@ class CodeLayout
       # We set the width instead of do a translation when rendering, so MARGIN*2 here
       @line_numbers_layout.width = (text_left_margin * Pango::SCALE - MARGIN * 2).to_i
     end
-    @visible_lines_count = height // @line_height
 
     snapshot.translate(MARGIN, 0.0)
     each_code_line do |code_line, line_n|
@@ -141,7 +144,7 @@ class CodeLayout
   end
 
   private def each_code_line
-    0.upto(@visible_lines_count) do |i|
+    0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
       if line.nil?
