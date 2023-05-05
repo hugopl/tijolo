@@ -87,6 +87,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   def project_load_finished
     @project_tree.project_load_finished
     @project_monitor.project_load_finished
+    enable_project_related_actions(true)
   end
 
   private def welcome
@@ -143,6 +144,8 @@ class ApplicationWindow < Adw::ApplicationWindow
       application.not_nil!.set_accels_for_action("win.#{name}", {shortcut})
     end
 
+    enable_project_related_actions(false)
+
     # View related actions
     #     uint64 = GLib::VariantType.new("t")
     #     action = Gio::SimpleAction.new("copy_full_path", uint64)
@@ -164,6 +167,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     #     action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
     #     action.activate_signal.connect(->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
     #     main_window.add_action(action)
+  end
+
+  private def enable_project_related_actions(value : Bool)
+    Gio::SimpleAction.cast(lookup_action("show_hide_sidebar").not_nil!).enabled = value
   end
 
   def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
