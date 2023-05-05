@@ -9,9 +9,6 @@ targets:
     main: src/main.cr
 
 dependencies:
-  version_from_shard:
-    github: hugopl/version_from_shard
-    version: ~> 1.2
   fzy:
     github: hugopl/fzy
     version: ~> 0.5

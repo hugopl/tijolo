@@ -1,11 +1,8 @@
-require "version_from_shard"
-
 require "./tijolo_error"
 require "./tijolo_log_format"
 require "./application_window"
 
-VersionFromShard.declare
-
+VERSION = {{ `shards version #{__DIR__}`.strip.stringify }}
 LICENSE = {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").stringify }}
 
 class TijoloApplication < Adw::Application
