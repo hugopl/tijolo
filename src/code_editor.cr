@@ -146,8 +146,8 @@ class CodeEditor < Gtk::Widget
 
     @code_layout.width = width
     @code_layout.height = height
-    upper = @buffer.line_count.to_f64
-    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, @code_layout.page_size.to_f32)
+    upper = @buffer.line_count + @code_layout.page_size / 2
+    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, @code_layout.page_size)
   end
 
   private def line_offset : Int32
