@@ -9,4 +9,15 @@ module Pango
       index
     end
   end
+
+  class AttrList
+    def initialize
+      @pointer = LibPango.pango_attr_list_new
+    end
+
+    def <<(attr : Pango::Attribute) : self
+      insert(attr)
+      self
+    end
+  end
 end

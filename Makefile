@@ -22,7 +22,7 @@ install:
 	install -D -m0644 data/language-specs/ruby.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/ruby.lang
 	install -D -m0644 data/language-specs/haml.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/haml.lang
 	install -D -m0644 data/language-specs/gitlog.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/gitlog.lang
-	install -D -m0644 data/styles/monokai.xml $(DESTDIR)$(PREFIX)/share/tijolo/styles/monokai.xml
+	install -D -m0644 data/styles/default.yaml $(DESTDIR)$(PREFIX)/share/tijolo/styles/default.yaml
 	# License
 	install -D -m0644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/tijolo/LICENSE
 	# Changelog

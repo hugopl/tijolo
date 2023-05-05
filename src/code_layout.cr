@@ -6,6 +6,7 @@ class CodeLayout
   @line_offset = 0
   @lines = [] of CodeLine
   @buffer : CodeBuffer
+  property highlighter : CodeHighlighter?
   @pango_ctx : Pango::Context
 
   @line_numbers_layout : Pango::Layout
@@ -117,40 +118,44 @@ class CodeLayout
     (screen_width - text_left_margin - MARGIN * 2).to_i
   end
 
-  def render(snapshot : Gtk::Snapshot, height : Int32)
-    line_numbers_width = text_left_margin + MARGIN
+  def render(snapshot : Gtk::Snapshot)
+    @lines.each(&.width=(@text_width)) if @width_changed
 
-    if @width_changed
-      @lines.each(&.width=(@text_width))
-      # We set the width instead of do a translation when rendering, so MARGIN*2 here
-      @line_numbers_layout.width = (text_left_margin * Pango::SCALE - MARGIN * 2).to_i
-    end
+    line_numbers_width = text_left_margin + MARGIN
 
     snapshot.translate(MARGIN, 0.0)
     each_code_line do |code_line, line_n|
-      # Render line number
-      @line_numbers_layout.set_text(line_number_to_string(line_n + 1))
-      snapshot.append_layout(@line_numbers_layout, @text_color)
+      render_line_number(snapshot, line_n)
 
-      # Render code line
-      layout = code_line.layout
       snapshot.translate(line_numbers_width, 0.0)
-      snapshot.append_layout(layout, @text_color)
-
-      yield(layout, line_n)
-
+      render_code_line(snapshot, code_line, line_n)
+      yield(code_line.layout, line_n)
       snapshot.translate(-line_numbers_width, @line_height)
     end
   end
 
+  private def render_line_number(snapshot : Gtk::Snapshot, line_n : Int32)
+    @line_numbers_layout.set_text(line_number_to_string(line_n + 1))
+    snapshot.append_layout(@line_numbers_layout, @text_color)
+  end
+
+  private def render_code_line(snapshot : Gtk::Snapshot, code_line : CodeLine, line_n : Int32)
+    layout = code_line.layout
+    snapshot.append_layout(layout, @text_color)
+  end
+
   private def each_code_line
+    highlighter = @highlighter
+
     0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
       if line.nil?
         text = @buffer.line(line_n)
         break if text.nil?
+
         line = CodeLine.new(@pango_ctx, text, @text_width)
+        line.layout.attributes = highlighter.pango_attrs_for_line(line_n) if highlighter
         @lines << line
       elsif line.dirty?
         line.text = @buffer.line(line_n)

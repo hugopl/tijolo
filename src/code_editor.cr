@@ -1,6 +1,7 @@
 require "./code_buffer"
 require "./code_cursor"
 require "./code_layout"
+require "./code_highlighter"
 
 # Current state of text widget: Far from done.
 #
@@ -30,8 +31,8 @@ class CodeEditor < Gtk::Widget
   signal cursor_changed(line : Int32, col : Int32)
 
   # Text rendering
-  @pango_ctx : Pango::Context
   @code_layout : CodeLayout
+  @code_highlighter : CodeHighlighter?
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -44,20 +45,18 @@ class CodeEditor < Gtk::Widget
   @width = 0_f32
   @height = 0_f32
 
-  def initialize(resource : Path? = nil)
+  def initialize(resource : Path?, language : String?)
     super(focusable: true)
-    @buffer = CodeBuffer.new(file: resource)
 
-    @pango_ctx = create_pango_context
-    @pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
-    @code_layout = CodeLayout.new(@pango_ctx, @buffer)
+    @buffer = CodeBuffer.new(file: resource)
+    pango_ctx = create_pango_context
+    pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
+    @code_layout = CodeLayout.new(pango_ctx, @buffer)
 
     # Colors
     @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
     @text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
     @grid_color = Gdk::RGBA.new(0.188, 0.188, 0.161, 1.0)
-
-    metric = @pango_ctx.metrics(nil, nil)
 
     @cursors = CodeCursors.new(@buffer)
     @cursors.on_cursor_change do |line, col|
@@ -66,6 +65,8 @@ class CodeEditor < Gtk::Widget
     end
 
     @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
+
+    self.language = language if language
 
     im_context = Gtk::IMMulticontext.new
     im_context.commit_signal.connect(&->commit_text(String))
@@ -77,6 +78,16 @@ class CodeEditor < Gtk::Widget
     gesture_controller = Gtk::GestureClick.new
     gesture_controller.pressed_signal.connect(&->clicked(Int32, Float64, Float64))
     add_controller(gesture_controller)
+  end
+
+  def language=(language : String)
+    code_highlighter = @code_highlighter
+    if code_highlighter
+      code_highlighter.language = language
+    else
+      @code_highlighter = CodeHighlighter.new(@buffer, language)
+      @code_layout.highlighter = @code_highlighter
+    end
   end
 
   def vadjustment=(vadjustment : Gtk::Adjustment?)
@@ -174,7 +185,7 @@ class CodeEditor < Gtk::Widget
   private def draw_text(snapshot : Gtk::Snapshot)
     snapshot.save do
       @code_layout.line_offset = line_offset
-      @code_layout.render(snapshot, height) do |layout, n|
+      @code_layout.render(snapshot) do |layout, n|
         @cursors.at_line(n) do |cursor|
           snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
         end

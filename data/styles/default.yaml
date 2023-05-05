@@ -1,0 +1,29 @@
+colors:
+  yellow: "#E3D671"
+  orange: "#E38821"
+  red: "#E2246B"
+  magenta: "#AC80FD"
+  violet: "#AC80FF"
+  blue: "#268BD2"
+  cyan: "#62C6D8"
+  green: "#A1D82B"
+  white: "#EBEBE5"
+  gray: "#6D6855"
+
+styles:
+  string:
+    fg_color: yellow
+  constant:
+    fg_color: yellow
+  operator:
+    fg_color: red
+  function:
+    fg_color: green
+  keyword:
+    fg_color: red
+  identifier:
+    fg_color: orange
+  type:
+    fg_color: cyan
+  comment:
+    fg_color: gray

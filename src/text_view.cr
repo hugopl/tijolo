@@ -5,7 +5,7 @@ class TextView < View
   @editor : CodeEditor
 
   def initialize(resource : Path? = nil)
-    @editor = CodeEditor.new(resource)
+    @editor = CodeEditor.new(resource, detect_language(resource))
     super(@editor, resource)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
@@ -29,5 +29,15 @@ class TextView < View
     end
 
     self.modified = false
+  end
+
+  # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard
+  #        Meanwhile just JSON and C for testing 😅️
+  private def detect_language(resource : Path?) : String?
+    return if resource.nil?
+    case resource.extension
+    when ".json" then "json"
+    when ".c"    then "c"
+    end
   end
 end

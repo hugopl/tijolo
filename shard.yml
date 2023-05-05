@@ -21,6 +21,9 @@ dependencies:
   toml:
     github: crystal-community/toml.cr
     version: ~> 0.7.0
+  tree_sitter:
+    github: hugopl/crystal-tree-sitter
+
 crystal: ">= 1.0.0"
 
 license: MIT

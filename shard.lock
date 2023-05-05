@@ -18,7 +18,7 @@ shards:
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.13.0+git.commit.64d99e579bf7ff3023bd79735e3d070e4e5ab29d
+    version: 0.13.0+git.commit.be013e582568acd77692462209951db8ad782ebb
 
   harfbuzz:
     git: https://github.com/hugopl/harfbuzz.cr.git
@@ -35,6 +35,10 @@ shards:
   toml:
     git: https://github.com/crystal-community/toml.cr.git
     version: 0.7.0
+
+  tree_sitter:
+    git: https://github.com/hugopl/crystal-tree-sitter.git
+    version: 0.1.0+git.commit.54a66acb00ca5991a83e935ff218b0c75e54de03
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git
