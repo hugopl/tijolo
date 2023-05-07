@@ -9,32 +9,11 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-Being rewrite using new [GTK4 bindings](https://github.com/hugopl/gtk4.cr) and [LibAdwaita](https://github.com/GeopJr/libadwaita.cr), the re-write isn't done yet but if you want to check the old version check the v0.7.1 tag.
+Current stable (pre-alpha) version is 0.7.x, I'm rewriting all this using new [GTK4 bindings](https://github.com/hugopl/gtk4.cr)
+and [LibAdwaita](https://github.com/GeopJr/libadwaita.cr), the re-write isn't done yet but if you want to check the old version check some v0.7.x tag.
 
 The [TODO](./TODO.md) works like a roadmap and also list things I'm working on, it can give you a better idea of the project
 status.
-
-## Re-write progress
-
-- [x] Draw grid (still unaligned).
-- [x] Draw cursors.
-- [x] Move cursors.
-- [x] Implement Scrollable interface.
-- [x] Study tree-sitter.
-- [x] Handle text input (just really basic stuff to be able to test few things).
-- [x] Create bindings for tree-sitter.
-- [x] Fix gi-crystal structs, so Pango can be used..
-- [ ] Fix gi-crystal for methods with multiple out params, so some other Pango functions can be used.
-- [ ] Create a CodeLayout object to cache PangoLayout's per line.
-- [ ] Render highlighted text with tree-sitter using pango attributes.
-- [ ] Render tree-sitter errors.
-- [ ] Implement `gtk_widget_class_add_binding_signal` on gtk4 shard, so shortcuts can be easily set.
-- [ ] Multiple cursors.
-- [ ] Revisit what was done so far.
-- [ ] Replace dummy text buffer by a piece table 🔥️
-- [ ] Make cursors blink
-- [ ] Hide mouse when typing
-- [ ] Support auto-completion
 
 ## How it looks like?
 
@@ -49,7 +28,7 @@ See more [screenshots](https://github.com/hugopl/tijolo/tree/master/screenshots)
 - Keyboard focused user interface.
 - Easy/fast code navigation.
 - ♥️ Git.
-- ♥️ Language Servers.
+- ♥️ [tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
 ## Installing
 

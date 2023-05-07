@@ -4,37 +4,48 @@
 
 This is a short-term TODO list in no special order.
 
-## 0.8.0 release
+The rewrite isn't not just a plain GTK4 port but the implementation of the text widget with syntax highlighting, etc. So
+it can take sime time to finish... It will be release once I start using it to write itself, nowadays 0.8.0 is written
+using version v0.7.x.
+
+## Pre re-write tasks
 
 - [x] Create a [binding generator for GTK4](https://github.com/hugopl/gi-crystal).
 - [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
-- [ ] Implement a new text widget from scratch using a dummy array of lines buffer.
-- [ ] Use [tree-sitter](https://github.com/tree-sitter/tree-sitter) parser for Crystal, there are 3 on github.
+- [x] Create bindings for [tree-sitter](https://tree-sitter.github.io/).
 
-## 0.9.0 release
+## Code editor widget
 
-- [ ] Replace dummy line array text buffer by a Piece Table implementation.
-- [ ] Fix the buggy location history introduced into 0.3.0 :-)
-- [ ] Bufferize text modifications before send to the language server, I guess VSCode does that.
-- Some ♥️ to shortcuts
-  - [ ] Rebind shortcuts after save config file.
-  - [ ] Show shortcuts in UI according the real configured shortcuts.
+- [x] Draw editor background grid.
+- [x] Draw cursors.
+- [x] Move cursors.
+- [ ] Make cursors blink.
+- [x] Implement Scrollable interface.
+- [x] Study tree-sitter.
+- [x] Handle text input (just really basic stuff to be able to test few things).
+- [x] Fix gi-crystal structs, so Pango can be used..
+- [ ] Fix Pango bindings for `Pango::AttrList` class and `Pango::Attribute`.
+- [ ] Fix gi-crystal for methods with multiple out params, so some other Pango functions can be used.
+- [x] Create a CodeLayout object to cache PangoLayout's per line.
+- [x] Render highlighted text with tree-sitter using pango attributes.
+- [ ] Implement text selection.
+- [ ] Run first round of obvious optimizations.
+- [ ] Multiple cursors.
+- [ ] Render tree-sitter errors.
+- [ ] Revisit what was done so far.
+- [ ] Add [power mode](https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode) for fun.
+- [ ] Replace dummy text buffer by a piece table 🔥️
+- [ ] Support auto-completion
+- [ ] Strip trailing whitespaces on save only on modified lines.
+- [ ] Support custom editor gutter, so we can show a Kdevelop-like in-editor git blame.
 
+## General UI
 
-## Backlog, things that can go in any version...
-
+- [ ] Implement `gtk_widget_class_add_binding_signal` on gtk4 shard, so shortcuts can be easily set.
+- [ ] Hide mouse when typing.
+- [ ] Implement a way to let Crystal objects being created by GtkBuilder on C land, so UI code can be simplified.
+- [ ] Plan better git integration.
+- [ ] Implement cursor position history.
+- [ ] Have a nice settings UI?
 - [ ] Implement keyboard focused open dialog like Howl editor.
-- [x] Open more than one file on command line in different splits, `tijolo file1 --split file2` or `tijolo file1 - file2`.
-- Some ♥️ to LSP implementation.
-  - [ ] Support LSP auto-complete feature.
-  - [ ] Support LSP diagnostics feature.
-  - [ ] Support LSP code format feature.
-- [ ] Git commit dialog? Not sure yet if this is needed when there are terminal views all around.
-- [ ] Rename files (not sure about this... maybe a mouse-only action? since it's a rarely used action for a shortcut).
-- [ ] Delete files (not sure about this... maybe a mouse-only action? since it's a rarely used action for a shortcut).
-- [ ] Clone repository dialog. (I really don't care about this task, since I don't use it)
-- [ ] Automatic close open files not used after X keystrokes if they aren't visible in a split view.
 - [ ] Save sessions.
-- [ ] I18N support.
-- [ ] Strip trailing whitespaces (ONLY) from modified lines.
-- [ ] In-editor git blame.
