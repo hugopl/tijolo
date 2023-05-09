@@ -6,7 +6,7 @@ class CodeLayout
   @line_offset = 0
   @lines = [] of CodeLine
   @buffer : CodeBuffer
-  property highlighter : CodeHighlighter?
+  property highlighter : CodeHighlighter
   @pango_ctx : Pango::Context
 
   @line_numbers_layout : Pango::Layout
@@ -31,6 +31,7 @@ class CodeLayout
     @buffer.lines_changed_signal.connect(&->lines_changed(Int32, Int32))
     @buffer.lines_inserted_signal.connect(&->lines_inserted(Int32, Int32))
     @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
+    @highlighter = CodeHighlighter.new(@buffer)
   end
 
   def x_y_to_line_column(x : Float64, y : Float64, line_offset : Int32 = 0) : {Int32, Int32}
@@ -145,8 +146,6 @@ class CodeLayout
   end
 
   private def each_code_line
-    highlighter = @highlighter
-
     0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
@@ -155,7 +154,7 @@ class CodeLayout
         break if text.nil?
 
         line = CodeLine.new(@pango_ctx, text, @text_width)
-        line.layout.attributes = highlighter.pango_attrs_for_line(line_n) if highlighter
+        line.layout.attributes = @highlighter.pango_attrs_for_line(line_n)
         @lines << line
       elsif line.dirty?
         line.text = @buffer.line(line_n)

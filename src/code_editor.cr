@@ -32,7 +32,6 @@ class CodeEditor < Gtk::Widget
 
   # Text rendering
   @code_layout : CodeLayout
-  @code_highlighter : CodeHighlighter?
 
   # Colors
   @bg_color : Gdk::RGBA
@@ -48,7 +47,7 @@ class CodeEditor < Gtk::Widget
   def initialize(source : IO?, language : String?)
     super(focusable: true)
 
-    @buffer = CodeBuffer.new(source)
+    @buffer = CodeBuffer.new(source, language)
     pango_ctx = create_pango_context
     pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
     @code_layout = CodeLayout.new(pango_ctx, @buffer)
@@ -66,8 +65,6 @@ class CodeEditor < Gtk::Widget
 
     @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
 
-    self.language = language if language
-
     im_context = Gtk::IMMulticontext.new
     im_context.commit_signal.connect(&->commit_text(String))
     key_controller = Gtk::EventControllerKey.new(propagation_phase: :target)
@@ -78,16 +75,6 @@ class CodeEditor < Gtk::Widget
     gesture_controller = Gtk::GestureClick.new
     gesture_controller.pressed_signal.connect(&->clicked(Int32, Float64, Float64))
     add_controller(gesture_controller)
-  end
-
-  def language=(language : String)
-    code_highlighter = @code_highlighter
-    if code_highlighter
-      code_highlighter.language = language
-    else
-      @code_highlighter = CodeHighlighter.new(@buffer, language)
-      @code_layout.highlighter = @code_highlighter
-    end
   end
 
   def vadjustment=(vadjustment : Gtk::Adjustment?)

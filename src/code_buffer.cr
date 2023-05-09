@@ -3,6 +3,9 @@
 #
 # The buffer will only accept UTF-8 strings with \n ending.
 class CodeBuffer < GObject::Object
+  property parser : TreeSitter::Parser?
+  @tree : TreeSitter::Tree?
+
   @lines : Array(String)
 
   @[GObject::Property]
@@ -12,12 +15,28 @@ class CodeBuffer < GObject::Object
   signal lines_inserted(offset : Int32, count : Int32)
   signal lines_removed(offset : Int32, count : Int32)
 
-  def initialize(source : IO?)
+  def initialize(source : IO?, language : String?)
     super()
 
     # PieceTable will save us in the future, so we don't care about memory/speed now.
     @lines = source ? source.gets_to_end.lines(chomp: false) : [""]
     @lines << "" if @lines.empty?
+
+    self.language = language
+  end
+
+  def language=(language : String?)
+    if language
+      @parser = parser = TreeSitter::Parser.new(language)
+      # FIXME: Use the block version of this to avoid read the entire buffer at once
+      @tree = parser.parse(nil, contents)
+    else
+      @parser = @tree = nil
+    end
+  end
+
+  def root_node : TreeSitter::Node?
+    @tree.try(&.root_node)
   end
 
   def line_count : Int32
