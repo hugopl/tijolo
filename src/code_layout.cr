@@ -55,7 +55,7 @@ class CodeLayout
       line = @lines[i]?
       break if line.nil?
 
-      line.dirty!
+      line.text_outdated!
     end
   end
 
@@ -129,7 +129,7 @@ class CodeLayout
       render_line_number(snapshot, line_n)
 
       snapshot.translate(line_numbers_width, 0.0)
-      render_code_line(snapshot, code_line, line_n)
+      code_line.render(snapshot)
       yield(code_line.layout, line_n)
       snapshot.translate(-line_numbers_width, @line_height)
     end
@@ -140,11 +140,6 @@ class CodeLayout
     snapshot.append_layout(@line_numbers_layout, @text_color)
   end
 
-  private def render_code_line(snapshot : Gtk::Snapshot, code_line : CodeLine, line_n : Int32)
-    layout = code_line.layout
-    snapshot.append_layout(layout, @text_color)
-  end
-
   private def each_code_line
     0.upto(page_size) do |i|
       line = @lines[i]?
@@ -153,10 +148,9 @@ class CodeLayout
         text = @buffer.line(line_n)
         break if text.nil?
 
-        line = CodeLine.new(@pango_ctx, text, @text_width)
-        line.layout.attributes = @highlighter.pango_attrs_for_line(line_n)
+        line = CodeLine.new(@pango_ctx, text, @text_width, @highlighter.pango_attrs_for_line(line_n))
         @lines << line
-      elsif line.dirty?
+      elsif line.text_outdated?
         line.text = @buffer.line(line_n)
       end
       yield(line, line_n)

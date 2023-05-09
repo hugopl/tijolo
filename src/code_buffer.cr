@@ -18,20 +18,13 @@ class CodeBuffer < GObject::Object
   def initialize(source : IO?, language : String?)
     super()
 
-    # PieceTable will save us in the future, so we don't care about memory/speed now.
-    @lines = source ? source.gets_to_end.lines(chomp: false) : [""]
+    contents = source ? source.gets_to_end : ""
+    @lines = contents.lines(chomp: false)
     @lines << "" if @lines.empty?
 
-    self.language = language
-  end
-
-  def language=(language : String?)
     if language
       @parser = parser = TreeSitter::Parser.new(language)
-      # FIXME: Use the block version of this to avoid read the entire buffer at once
       @tree = parser.parse(nil, contents)
-    else
-      @parser = @tree = nil
     end
   end
 
