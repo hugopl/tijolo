@@ -12,16 +12,11 @@ class CodeBuffer < GObject::Object
   signal lines_inserted(offset : Int32, count : Int32)
   signal lines_removed(offset : Int32, count : Int32)
 
-  def initialize(*, file : Path? = nil, contents : String? = nil)
+  def initialize(source : IO?)
     super()
 
-    @lines = if file
-               File.read_lines(file, chomp: false)
-             elsif contents
-               contents.lines(chomp: false)
-             else
-               [] of String
-             end
+    # PieceTable will save us in the future, so we don't care about memory/speed now.
+    @lines = source ? source.gets_to_end.lines(chomp: false) : [""]
     @lines << "" if @lines.empty?
   end
 

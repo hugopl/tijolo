@@ -5,7 +5,8 @@ class TextView < View
   @editor : CodeEditor
 
   def initialize(resource : Path? = nil)
-    @editor = CodeEditor.new(resource, detect_language(resource))
+    source = File.open(resource) if resource
+    @editor = CodeEditor.new(source, detect_language(resource))
     super(@editor, resource)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
