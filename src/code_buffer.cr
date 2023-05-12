@@ -1,3 +1,5 @@
+require "tree_sitter"
+
 # Meanwhile this is just a stupid implementation, but the plan is to implement a piece table here
 # after the widget be capable of editing a text and show it highlighted
 #
@@ -14,6 +16,11 @@ class CodeBuffer < GObject::Object
   signal lines_changed(offset : Int32, count : Int32)
   signal lines_inserted(offset : Int32, count : Int32)
   signal lines_removed(offset : Int32, count : Int32)
+
+  def initialize(source : String, language : String?)
+    io = IO::Memory.new(source)
+    initialize(io, language)
+  end
 
   def initialize(source : IO?, language : String?)
     super()

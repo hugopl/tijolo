@@ -2,7 +2,7 @@ require "./spec_helper"
 
 describe CodeCursor do
   it "preserve column" do
-    buffer = CodeBuffer.new(contents: "123\n12345\n12")
+    buffer = CodeBuffer.new("123\n12345\n12", nil)
     cursor = CodeCursor.new(buffer)
     cursor.pos.should eq({0, 0})
 
@@ -17,7 +17,7 @@ describe CodeCursor do
   end
 
   it "can backspace" do
-    buffer = CodeBuffer.new(contents: "123\n12345\n12")
+    buffer = CodeBuffer.new("123\n12345\n12", nil)
     cursor = CodeCursor.new(buffer)
     cursor.move(:display_lines, 1)
     cursor.pos.should eq({1, 0})
@@ -27,7 +27,7 @@ describe CodeCursor do
   end
 
   it "can backspace (2)" do
-    buffer = CodeBuffer.new(contents: "123")
+    buffer = CodeBuffer.new("123", nil)
     cursor = CodeCursor.new(buffer)
     cursor.backspace
     buffer.contents.should eq("123")
