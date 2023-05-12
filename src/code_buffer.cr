@@ -7,6 +7,7 @@ require "tree_sitter"
 class CodeBuffer < GObject::Object
   property parser : TreeSitter::Parser?
   @tree : TreeSitter::Tree?
+  @tree_editor : TreeSitter::TreeEditor?
 
   @lines : Array(String)
 
@@ -31,12 +32,57 @@ class CodeBuffer < GObject::Object
 
     if language
       @parser = parser = TreeSitter::Parser.new(language)
-      @tree = parser.parse(nil, contents)
+      @tree = tree = parser.parse(nil, contents)
+      @tree_editor = TreeSitter::TreeEditor.new(tree, ->point_to_offset(Int32, Int32), ->offset_to_point(UInt32))
     end
   end
 
   def root_node : TreeSitter::Node?
-    @tree.try(&.root_node)
+    parser = @parser
+    return if parser.nil?
+
+    @tree = tree = parser.parse(@tree.not_nil!, contents)
+    tree.root_node
+  end
+
+  def point_to_offset(line : Int32, column : Int32) : UInt32
+    offset = 0_u32
+    @lines.each.with_index do |text, line_n|
+      if line_n == line
+        reader = Char::Reader.new(text)
+        (column ).times do
+          offset += reader.current_char.bytesize
+          reader.next_char if reader.has_next?
+        end
+        break
+      end
+      offset += text.bytesize
+    end
+    offset
+  end
+
+  def offset_to_point(offset : UInt32) : TreeSitter::Point
+    line = 0
+    column = 0
+    @lines.each.with_index do |text, line_n|
+      if offset < text.bytesize
+        line = line_n
+        loop do
+          possible_column = text.byte_index_to_char_index(offset.to_i32)
+          if possible_column
+            column = possible_column
+            break
+          end
+          offset -= 1
+        end
+        break
+      elsif offset == text.bytesize
+        line = line_n
+        column = text.size
+      end
+      offset -= text.bytesize
+    end
+    TreeSitter::Point.new(line, column)
   end
 
   def line_count : Int32
@@ -71,6 +117,7 @@ class CodeBuffer < GObject::Object
   end
 
   def insert(line : Int32, col : Int32, text : String) : {Int32, Int32}
+    @tree_editor.try(&.insert(line, col, text.bytesize))
     self.modified = true if !@modified
 
     current_line = @lines[line]
@@ -99,6 +146,10 @@ class CodeBuffer < GObject::Object
   # Delete *count* chars starting from *col* at line *line*.
   def delete_chars(line : Int32, col : Int32, count : Int32) : Nil
     current_line = @lines[line]
+
+    # FIXME: Fix this 😅️
+    Log.warn { "Oops, deleting multiple chars poisons tree sitter because I'm lazzy." } if count > 1
+    @tree_editor.try(&.delete(line, col, current_line[col].bytesize))
 
     if current_line.size > col + count
       @lines[line] = current_line.delete_at(start: col, count: count)
