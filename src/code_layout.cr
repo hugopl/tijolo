@@ -141,6 +141,9 @@ class CodeLayout
   end
 
   private def each_code_line
+    highlighter = @highlighter
+    highlighter.set_line_range(@line_offset, @line_offset + page_size) if highlighter
+
     0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
@@ -148,7 +151,8 @@ class CodeLayout
         text = @buffer.line(line_n)
         break if text.nil?
 
-        line = CodeLine.new(@pango_ctx, text, @text_width, @highlighter.pango_attrs_for_line(line_n))
+        pango_attrs = highlighter.pango_attrs_for_next_line if highlighter
+        line = CodeLine.new(@pango_ctx, text, @text_width, pango_attrs)
         @lines << line
       elsif line.text_outdated?
         line.text = @buffer.line(line_n)

@@ -3,25 +3,31 @@ require "./code_theme"
 
 class CodeHighlighter
   @buffer : CodeBuffer
+  @highlighter : TreeSitter::Highlighter?
   @theme : CodeTheme
 
   def initialize(@buffer : CodeBuffer)
     @theme = CodeTheme.new
+    parser = @buffer.parser
+    if parser
+      @highlighter = TreeSitter::Highlighter.new(parser.language, @buffer.root_node.not_nil!)
+    end
   end
 
-  def pango_attrs_for_line(line_n : Int32) : Pango::AttrList?
-    parser = @buffer.parser
-    return if parser.nil?
+  def set_line_range(start_line : Int32, end_line : Int32)
+    @highlighter.try(&.set_line_range(start_line, end_line))
+  end
 
-    root_node = @buffer.root_node
-    return if root_node.nil?
+  def pango_attrs_for_next_line : Pango::AttrList?
+    highlighter = @highlighter
+    return if highlighter.nil?
 
-    # FIXME: Create a highlighter for each line is for sure not the way to go, but I want to see something colorized on my
-    # screen 😅️, so later I fix all the mess here later.
-    highlighter = TreeSitter::Highlighter.new(parser.language, root_node)
+    captures = highlighter.highlight_next_line
+    return if captures.nil?
 
+    # Pango::AttrList is created string due to https://github.com/hugopl/pango.cr/issues/1
     io = IO::Memory.new
-    highlighter.each_rule_for_line(line_n) do |capture|
+    captures.each do |capture|
       @theme.style_to_s(io, capture.rule, capture.node.start_point.column, capture.node.end_point.column)
     end
     Pango::AttrList.from_string(io.to_s)
