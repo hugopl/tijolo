@@ -2,11 +2,9 @@
 
 module Pango
   class Layout < GObject::Object
-    def xy_to_index(x : Int32, y : Int32) : Int32
-      retval = LibPango.pango_layout_xy_to_index(to_unsafe, x, y, out index, out trailing)
-      return -1 unless retval > 0
-
-      index
+    def xy_to_index(x : Int32, y : Int32) : NamedTuple(index: Int32, inside_text: Bool, trailing: Int32)
+      inside_text = LibPango.pango_layout_xy_to_index(to_unsafe, x, y, out index, out trailing)
+      {index: index, inside_text: GICrystal.to_bool(inside_text), trailing: trailing}
     end
   end
 

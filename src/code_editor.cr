@@ -45,7 +45,7 @@ class CodeEditor < Gtk::Widget
   @height = 0_f32
 
   def initialize(source : IO?, language : String?)
-    super(focusable: true)
+    super(focusable: true, cursor: Gdk::Cursor.new_from_name("text", nil))
 
     @buffer = CodeBuffer.new(source, language)
     pango_ctx = create_pango_context

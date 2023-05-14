@@ -39,13 +39,11 @@ class CodeLayout
     code_line = @lines[code_line_index]?
     line = code_line_index + line_offset
 
-    if code_line.nil?
-      Log.warn { "Mouse click out of render area or before we render something!?" }
-      return {line, 0}
-    end
+    # Probably clicking bellow last line
+    return {line, 0} if code_line.nil?
 
     column = code_line.char_at(x - text_left_margin)
-    return {line, 0} if column < 0
+    return {line, @buffer.line_size(line)} if column < 0
 
     {line, column}
   end
@@ -122,7 +120,7 @@ class CodeLayout
   def render(snapshot : Gtk::Snapshot)
     @lines.each(&.width=(@text_width)) if @width_changed
 
-    line_numbers_width = text_left_margin + MARGIN
+    line_numbers_width = text_left_margin
 
     snapshot.translate(MARGIN, 0.0)
     each_code_line do |code_line, line_n|
