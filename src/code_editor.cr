@@ -130,7 +130,7 @@ class CodeEditor < Gtk::Widget
       draw_grid(snapshot) if draw_grid?
       draw_text(snapshot)
     end
-    Log.notice { "Text rendered in #{render_time}" }
+    Log.notice { "render time: #{render_time}" }
   end
 
   @[GObject::Virtual]

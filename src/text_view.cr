@@ -2,6 +2,8 @@ require "./view"
 require "./code_editor"
 
 class TextView < View
+  Log = ::Log.for("TextView")
+
   @editor : CodeEditor
 
   def initialize(resource : Path? = nil)
@@ -25,11 +27,9 @@ class TextView < View
     end
 
     Log.info { "Saving buffer to #{resource}" }
-    File.open(resource, "w") do |file|
-      @editor.buffer.save(file)
-    end
-
-    self.modified = false
+    # File.open(resource, "w") do |file|
+    @editor.buffer.save(STDOUT)
+    # end
   end
 
   # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard

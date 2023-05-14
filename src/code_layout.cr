@@ -3,6 +3,8 @@ require "./code_line"
 class CodeLayout
   private MARGIN = 4.0_f32
 
+  Log = ::Log.for("CodeLayout")
+
   @line_offset = 0
   @lines = [] of CodeLine
   @buffer : CodeBuffer
@@ -57,13 +59,19 @@ class CodeLayout
   end
 
   def lines_inserted(n : Int32, count : Int32)
-    # TODO: Proper handle cache here by invalidating the code lines, etc...
-    reset
+    count.times do |i|
+      @lines.insert(n + i, CodeLine.new(@pango_ctx))
+    end
   end
 
   def lines_removed(n : Int32, count : Int32)
-    # TODO: Proper handle cache here by invalidating the code lines, etc...
-    reset
+    codeline_index = n - @line_offset
+    count.times do
+      break if codeline_index >= @lines.size
+
+      @lines.delete_at(codeline_index)
+      codeline_index += 1
+    end
   end
 
   def reset
@@ -141,6 +149,8 @@ class CodeLayout
     highlighter = @highlighter
     highlighter.set_line_range(@line_offset, @line_offset + page_size) if highlighter
 
+    Log.info { "------------------Rendering-------------------------".colorize.red }
+
     0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
@@ -148,11 +158,15 @@ class CodeLayout
         text = @buffer.line(line_n)
         break if text.nil?
 
-        pango_attrs = highlighter.pango_attrs_for_next_line if highlighter
-        line = CodeLine.new(@pango_ctx, text, @text_width, pango_attrs)
+        line = CodeLine.new(@pango_ctx)
+        line.text = text
+        line.width = @text_width
+        line.attributes = highlighter.pango_attrs_for_next_line if highlighter
         @lines << line
       elsif line.text_outdated?
-        line.text = @buffer.line(line_n)
+        text = @buffer.line(line_n)
+        line.width = @text_width
+        line.text = text
       end
       yield(line, line_n)
     end

@@ -41,12 +41,12 @@ describe CodeBuffer do
   it "translates offset to line/col" do
     buffer = CodeBuffer.new("aé\naé", nil)
     buffer.offset_to_point(0).should eq({0, 0})
-    buffer.offset_to_point(1).should eq({0,1})
-    buffer.offset_to_point(2).should eq({0,1})
-    buffer.offset_to_point(3).should eq({0,2})
-    buffer.offset_to_point(4).should eq({1,0})
-    buffer.offset_to_point(5).should eq({1,1})
-    buffer.offset_to_point(6).should eq({1,1})
-    buffer.offset_to_point(7).should eq({1,2})
+    buffer.offset_to_point(1).should eq({0, 1})
+    buffer.offset_to_point(2).should eq({0, 1})
+    buffer.offset_to_point(3).should eq({0, 2})
+    buffer.offset_to_point(4).should eq({1, 0})
+    buffer.offset_to_point(5).should eq({1, 1})
+    buffer.offset_to_point(6).should eq({1, 1})
+    buffer.offset_to_point(7).should eq({1, 2})
   end
 end

@@ -1,16 +1,15 @@
 class CodeLine
   getter layout : Pango::Layout
-  property? text_outdated = false
+  property? text_outdated = true
 
   @render_node_outdated = true
   getter render_node : Gsk::RenderNode?
 
-  def initialize(ctx : Pango::Context, text : Bytes, width : Int32, attributes)
+  def initialize(ctx : Pango::Context)
+    Log.info { "new code line" }
+
     @layout = Pango::Layout.new(ctx)
     @layout.ellipsize = :end
-    @layout.set_text(text)
-    @layout.width = width * Pango::SCALE
-    @layout.attributes = attributes
   end
 
   private def create_render_node : Nil
@@ -24,8 +23,11 @@ class CodeLine
     @text_outdated = true
   end
 
+  delegate :attributes=, to: @layout
+
   def text=(text : Bytes?)
-    text ||= ""
+    text ||= "".to_slice
+    Log.info { "updating code line text: #{String.new(text).inspect.colorize.yellow}" } if text
     @layout.set_text(text)
     @text_outdated = false
     @render_node_outdated = true

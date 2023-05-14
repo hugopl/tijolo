@@ -50,7 +50,7 @@ class CodeBuffer < GObject::Object
     @lines.each.with_index do |text, line_n|
       if line_n == line
         reader = Char::Reader.new(text)
-        (column ).times do
+        (column).times do
           offset += reader.current_char.bytesize
           reader.next_char if reader.has_next?
         end
@@ -160,6 +160,7 @@ class CodeBuffer < GObject::Object
     # FIXME: Fix this 😅️
     Log.warn { "Oops, deleting multiple chars poisons tree sitter because I'm lazzy." } if count > 1
     @tree_editor.try(&.delete(line, col, current_line[col].bytesize))
+    self.modified = true if !@modified
 
     if current_line.size > col + count
       @lines[line] = current_line.delete_at(start: col, count: count)
@@ -180,7 +181,6 @@ class CodeBuffer < GObject::Object
       end
       @lines.delete_at(line + 1)
       lines_removed_signal.emit(line + 1, 1)
-
       if rest < next_line.size
         @lines[line] = current_line + next_line.delete_at(start: 0, count: rest)
         lines_changed_signal.emit(line, 1)
@@ -191,8 +191,9 @@ class CodeBuffer < GObject::Object
   end
 
   def save(io : IO) : Nil
-    @lines.each do |line|
-      io << line
+    @lines.each.with_index do |line, i|
+      Log.notice { "#{(i + 1).to_s.rjust(3)}: #{line.strip.colorize.green}" }
+      # io << line
     end
 
     self.modified = false
