@@ -32,7 +32,7 @@ class CodeLine
   end
 
   # Return -1 if the column is out of index
-  def char_at(x : Float64) : Int32
+  def byte_at(x : Float64) : Int32
     x = (x * Pango::SCALE).to_i
     res = @layout.xy_to_index(x, 0)
     res[:inside_text] ? res[:index] : -1

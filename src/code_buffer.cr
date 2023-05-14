@@ -85,6 +85,16 @@ class CodeBuffer < GObject::Object
     TreeSitter::Point.new(line, column)
   end
 
+  def line_byte_index_to_char_index(line_n : Int32, byteindex : Int32) : Int32
+    line = @lines[line_n]
+    return line.bytesize if byteindex < 0
+
+    char_index = line.byte_index_to_char_index(byteindex)
+    raise ArgumentError.new if char_index.nil?
+
+    char_index
+  end
+
   def line_count : Int32
     @lines.size
   end
@@ -98,7 +108,7 @@ class CodeBuffer < GObject::Object
     size
   end
 
-  def column_byte_index(line : Int32, column : Int32) : Int32
+  def line_column_index_to_byte_index(line : Int32, column : Int32) : Int32
     @lines[line].char_index_to_byte_index(column) || -1
   end
 

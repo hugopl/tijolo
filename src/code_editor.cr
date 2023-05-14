@@ -120,7 +120,6 @@ class CodeEditor < Gtk::Widget
   private def clicked(n_press : Int32, x : Float64, y : Float64)
     line, column = @code_layout.x_y_to_line_column(x, y, line_offset)
     @cursors.keep_just_one_cursor_at(line, column)
-    Log.info { "CLICK! n_press: #{n_press}, x: #{x}, y: #{y} -> line: #{line}, column: #{column}." }
   end
 
   @[GObject::Virtual]
@@ -174,7 +173,7 @@ class CodeEditor < Gtk::Widget
       @code_layout.line_offset = line_offset
       @code_layout.render(snapshot) do |layout, n|
         @cursors.at_line(n) do |cursor|
-          snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte, :ltr)
+          snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte_index, :ltr)
         end
       end
     end

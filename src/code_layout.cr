@@ -42,9 +42,8 @@ class CodeLayout
     # Probably clicking bellow last line
     return {line, 0} if code_line.nil?
 
-    column = code_line.char_at(x - text_left_margin)
-    return {line, @buffer.line_size(line)} if column < 0
-
+    byteindex = code_line.byte_at(x - text_left_margin)
+    column = @buffer.line_byte_index_to_char_index(line, byteindex)
     {line, column}
   end
 

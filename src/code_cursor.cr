@@ -75,8 +75,10 @@ class CodeCursor
     {@line, @column}
   end
 
-  def column_byte : Int32
-    @buffer.column_byte_index(@line, @column)
+  def column_byte_index : Int32
+    # Maybe we could always use byteindex on cursors and just translate to char index on UI
+    # to avoid doing these transformations and get code more uniform, i.e. everything using byteindex
+    @buffer.line_column_index_to_byte_index(@line, @column)
   end
 
   def move(line : Int32, column : Int32)
