@@ -14,9 +14,10 @@ class CodeBuffer < GObject::Object
   @[GObject::Property]
   property modified = false
 
-  signal lines_changed(offset : Int32, count : Int32)
-  signal lines_inserted(offset : Int32, count : Int32)
-  signal lines_removed(offset : Int32, count : Int32)
+  signal lines_changed(start_line : Int32, count : Int32)
+  signal lines_inserted(start_line : Int32, count : Int32)
+  signal lines_removed(start_line : Int32, count : Int32)
+  signal lines_highlight_changed(start_line : Int32, count : Int32)
 
   def initialize(source : String, language : String?)
     io = IO::Memory.new(source)
@@ -37,12 +38,25 @@ class CodeBuffer < GObject::Object
     end
   end
 
-  def root_node : TreeSitter::Node?
+  private def edit_finished
+    old_tree = @tree
     parser = @parser
-    return if parser.nil?
+    tree_editor = @tree_editor
+    return if old_tree.nil? || parser.nil? || tree_editor.nil?
 
-    @tree = tree = parser.parse(@tree.not_nil!, contents)
-    tree.root_node
+    @tree = new_tree = parser.parse(old_tree, contents)
+    new_tree.save_png("tree.png")
+
+    new_tree.changed_ranges(old_tree).each do |range|
+      start_line = range.start_point.row
+      line_count = range.end_point.row - start_line
+      lines_highlight_changed_signal.emit(start_line, line_count)
+    end
+    tree_editor.tree = new_tree
+  end
+
+  def root_node : TreeSitter::Node?
+    @tree.try(&.root_node)
   end
 
   def point_to_offset(line : Int32, column : Int32) : UInt32
@@ -151,6 +165,8 @@ class CodeBuffer < GObject::Object
       lines_changed_signal.emit(line, 1)
       {line, col + text.size}
     end
+  ensure
+    edit_finished
   end
 
   # Delete *count* chars starting from *col* at line *line*.
@@ -188,6 +204,8 @@ class CodeBuffer < GObject::Object
       end
       rest -= next_line.size
     end
+  ensure
+    edit_finished
   end
 
   def save(io : IO) : Nil

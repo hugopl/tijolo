@@ -13,8 +13,12 @@ colors:
 styles:
   string:
     fg_color: yellow
+  string.special.key:
+    fg_color: orange
   constant:
     fg_color: yellow
+  constant.builtin:
+    fg_color: magenta
   operator:
     fg_color: red
   function:
@@ -27,3 +31,5 @@ styles:
     fg_color: cyan
   comment:
     fg_color: gray
+  number:
+    fg_color: magenta

@@ -33,6 +33,7 @@ class CodeLayout
     @buffer.lines_changed_signal.connect(&->lines_changed(Int32, Int32))
     @buffer.lines_inserted_signal.connect(&->lines_inserted(Int32, Int32))
     @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
+    @buffer.lines_highlight_changed_signal.connect(&->lines_highlight_changed(Int32, Int32))
     @highlighter = CodeHighlighter.new(@buffer)
   end
 
@@ -49,8 +50,8 @@ class CodeLayout
     {line, column}
   end
 
-  def lines_changed(n : Int32, count : Int32)
-    (n...(n + count)).each do |i|
+  def lines_changed(start_line : Int32, count : Int32)
+    (start_line...(start_line + count)).each do |i|
       line = @lines[i]?
       break if line.nil?
 
@@ -58,14 +59,20 @@ class CodeLayout
     end
   end
 
-  def lines_inserted(n : Int32, count : Int32)
+  def lines_highlight_changed(start_line : Int32, count : Int32)
+    # FIXME: Avoid text re-layout here and just update the pango attrs
+    Log.info { "highlight changed: #{start_line} + #{count}" }
+    lines_changed(start_line, count)
+  end
+
+  def lines_inserted(start_line : Int32, count : Int32)
     count.times do |i|
-      @lines.insert(n + i, CodeLine.new(@pango_ctx))
+      @lines.insert(start_line + i, CodeLine.new(@pango_ctx))
     end
   end
 
-  def lines_removed(n : Int32, count : Int32)
-    codeline_index = n - @line_offset
+  def lines_removed(start_line : Int32, count : Int32)
+    codeline_index = start_line - @line_offset
     count.times do
       break if codeline_index >= @lines.size
 
@@ -147,13 +154,17 @@ class CodeLayout
 
   private def each_code_line
     highlighter = @highlighter
-    highlighter.set_line_range(@line_offset, @line_offset + page_size) if highlighter
-
-    Log.info { "------------------Rendering-------------------------".colorize.red }
+    if highlighter
+      Log.info { "------------------Rendering with highlight-------------------------".colorize.red }
+      # FIXME: Only do this if highlight changed
+      highlighter.set_line_range(@line_offset, @line_offset + page_size)
+      highlighter.exec
+    end
 
     0.upto(page_size) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
+
       if line.nil?
         text = @buffer.line(line_n)
         break if text.nil?
@@ -161,12 +172,17 @@ class CodeLayout
         line = CodeLine.new(@pango_ctx)
         line.text = text
         line.width = @text_width
-        line.attributes = highlighter.pango_attrs_for_next_line if highlighter
+        line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
         @lines << line
       elsif line.text_outdated?
         text = @buffer.line(line_n)
+        break if text.nil?
+
         line.width = @text_width
         line.text = text
+        line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
+      else
+        highlighter.skip_attrs_for_next_line
       end
       yield(line, line_n)
     end

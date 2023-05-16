@@ -38,7 +38,7 @@ shards:
 
   tree_sitter:
     git: https://github.com/hugopl/crystal-tree-sitter.git
-    version: 0.1.0+git.commit.d4002d005528fff501f983103ceb1bdabafe3a11
+    version: 0.1.0+git.commit.1ae02f26a2601570472c89135380696f73085cbd
 
   version_from_shard:
     git: https://github.com/hugopl/version_from_shard.git
