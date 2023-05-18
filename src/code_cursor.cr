@@ -1,65 +1,5 @@
 require "./code_buffer"
 
-class CodeCursors
-  @buffer : CodeBuffer
-  @cursors : Array(CodeCursor)
-  @cursor_changed_callback : Proc(Int32, Int32, Nil)?
-
-  def initialize(@buffer : CodeBuffer)
-    @cursors = [CodeCursor.new(@buffer)]
-  end
-
-  def keep_just_one_cursor_at(line : Int32, column : Int32)
-    @cursors.delete_at(1, @cursors.size - 1) if @cursors.size > 1
-    cursor = @cursors.first
-
-    watch_cursor do
-      cursor.move(line, column)
-    end
-  end
-
-  def at_line(line : Int32)
-    @cursors.each do |cursor|
-      yield(cursor) if cursor.line == line
-    end
-  end
-
-  def on_cursor_change(&callback : Proc(Int32, Int32, Nil))
-    @cursor_changed_callback = callback
-  end
-
-  private def watch_cursor
-    pos = @cursors.first.pos
-    yield
-    cursor_changed_callback = @cursor_changed_callback
-    return if cursor_changed_callback.nil?
-
-    new_pos = @cursors.first.pos
-    cursor_changed_callback.call(*new_pos) if new_pos != pos
-  end
-
-  def move(step : Gtk::MovementStep, count : Int32) : Nil
-    watch_cursor do
-      # FIXME: This mess with multiple cursors, but we just plan to support multiple cursors, we do not support yet 😉️
-      @cursors.each(&.move(step, count))
-    end
-  end
-
-  def commit_text(text : String)
-    watch_cursor do
-      @cursors.each(&.commit_text(text))
-    end
-  end
-
-  def delete_chars(count : Int32)
-    @cursors.each(&.delete_chars(count))
-  end
-
-  def backspace
-    @cursors.each(&.backspace)
-  end
-end
-
 class CodeCursor
   getter line = 0
   getter column = 0
@@ -137,5 +77,64 @@ class CodeCursor
     old_column = @column
     move(:visual_positions, -1)
     @buffer.delete_chars(@line, @column, 1) if old_line != @line || old_column != @column
+  end
+end
+
+class CodeCursors
+  include Indexable(CodeCursor)
+
+  @buffer : CodeBuffer
+  @cursors : Array(CodeCursor)
+  @cursor_changed_callback : Proc(Int32, Int32, Nil)?
+
+  def initialize(@buffer : CodeBuffer)
+    @cursors = [CodeCursor.new(@buffer)]
+  end
+
+  delegate size, to: @cursors
+  delegate unsafe_fetch, to: @cursors
+
+  def keep_just_one_cursor_at(line : Int32, column : Int32)
+    @cursors.delete_at(1, @cursors.size - 1) if @cursors.size > 1
+    cursor = @cursors.first
+
+    watch_cursor do
+      cursor.move(line, column)
+    end
+  end
+
+  def on_cursor_change(&callback : Proc(Int32, Int32, Nil))
+    @cursor_changed_callback = callback
+  end
+
+  private def watch_cursor
+    pos = @cursors.first.pos
+    yield
+    cursor_changed_callback = @cursor_changed_callback
+    return if cursor_changed_callback.nil?
+
+    new_pos = @cursors.first.pos
+    cursor_changed_callback.call(*new_pos) if new_pos != pos
+  end
+
+  def move(step : Gtk::MovementStep, count : Int32) : Nil
+    watch_cursor do
+      # FIXME: This mess with multiple cursors, but we just plan to support multiple cursors, we do not support yet 😉️
+      @cursors.each(&.move(step, count))
+    end
+  end
+
+  def commit_text(text : String)
+    watch_cursor do
+      @cursors.each(&.commit_text(text))
+    end
+  end
+
+  def delete_chars(count : Int32)
+    @cursors.each(&.delete_chars(count))
+  end
+
+  def backspace
+    @cursors.each(&.backspace)
   end
 end

@@ -2,6 +2,8 @@ require "./code_buffer"
 require "./code_cursor"
 require "./code_layout"
 require "./code_highlighter"
+require "./code_line_number_gutter"
+require "./code_snapshot"
 
 # Current state of text widget: Far from done.
 #
@@ -10,6 +12,9 @@ require "./code_highlighter"
 # fill the (many) missing bits.
 class CodeEditor < Gtk::Widget
   include Gtk::Scrollable
+
+  MARGIN        = 4.0_f32
+  DOUBLE_MARGIN = 8.0_f32
 
   @[GObject::Property]
   property hadjustment : Gtk::Adjustment?
@@ -32,11 +37,11 @@ class CodeEditor < Gtk::Widget
 
   # Text rendering
   @code_layout : CodeLayout
-
-  # Colors
-  @bg_color : Gdk::RGBA
-  @text_color : Gdk::RGBA
-  @grid_color : Gdk::RGBA
+  @code_gutters : Array(CodeGutter)
+  @code_gutters_width : Float32
+  @code_width : Float32
+  @line_height : Float32
+  @font_width : Float32
 
   @cursors : CodeCursors
 
@@ -50,12 +55,14 @@ class CodeEditor < Gtk::Widget
     @buffer = CodeBuffer.new(source, language)
     pango_ctx = create_pango_context
     pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
-    @code_layout = CodeLayout.new(pango_ctx, @buffer)
+    metric = pango_ctx.metrics(nil, nil)
+    @line_height = (metric.height / Pango::SCALE).ceil.to_f32
+    @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
 
-    # Colors
-    @bg_color = Gdk::RGBA.new(0.157, 0.161, 0.137, 1.0)
-    @text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
-    @grid_color = Gdk::RGBA.new(0.188, 0.188, 0.161, 1.0)
+    @code_layout = CodeLayout.new(pango_ctx, @buffer)
+    @code_gutters = [CodeLineNumberGutter.new(pango_ctx)] of CodeGutter
+    @code_gutters_width = 0.0
+    @code_width = 0.0
 
     @cursors = CodeCursors.new(@buffer)
     @cursors.on_cursor_change do |line, col|
@@ -102,8 +109,8 @@ class CodeEditor < Gtk::Widget
     when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
     when Gdk::KEY_Home                                          then @cursors.move(:paragraph_ends, -1)
     when Gdk::KEY_End                                           then @cursors.move(:paragraph_ends, 1)
-    when Gdk::KEY_Page_Up, Gdk::KEY_KP_Page_Up                  then @cursors.move(:display_lines, -@code_layout.page_size // 2)
-    when Gdk::KEY_Page_Down, Gdk::KEY_KP_Page_Down              then @cursors.move(:display_lines, @code_layout.page_size // 2)
+    when Gdk::KEY_Page_Up, Gdk::KEY_KP_Page_Up                  then @cursors.move(:display_lines, -page_size // 2)
+    when Gdk::KEY_Page_Down, Gdk::KEY_KP_Page_Down              then @cursors.move(:display_lines, page_size // 2)
     when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
     when Gdk::KEY_BackSpace                                     then @cursors.backspace
     when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
@@ -118,17 +125,40 @@ class CodeEditor < Gtk::Widget
   end
 
   private def clicked(n_press : Int32, x : Float64, y : Float64)
-    line, column = @code_layout.x_y_to_line_column(x, y, line_offset)
+    line, column = x_y_to_line_column(x, y)
     @cursors.keep_just_one_cursor_at(line, column)
+  end
+
+  private def x_y_to_line_column(x : Float64, y : Float64) : {Int32, Int32}
+    line = (y / @line_height).floor.to_i + line_offset
+    code_line = @code_layout[line]?
+
+    # Probably clicking bellow last line
+    return {line, 0} if code_line.nil?
+
+    byteindex = code_line.byte_at(x)
+    column = @buffer.line_byte_index_to_char_index(line, byteindex)
+    {line, column}
+  end
+
+  # Page size in lines
+  private def page_size : Int32
+    (@height / @line_height).to_i
   end
 
   @[GObject::Virtual]
   def snapshot(snapshot : Gtk::Snapshot)
+    snapshot = CodeSnapshot.new(snapshot, @width, @height, @font_width, @line_height)
     render_time = Time.measure do
-      snapshot.append_color(@bg_color, 0.0_f32, 0.0_f32, @width, @height)
+      snapshot.append_color(CodeTheme.instance.background_color, 0.0_f32, 0.0_f32, @width, @height)
 
-      draw_grid(snapshot) if draw_grid?
-      draw_text(snapshot)
+      render_code_gutters(snapshot)
+      render_grid(snapshot) if draw_grid?
+
+      snapshot.translate(MARGIN, 0.0_f32)
+      render_selections(snapshot)
+      render_text(snapshot)
+      render_cursors(snapshot)
     end
     Log.notice { "render time: #{render_time}" }
   end
@@ -141,10 +171,8 @@ class CodeEditor < Gtk::Widget
     @width = width.to_f32
     @height = height.to_f32
 
-    @code_layout.width = width
-    @code_layout.height = height
-    upper = @buffer.line_count + @code_layout.page_size / 2
-    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, @code_layout.page_size)
+    upper = @buffer.line_count + page_size / 2
+    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, page_size)
   end
 
   private def line_offset : Int32
@@ -154,28 +182,51 @@ class CodeEditor < Gtk::Widget
     vadjustment.value.to_i
   end
 
-  private def draw_grid(snapshot : Gtk::Snapshot)
+  private def render_code_gutters(snapshot : CodeSnapshot)
+    @code_gutters_width = 0.0
+    @code_gutters.each do |gutter|
+      gutter.render(snapshot, @buffer, line_offset)
+      @code_gutters_width += gutter.width
+      snapshot.translate(gutter.width, 0.0_f32)
+    end
+    @code_width = snapshot.viewport_width - @code_gutters_width - DOUBLE_MARGIN
+  end
+
+  private def render_grid(snapshot : CodeSnapshot)
+    grid_width = @code_width + DOUBLE_MARGIN
+    grid_height = @line_height / 2.0_f32
+    grid_color = CodeTheme.instance.grid_color
+
     snapshot.save do
-      snapshot.translate(@code_layout.text_left_margin, 0.0)
-      width = @code_layout.text_area_width
-      grid_height = @code_layout.line_height / 2.0_f32
-      snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, width, grid_height)
-      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, width, 1)
+      snapshot.push_repeat(0.0_f32, 0.0_f32, grid_width, @height, 0.0_f32, 0.0_f32, grid_width, grid_height)
+      snapshot.append_color(grid_color, 0.0_f32, 0.0_f32, grid_width, 1_f32)
       snapshot.pop
-      snapshot.push_repeat(0.0, 0.0, width, @height, 0.0, 0.0, grid_height, @height)
-      snapshot.append_color(@grid_color, 0.0_f32, 0.0_f32, 1, @height)
+      snapshot.push_repeat(0.0_f32, 0.0_f32, grid_width, @height, 0.0_f32, 0.0_f32, grid_height, @height)
+      snapshot.append_color(grid_color, 0.0_f32, 0.0_f32, 1_f32, @height)
       snapshot.pop
     end
   end
 
-  private def draw_text(snapshot : Gtk::Snapshot)
+  private def render_selections(snapshot : CodeSnapshot)
+  end
+
+  private def render_text(snapshot : CodeSnapshot)
     snapshot.save do
-      @code_layout.line_offset = line_offset
-      @code_layout.render(snapshot) do |layout, n|
-        @cursors.at_line(n) do |cursor|
-          snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte_index, :ltr)
-        end
-      end
+      @code_layout.render(snapshot, line_offset, @code_width)
+    end
+  end
+
+  private def render_cursors(snapshot : CodeSnapshot)
+    @cursors.each do |cursor|
+      next unless @code_layout.line_visible?(cursor.line)
+
+      layout = @code_layout.line_layout(cursor.line)
+      next if layout.nil?
+
+      y_offset = snapshot.line_height * (cursor.line - line_offset)
+      snapshot.translate(0.0_f32, y_offset)
+      snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte_index, Pango::Direction::Ltr)
+      snapshot.translate(0.0_f32, -y_offset)
     end
   end
 end

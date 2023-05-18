@@ -1,8 +1,10 @@
 require "./code_line"
 
+# This take care of create, destroy, invalidate and cache `CodeLine`.
+#
+# TODO: Use a better name for this class
+# TODO: Replace the *@lines* array by a splay tree (or a redblack tree) with distributed offset.
 class CodeLayout
-  private MARGIN = 4.0_f32
-
   Log = ::Log.for("CodeLayout")
 
   @line_offset = 0
@@ -11,43 +13,17 @@ class CodeLayout
   property highlighter : CodeHighlighter
   @pango_ctx : Pango::Context
 
-  @line_numbers_layout : Pango::Layout
-  @line_numbers_string_buffer = IO::Memory.new
-  getter width = 0 # Width of whole widget
-  property height = 0
-  @text_width = 0 # Width of text without margins
-  @width_changed = false
+  @code_width : Float32
 
-  getter line_height : Float32
-  getter font_width : Float32
   property text_color = Gdk::RGBA.new(0.922, 0.922, 0.898, 1.0)
 
   def initialize(@pango_ctx, @buffer)
-    @line_numbers_layout = Pango::Layout.new(@pango_ctx)
-    @line_numbers_layout.alignment = :right
-
-    metric = @pango_ctx.metrics(nil, nil)
-    @line_height = (metric.height / Pango::SCALE).ceil.to_f32
-    @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
-
     @buffer.lines_changed_signal.connect(&->lines_changed(Int32, Int32))
     @buffer.lines_inserted_signal.connect(&->lines_inserted(Int32, Int32))
     @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
     @buffer.lines_highlight_changed_signal.connect(&->lines_highlight_changed(Int32, Int32))
     @highlighter = CodeHighlighter.new(@buffer)
-  end
-
-  def x_y_to_line_column(x : Float64, y : Float64, line_offset : Int32 = 0) : {Int32, Int32}
-    code_line_index = (y / line_height).floor.to_i
-    code_line = @lines[code_line_index]?
-    line = code_line_index + line_offset
-
-    # Probably clicking bellow last line
-    return {line, 0} if code_line.nil?
-
-    byteindex = code_line.byte_at(x - text_left_margin)
-    column = @buffer.line_byte_index_to_char_index(line, byteindex)
-    {line, column}
+    @code_width = 0.0
   end
 
   def lines_changed(start_line : Int32, count : Int32)
@@ -81,87 +57,50 @@ class CodeLayout
     end
   end
 
-  def reset
-    @lines.clear
+  def line_visible?(line_n : Int32) : Bool
+    Log.warn { "CodeLayout#line_visible? not implemented!" }
+    true
   end
 
-  def width=(@width : Int32) : Nil
-    @text_width = calc_text_width(@width)
-    @width_changed = true
+  def []?(line_n : Int32) : CodeLine?
+    @lines[line_n - @line_offset]?
   end
 
-  # Page size in lines
-  def page_size : Int32
-    (@height / @line_height).to_i
+  def line_layout(line_n : Int32) : Pango::Layout?
+    self[line_n]?.try(&.layout)
   end
 
-  def line_offset=(offset : Int32)
+  private def line_offset=(offset : Int32)
     if offset > @line_offset
       @lines.delete_at(0...(offset - @line_offset))
     elsif offset < @line_offset
       # FIXME: Do a better job here, invalidating only the necessary rows
-      reset
+      @lines.clear
     end
     @line_offset = offset
   end
 
-  private def line_number_to_string(i : Int32) : Bytes
-    @line_numbers_string_buffer.clear
-    i.to_s(@line_numbers_string_buffer)
-    @line_numbers_string_buffer.to_slice
-  end
+  def render(snapshot : CodeSnapshot, start_line : Int32, code_width : Float32)
+    self.line_offset = start_line
+    @lines.each(&.width=(@code_width)) if @code_width != code_width
+    @code_width = code_width
 
-  def line_number_digits : Int32
-    n = @buffer.line_count
-    (Math.log(n.to_f + 1) / Math::LOG10).ceil.to_i
-  end
-
-  def text_left_margin : Float32
-    # The line is rendered as:
-    # <margin><line number><margin><margin><text><margin>
-    # ╰───── text left margin ────╯
-    line_number_digits * @font_width + MARGIN * 2
-  end
-
-  def text_area_width : Float32
-    @text_width + MARGIN * 2
-  end
-
-  def calc_text_width(screen_width : Int32) : Int32
-    (screen_width - text_left_margin - MARGIN * 2).to_i
-  end
-
-  def render(snapshot : Gtk::Snapshot)
-    @lines.each(&.width=(@text_width)) if @width_changed
-
-    line_numbers_width = text_left_margin
-
-    snapshot.translate(MARGIN, 0.0)
-    each_code_line do |code_line, line_n|
-      render_line_number(snapshot, line_n)
-
-      snapshot.translate(line_numbers_width, 0.0)
+    each_code_line(snapshot) do |code_line, line_n|
       code_line.render(snapshot)
-      yield(code_line.layout, line_n)
-      snapshot.translate(-line_numbers_width, @line_height)
+      snapshot.translate(0.0_f32, snapshot.line_height)
     end
   end
 
-  private def render_line_number(snapshot : Gtk::Snapshot, line_n : Int32)
-    @line_numbers_layout.set_text(line_number_to_string(line_n + 1))
-    snapshot.append_layout(@line_numbers_layout, @text_color)
-  end
-
-  private def each_code_line
+  private def each_code_line(snapshot)
     highlighter = @highlighter
     if highlighter
       Log.info { "------------------Rendering with highlight-------------------------".colorize.red }
       # FIXME: Only do this if highlight changed
-      highlighter.set_line_range(@line_offset, @line_offset + page_size)
+      highlighter.set_line_range(@line_offset, @line_offset + snapshot.lines_per_page)
       highlighter.exec
     end
 
-    0.upto(page_size) do |i|
+    0.upto(snapshot.lines_per_page) do |i|
       line = @lines[i]?
       line_n = @line_offset + i
 
@@ -171,14 +110,14 @@ class CodeLayout
 
         line = CodeLine.new(@pango_ctx)
         line.text = text
-        line.width = @text_width
+        line.width = @code_width
         line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
         @lines << line
       elsif line.text_outdated?
         text = @buffer.line(line_n)
         break if text.nil?
 
-        line.width = @text_width
+        line.width = @code_width
         line.text = text
         line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
       else

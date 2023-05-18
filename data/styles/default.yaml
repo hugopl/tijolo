@@ -10,7 +10,16 @@ colors:
   white: "#EBEBE5"
   gray: "#6D6855"
 
+  grid: "#303029"
+  background: "#282923"
+
 styles:
+  text:
+    fg_color: white
+  background:
+    fg_color: background
+  grid:
+    fg_color: grid
   string:
     fg_color: yellow
   string.special.key:

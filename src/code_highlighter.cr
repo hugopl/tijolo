@@ -4,10 +4,8 @@ require "./code_theme"
 class CodeHighlighter
   @buffer : CodeBuffer
   @highlighter : TreeSitter::Highlighter?
-  @theme : CodeTheme
 
   def initialize(@buffer : CodeBuffer)
-    @theme = CodeTheme.new
     parser = @buffer.parser
     if parser
       @highlighter = TreeSitter::Highlighter.new(parser.language)
@@ -38,10 +36,11 @@ class CodeHighlighter
     captures = highlighter.highlight_next_line
     return if captures.nil?
 
+    theme = CodeTheme.instance
     # Pango::AttrList is created string due to https://github.com/hugopl/pango.cr/issues/1
     io = IO::Memory.new
     captures.each do |capture|
-      @theme.style_to_s(io, capture.rule, capture.node.start_point.column, capture.node.end_point.column)
+      theme.style_to_s(io, capture.rule, capture.node.start_point.column, capture.node.end_point.column)
     end
     Log.info { "Highlight: #{io.to_s.colorize.magenta}" }
     Pango::AttrList.from_string(io.to_s)

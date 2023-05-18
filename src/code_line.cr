@@ -41,12 +41,12 @@ class CodeLine
   end
 
   # Width in pango units.
-  def width=(value : Int32)
-    @layout.width = value * Pango::SCALE
+  def width=(value : Float32)
+    @layout.width = value.to_i * Pango::SCALE
     @render_node_outdated = true
   end
 
-  def render(snapshot : Gtk::Snapshot)
+  def render(snapshot : CodeSnapshot)
     create_render_node if @render_node_outdated
     render_node = @render_node
     snapshot.append_node(render_node) if render_node
