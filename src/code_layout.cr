@@ -1,4 +1,6 @@
 require "./code_line"
+require "./code_no_highlighter"
+require "./code_tree_sitter_highlighter"
 
 # This take care of create, destroy, invalidate and cache `CodeLine`.
 #
@@ -22,7 +24,7 @@ class CodeLayout
     @buffer.lines_inserted_signal.connect(&->lines_inserted(Int32, Int32))
     @buffer.lines_removed_signal.connect(&->lines_removed(Int32, Int32))
     @buffer.lines_highlight_changed_signal.connect(&->lines_highlight_changed(Int32, Int32))
-    @highlighter = CodeHighlighter.new(@buffer)
+    @highlighter = @buffer.parser ? CodeTreeSitterHighlighter.new(@buffer) : CodeNoHighlighter.new
     @code_width = 0.0
   end
 
@@ -85,45 +87,37 @@ class CodeLayout
     @lines.each(&.width=(@code_width)) if @code_width != code_width
     @code_width = code_width
 
-    each_code_line(snapshot) do |code_line, line_n|
-      code_line.render(snapshot)
-      snapshot.translate(0.0_f32, snapshot.line_height)
+    @highlighter.set_line_range(@line_offset, @line_offset + snapshot.lines_per_page)
+    highlight_time = Time.measure do
+      @highlighter.exec
     end
-  end
-
-  private def each_code_line(snapshot)
-    highlighter = @highlighter
-    if highlighter
-      Log.info { "------------------Rendering with highlight-------------------------".colorize.red }
-      # FIXME: Only do this if highlight changed
-      highlighter.set_line_range(@line_offset, @line_offset + snapshot.lines_per_page)
-      highlighter.exec
-    end
+    Log.notice { "highlight time: #{highlight_time}" }
 
     0.upto(snapshot.lines_per_page) do |i|
-      line = @lines[i]?
+      code_line = @lines[i]?
       line_n = @line_offset + i
 
-      if line.nil?
+      if code_line.nil?
         text = @buffer.line(line_n)
         break if text.nil?
 
-        line = CodeLine.new(@pango_ctx)
-        line.text = text
-        line.width = @code_width
-        line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
-        @lines << line
-      elsif line.text_outdated?
+        code_line = CodeLine.new(@pango_ctx)
+        code_line.text = text
+        code_line.width = @code_width
+        code_line.attributes = @highlighter.pango_attrs_for_next_line
+        @lines << code_line
+      elsif code_line.text_outdated?
         text = @buffer.line(line_n)
         break if text.nil?
 
-        line.width = @code_width
-        line.text = text
-        line.attributes = @highlighter.try(&.pango_attrs_for_next_line)
+        code_line.width = @code_width
+        code_line.text = text
+        code_line.attributes = @highlighter.pango_attrs_for_next_line
       else
         highlighter.skip_attrs_for_next_line
       end
-      yield(line, line_n)
+      code_line.render(snapshot)
+      snapshot.translate(0.0_f32, snapshot.line_height)
     end
   end
 end

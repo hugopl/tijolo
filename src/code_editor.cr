@@ -1,9 +1,9 @@
 require "./code_buffer"
 require "./code_cursor"
 require "./code_layout"
-require "./code_highlighter"
 require "./code_line_number_gutter"
 require "./code_snapshot"
+require "./code_theme"
 
 # Current state of text widget: Far from done.
 #
