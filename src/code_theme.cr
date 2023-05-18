@@ -27,7 +27,8 @@ private class SerializableCodeTheme
     theme_style = @styles[style]?
     if theme_style.nil?
       Log.debug { "No code theme style found for: #{style}" }
-      return "red"
+      abort("Bad theme, text style not found.") if style == "text"
+      return fg_color("text")
     end
 
     color(theme_style.fg_color) || "red"
