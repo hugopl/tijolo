@@ -1,6 +1,6 @@
 require "yaml"
 
-private class SerializableCodeThemeStyle
+class SerializableCodeThemeStyle
   include YAML::Serializable
 
   property underline : Bool = false
@@ -9,7 +9,7 @@ private class SerializableCodeThemeStyle
   property fg_color : String
 end
 
-private class SerializableCodeTheme
+class SerializableCodeTheme
   include YAML::Serializable
 
   @colors : Hash(String, String)
