@@ -10,7 +10,7 @@ shards:
 
   gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.15.2
+    version: 0.15.3
 
   gio:
     git: https://github.com/hugopl/gio.cr.git
@@ -26,7 +26,7 @@ shards:
 
   libadwaita:
     git: https://github.com/hugopl/libadwaita.cr.git
-    version: 1.0.0+git.commit.a3afbc851b51c6f874e0524afe0e9829f5b0fd05
+    version: 1.0.0+git.commit.d406d52d06ebba842add43fcac822a270d3c4363
 
   pango:
     git: https://github.com/hugopl/pango.cr.git
@@ -39,8 +39,4 @@ shards:
   tree_sitter:
     git: https://github.com/hugopl/crystal-tree-sitter.git
     version: 0.1.0+git.commit.1ae02f26a2601570472c89135380696f73085cbd
-
-  version_from_shard:
-    git: https://github.com/hugopl/version_from_shard.git
-    version: 1.2.5
 
