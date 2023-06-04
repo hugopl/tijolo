@@ -5,6 +5,7 @@ require "./welcome_widget"
 require "./view_manager"
 require "./view_factory"
 require "./locator"
+require "./save_modified_views_dialog"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar))]
 class ApplicationWindow < Adw::ApplicationWindow
@@ -82,6 +83,21 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar.content = @view_manager = view_manager = ViewManager.new
 
     @project.scan_files(on_finish: ->project_load_finished)
+  end
+
+  @[GObject::Virtual]
+  def close_request
+    view_manager = @view_manager
+    return 0 if view_manager.nil?
+
+    views = view_manager.modified_views
+    return 0 if views.empty?
+
+    dlg = SaveModifiedViewsDialog.new(self, views)
+    dlg.present do
+      destroy
+    end
+    1
   end
 
   def project_load_finished

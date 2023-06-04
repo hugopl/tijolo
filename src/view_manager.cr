@@ -142,4 +142,8 @@ class ViewManager < Gtk::Box
       close_current_view
     end
   end
+
+  def modified_views : Array(View)
+    @views.select(&.modified?)
+  end
 end

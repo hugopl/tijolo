@@ -20,14 +20,8 @@ class TextView < View
   delegate grab_focus, to: @editor
 
   def save : Nil
-    resource = self.resource
-    if resource.nil?
-      Log.warn { "Trying to save a text view with no name!" }
-      return
-    end
-
-    Log.info { "Saving buffer to #{resource}" }
-    # File.open(resource, "w") do |file|
+    Log.info { "Saving buffer to #{resource_hint}" }
+    # File.open(resource_hint, "w") do |file|
     @editor.buffer.save(STDOUT)
     # end
   end

@@ -21,7 +21,7 @@ abstract class View < Gtk::Box
     super()
 
     resource = @resource
-    @label = label || (resource.nil? ? "" : File.basename(resource))
+    @label = label || (resource.nil? ? untitled_label : File.basename(resource))
 
     @header = Gtk::Widget.cast(template_child(View.g_type, "header"))
     header_label = Gtk::Label.cast(template_child(View.g_type, "label"))
@@ -56,8 +56,6 @@ abstract class View < Gtk::Box
   def resource=(resource : Path?)
     @resource = resource
     self.label = resource.nil? ? "" : File.basename(resource)
-
-    pp! @label
   end
 
   def maximized=(@maximized)
@@ -70,6 +68,13 @@ abstract class View < Gtk::Box
 
   def unselect : Nil
     @header.style_context.remove_class("selected")
+  end
+
+  def resource_hint : Path
+    resource = self.resource
+    return resource if resource
+
+    (GLib.user_special_dir(:directory_documents) || Path.home).join("#{@label}.txt")
   end
 
   abstract def grab_focus
