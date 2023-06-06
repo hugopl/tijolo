@@ -8,8 +8,8 @@ class SaveModifiedViewsDialog < Adw::MessageDialog
       body: "Open documents contain unsaved changes. Changes which are not saved will be permanently lost.")
 
     add_response("cancel", "Cancel")
-    add_response("discard_all", "Discard All")
-    set_response_appearance("discard_all", :destructive)
+    add_response("discard", views.size > 1 ? "Discard All" : "Discard")
+    set_response_appearance("discard", :destructive)
     add_response("save", "Save")
     set_response_appearance("save", :suggested)
     self.default_response = "save"
@@ -26,7 +26,7 @@ class SaveModifiedViewsDialog < Adw::MessageDialog
       if resp == "save"
         save_views
         on_success.call
-      elsif resp == "discard_all"
+      elsif resp == "discard"
         on_success.call
       end
       @checkboxes.clear

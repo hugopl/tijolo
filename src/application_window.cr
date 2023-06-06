@@ -118,8 +118,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     actions = {show_locator:           ->show_locator,
                show_locator_new_split: ->{ show_locator(split_view: true) },
                # show_git_locator:          ->show_git_locator,
-               close_view:          ->{ @view_manager.try(&.close_current_view) },
-               close_all_views:     ->{ @view_manager.try(&.close_all_views) },
+               close_view:          ->{ close_current_view },
+               close_all_views:     ->{ close_all_views },
                new_file:            ->{ new_file },
                new_file_new_split:  ->{ new_file(split: true) },
                open_file:           ->show_open_file_dialog,
@@ -242,6 +242,35 @@ class ApplicationWindow < Adw::ApplicationWindow
       end
 
       dialog.show
+    end
+  end
+
+  private def close_current_view : Nil
+    with_current_view do |view|
+      if view.modified?
+        dlg = SaveModifiedViewsDialog.new(self, [view])
+        dlg.present do
+          view_manager.close_current_view
+        end
+      else
+        view_manager.close_current_view
+      end
+    end
+  end
+
+  private def close_all_views : Nil
+    view_manager = @view_manager
+    return if view_manager.nil?
+
+    modified_views = view_manager.modified_views
+    if modified_views.empty?
+      view_manager.close_all_views
+      return
+    end
+
+    dlg = SaveModifiedViewsDialog.new(self, modified_views)
+    dlg.present do
+      view_manager.close_all_views
     end
   end
 
