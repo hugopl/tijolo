@@ -32,3 +32,7 @@ textview
 {
   font: 9pt "Monospace";
 }
+
+codeeditor {
+  font: 10pt "JetBrainsMono Nerd Font";
+}

@@ -50,11 +50,11 @@ class CodeEditor < Gtk::Widget
   @height = 0_f32
 
   def initialize(source : IO?, language : String?)
-    super(focusable: true, cursor: Gdk::Cursor.new_from_name("text", nil))
+    super(focusable: true, cursor: Gdk::Cursor.new_from_name("text", nil), css_name: "codeeditor")
 
     @buffer = CodeBuffer.new(source, language)
-    pango_ctx = create_pango_context
-    pango_ctx.font_description = Pango::FontDescription.from_string("JetBrainsMono Nerd Font 9")
+    pango_ctx = pango_context
+
     metric = pango_ctx.metrics(nil, nil)
     @line_height = (metric.height / Pango::SCALE).ceil.to_f32
     @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
