@@ -119,8 +119,7 @@ class ViewManager < Gtk::Box
     @views.size > 1 && @view_ctrltab_box.visible?
   end
 
-  def add_view(view : View, split_view : Bool)
-    Log.warn { "Split view feature removed in 0.8.x" } if split_view
+  def add_view(view : View)
     @stack.add_child(view)
     @views.unshift(view)
 

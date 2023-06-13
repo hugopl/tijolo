@@ -28,7 +28,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
-    @locator.open_file_signal.connect(->open(String, Bool))
+    @locator.open_file_signal.connect(->open(String))
 
     self.application = application
 
@@ -116,18 +116,15 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions
     config = Config.instance
-    actions = {show_locator:           ->show_locator,
-               show_locator_new_split: ->{ show_locator(split_view: true) },
-               # show_git_locator:          ->show_git_locator,
-               close_view:          ->{ close_current_view },
-               close_all_views:     ->{ close_all_views },
-               new_file:            ->{ new_file },
-               new_file_new_split:  ->{ new_file(split: true) },
-               new_terminal:        ->new_terminal,
-               open_file:           ->show_open_file_dialog,
-               open_file_new_split: ->{ show_open_file_dialog(true) },
-               save_view:           ->save_current_view,
-               save_view_as:        ->save_current_view_as,
+    actions = {show_locator: ->show_locator,
+    # show_git_locator:          ->show_git_locator,
+               close_view:      ->close_current_view,
+               close_all_views: ->close_all_views,
+               new_file:        ->new_file,
+               new_terminal:    ->new_terminal,
+               open_file:       ->show_open_file_dialog,
+               save_view:       ->save_current_view,
+               save_view_as:    ->save_current_view_as,
                # find:                      ->{ find_in_current_view(:find_by_text) },
                # find_by_regexp:            ->{ find_in_current_view(:find_by_regexp) },
                # find_replace:              ->{ find_in_current_view(:find_replace) },
@@ -137,7 +134,6 @@ class ApplicationWindow < Adw::ApplicationWindow
                # comment_code:              ->comment_code,
                # sort_lines:                ->sort_lines,
                # goto_definition:           ->goto_definition,
-               # goto_definition_new_split: ->{ goto_definition(split_view: true) },
                show_hide_sidebar: ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
                # show_hide_output_pane:     ->show_hide_output_pane,
                # focus_editor:              ->focus_editor,
@@ -150,8 +146,8 @@ class ApplicationWindow < Adw::ApplicationWindow
                # increase_font_size:        ->increase_current_view_font_size,
                # decrease_font_size:        ->decrease_current_view_font_size,
                # maximize_view:             ->maximize_view,
-               copy_in_terminal:          ->copy_terminal_text,
-               paste_in_terminal:         ->paste_terminal_text,
+               copy_in_terminal:  ->copy_terminal_text,
+               paste_in_terminal: ->paste_terminal_text,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -276,14 +272,14 @@ class ApplicationWindow < Adw::ApplicationWindow
     end
   end
 
-  def show_open_file_dialog(split_view : Bool = false)
+  def show_open_file_dialog
     # FIXME: Something is storing `dialog` address and not letting it be garbage collected
     dialog = Gtk::FileChooserNative.new("Open File", self, :open, "_Open", "_Cancel")
 
     dialog.response_signal.connect do |response|
       if Gtk::ResponseType.from_value(response).accept?
         path = dialog.file.try(&.path)
-        open(path.to_s, split_view) if path
+        open(path) if path
       end
       dialog.destroy
     end
@@ -291,19 +287,19 @@ class ApplicationWindow < Adw::ApplicationWindow
     dialog.show
   end
 
-  def new_file(*, split : Bool = false)
-    view_manager.add_view(TextView.new, split)
+  def new_file
+    view_manager.add_view(TextView.new)
   end
 
   def new_terminal
-    view_manager.add_view(TerminalView.new, false)
+    view_manager.add_view(TerminalView.new)
   end
 
-  def open(resource : String, split_view : Bool = false) : Nil
-    open(Path.new(resource), split_view)
+  def open(resource : String) : Nil
+    open(Path.new(resource))
   end
 
-  def open(resource : Path, split_view : Bool = false) : Nil
+  def open(resource : Path) : Nil
     view_manager = @view_manager
     if view_manager.nil?
       open_project(resource)
@@ -313,7 +309,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     view = view_manager.find_view_by_resource(resource)
     if view.nil?
       view = ViewFactory.build(resource)
-      view_manager.add_view(view, split_view)
+      view_manager.add_view(view)
     else
       view_manager.focus_view(view)
     end
@@ -328,10 +324,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     open(Path.new(file_path)) if file_path
   end
 
-  private def show_locator(split_view = false)
+  private def show_locator
     return if @locator.nil? || @view_manager.nil?
 
-    locator.show(select_text: true, view: view_manager.current_view, split_view: split_view)
+    locator.show(select_text: true, view: view_manager.current_view)
   end
 
   private def copy_terminal_text
@@ -345,5 +341,4 @@ class ApplicationWindow < Adw::ApplicationWindow
       view.paste_text_from_clipboard if view.is_a?(TerminalView)
     end
   end
-
 end

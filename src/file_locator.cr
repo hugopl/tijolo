@@ -21,6 +21,6 @@ class FileLocator < FuzzyLocator
 
   def activate(locator : Locator, match : Fzy::Match)
     file = match.value
-    locator.open_file_signal.emit(@project.root.join(file).to_s, locator.split_next?)
+    locator.open_file_signal.emit(@project.root.join(file).to_s)
   end
 end

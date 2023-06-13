@@ -43,12 +43,6 @@
                 <property name="title" translatable="yes">Focus editor at ←↓→↑</property>
               </object>
             </child>
-        <child>
-          <object class="GtkLabel">
-            <property name="wrap">1</property>
-            <property name="label">Press Shift on any action that could open a file and the file will be open in a new split view.</property>
-          </object>
-        </child>
           </object>
         </child>
         <child>

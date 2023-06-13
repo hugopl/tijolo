@@ -19,7 +19,7 @@ end
 class Locator < Adw::Bin
   include Gtk::WidgetTemplate
 
-  signal open_file(file : String, split_view : Bool)
+  signal open_file(file : String)
   signal goto_line(line : Int32, col : Int32)
 
   # project model columns
@@ -29,7 +29,6 @@ class Locator < Adw::Bin
 
   @project : Project
   @entry : Gtk::SearchEntry
-  getter? split_next = false # True if next opened file should be open in a new split
   @locator_results : Gtk::TreeView
   @popover : Gtk::Popover
   private getter results_cursor = 0
@@ -74,8 +73,7 @@ class Locator < Adw::Bin
     end
   end
 
-  def show(*, select_text : Bool, view : View?, split_view = false)
-    @split_next = split_view
+  def show(*, select_text : Bool, view : View?)
     self.results_cursor = 0
     @current_locator_provider.selected(view) if view.nil? || view != @current_view
 
