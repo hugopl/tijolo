@@ -23,6 +23,8 @@ dependencies:
     version: ~> 0.7.0
   tree_sitter:
     github: hugopl/crystal-tree-sitter
+  vte:
+    github: hugopl/vte.cr
 
 crystal: ">= 1.0.0"
 

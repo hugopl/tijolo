@@ -4,6 +4,7 @@ require "./project_tree"
 require "./welcome_widget"
 require "./view_manager"
 require "./view_factory"
+require "./terminal_view"
 require "./locator"
 require "./save_modified_views_dialog"
 
@@ -122,6 +123,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                close_all_views:     ->{ close_all_views },
                new_file:            ->{ new_file },
                new_file_new_split:  ->{ new_file(split: true) },
+               new_terminal:        ->new_terminal,
                open_file:           ->show_open_file_dialog,
                open_file_new_split: ->{ show_open_file_dialog(true) },
                save_view:           ->save_current_view,
@@ -148,8 +150,8 @@ class ApplicationWindow < Adw::ApplicationWindow
                # increase_font_size:        ->increase_current_view_font_size,
                # decrease_font_size:        ->decrease_current_view_font_size,
                # maximize_view:             ->maximize_view,
-               # copy_in_terminal:          ->copy_terminal_text,
-               # paste_in_terminal:         ->paste_terminal_text,
+               copy_in_terminal:          ->copy_terminal_text,
+               paste_in_terminal:         ->paste_terminal_text,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -293,6 +295,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     view_manager.add_view(TextView.new, split)
   end
 
+  def new_terminal
+    view_manager.add_view(TerminalView.new, false)
+  end
+
   def open(resource : String, split_view : Bool = false) : Nil
     open(Path.new(resource), split_view)
   end
@@ -327,4 +333,17 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     locator.show(select_text: true, view: view_manager.current_view, split_view: split_view)
   end
+
+  private def copy_terminal_text
+    with_current_view do |view|
+      view.copy_text_to_clipboard if view.is_a?(TerminalView)
+    end
+  end
+
+  private def paste_terminal_text
+    with_current_view do |view|
+      view.paste_text_from_clipboard if view.is_a?(TerminalView)
+    end
+  end
+
 end

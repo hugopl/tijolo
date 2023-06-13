@@ -40,3 +40,7 @@ shards:
     git: https://github.com/hugopl/crystal-tree-sitter.git
     version: 0.1.0+git.commit.1ae02f26a2601570472c89135380696f73085cbd
 
+  vte:
+    git: https://github.com/hugopl/vte.cr.git
+    version: 0.1.0+git.commit.c11d883553beff79dcf12320fe53e62d2fa8b141
+
