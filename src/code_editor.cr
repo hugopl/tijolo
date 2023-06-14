@@ -154,6 +154,7 @@ class CodeEditor < Gtk::Widget
 
       render_code_gutters(snapshot)
       render_grid(snapshot) if draw_grid?
+      render_current_line_background(snapshot)
 
       snapshot.translate(MARGIN, 0.0_f32)
       render_selections(snapshot)
@@ -204,6 +205,16 @@ class CodeEditor < Gtk::Widget
       snapshot.push_repeat(0.0_f32, 0.0_f32, grid_width, @height, 0.0_f32, 0.0_f32, grid_height, @height)
       snapshot.append_color(grid_color, 0.0_f32, 0.0_f32, 1_f32, @height)
       snapshot.pop
+    end
+  end
+
+  private def render_current_line_background(snapshot : CodeSnapshot)
+    color = CodeTheme.instance.current_line_color
+    @cursors.each do |cursor|
+      next unless @code_layout.line_visible?(cursor.line)
+
+      y_offset = snapshot.line_height * (cursor.line - line_offset)
+      snapshot.append_color(color, 0.0_f32, y_offset, @width, snapshot.line_height)
     end
   end
 

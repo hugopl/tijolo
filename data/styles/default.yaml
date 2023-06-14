@@ -12,12 +12,15 @@ colors:
 
   grid: "#303029"
   background: "#282923"
+  current_line: "#3A392F"
 
 styles:
   text:
     fg_color: white
   background:
     fg_color: background
+  current_line_color:
+    fg_color: current_line
   grid:
     fg_color: grid
   string:

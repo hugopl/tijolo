@@ -42,6 +42,7 @@ class CodeTheme
   getter text_color = Gdk::RGBA.new
   getter background_color = Gdk::RGBA.new
   getter grid_color = Gdk::RGBA.new
+  getter current_line_color = Gdk::RGBA.new
 
   def self.instance
     @@instance ||= CodeTheme.new
@@ -56,6 +57,7 @@ class CodeTheme
     @text_color.parse(@theme.fg_color("text"))
     @background_color.parse(@theme.fg_color("background"))
     @grid_color.parse(@theme.fg_color("grid"))
+    @current_line_color.parse(@theme.fg_color("current_line_color"))
   end
 
   # FIXME: Pango bindings memory management still buggy, so until I fix it the attributes will be created as a string.
