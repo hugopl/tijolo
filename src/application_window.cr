@@ -17,7 +17,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   @project_tree : ProjectTree
   @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
-  private getter! view_manager : ViewManager?
+  @view_manager : ViewManager?
   private getter locator : Locator
 
   def initialize(application : Gio::Application, @project : Project)
@@ -84,6 +84,14 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar.content = @view_manager = view_manager = ViewManager.new
 
     @project.scan_files(on_finish: ->project_load_finished)
+  end
+
+  private def view_manager
+    view_manager = @view_manager
+    return view_manager unless view_manager.nil?
+
+    open_project
+    @view_manager.not_nil!
   end
 
   @[GObject::Virtual]
