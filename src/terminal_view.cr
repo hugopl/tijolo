@@ -24,6 +24,10 @@ class TerminalView < View
       callback: nil,
       user_data: nil
     )
+
+    @term.child_exited_signal.connect do
+      activate_action("win.close_view", nil)
+    end
   end
 
   def self.default_shell : String
