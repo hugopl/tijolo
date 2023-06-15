@@ -18,10 +18,13 @@ class ApplicationWindow < Adw::ApplicationWindow
   @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
   @view_manager : ViewManager?
+  @settings : Gio::Settings
   private getter locator : Locator
 
   def initialize(application : Gio::Application, @project : Project)
     super()
+
+    @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
     @project_tree = ProjectTree.new(@project)
     @project_monitor = ProjectMonitor.new(@project)
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
@@ -45,7 +48,14 @@ class ApplicationWindow < Adw::ApplicationWindow
       welcome
     end
 
+    bind_settings
     setup_actions
+  end
+
+  private def bind_settings
+    @settings.bind("window-width", self, "default-width", :default)
+    @settings.bind("window-height", self, "default-height", :default)
+    @settings.bind("window-maximized", self, "maximized", :default)
   end
 
   def application : TijoloApplication

@@ -1,0 +1,23 @@
+<schemalist gettext-domain="text-viewer">
+  <schema id="io.github.hugopl.Tijolo" path="/io/github/hugopl/Tijolo/">
+    <key name="window-width" type="i">
+      <default>1092</default>
+    </key>
+    <key name="window-height" type="i">
+      <default>800</default>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>true</default>
+    </key>
+    <key name="style-variant" type="s">
+      <choices>
+        <choice value="follow"/>
+        <choice value="light"/>
+        <choice value="dark"/>
+      </choices>
+      <default>'follow'</default>
+      <summary>Style Variant</summary>
+      <description>Use the light or dark theme variant.</description>
+    </key>
+  </schema>
+</schemalist>
