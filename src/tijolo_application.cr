@@ -7,9 +7,18 @@ LICENSE = {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").str
 
 class TijoloApplication < Adw::Application
   @windows = [] of ApplicationWindow
+  getter settings : Gio::Settings
+  @system_color_scheme : Adw::ColorScheme
 
   def initialize
     super(application_id: "io.github.hugopl.Tijolo", flags: Gio::ApplicationFlags::HandlesOpen)
+
+    @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
+    style_manager = Adw::StyleManager.default
+    @system_color_scheme = style_manager.color_scheme
+    @settings.changed_signal["style-variant"].connect(->theme_changed(String))
+    theme_changed
+
     self.option_context_parameter_string = "[FILE[:LINE]…]"
     add_main_option("version", 0, :none, :none, "Show version information and exit", nil)
     add_main_option("license", 0, :none, :none, "Show license information and exit", nil)
@@ -39,6 +48,18 @@ class TijoloApplication < Adw::Application
     window = create_project_window(Project.new)
     @windows << window
     window.present
+  end
+
+  private def theme_changed(_unused : String = "")
+    theme = @settings.string("style-variant")
+    style_manager = Adw::StyleManager.default
+    color_scheme = case theme
+                   when "light" then Adw::ColorScheme::ForceLight
+                   when "dark"  then Adw::ColorScheme::ForceDark
+                   else
+                     @system_color_scheme
+                   end
+    style_manager.color_scheme = color_scheme
   end
 
   def open(files : Enumerable(Gio::File), _hint : String)

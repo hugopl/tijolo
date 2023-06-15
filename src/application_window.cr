@@ -6,9 +6,10 @@ require "./view_manager"
 require "./view_factory"
 require "./terminal_view"
 require "./locator"
+require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar primary_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -18,13 +19,11 @@ class ApplicationWindow < Adw::ApplicationWindow
   @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
   @view_manager : ViewManager?
-  @settings : Gio::Settings
   private getter locator : Locator
 
-  def initialize(application : Gio::Application, @project : Project)
+  def initialize(application : TijoloApplication, @project : Project)
     super()
 
-    @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
     @project_tree = ProjectTree.new(@project)
     @project_monitor = ProjectMonitor.new(@project)
     @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
@@ -37,6 +36,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     @project_tree_view.model = @project_tree.model
 
+    primary_menu = Gtk::MenuButton.cast(template_child("primary_menu"))
+    popover_primary_menu = Gtk::PopoverMenu.cast(primary_menu.popover.not_nil!)
+    popover_primary_menu.add_child(ThemeSelector.new, "theme")
+
     key_ctl = Gtk::EventControllerKey.new(propagation_phase: :capture)
     key_ctl.key_pressed_signal.connect(->key_pressed(UInt32, UInt32, Gdk::ModifierType))
     key_ctl.key_released_signal.connect(->key_released(UInt32, UInt32, Gdk::ModifierType))
@@ -48,14 +51,14 @@ class ApplicationWindow < Adw::ApplicationWindow
       welcome
     end
 
-    bind_settings
-    setup_actions
+    bind_settings(application.settings)
+    setup_actions(application.settings)
   end
 
-  private def bind_settings
-    @settings.bind("window-width", self, "default-width", :default)
-    @settings.bind("window-height", self, "default-height", :default)
-    @settings.bind("window-maximized", self, "maximized", :default)
+  private def bind_settings(settings : Gio::Settings)
+    settings.bind("window-width", self, "default-width", :default)
+    settings.bind("window-height", self, "default-height", :default)
+    settings.bind("window-maximized", self, "maximized", :default)
   end
 
   def application : TijoloApplication
@@ -132,7 +135,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     self.focus_widget = welcome.entry
   end
 
-  private def setup_actions
+  private def setup_actions(settings : Gio::Settings)
     config = Config.instance
     actions = {show_locator: ->show_locator,
     # show_git_locator:          ->show_git_locator,
@@ -199,6 +202,11 @@ class ApplicationWindow < Adw::ApplicationWindow
     #     action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
     #     action.activate_signal.connect(->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
     #     main_window.add_action(action)
+
+    group = Gio::SimpleActionGroup.new
+    action = settings.create_action("style-variant")
+    group.add_action(action)
+    insert_action_group("settings", group)
   end
 
   private def enable_project_related_actions(value : Bool)
