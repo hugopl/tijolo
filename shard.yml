@@ -15,9 +15,6 @@ dependencies:
   libadwaita:
     github: hugopl/libadwaita.cr
     branch: main
-  compiled_license:
-    github: elorest/compiled_license
-    version: ~> 1.0
   toml:
     github: crystal-community/toml.cr
     version: ~> 0.7.0

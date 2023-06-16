@@ -1,9 +1,5 @@
 version: 2.0
 shards:
-  compiled_license:
-    git: https://github.com/elorest/compiled_license.git
-    version: 1.2.2
-
   fzy:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.5

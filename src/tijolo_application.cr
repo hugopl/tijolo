@@ -3,7 +3,7 @@ require "./tijolo_log_format"
 require "./application_window"
 
 VERSION = {{ `shards version #{__DIR__}`.strip.stringify }}
-LICENSE = {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").stringify }}
+LICENSE = {{ run("./macros/license.cr").stringify }}
 
 class TijoloApplication < Adw::Application
   @windows = [] of ApplicationWindow
@@ -92,7 +92,7 @@ class TijoloApplication < Adw::Application
       puts "Tijolo version #{VERSION} build with Crystal #{Crystal::VERSION}."
       return 0
     elsif options.remove("license")
-      puts {{ run("../lib/compiled_license/src/compiled_license/licenses.cr").stringify }}
+      puts LICENSE.gsub(/<\/?(big|tt)>/, "")
       return 0
     end
 
@@ -114,16 +114,17 @@ class TijoloApplication < Adw::Application
   end
 
   private def show_about_dlg
-    Gtk.show_about_dialog(parent: active_window, application: self,
-      copyright: "© 2020-2022 Hugo Parente Lima",
-      version: "#{VERSION} (Crystal #{Crystal::VERSION})",
-      program_name: "Tijolo",
-      logo_icon_name: "io.github.hugopl.Tijolo",
+    Adw.show_about_window(parent: active_window, application: self,
+      copyright: "© 2020-#{Time.local.year} Hugo Parente Lima",
+      version: VERSION,
+      application_name: "Tijolo",
+      application_icon: "io.github.hugopl.Tijolo",
       comments: "Lightweight, keyboard-oriented IDE for the masses",
       website: "https://github.com/hugopl/tijolo",
-      website_label: "Learn more about Tijolo",
+      issue_url: "https://github.com/hugopl/tijolo/issues",
       license: LICENSE,
-      authors: {"Hugo Parente Lima <hugo.pl@gmail.com>"},
+      developer_name: "Hugo Parente Lima <hugo.pl@gmail.com>",
+      developers: {"Hugo Parente Lima <hugo.pl@gmail.com>"},
       artists: {"Marília Riul <mmriul@gmail.com>"})
   end
 
