@@ -1,4 +1,4 @@
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label line_column modified))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label line_column menu_btn modified))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
 
@@ -39,6 +39,16 @@ abstract class View < Gtk::Box
     gesture = Gtk::GestureClick.new(button: 0)
     gesture.pressed_signal.connect { ViewManager.instance.focus_view(self) }
     add_controller(gesture)
+
+    variant_self = GLib::Variant.new(self.object_id)
+    menu = Gio::Menu.new
+    menu.insert(0, "Copy _Full Path", "win.copy_full_path(uint64 #{object_id})")
+    menu.insert(1, "Copy Full Path and _Line Number", "win.copy_full_path_and_line(uint64 #{object_id})")
+    menu.insert(2, "Copy File _Name", "win.copy_file_name(uint64 #{object_id})")
+    menu.insert(3, "Copy _Relative Path", "win.copy_relative_path(uint64 #{object_id})")
+    menu.insert(4, "Copy Relative Path and Line Number", "win.copy_relative_path_and_line(uint64 #{object_id})")
+    menu_btn = Gtk::MenuButton.cast(template_child(View.g_type, "menu_btn"))
+    menu_btn.menu_model = menu
   end
 
   private def untitled_label : String

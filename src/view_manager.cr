@@ -57,6 +57,10 @@ class ViewManager < Gtk::Box
     @views.find { |view| view.resource == resource }
   end
 
+  def find_view_by_id(id)
+    @views.find { |view| view.object_id == id }
+  end
+
   def current_view : View?
     @views.first?
   end

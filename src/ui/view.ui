@@ -2,31 +2,6 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
 
-  <menu id="view_menu">
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">Copy _Full Path</attribute>
-        <attribute name="action">win.copy_full_path</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy Full Path and _Line Number</attribute>
-        <attribute name="action">win.copy_full_path_and_line</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy File _Name</attribute>
-        <attribute name="action">win.copy_file_name</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy _Relative Path</attribute>
-        <attribute name="action">win.copy_relative_path</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy Relative Path and Line Number</attribute>
-        <attribute name="action">win.copy_relative_path_and_line</attribute>
-      </item>
-    </section>
-  </menu>
-
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
@@ -63,9 +38,8 @@
           </object>
         </child>
         <child type="start">
-          <object class="GtkMenuButton">
+          <object class="GtkMenuButton" id="menu_btn">
             <property name="focus-on-click">0</property>
-            <property name="menu-model">view_menu</property>
             <style><class name="flat"/></style>
           </object>
         </child>

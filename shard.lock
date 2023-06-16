@@ -18,7 +18,7 @@ shards:
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.13.0+git.commit.be013e582568acd77692462209951db8ad782ebb
+    version: 0.13.0+git.commit.ecdab75a81b579920d8b8c33bd37a064f76721ab
 
   harfbuzz:
     git: https://github.com/hugopl/harfbuzz.cr.git
@@ -26,7 +26,7 @@ shards:
 
   libadwaita:
     git: https://github.com/hugopl/libadwaita.cr.git
-    version: 1.0.0+git.commit.d406d52d06ebba842add43fcac822a270d3c4363
+    version: 1.0.0+git.commit.5621ff8d6a7ab510ea7e20e6ab35341bd1de2fdf
 
   pango:
     git: https://github.com/hugopl/pango.cr.git
@@ -42,5 +42,5 @@ shards:
 
   vte:
     git: https://github.com/hugopl/vte.cr.git
-    version: 0.1.0+git.commit.c11d883553beff79dcf12320fe53e62d2fa8b141
+    version: 0.1.0+git.commit.4464bf2445ca591363cd8d7f9bd09e73eeada84c
 
