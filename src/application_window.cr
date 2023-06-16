@@ -167,8 +167,8 @@ class ApplicationWindow < Adw::ApplicationWindow
                # increase_font_size:        ->increase_current_view_font_size,
                # decrease_font_size:        ->decrease_current_view_font_size,
                # maximize_view:             ->maximize_view,
-               copy_from_terminal:  ->copy_terminal_text,
-               paste_in_terminal: ->paste_terminal_text,
+               copy_from_terminal: ->copy_terminal_text,
+               paste_in_terminal:  ->paste_terminal_text,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
