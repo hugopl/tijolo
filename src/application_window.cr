@@ -108,18 +108,18 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   @[GObject::Virtual]
-  def close_request
+  def close_request : Bool
     view_manager = @view_manager
-    return 0 if view_manager.nil?
+    return false if view_manager.nil?
 
     views = view_manager.modified_views
-    return 0 if views.empty?
+    return false if views.empty?
 
     dlg = SaveModifiedViewsDialog.new(self, views)
     dlg.present do
       destroy
     end
-    1
+    true
   end
 
   def project_load_finished
