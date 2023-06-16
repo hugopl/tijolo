@@ -3,5 +3,6 @@
   <gresource prefix="/io/github/hugopl/Tijolo">
     <file preprocess="xml-stripblanks">tijolo-banner.svg</file>
     <file>style.css</file>
+    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
 </gresources>

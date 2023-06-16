@@ -116,7 +116,7 @@ increase_font_size = "<Ctrl>equal"
 decrease_font_size = "<Ctrl>minus"
 maximize_view = "<Ctrl><Shift>X"
 # Terminal view
-copy_in_terminal = "<Ctrl><Shift>C"
+copy_from_terminal = "<Ctrl><Shift>C"
 paste_in_terminal = "<Ctrl><Shift>V"
 
 # Language servers are started using stdio communication, to know all possible language IDs
