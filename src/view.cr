@@ -21,7 +21,7 @@ abstract class View < Gtk::Box
     super()
 
     resource = @resource
-    @label = label || (resource.nil? ? untitled_label : File.basename(resource))
+    @label = label || untitled_label
 
     @header = Gtk::Widget.cast(template_child(View.g_type, "header"))
     header_label = Gtk::Label.cast(template_child(View.g_type, "label"))

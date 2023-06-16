@@ -6,10 +6,10 @@ class TextView < View
 
   @editor : CodeEditor
 
-  def initialize(resource : Path? = nil)
+  def initialize(resource : Path? = nil, label : String? = nil)
     source = File.open(resource) if resource
     @editor = CodeEditor.new(source, detect_language(resource))
-    super(@editor, resource)
+    super(@editor, resource, label)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
     @editor.cursor_changed_signal.connect do |line, col|

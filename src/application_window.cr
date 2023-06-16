@@ -338,7 +338,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     view = view_manager.find_view_by_resource(resource)
     if view.nil?
-      view = ViewFactory.build(resource)
+      view = ViewFactory.build(resource, @project)
       view_manager.add_view(view)
     else
       view_manager.focus_view(view)
