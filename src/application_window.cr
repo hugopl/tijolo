@@ -203,6 +203,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     #     action.activate_signal.connect(->copy_view_relative_path_and_line(Gio::SimpleAction, GLib::Variant?))
     #     main_window.add_action(action)
 
+    action = Gio::SimpleAction.new("focus_editor", nil)
+    action.activate_signal.connect { with_current_view(&.grab_focus) }
+    add_action(action)
+
     group = Gio::SimpleActionGroup.new
     action = settings.create_action("style-variant")
     group.add_action(action)

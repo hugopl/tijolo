@@ -106,6 +106,7 @@ class Locator < Adw::Bin
   private def entry_key_pressed(key_val : UInt32, _key_code : UInt32, _modifier : Gdk::ModifierType)
     if key_val == Gdk::KEY_Escape
       hide
+      activate_action("win.focus_editor", nil)
       return false
     end
 
