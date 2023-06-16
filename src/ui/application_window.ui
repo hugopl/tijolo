@@ -53,12 +53,9 @@
                 </child>
                 <child>
                   <object class="GtkButton">
-                    <property name="tooltip-text" translatable="yes">Open document</property>
+                    <property name="tooltip-text" translatable="yes">Open document (Ctrl+O)</property>
                     <property name="action-name">win.open_file</property>
                     <property name="icon-name">document-open-symbolic</property>
-                    <accessibility>
-                      <property name="label" translatable="yes">Open (Ctrl+O)</property>
-                    </accessibility>
                   </object>
                 </child>
                 <child>
@@ -67,9 +64,6 @@
                     <property name="icon-name">window-new-symbolic</property>
                     <property name="has-tooltip">true</property>
                     <property name="tooltip-text" translatable="yes">New window (Ctrl+Alt+O)</property>
-                    <accessibility>
-                      <property name="label" translatable="yes">New window (Ctrl+Alt+O)</property>
-                    </accessibility>
                   </object>
                 </child>
               </object>
