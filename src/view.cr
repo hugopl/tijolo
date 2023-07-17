@@ -73,11 +73,11 @@ abstract class View < Gtk::Box
   end
 
   def select : Nil
-    @header.style_context.add_class("selected")
+    @header.add_css_class("selected")
   end
 
   def unselect : Nil
-    @header.style_context.remove_class("selected")
+    @header.remove_css_class("selected")
   end
 
   def resource_hint : Path

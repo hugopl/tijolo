@@ -91,7 +91,7 @@ class Locator < Adw::Bin
 
   def hide
     @current_view = nil
-    @popover.hide
+    @popover.visible = false
   end
 
   def text=(text : String)

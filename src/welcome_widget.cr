@@ -125,7 +125,7 @@ class WelcomeWidget < Gtk::Box
     @scanning_projects = true
     @rescan_btn.sensitive = false
     @projects_view.sensitive = false
-    @spinner.show
+    @spinner.visible = true
     Thread.new do
       rc = TijoloRC.instance
 
@@ -151,7 +151,7 @@ class WelcomeWidget < Gtk::Box
 
     @rescan_btn.sensitive = true
     @projects_view.sensitive = true
-    @spinner.hide
+    @spinner.visible = false
     @entry.grab_focus
     @scanning_projects = false
 
