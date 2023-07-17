@@ -92,6 +92,11 @@ class CodeEditor < Gtk::Widget
     vadjustment.value_changed_signal.connect(&->queue_draw) if vadjustment
   end
 
+  def cursor_line_col
+    cursor = @cursors.first
+    {cursor.line, cursor.column}
+  end
+
   private def commit_text(text : String)
     return unless @editable
 

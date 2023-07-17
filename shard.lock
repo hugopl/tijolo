@@ -1,28 +1,29 @@
+# NOTICE: This lockfile contains some overrides from shard.override.yml
 version: 2.0
 shards:
   fzy:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.5
 
-  gi-crystal:
+  gi-crystal: # Overridden
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.16.0
+    version: 0.17.0+git.commit.22358e7ced8fc68d760e162ef313d04660400997
 
   gio:
     git: https://github.com/hugopl/gio.cr.git
     version: 0.1.0
 
-  gtk4:
+  gtk4: # Overridden
     git: https://github.com/hugopl/gtk4.cr.git
-    version: 0.14.0+git.commit.99f6197266fc4466e2b6cef21393f41d85c7ddf2
+    version: 0.15.0
 
   harfbuzz:
     git: https://github.com/hugopl/harfbuzz.cr.git
-    version: 0.1.0
+    version: 0.2.0
 
   libadwaita:
-    git: https://github.com/hugopl/libadwaita.cr.git
-    version: 1.0.0+git.commit.5621ff8d6a7ab510ea7e20e6ab35341bd1de2fdf
+    git: https://github.com/geopjr/libadwaita.cr.git
+    version: 1.0.0+git.commit.23ce21d6400af7563ede0b53deea6d1f77436985
 
   pango:
     git: https://github.com/hugopl/pango.cr.git

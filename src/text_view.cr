@@ -1,5 +1,9 @@
 require "./view"
-require "./code_editor"
+{% if flag?(:experimental) %}
+  require "./code_editor"
+{% else %}
+  require "./gsv/code_editor"
+{% end %}
 
 class TextView < View
   Log = ::Log.for("TextView")
@@ -12,8 +16,8 @@ class TextView < View
     super(@editor, resource, label)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
-    @editor.cursor_changed_signal.connect do |line, col|
-      set_cursor(line, col)
+    @editor.cursor_changed_signal.connect do
+      set_cursor(*@editor.cursor_line_col)
     end
   end
 
@@ -21,18 +25,25 @@ class TextView < View
 
   def save : Nil
     Log.info { "Saving buffer to #{resource_hint}" }
-    # File.open(resource_hint, "w") do |file|
-    @editor.buffer.save(STDOUT)
-    # end
+    File.open(resource_hint, "w") do |file|
+      @editor.buffer.save(file)
+    end
   end
 
-  # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard
-  #        Meanwhile just JSON and C for testing 😅️
   private def detect_language(resource : Path?) : String?
     return if resource.nil?
-    case resource.extension
-    when ".json" then "json"
-    when ".c"    then "c"
-    end
+
+    {% if flag?(:experimental) %}
+      # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard
+      #        Meanwhile just JSON and C for testing 😅️
+      case resource.extension
+      when ".json" then "json"
+      when ".c"    then "c"
+      end
+    {% else %}
+      lm = GtkSource::LanguageManager.default
+      lang = lm.guess_language(resource.to_s, nil)
+      lang.id if lang
+    {% end %}
   end
 end

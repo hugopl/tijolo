@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language id="gitlog" name="Git Log" version="2.0" _section="Source">
+  <styles>
+    <style id="field"       name="Git field" map-to="def:function"/>
+    <style id="commit-hash" name="Git hash"  map-to="def:identifier"/>
+  </styles>
+  <definitions>
+    <context id="commit-hash" style-ref="commit-hash">
+      <match>(?:[0-9a-f]){40}</match>
+    </context>
+
+    <context id="field" style-ref="field">
+      <match>(?&lt;!\n)(?:commit|Author:|Date:)</match>
+    </context>
+
+    <context id="gitlog">
+      <include>
+        <context ref="field"/>
+        <context ref="commit-hash"/>
+      </include>
+    </context>
+  </definitions>
+</language>

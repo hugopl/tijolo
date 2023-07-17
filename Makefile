@@ -2,15 +2,18 @@
 PREFIX ?= /usr
 
 all:
-	shards build --release -s  -Dpreview_mt --ignore-crystal-version
+	shards build --release -s
 debug:
-	shards build --debug -Dpreview_mt --ignore-crystal-version
+	shards build --debug
+
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
 	@if [ "$$(uname -s)" == "Darwin" ]; then\
-	  GC_DONT_GC=1 crystal spec;\
+	  crystal spec;\
+	  crystal spec -Dexperimental;\
 	else\
-	  GC_DONT_GC=1 LC_ALL=en_US.UTF8 xvfb-run crystal spec;\
+	  LC_ALL=en_US.UTF8 xvfb-run crystal spec;\
+	  LC_ALL=en_US.UTF8 xvfb-run crystal spec -Dexperimental;\
 	fi
 
 install:
@@ -26,6 +29,11 @@ install:
 	# Changelog
 	install -D -m0644 CHANGELOG.md $(DESTDIR)$(PREFIX)/share/doc/tijolo/CHANGELOG.md
 	gzip -9fn $(DESTDIR)$(PREFIX)/share/doc/tijolo/CHANGELOG.md
+	# GtkSourceView language files
+	install -D -m0644 data/language-specs/crystal.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/crystal.lang
+	install -D -m0644 data/language-specs/ruby.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/ruby.lang
+	install -D -m0644 data/language-specs/haml.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/haml.lang
+	install -D -m0644 data/language-specs/gitlog.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/gitlog.lang
 
 install-fonts:
 	install -d $(DESTDIR)$(PREFIX)/share/fonts/jetbrains-mono

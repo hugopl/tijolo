@@ -13,7 +13,7 @@ dependencies:
     github: hugopl/fzy
     version: ~> 0.5
   libadwaita:
-    github: hugopl/libadwaita.cr
+    github: GeopJr/libadwaita.cr
     branch: main
   toml:
     github: crystal-community/toml.cr
