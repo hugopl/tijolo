@@ -16,12 +16,17 @@ class TextView < View
     super(@editor, resource, label)
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
-    @editor.cursor_changed_signal.connect do
+    connect(@editor.cursor_changed_signal) do
       set_cursor(*@editor.cursor_line_col)
     end
   end
 
   delegate grab_focus, to: @editor
+
+  def finalize
+    super
+    LibC.printf("OPAAAAAA\n")
+  end
 
   def save : Nil
     Log.info { "Saving buffer to #{resource_hint}" }

@@ -1,6 +1,9 @@
+require "./signal_conector"
+
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container header label line_column menu_btn modified))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
+  include SignalConnector
 
   @@untitled_count = 0
 
@@ -36,9 +39,9 @@ abstract class View < Gtk::Box
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
     container.child = contents
 
-    gesture = Gtk::GestureClick.new(button: 0)
-    gesture.pressed_signal.connect { ViewManager.instance.focus_view(self) }
-    add_controller(gesture)
+    # gesture = Gtk::GestureClick.new(button: 0)
+    # connect(gesture.pressed_signal) { ViewManager.instance.focus_view(self) }
+    # add_controller(gesture)
 
     variant_self = GLib::Variant.new(self.object_id)
     menu = Gio::Menu.new

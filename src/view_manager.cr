@@ -1,50 +1,28 @@
 require "./view_place_holder"
+require "./view"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w(overlay views_model views_ctrltab_box views_ctrltab_selection views_tree))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w())]
 class ViewManager < Gtk::Box
   include Gtk::WidgetTemplate
-
-  @views_model : Gtk::ListStore
-  @view_ctrltab_box : Gtk::Box
-  @view_ctrltab_selection : Gtk::TreeSelection
-  @overlay : Gtk::Overlay
 
   # List of view in Ctrl+Tab menu
   getter views = [] of View
   # Current selected view in Ctrl+Tab menu
   getter selected_view_index = 0
 
-  # ViewManager instance, used to simplify things and avoid a lot of signal connections
-  class_getter! instance : ViewManager?
-
   # TODO: This should be removed once ViewManager gets its own layout and is able to split views again
   @stack : Gtk::Stack
+  @rotating_views = false
 
   def initialize
     super()
 
-    raise ArgumentError.new unless @@instance.nil?
-
     @stack = Gtk::Stack.new
-    @overlay = Gtk::Overlay.cast(template_child("overlay"))
-    @views_model = Gtk::ListStore.cast(template_child("views_model"))
-    @view_ctrltab_box = Gtk::Box.cast(template_child("views_ctrltab_box"))
-    @view_ctrltab_selection = Gtk::TreeSelection.cast(template_child("views_ctrltab_selection"))
-
-    @overlay.child = @stack
-    @@instance = self
+    append(@stack)
   end
 
   delegate empty?, to: @views
   delegate any?, to: @views
-  delegate add_overlay, to: @overlay
-
-  private def populate_views_model
-    @views_model.clear
-    @views.each do |view|
-      @views_model.append({0}, {view.label})
-    end
-  end
 
   private def reorder_views
     return if @views.size < 2 || @selected_view_index.zero?
@@ -91,8 +69,6 @@ class ViewManager < Gtk::Box
     return if views_count < 2
 
     if !rotating_views?
-      populate_views_model
-      view = Gtk::TreeView.cast(template_child("views_tree"))
       @selected_view_index = 0
     end
 
@@ -104,23 +80,20 @@ class ViewManager < Gtk::Box
       @selected_view_index = 0
     end
 
-    @view_ctrltab_selection.select_row(@selected_view_index)
     selected_view = @views[@selected_view_index]
-    @view_ctrltab_box.visible = true
+    @rotating_views = true
     show_view(selected_view)
   end
 
   def stop_rotate : Nil
     return unless rotating_views?
 
-    @view_ctrltab_box.visible = false
     reorder_views
-
     focus_view(current_view.not_nil!)
   end
 
   private def rotating_views? : Bool
-    @views.size > 1 && @view_ctrltab_box.visible?
+    @views.size > 1 && @rotating_views
   end
 
   def add_view(view : View)
@@ -136,6 +109,7 @@ class ViewManager < Gtk::Box
 
     @views.delete(view)
     @stack.remove(view)
+    view.disconnect_signals
 
     show_view(@views.first) unless @views.empty?
   end

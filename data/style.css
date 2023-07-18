@@ -30,11 +30,15 @@ box.selected {
 
 textview
 {
-  font: 9pt "Monospace";
+  font: 10pt "JetBrainsMono Nerd Font";
 }
 
 codeeditor {
   font: 10pt "JetBrainsMono Nerd Font";
+}
+
+listview {
+  background-color: inherit;
 }
 
 themeselector {

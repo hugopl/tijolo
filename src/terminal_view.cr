@@ -25,7 +25,7 @@ class TerminalView < View
       user_data: nil
     )
 
-    @term.child_exited_signal.connect do
+    connect(@term.child_exited_signal) do
       activate_action("win.close_view", nil)
     end
   end

@@ -9,14 +9,12 @@ require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree_view sidebar primary_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree sidebar primary_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
   getter project : Project
   @project_monitor : ProjectMonitor
-  @project_tree : ProjectTree
-  @project_tree_view : Gtk::TreeView
   @sidebar : Adw::Flap
   @view_manager : ViewManager?
   private getter locator : Locator
@@ -24,17 +22,12 @@ class ApplicationWindow < Adw::ApplicationWindow
   def initialize(application : TijoloApplication, @project : Project)
     super()
 
-    @project_tree = ProjectTree.new(@project)
     @project_monitor = ProjectMonitor.new(@project)
-    @project_tree_view = Gtk::TreeView.cast(template_child("project_tree_view"))
-    @project_tree_view.row_activated_signal.connect(->open_from_project_tree(Gtk::TreePath, Gtk::TreeViewColumn))
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
     @locator.open_file_signal.connect(->open(String))
 
     self.application = application
-
-    @project_tree_view.model = @project_tree.model
 
     primary_menu = Gtk::MenuButton.cast(template_child("primary_menu"))
     popover_primary_menu = Gtk::PopoverMenu.cast(primary_menu.popover.not_nil!)
@@ -123,7 +116,6 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def project_load_finished
-    @project_tree.project_load_finished
     @project_monitor.project_load_finished
     enable_project_related_actions(true)
   end
@@ -137,36 +129,15 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions(settings : Gio::Settings)
     config = Config.instance
-    actions = {show_locator: ->show_locator,
-    # show_git_locator:          ->show_git_locator,
-               close_view:      ->close_current_view,
-               close_all_views: ->close_all_views,
-               new_file:        ->new_file,
-               new_terminal:    ->new_terminal,
-               open_file:       ->show_open_file_dialog,
-               save_view:       ->save_current_view,
-               save_view_as:    ->save_current_view_as,
-               # find:                      ->{ find_in_current_view(:find_by_text) },
-               # find_by_regexp:            ->{ find_in_current_view(:find_by_regexp) },
-               # find_replace:              ->{ find_in_current_view(:find_replace) },
-               # find_next:                 ->find_next_in_current_view,
-               # find_prev:                 ->find_prev_in_current_view,
-               # goto_line:                 ->show_goto_line_locator,
-               # comment_code:              ->comment_code,
-               # sort_lines:                ->sort_lines,
-               # goto_definition:           ->goto_definition,
-               show_hide_sidebar: ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
-               # show_hide_output_pane:     ->show_hide_output_pane,
-               # focus_editor:              ->focus_editor,
-               # go_back:                   ->go_back,
-               # go_forward:                ->go_forward,
-               # focus_upper_split:         ->focus_upper_split,
-               # focus_right_split:         ->focus_right_split,
-               # focus_lower_split:         ->focus_lower_split,
-               # focus_left_split:          ->focus_left_split,
-               # increase_font_size:        ->increase_current_view_font_size,
-               # decrease_font_size:        ->decrease_current_view_font_size,
-               # maximize_view:             ->maximize_view,
+    actions = {show_locator:       ->show_locator,
+               close_view:         ->close_current_view,
+               close_all_views:    ->close_all_views,
+               new_file:           ->new_file,
+               new_terminal:       ->new_terminal,
+               open_file:          ->show_open_file_dialog,
+               save_view:          ->save_current_view,
+               save_view_as:       ->save_current_view_as,
+               show_hide_sidebar:  ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
                copy_from_terminal: ->copy_terminal_text,
                paste_in_terminal:  ->paste_terminal_text,
     }
@@ -345,13 +316,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     end
   rescue e : IO::Error
     application.error(e)
-  end
-
-  private def open_from_project_tree(tree_path : Gtk::TreePath, _column : Gtk::TreeViewColumn)
-    return if @project_tree_view.value(tree_path, ProjectTree::PROJECT_TREE_IS_DIR).as_bool
-
-    file_path = @project_tree.file_path(tree_path)
-    open(Path.new(file_path)) if file_path
   end
 
   private def show_locator
