@@ -26,7 +26,7 @@ class CodeEditor < GtkSource::View
   end
 
   def cursor_changed_signal
-    notify_signal["cursor_position"]
+    buffer.buffer.notify_signal["cursor-position"]
   end
 
   def cursor_line_col

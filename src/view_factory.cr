@@ -8,7 +8,7 @@ class ViewFactory
       raise TijoloError.new "images not supported yet"
     else
       # create_text_view(file, project_path)
-      TextView.new(resource, label_for(resource, project))
+      TextView.new(resource, project)
     end
   end
 

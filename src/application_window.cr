@@ -152,28 +152,6 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     enable_project_related_actions(false)
 
-    # View related actions
-    uint64 = GLib::VariantType.new("t")
-    action = Gio::SimpleAction.new("copy_full_path", uint64)
-    action.activate_signal.connect(->copy_view_full_path(GLib::Variant?))
-    add_action(action)
-
-    action = Gio::SimpleAction.new("copy_full_path_and_line", uint64)
-    action.activate_signal.connect(->copy_view_full_path_and_line(GLib::Variant?))
-    add_action(action)
-
-    action = Gio::SimpleAction.new("copy_file_name", uint64)
-    action.activate_signal.connect(->copy_view_file_name(GLib::Variant?))
-    add_action(action)
-
-    action = Gio::SimpleAction.new("copy_relative_path", uint64)
-    action.activate_signal.connect(->copy_view_relative_path(GLib::Variant?))
-    add_action(action)
-
-    action = Gio::SimpleAction.new("copy_relative_path_and_line", uint64)
-    action.activate_signal.connect(->copy_view_relative_path_and_line(GLib::Variant?))
-    add_action(action)
-
     action = Gio::SimpleAction.new("focus_editor", nil)
     action.activate_signal.connect { with_current_view(&.grab_focus) }
     add_action(action)
@@ -322,39 +300,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     return if @locator.nil? || @view_manager.nil?
 
     locator.show(select_text: true, view: view_manager.current_view)
-  end
-
-  private def copy_view_full_path(view_id : GLib::Variant?)
-    return if view_id.nil?
-
-    path = view_manager.find_view_by_id(view_id.as_u64).try(&.resource)
-    Gdk::Display.default!.clipboard.set(path.to_s) if path
-  end
-
-  private def copy_view_full_path_and_line(view_id : GLib::Variant?)
-    return if view_id.nil?
-
-    Log.warn { "Waiting cursor API stabilize to implement win.copy_full_path_and_line action" }
-  end
-
-  private def copy_view_file_name(view_id : GLib::Variant?)
-    return if view_id.nil?
-
-    path = view_manager.find_view_by_id(view_id.as_u64).try(&.resource)
-    Gdk::Display.default!.clipboard.set(path.basename.to_s) if path
-  end
-
-  private def copy_view_relative_path(view_id : GLib::Variant?)
-    return if view_id.nil?
-
-    path = view_manager.find_view_by_id(view_id.as_u64).try(&.resource)
-    Gdk::Display.default!.clipboard.set(path.relative_to(@project.root).to_s) if path
-  end
-
-  private def copy_view_relative_path_and_line(view_id : GLib::Variant?)
-    return if view_id.nil?
-
-    Log.warn { "Waiting cursor API stabilize to implement win.copy_relative_path_and_line action" }
   end
 
   private def copy_terminal_text

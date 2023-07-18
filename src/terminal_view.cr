@@ -6,7 +6,8 @@ class TerminalView < View
   delegate grab_focus, to: @term
 
   def initialize
-    super(@term, nil, "Terminal")
+    super(@term, nil, nil)
+    self.label = "Terminal"
 
     argv0 = Config.instance.terminal_login_shell? ? "-#{TerminalView.default_shell}" : TerminalView.default_shell
 

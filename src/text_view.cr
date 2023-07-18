@@ -8,24 +8,55 @@ require "./view"
 class TextView < View
   Log = ::Log.for("TextView")
 
+  @@untitled_count = 0
+
   @editor : CodeEditor
 
-  def initialize(resource : Path? = nil, label : String? = nil)
+  def initialize(resource : Path? = nil, project : Project? = nil)
     source = File.open(resource) if resource
     @editor = CodeEditor.new(source, detect_language(resource))
-    super(@editor, resource, label)
+    super(@editor, resource, project)
+    update_label
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
     connect(@editor.cursor_changed_signal) do
-      set_cursor(*@editor.cursor_line_col)
+      set_cursor_label(*@editor.cursor_line_col)
     end
+    set_cursor_label(*@editor.cursor_line_col)
   end
 
   delegate grab_focus, to: @editor
 
-  def finalize
-    super
-    LibC.printf("OPAAAAAA\n")
+  def line_based_content?
+    true
+  end
+
+  def current_line : Int32
+    @editor.cursor_line_col[0]
+  end
+
+  def current_column : Int32
+    @editor.cursor_line_col[1]
+  end
+
+  private def update_label
+    resource = self.resource
+    project = self.project
+    label = if project && resource
+              resource.relative_to(project.root).to_s
+            elsif resource
+              resource.to_s
+            else
+              untitled_label
+            end
+    self.label = label
+  end
+
+  private def untitled_label : String
+    @@untitled_count += 1
+    return "Untitled" if @@untitled_count == 1
+
+    "Untitled #{@@untitled_count}"
   end
 
   def save : Nil
