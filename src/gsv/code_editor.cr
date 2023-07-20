@@ -3,9 +3,21 @@ require "./code_buffer"
 
 class CodeEditor < GtkSource::View
   def initialize(source : IO?, language : String?)
-    super()
+    super(css_name: "codeeditor", show_line_numbers: true)
 
+    supress_source_view_key_bindings
     setup(source, language)
+  end
+
+  private def supress_source_view_key_bindings
+    sc_controller = Gtk::ShortcutController.new(propagation_phase: :capture)
+    action = Gtk::CallbackAction.new(->(w : Gtk::Widget, v : GLib::Variant?) { true })
+    # Remore shortcuts that clash with Tijolo shortcuts
+    # move-words, move-lines and move-viewport
+    trigger = Gtk::ShortcutTrigger.parse_string("<Alt>Up|<Alt>Right|<Alt>Down|<Alt>Left|<Alt><Shift>Up|<Alt><Shift>Down")
+    shortcut = Gtk::Shortcut.new(action: action, trigger: trigger)
+    sc_controller.add_shortcut(shortcut)
+    add_controller(sc_controller)
   end
 
   private def setup(source, language)

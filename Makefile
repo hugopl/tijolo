@@ -2,9 +2,9 @@
 PREFIX ?= /usr
 
 all:
+	shards install
+	./bin/gi-crystal
 	shards build --release -s
-debug:
-	shards build --debug
 
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".

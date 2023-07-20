@@ -21,7 +21,7 @@ abstract class View < Gtk::Box
   @line_based_actions = [] of Gio::SimpleAction
 
   def initialize(contents : Gtk::Widget, @resource : Path?, @project : Project?)
-    super()
+    super(css_name: "view")
 
     @line_column = Gtk::Label.cast(template_child(View.g_type, "line_column"))
 
@@ -151,5 +151,9 @@ abstract class View < Gtk::Box
 
   def to_s(io : IO)
     io << label
+  end
+
+  def inspect(io : IO)
+    io << "<" << self.class.name << ' ' << label << '>'
   end
 end

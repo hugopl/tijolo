@@ -2,8 +2,63 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
 
-  <template class="ViewManager" parent="GtkBox">
-    <property name="orientation">vertical</property>
+  <template class="ViewManager" parent="GtkWidget">
     <property name="name">viewmanager</property>
+    <child>
+      <!-- TODO: Move this to Crystal, so shortcuts can be configurable -->
+      <object class='GtkShortcutController'>
+        <property name='scope'>global</property>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Up</property>
+            <property name='action'>action(view.split_top)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Right</property>
+            <property name='action'>action(view.split_right)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Down</property>
+            <property name='action'>action(view.split_bottom)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Left</property>
+            <property name='action'>action(view.split_left)</property>
+          </object>
+        </child>
+
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;Up</property>
+            <property name='action'>action(view.focus_top)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;Right</property>
+            <property name='action'>action(view.focus_right)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;Down</property>
+            <property name='action'>action(view.focus_bottom)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Alt&gt;Left</property>
+            <property name='action'>action(view.focus_left)</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
   </template>
 </interface>

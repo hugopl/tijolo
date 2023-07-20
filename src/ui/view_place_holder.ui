@@ -12,23 +12,11 @@
         <property name="max-height">12</property>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">Code Navigation</property>
+            <property name="title" translatable="yes">Shortcuts you need to known before doing anything</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;P</property>
+                <property name="accelerator">&lt;Ctrl&gt;P</property>
                 <property name="title" translatable="yes">Show locator</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">F2</property>
-                <property name="title" translatable="yes">Go to definition</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Ctrl&gt;G</property>
-                <property name="title" translatable="yes">Go to line/column</property>
               </object>
             </child>
             <child>
@@ -43,62 +31,22 @@
                 <property name="title" translatable="yes">Focus editor at ←↓→↑</property>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">General</property>
             <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;N</property>
-                <property name="title" translatable="yes">New file</property>
+              <object class="GtkShortcutsShortcut" id="alt_arrows2">
+                <property name="accelerator">&lt;Alt&gt;&lt;Shift&gt;Left Down Right Up</property>
+                <property name="title" translatable="yes">Move/Split editor to ←↓→↑</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;O</property>
-                <property name="title" translatable="yes">Open non-project file</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;S</property>
-                <property name="title" translatable="yes">Save</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;W</property>
+                <property name="accelerator">&lt;Ctrl&gt;W</property>
                 <property name="title" translatable="yes">Close view</property>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">Editing</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;F</property>
-                <property name="title" translatable="yes">Find</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">F3</property>
-                <property name="title" translatable="yes">Find next</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">F9</property>
-                <property name="title" translatable="yes">Sort selected lines</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;ctrl&gt;slash</property>
-                <property name="title" translatable="yes">Comment selected lines</property>
+                <property name="title" translatable="yes" context="shortcut window">Show keyboard shortcuts</property>
+                <property name="accelerator">&lt;Ctrl&gt;question</property>
               </object>
             </child>
           </object>

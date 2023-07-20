@@ -3,7 +3,6 @@
 /bin/
 /.shards/
 /.ccls-cache/
-shard.override.yml
 *~
 *.deb
 *.deb.sig

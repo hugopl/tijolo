@@ -39,5 +39,5 @@ shards:
 
   vte:
     git: https://github.com/hugopl/vte.cr.git
-    version: 0.1.0+git.commit.4464bf2445ca591363cd8d7f9bd09e73eeada84c
+    version: 0.1.0
 

@@ -1,4 +1,12 @@
 # Temporaty monkey patches to GTK4 shard will live her euntil they mature and get upstreammed to gtk4 shard.
+module Gtk
+  class Widget
+    # :ditto:
+    def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32, baseline : Int32)
+      size_allocate(Gdk::Rectangle.new(x, y, width, height), baseline)
+    end
+  end
+end
 
 module Pango
   class Layout < GObject::Object

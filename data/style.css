@@ -24,9 +24,12 @@ box.selected {
   padding: 1px;
 }
 
-textview
-{
-  font: 10pt "JetBrainsMono Nerd Font";
+view_manager {
+  background-color: darker(@window_bg_color);
+}
+
+view_manager view {
+  background-color: @window_bg_color;
 }
 
 codeeditor {

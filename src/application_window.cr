@@ -1,6 +1,5 @@
 require "./project"
 require "./project_monitor"
-require "./project_tree"
 require "./welcome_widget"
 require "./view_manager"
 require "./view_factory"
@@ -226,10 +225,10 @@ class ApplicationWindow < Adw::ApplicationWindow
       if view.modified?
         dlg = SaveModifiedViewsDialog.new(self, [view])
         dlg.present do
-          view_manager.close_current_view
+          view_manager.remove_current_view
         end
       else
-        view_manager.close_current_view
+        view_manager.remove_current_view
       end
     end
   end
@@ -240,13 +239,13 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     modified_views = view_manager.modified_views
     if modified_views.empty?
-      view_manager.close_all_views
+      view_manager.remove_all_views
       return
     end
 
     dlg = SaveModifiedViewsDialog.new(self, modified_views)
     dlg.present do
-      view_manager.close_all_views
+      view_manager.remove_all_views
     end
   end
 

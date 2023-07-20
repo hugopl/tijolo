@@ -72,21 +72,6 @@
               <object class="GtkBox">
                 <property name="halign">end</property>
                 <property name="spacing">6</property>
-<!-- This is a git menu supposed to be right aligned in the header bar, hidden while not implemented yet.
-                <child>
-                  <object class="GtkMenuButton" id="git_branches_menu">
-                    <property name="label" translatable="yes">ProjectName on master</property>
-                    <property name="tooltip-text" translatable="yes">Git operations</property>
-                    <property name="visible">0</property>
-                    <property name="halign">start</property>
-                    <style><class name="flat"/></style>
-                    <property name="popover">
-                      <object class="GitBranchesPopover" id="git_menu_popover">
-                      </object>
-                    </property>
-                  </object>
-                </child>
--->
                 <child>
                   <object class="GtkMenuButton" id="primary_menu">
                     <property name="tooltip-text" translatable="yes">Main Menu</property>
