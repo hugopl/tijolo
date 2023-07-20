@@ -2,13 +2,8 @@ box.selected {
   color: @accent_color;
 }
 
-#sidebar treeview {
-  background-color: @window_bg_color;
-
-}
-
 #locator treeview {
-  background-color: @popover_bg_color;
+  background-color: inherit;
 }
 
 #locator treeview:selected {
@@ -16,11 +11,12 @@ box.selected {
     @accent_bg_color seems broken at some version of GTK/Adwaita
     So we hardcode here the color in the docs for dark theme... worst solution ever.
   */
-  background-color: #3584e4;
+  background-color: @accent_bg_color;
   /*
     accent_fg_color seems broken as well
   */
   color: @accent_fg_color;
+  border-radius: 3px;
 }
 
 .tjl-header button {

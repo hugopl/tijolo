@@ -15,8 +15,8 @@ module LocatorListener
   abstract def locator_hidden
 end
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry popover))]
-class Locator < Adw::Bin
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry))]
+class Locator < Adw::Window
   include Gtk::WidgetTemplate
 
   signal open_file(file : String)
@@ -30,7 +30,6 @@ class Locator < Adw::Bin
   @project : Project
   @entry : Gtk::SearchEntry
   @locator_results : Gtk::TreeView
-  @popover : Gtk::Popover
   private getter results_cursor = 0
   @current_view : View?
 
@@ -41,8 +40,6 @@ class Locator < Adw::Bin
   def initialize(@project)
     super()
 
-    @popover = Gtk::Popover.cast(template_child("popover"))
-
     @entry = Gtk::SearchEntry.cast(template_child("locator_entry"))
     @entry.activate_signal.connect(&->entry_activated)
     @entry.search_changed_signal.connect(&->search_changed)
@@ -51,10 +48,6 @@ class Locator < Adw::Bin
     key_ctl.key_pressed_signal.connect(&->entry_key_pressed(UInt32, UInt32, Gdk::ModifierType))
     @entry.add_controller(key_ctl)
 
-    focus_ctl = Gtk::EventControllerFocus.new
-    focus_ctl.enter_signal.connect(&->on_focus_in)
-    @entry.add_controller(focus_ctl)
-
     @default_locator_provider = FileLocator.new(@project)
     @current_locator_provider = @help_locator_provider = HelpLocator.new
 
@@ -62,7 +55,6 @@ class Locator < Adw::Bin
     @locator_results.model = @help_locator_provider.model
     @locator_results.row_activated_signal.connect(&->row_activated(Gtk::TreePath, Gtk::TreeViewColumn?))
 
-    @popover.parent = self
     init_locators
   end
 
@@ -78,20 +70,14 @@ class Locator < Adw::Bin
     @current_locator_provider.selected(view) if view.nil? || view != @current_view
 
     @current_view = view
-    @popover.visible = true
-
-    if select_text
-      @entry.grab_focus
-      @entry.select_region(0, -1)
-    else
-      @entry.grab_focus
-      # @entry.grab_focus_without_selecting
-    end
+    @entry.grab_focus
+    @entry.select_region(0, -1) if select_text
+    present
   end
 
   def hide
     @current_view = nil
-    @popover.visible = false
+    self.visible = false
   end
 
   def text=(text : String)
@@ -122,17 +108,12 @@ class Locator < Adw::Bin
     false
   end
 
-  private def on_focus_in
-    @popover.visible = true
-    false
-  end
-
   private def search_changed
     text = @entry.text
 
     # Due to https://gitlab.gnome.org/GNOME/gtk/-/issues/5340
     # GTK emit search_changed signal for no reasons at begining, so we need this check here.
-    return if text.empty? && !@popover.visible
+    return if text.empty?
 
     locator = find_locator(text)
     if @current_locator_provider != locator
@@ -145,7 +126,6 @@ class Locator < Adw::Bin
       text = text[2..-1] if @current_locator_provider != @default_locator_provider
       @current_locator_provider.search_changed(text)
     end
-    @popover.visible = true
     self.results_cursor = 0
   end
 

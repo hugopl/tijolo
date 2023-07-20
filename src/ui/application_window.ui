@@ -32,9 +32,9 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHeaderBar" id="headerbar">
+          <object class="GtkHeaderBar">
             <child type="title">
-              <object class="AdwWindowTitle">
+              <object class="AdwWindowTitle" id="title">
                 <property name="title">Tijolo</property>
               </object>
             </child>

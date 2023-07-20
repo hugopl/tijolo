@@ -9,7 +9,7 @@ require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(headerbar show_hide_sidebar_btn project_tree sidebar primary_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title show_hide_sidebar_btn project_tree sidebar primary_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -25,9 +25,11 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_monitor = ProjectMonitor.new(@project)
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
-    @locator.open_file_signal.connect(->open(String))
 
     self.application = application
+    @locator.open_file_signal.connect(->open(String))
+    @locator.transient_for = self
+    @locator.application = application
 
     primary_menu = Gtk::MenuButton.cast(template_child("primary_menu"))
     popover_primary_menu = Gtk::PopoverMenu.cast(primary_menu.popover.not_nil!)
@@ -81,7 +83,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def open_project
     raise ArgumentError.new unless @view_manager.nil?
 
-    Gtk::HeaderBar.cast(template_child("headerbar")).title_widget = @locator
+    Adw::WindowTitle.cast(template_child("title")).subtitle = @project.root.relative_to(Path.home).to_s
 
     Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
     @sidebar.locked = false
@@ -102,11 +104,8 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   @[GObject::Virtual]
   def close_request : Bool
-    view_manager = @view_manager
-    return false if view_manager.nil?
-
-    views = view_manager.modified_views
-    return false if views.empty?
+    views = @view_manager.try(&.modified_views)
+    return false if views.nil? || views.empty?
 
     dlg = SaveModifiedViewsDialog.new(self, views)
     dlg.present do
