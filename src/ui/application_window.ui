@@ -43,12 +43,11 @@
                 <property name="halign">start</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkToggleButton" id="show_hide_sidebar_btn">
+                  <object class="GtkToggleButton">
                     <property name="icon-name">sidebar-show-symbolic</property>
                     <property name="action-name">win.show_hide_sidebar</property>
                     <property name="active" bind-source="sidebar" bind-property="reveal-flap" bind-flags="sync-create|bidirectional"/>
                     <property name="tooltip-text" translatable="yes">Show/Hide sidebar (Alt+O)</property>
-                    <property name="sensitive">false</property>
                   </object>
                 </child>
                 <child>

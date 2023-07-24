@@ -8,7 +8,7 @@ require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title show_hide_sidebar_btn sidebar primary_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title sidebar primary_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -84,7 +84,6 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     Adw::WindowTitle.cast(template_child("title")).subtitle = @project.root.relative_to(Path.home).to_s
 
-    Gtk::ToggleButton.cast(template_child("show_hide_sidebar_btn")).sensitive = true
     @sidebar.locked = false
     @sidebar.reveal_flap = true
     @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
