@@ -32,15 +32,10 @@ trim_trailing_white_space_on_save = true
 # Default: "info"
 log_level = "info"
 
-[notifications]
-# Time notification waits to dissepear in seconds. A value <= zero means no notifications at all
-# All notifications can be later read in the output pane by pressing Alt+2.
-delay = 10
-
 [editor]
 # Editor font size in pt units
-# Default: 9
-font_size = 9
+# Default: 10
+font_size = 10
 # Line wrap mode, can be:
 # "none"      - Do not wrap lines; just make the text area wider.
 # "char"      - Wrap text, breaking lines anywhere the cursor can appear.
@@ -49,7 +44,6 @@ font_size = 9
 #
 # Default: "word"
 wrap_mode = "word"
-show_line_numbers = true
 # This is not valid for Makefiles
 insert_spaces_instead_of_tabs = true
 # This is not valid for Makefiles, they always use tab width of 4
@@ -57,15 +51,8 @@ tab_width = 2
 show_right_margin = true
 right_margin_position = 125
 highlight_current_line = true
-# Background pattern to show, can be: "none", "grid"
-# Default: "grid"
-background_pattern = "grid"
 
 [terminal]
-# If true, terminal views work as a stack (like normal editor views) and can have other views.
-# Default: false
-shared_view = false
-
 # Use a login shell, this mean the shell will load your /etc/profile, .bash_profile, etc.
 login_shell = true
 

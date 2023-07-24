@@ -36,23 +36,17 @@ class Config
   getter language_servers : Hash(String, String)
   getter log_level : Log::Severity
   property? trim_trailing_white_space_on_save : Bool
-  getter? terminal_shared_view : Bool
   getter? terminal_login_shell : Bool
   getter? ignore_editor_config_files : Bool
   property? language_servers_enabled : Bool
 
   # editor
   getter editor_font_size : Int32
-  # getter editor_wrap_mode : Editor::TextEditor::WrapMode
-  getter editor_show_line_numbers : Bool
   getter editor_insert_spaces_instead_of_tabs : Bool
   getter editor_tab_width : Int32
   getter editor_show_right_margin : Bool
   getter editor_right_margin_position : Int32
   getter editor_highlight_current_line : Bool
-  # getter editor_background_pattern : Editor::TextEditor::BackgroundPattern
-
-  getter notification_delay : Time::Span
 
   def self.instance
     @@instance ||= begin
@@ -109,24 +103,15 @@ class Config
     @log_level = parse_enum(toml, "log_level", Log::Severity)
 
     terminal_entry = toml["terminal"].as(Hash)
-    @terminal_shared_view = terminal_entry["shared_view"].as(Bool)
     @terminal_login_shell = terminal_entry["login_shell"].as(Bool)
 
     editor_entry = toml["editor"].as(Hash)
     @editor_font_size = editor_entry["font_size"].as(Int64).to_i32
-    # @editor_wrap_mode = parse_enum(editor_entry, "wrap_mode", Editor::TextEditor::WrapMode)
-    @editor_show_line_numbers = editor_entry["show_line_numbers"].as(Bool)
     @editor_insert_spaces_instead_of_tabs = editor_entry["insert_spaces_instead_of_tabs"].as(Bool)
     @editor_tab_width = editor_entry["tab_width"].as(Int64).to_i32
     @editor_show_right_margin = editor_entry["show_right_margin"].as(Bool)
     @editor_right_margin_position = editor_entry["right_margin_position"].as(Int64).to_i32
     @editor_highlight_current_line = editor_entry["highlight_current_line"].as(Bool)
-    # @editor_background_pattern = parse_enum(editor_entry, "background_pattern", Editor::TextEditor::BackgroundPattern)
-
-    notification_entry = toml["notifications"].as(Hash)
-    delay = notification_entry["delay"].as(Int64).to_i32
-    delay = 0 if delay < 0
-    @notification_delay = delay.seconds
   end
 
   private def parse_enum(toml, key : String, enum_class)
@@ -181,9 +166,5 @@ class Config
       item_type = default_value.as(Array).first.class
       return "expected all items to be #{item_type}" if value.any? { |i| i.class != item_type }
     end
-  end
-
-  def notification_enabled? : Bool
-    !@notification_delay.zero?
   end
 end

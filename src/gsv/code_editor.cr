@@ -3,7 +3,12 @@ require "./code_buffer"
 
 class CodeEditor < GtkSource::View
   def initialize(source : IO?, language : String?)
-    super(css_name: "codeeditor", show_line_numbers: true)
+    super(css_name: "codeeditor",
+      show_line_numbers: true,
+      monospace: true,
+      auto_indent: true,
+      smart_backspace: true,
+      smart_home_end: :before)
 
     supress_source_view_key_bindings
     setup(source, language)
@@ -31,6 +36,13 @@ class CodeEditor < GtkSource::View
     iter = gsv_buffer.iter_at_offset(0)
     gsv_buffer.place_cursor(iter)
   end
+
+  # For compatibility with non-gsv CodeEditor
+  {% for attr in %w(tab_width right_margin_position) %}
+  def {{ attr.id }}=(value : Int32)
+    self.{{ attr.id }} = value.to_u32
+  end
+  {% end %}
 
   def buffer : CodeBuffer
     buffer = super
