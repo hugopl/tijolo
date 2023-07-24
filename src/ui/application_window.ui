@@ -96,10 +96,20 @@
                 <property name="width-request">200</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">Project Tree</property>
-                    <property name="margin-start">9</property>
-                    <property name="halign">start</property>
-                    <style><class name="heading"/></style>
+                    <property name="label">😅️</property>
+                    <property name="margin-top">18</property>
+                    <style><class name="title-1"/></style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">&lt;i>The sidebar was not yet ported
+to GTK4 due to some bugs in
+Crystal bindings.&lt;/i></property>
+                    <property name="use_markup">1</property>
+                    <property name="justify">center</property>
+                    <property name="margin-top">18</property>
+                    <style><class name="dimmer"/></style>
                   </object>
                 </child>
                 <child>

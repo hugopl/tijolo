@@ -8,7 +8,7 @@ require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title show_hide_sidebar_btn project_tree sidebar primary_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title show_hide_sidebar_btn sidebar primary_menu))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
