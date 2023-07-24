@@ -7,7 +7,7 @@ shards:
 
   gi-crystal: # Overridden
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.17.0+git.commit.22358e7ced8fc68d760e162ef313d04660400997
+    version: 0.17.0+git.commit.2b4d4af5be66c06d92cfb729156608ad0b4de26a
 
   gio:
     git: https://github.com/hugopl/gio.cr.git

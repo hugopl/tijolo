@@ -1,20 +1,10 @@
-box.selected {
-  color: @accent_color;
-}
-
+/* TODO: Repalce this by a listview */
 #locator treeview {
   background-color: inherit;
 }
 
 #locator treeview:selected {
-  /*
-    @accent_bg_color seems broken at some version of GTK/Adwaita
-    So we hardcode here the color in the docs for dark theme... worst solution ever.
-  */
   background-color: @accent_bg_color;
-  /*
-    accent_fg_color seems broken as well
-  */
   color: @accent_fg_color;
   border-radius: 3px;
 }
@@ -30,6 +20,16 @@ view_manager {
 
 view_manager view {
   background-color: @window_bg_color;
+}
+
+view:focus-within {
+  color: @accent_color;
+}
+
+view_switcher listview {
+  border-radius: 6px;
+  background-color: @popover_bg_color;
+  padding: 6px;
 }
 
 codeeditor {

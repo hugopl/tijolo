@@ -8,6 +8,7 @@
       <!-- TODO: Move this to Crystal, so shortcuts can be configurable -->
       <object class='GtkShortcutController'>
         <property name='scope'>global</property>
+        <property name='propagation-phase'>capture</property>
         <child>
           <object class='GtkShortcut'>
             <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Up</property>

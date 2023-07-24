@@ -4,10 +4,12 @@ require "./view_manager_node"
 require "./view_manager_view_node"
 require "./view_manager_split_node"
 require "./view_place_holder"
+require "./view_switcher"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w())]
 class ViewManager < Gtk::Widget
   include Gtk::WidgetTemplate
+  include Gio::ListModel
 
   # List of view in Ctrl+Tab menu
   getter views = [] of View
@@ -15,15 +17,15 @@ class ViewManager < Gtk::Widget
   getter selected_view_index = 0
   private getter! root : ViewManagerNode?
   getter place_holder = ViewPlaceHolder.new
-
-  @rotating_views = false
-  @selected_view : View?
+  getter view_switcher = ViewSwitcher.new
 
   @layout = ViewManagerLayout.new
 
   def initialize
     super(css_name: "view_manager")
     @place_holder.parent = self
+    @view_switcher.parent = self
+    @view_switcher.model = self
     self.layout_manager = @layout
     setup_actions
   end
@@ -61,7 +63,7 @@ class ViewManager < Gtk::Widget
 
   def add_view(view : View) : Nil
     @place_holder.visible = false
-    view.parent = self
+    view.insert_before(self, @view_switcher)
 
     node = current_node
     if node.nil?
@@ -70,6 +72,7 @@ class ViewManager < Gtk::Widget
       node.add_view(view)
     end
     @views.unshift(view)
+    items_changed_signal.emit(0, 0, 1)
     focus_view(view)
   end
 
@@ -167,13 +170,10 @@ class ViewManager < Gtk::Widget
 
   def show_view(view : View)
     root = @root
-    return if root.nil? || @selected_view == view
+    return if root.nil?
 
-    @selected_view.try(&.unselect)
-    @selected_view = view
     node = root.find_node(view)
     node.show_view(view)
-    view.select
   end
 
   def focus_view(view : View)
@@ -186,7 +186,7 @@ class ViewManager < Gtk::Widget
     return if views_count < 2
 
     @selected_view_index = 0 if !rotating_views?
-    @rotating_views = true
+    @view_switcher.visible = true
 
     @selected_view_index += reverse ? -1 : 1
     max_index = views_count - 1
@@ -199,14 +199,15 @@ class ViewManager < Gtk::Widget
   end
 
   def stop_rotate : Nil
-    @rotating_views = false
-    @views.unshift(@views.delete_at(@selected_view_index)) if @views.size >= 2 && @selected_view_index > 0
-
-    @selected_view.try(&.grab_focus)
+    @view_switcher.visible = false
+    if @views.size > 1
+      @views.unshift(@views.delete_at(@selected_view_index))
+      @views.first.grab_focus
+    end
   end
 
   private def rotating_views? : Bool
-    @views.size > 1 && @rotating_views
+    @views.size > 1 && @view_switcher.visible?
   end
 
   def remove_current_view
@@ -214,7 +215,14 @@ class ViewManager < Gtk::Widget
     return if node.nil?
 
     view = node.remove_visible_view
-    @views.delete(view)
+    removed_view_index = @views.index(view)
+    if removed_view_index
+      @views.delete_at(removed_view_index)
+      items_changed_signal.emit(removed_view_index.to_u32, 1_u32, 0_u32)
+    else
+      raise IndexError.new
+    end
+
     view.disconnect_signals
     view.unparent
 
@@ -235,7 +243,10 @@ class ViewManager < Gtk::Widget
       view.disconnect_signals
       view.unparent
     end
+    old_views_size = @views.size
     @views.clear
+    items_changed_signal.emit(0_u32, old_views_size.to_u32, 0_u32)
+
     @root = nil
     @place_holder.visible = true
   end
@@ -246,5 +257,20 @@ class ViewManager < Gtk::Widget
 
   private def save_png(suffix = nil)
     @root.try(&.save_png(suffix))
+  end
+
+  @[GObject::Virtual]
+  def get_n_items : UInt32
+    @views.size.to_u32
+  end
+
+  @[GObject::Virtual]
+  def get_item(pos : UInt32) : GObject::Object?
+    @views[pos]?
+  end
+
+  @[GObject::Virtual]
+  def get_item_type : UInt64
+    View.g_type
   end
 end

@@ -4,4 +4,4 @@ dependencies:
     version: ">= 0.15.0"
   gi-crystal:
     github: hugopl/gi-crystal
-    commit: 22358e7ced8fc68d760e162ef313d04660400997
+    commit: 2b4d4af5be66c06d92cfb729156608ad0b4de26a

@@ -86,14 +86,6 @@ abstract class View < Gtk::Box
     enable_resource_actions
   end
 
-  def select : Nil
-    @header.add_css_class("selected")
-  end
-
-  def unselect : Nil
-    @header.remove_css_class("selected")
-  end
-
   def resource_hint : Path
     resource = self.resource
     return resource if resource
