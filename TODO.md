@@ -2,9 +2,16 @@
 
 # Tijolo Tasks
 
-The rewrite isn't not just a plain GTK4 port but the implementation of the text widget with syntax highlighting, etc. So
+The rewrite isn't not just a plain GTK4 port but the implementation of the code widget with syntax highlighting, etc. So
 it can take some time to finish... It will be release once I start using it to write itself, nowadays 0.8.0 is written
 using version v0.7.x.
+
+My original plan was to only release it with this new code widget ready, however this is too much work for the not much free
+time I have to work on this, so I put the project manager hat on and decided to get it working first with GtkSourceView5,
+then later replace GtkSourceView5 with my code widget, in the mean time it must compile with both widgets, this will force
+me to add few abstractions to not depend on GtkSourceView5 API.
+
+To compile it using the experimental/incomplete code widget use the `-Dexperimental` compiler flag.
 
 ## Pre re-write tasks
 
@@ -12,7 +19,26 @@ using version v0.7.x.
 - [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
 - [x] Create bindings for [tree-sitter](https://tree-sitter.github.io/).
 
-## Tasks needed for a MVP
+## Tasks needed for a GtkSourceView5 based editor
+
+- [x] Create GtkSourceView5 (GSV) bindings.
+- [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
+- [x] Remove default key bindings from GSV.
+- [x] Create a layout manager to let views be split in stacks again.
+- [ ] Polish view split code.
+- [ ] Polish view navigation code.
+- [ ] Port Tijolo 0.7 key bindings.
+- [ ] Enclose selection with parentesis when typing `(`.
+- [ ] Show project files on sidebar.
+- [ ] Show current git branch somewhere (header bar?).
+- [ ] Add menu to change branches.
+- [ ] Change GSV style when changing dark/light themes.
+- [ ] Create better color themes.
+- [ ] Remove deprecated GTK stuff from Welcome widget.
+- [ ] Remove trailing whitespaces on save.
+- [ ] Implement text search.
+
+## Tasks needed for a code editor widget
 
 - [x] Draw editor background grid.
 - [x] Draw cursors.
@@ -25,7 +51,7 @@ using version v0.7.x.
 - [x] Implement piecetable `#save`.
 - [x] Implement piecetable `#insert`.
 - [x] Implement piecetable `#delete`.
-- [ ] Let piecetable line aware.
+- [x] Let piecetable line aware.
 - [ ] Implement piecetable `#line_col_to_pos`.
 - [ ] Implement piecetable `#pos_line_col`.
 - [ ] Implement piecetable `#line_size`.
@@ -39,17 +65,10 @@ using version v0.7.x.
 - [ ] Implement text (multiple) selection model.
 - [ ] Implement undo/redo for piece table.
 - [ ] Have tree-sitter highlight queries for Crystal.
-- [ ] Release alpha1.
-
-## Tasks needed to let it be more than a MVP
-
-- [ ] Create a layout manager to let views be split in stacks again.
-- [ ] Release alpha2.
 - [ ] Make cursors blink.
 - [ ] Hide mouse when typing.
 - [ ] Add [power mode](https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode) for fun.
 - [ ] Multiple cursors.
-- [ ] Release beta1.
 - [ ] Render tree-sitter errors.
 - [ ] Support auto-completion
 - [ ] Let piece table inform modified lines.
