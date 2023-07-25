@@ -9,21 +9,20 @@
   border-radius: 3px;
 }
 
-.tjl-header button {
-  border-radius: 0;
-  padding: 1px;
-}
-
 view_manager {
   background-color: darker(@window_bg_color);
 }
 
-view_manager view {
+view {
   background-color: @window_bg_color;
 }
 
 view:focus-within {
   color: @accent_color;
+}
+
+view button {
+  border-radius: 0;
 }
 
 view_switcher listview {

@@ -27,11 +27,11 @@
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkCenterBox" id="header">
-        <style><class name="tjl-header"/></style>
         <child type="center">
           <object class="GtkBox">
             <child>
               <object class="GtkLabel" id="label">
+                <style><class name="heading"/></style>
               </object>
             </child>
             <child>
