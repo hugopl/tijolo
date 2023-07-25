@@ -6,7 +6,8 @@ class ProjectError < TijoloError
 end
 
 class Project < GObject::Object
-  Log = ::Log.for("Project")
+  Log          = ::Log.for("Project")
+  IGNORED_DIRS = {".git", ".hg", ".svn", ".ccls-cache"}
 
   getter root : Path = Path.new
   getter? load_finished = false
@@ -231,7 +232,7 @@ class Project < GObject::Object
         next
       elsif info.file?
         files << path.relative_to(@root)
-      elsif info.directory?
+      elsif info.directory? && !entry.in?(IGNORED_DIRS)
         scan_dir(path, files, directories)
       end
     end

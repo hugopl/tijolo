@@ -22,7 +22,7 @@ ignore_editor_config_files = false
 
 # Ignore these directories when loading any project.
 # Default: ["node_modules", "tmp/cache"]
-ignored_dirs = [".git", "node_modules", "tmp/cache"]
+ignored_dirs = ["node_modules", "tmp/cache"]
 
 # Set to true to removing trailing white space on save
 # Default: true
