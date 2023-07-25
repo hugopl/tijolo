@@ -90,6 +90,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar.content = @view_manager = view_manager = ViewManager.new
 
     @project.scan_files(on_finish: ->project_load_finished)
+
+    notify_signal["focus-widget"].connect { view_manager.focus_changed }
   end
 
   private def view_manager
@@ -190,7 +192,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     view_manager = @view_manager
     return if view_manager.nil?
 
-    view = view_manager.current_view
+    view = view_manager.current_view?
     yield(view) if view
   end
 
@@ -296,7 +298,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def show_locator
     return if @locator.nil? || @view_manager.nil?
 
-    locator.show(select_text: true, view: view_manager.current_view)
+    locator.show(select_text: true, view: view_manager.current_view?)
   end
 
   private def copy_terminal_text

@@ -36,7 +36,7 @@ class ViewManagerLayout < Gtk::LayoutManager
                                   lib_minimum_baseline : Pointer(Int32), lib_natural_baseline : Pointer(Int32)) : Void
     layout = ViewManagerLayout.new(this, :none)
     view_manager = ViewManager.new(lib_widget, :none)
-    if view_manager.views.empty?
+    if view_manager.empty?
       LibGtk.gtk_widget_measure(view_manager.place_holder, lib_orientation, -1, lib_minimum, lib_natural, nil, nil)
     else
       integer = 0

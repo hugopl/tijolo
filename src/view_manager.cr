@@ -10,11 +10,11 @@ require "./view_switcher"
 class ViewManager < Gtk::Widget
   include Gtk::WidgetTemplate
   include Gio::ListModel
-
   # List of view in Ctrl+Tab menu
-  getter views = [] of View
+  @views = [] of View
+
   # Current selected view in Ctrl+Tab menu
-  getter selected_view_index = 0
+  @selected_view_index = 0
   private getter! root : ViewManagerNode?
   getter place_holder = ViewPlaceHolder.new
   getter view_switcher = ViewSwitcher.new
@@ -49,7 +49,16 @@ class ViewManager < Gtk::Widget
     insert_action_group("view", group)
   end
 
+  def focus_changed
+    view = focus_child
+    return unless view.as?(View)
+
+    idx = @views.index(view)
+    @views.swap(0, idx) if idx
+  end
+
   private def current_node : ViewManagerNode?
+    return if @views.empty?
     root = @root
     return if root.nil?
 
@@ -107,6 +116,7 @@ class ViewManager < Gtk::Widget
   end
 
   private def focus_right
+    # TODO: Refactor this mess
     node = current_node
     return if node.nil?
 
@@ -132,6 +142,7 @@ class ViewManager < Gtk::Widget
   end
 
   private def focus_left
+    # TODO: Refactor this mess
     node = current_node
     return if node.nil?
 
@@ -160,12 +171,12 @@ class ViewManager < Gtk::Widget
     @views.find { |view| view.object_id == id }
   end
 
-  def current_view : View?
-    @views.first?
+  private def current_view : View
+    @views.first
   end
 
-  def current_view! : View
-    @views.first
+  def current_view? : View?
+    @views.first?
   end
 
   def show_view(view : View)
