@@ -15,6 +15,7 @@ struct CodeBuffer
   end
 
   def save(io : IO)
+    @buffer.modified = false
     io.write(@buffer.text.to_slice)
   end
 
