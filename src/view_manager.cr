@@ -39,7 +39,7 @@ class ViewManager < Gtk::Widget
   end
 
   # This exists only for debug, will be removed at some time
-  {% if flag?(:debug) %}
+  {% unless flag?(:release) %}
     @@dump_tree_count = 0
   {% end %}
 
@@ -53,7 +53,7 @@ class ViewManager < Gtk::Widget
       {% end %}
     {% end %}
 
-    {% if flag?(:debug) %}
+    {% unless flag?(:release) %}
       action = Gio::SimpleAction.new("dump_tree", nil)
       action.activate_signal.connect do
         @@dump_tree_count += 1

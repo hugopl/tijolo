@@ -81,7 +81,7 @@ def init_gtk_source_view
            usr_path.join("local/share/tijolo/language-specs/").expand.to_s,
            Path.home.join(".local/share/tijolo/language-specs/").expand.to_s]
   # data dir has preference on debug builds
-  {% if flag?(:debug) %}
+  {% unless flag?(:release) %}
     paths.unshift("#{__DIR__}/../../data/language-specs/")
   {% end %}
   lm = GtkSource::LanguageManager.default
