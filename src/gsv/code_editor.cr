@@ -30,8 +30,7 @@ class CodeEditor < GtkSource::View
     gsv_buffer.text = source.gets_to_end if source
     gsv_buffer.language = GtkSource::LanguageManager.default.language(language) if language
 
-    style_manager = GtkSource::StyleSchemeManager.default
-    gsv_buffer.style_scheme = style_manager.scheme("Adwaita-dark")
+    self.color_scheme = Adw::StyleManager.default.color_scheme
 
     iter = gsv_buffer.iter_at_offset(0)
     gsv_buffer.place_cursor(iter)
