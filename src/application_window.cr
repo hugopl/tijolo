@@ -18,7 +18,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   @view_manager : ViewManager?
   private getter locator : Locator
 
-  def initialize(application : TijoloApplication, @project : Project)
+  def initialize(application : Application, @project : Project)
     super()
 
     @project_monitor = ProjectMonitor.new(@project)
@@ -55,8 +55,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     settings.bind("window-maximized", self, "maximized", :default)
   end
 
-  def application : TijoloApplication
-    super.not_nil!.as(TijoloApplication)
+  def application : Application
+    super.not_nil!.as(Application)
   end
 
   delegate focus_upper_split, to: view_manager

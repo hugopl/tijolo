@@ -5,7 +5,7 @@ require "./application_window"
 VERSION = {{ `shards version #{__DIR__}`.strip.stringify }}
 LICENSE = {{ run("./macros/license.cr").stringify }}
 
-class TijoloApplication < Adw::Application
+class Application < Adw::Application
   @windows = [] of ApplicationWindow
   getter settings : Gio::Settings
   @system_color_scheme : Adw::ColorScheme
