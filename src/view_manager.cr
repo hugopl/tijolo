@@ -57,7 +57,7 @@ class ViewManager < Gtk::Widget
     @views.swap(0, idx) if idx
   end
 
-  private def current_node : ViewManagerNode?
+  private def current_node? : ViewManagerNode?
     return if @views.empty?
     root = @root
     return if root.nil?
@@ -70,11 +70,15 @@ class ViewManager < Gtk::Widget
     node
   end
 
+  private def current_node! : ViewManagerNode
+    current_node?.not_nil!
+  end
+
   def add_view(view : View) : Nil
     @place_holder.visible = false
     view.insert_before(self, @view_switcher)
 
-    node = current_node
+    node = current_node?
     if node.nil?
       @root = ViewManagerViewNode.new(view)
     else
@@ -103,7 +107,7 @@ class ViewManager < Gtk::Widget
 
   private def split(position : ViewManagerSplitNode::SplitPosition,
                     orientation : ViewManagerSplitNode::SplitOrientation)
-    node = current_node
+    node = current_node?
     return if node.nil? || !node.enough_views_to_split?
 
     replace_root = (node == @root)
@@ -112,55 +116,51 @@ class ViewManager < Gtk::Widget
   end
 
   private def focus_top
-    Log.info { "focus top" }
+    focus_by_min_distance do |current_node, view_node|
+      dist = current_node.y - (view_node.y + view_node.height)
+      dist < 0 ? Int32::MAX : dist
+    end
   end
 
   private def focus_right
-    # TODO: Refactor this mess
-    node = current_node
-    return if node.nil?
-
-    limit = node.x + node.width
-    root = @root
-    node_to_focus : ViewManagerViewNode? = nil
-    if root.is_a?(ViewManagerSplitNode)
-      root.each_view_node do |node|
-        next if node.x < limit
-
-        if node_to_focus.nil?
-          node_to_focus = node
-        else
-          node_to_focus = node if node.x < node_to_focus.not_nil!.x
-        end
-      end
+    focus_by_min_distance do |current_node, view_node|
+      dist = current_node.x + current_node.width - view_node.x
+      dist < 0 ? Int32::MAX : dist
     end
-    focus_view(node_to_focus.not_nil!.visible_view) if node_to_focus
   end
 
   private def focus_bottom
-    Log.info { "focus bottom" }
+    focus_by_min_distance do |current_node, view_node|
+      dist = current_node.y + current_node.height - view_node.y
+      dist < 0 ? Int32::MAX : dist
+    end
   end
 
   private def focus_left
-    # TODO: Refactor this mess
-    node = current_node
-    return if node.nil?
+    focus_by_min_distance do |current_node, view_node|
+      dist = current_node.x - (view_node.x + view_node.width)
+      dist < 0 ? Int32::MAX : dist
+    end
+  end
 
-    limit = node.x
+  private def focus_by_min_distance(&block : Proc(ViewManagerViewNode, ViewManagerViewNode, Int32))
     root = @root
-    node_to_focus = nil
-    if root.is_a?(ViewManagerSplitNode)
-      root.each_view_node do |node|
-        next if (node.x + node.width) > limit
+    return unless root.is_a?(ViewManagerSplitNode)
 
-        if node_to_focus.nil?
-          node_to_focus = node
-        else
-          node_to_focus = node if (node.x + node.width) > (node_to_focus.not_nil!.x + node_to_focus.not_nil!.width)
-        end
+    current_node = current_node!
+    min_distance = Int32::MAX
+    node_found : ViewManagerViewNode? = nil
+    root.each_view_node do |view_node|
+      distance = block.call(current_node, view_node)
+      if distance < min_distance
+        min_distance = distance
+        node_found = view_node
       end
     end
-    focus_view(node_to_focus.not_nil!.visible_view) if node_to_focus
+
+    # FIXME: Compiler bug here
+    # focus_view(node_found.visible_view) if node_found
+    focus_view(node_found.not_nil!.visible_view) if node_found
   end
 
   def find_view_by_resource(resource : Path) : View?
@@ -222,7 +222,7 @@ class ViewManager < Gtk::Widget
   end
 
   def remove_current_view
-    node = current_node
+    node = current_node?
     return if node.nil?
 
     view = node.remove_visible_view

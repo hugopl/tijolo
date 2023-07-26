@@ -26,7 +26,7 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Remove default key bindings from GSV.
 - [x] Create a layout manager to let views be split in stacks again.
 - [ ] Polish view split code.
-- [ ] Polish view navigation code.
+- [x] Polish view navigation code.
 - [ ] Port Tijolo 0.7 key bindings.
 - [ ] Enclose selection with parentesis when typing `(`.
 - [ ] Show project files on sidebar.

@@ -32,7 +32,7 @@ class ViewManagerViewNode < ViewManagerNode
     remove_view(@visible_view)
   end
 
-  def each_view_node(&block : Proc(ViewManagerViewNode, Nil))
+  def each_view_node(&block : Proc(ViewManagerViewNode, Nil)) : Nil
     block.call(self)
   end
 
@@ -73,7 +73,7 @@ class ViewManagerViewNode < ViewManagerNode
     @visible_view = view
   end
 
-  def size_allocate(@x : Int32, @y : Int32, @width : Int32, @height : Int32)
+  def size_allocate(@x : Int32, @y : Int32, @width : Int32, @height : Int32) : Nil
     @visible_view.size_allocate(x, y, width, height, -1)
   end
 

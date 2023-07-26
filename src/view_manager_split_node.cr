@@ -29,13 +29,13 @@ class ViewManagerSplitNode < ViewManagerNode
     end
   end
 
-  def each_view_node(&block : Proc(ViewManagerViewNode, Nil))
+  def each_view_node(&block : Proc(ViewManagerViewNode, Nil)) : Nil
     @children.each do |child|
       child.each_view_node(&block)
     end
   end
 
-  def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32)
+  def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32) : Nil
     child_x = x
     child_y = y
     if orientation.horizontal?
