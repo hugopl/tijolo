@@ -47,6 +47,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     bind_settings(application.settings)
     setup_actions(application.settings)
+
+    {% unless flag?(:release) %}
+      add_css_class("devel")
+    {% end %}
   end
 
   private def bind_settings(settings : Gio::Settings)
