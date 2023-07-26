@@ -27,6 +27,7 @@ class ViewManager < Gtk::Widget
     @view_switcher.parent = self
     @view_switcher.model = self
     self.layout_manager = @layout
+
     setup_actions
   end
 
@@ -298,5 +299,9 @@ class ViewManager < Gtk::Widget
   @[GObject::Virtual]
   def get_item_type : UInt64
     View.g_type
+  end
+
+  def color_scheme=(scheme : Adw::ColorScheme)
+    @views.each(&.color_scheme=(scheme))
   end
 end

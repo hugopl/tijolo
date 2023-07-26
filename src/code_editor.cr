@@ -84,6 +84,9 @@ class CodeEditor < Gtk::Widget
     add_controller(gesture_controller)
   end
 
+  def color_scheme=(scheme : Adw::ColorScheme)
+  end
+
   def vadjustment=(vadjustment : Gtk::Adjustment?)
     Log.error { "vadjustment for code editor double initiated, a gobject will leak." } unless @vadjustment.nil?
     previous_def

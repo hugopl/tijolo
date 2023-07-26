@@ -28,6 +28,7 @@ class TextView < View
   end
 
   delegate grab_focus, to: @editor
+  delegate :color_scheme=, to: @editor
 
   private def setup_editor_preferences
     config = Config.instance

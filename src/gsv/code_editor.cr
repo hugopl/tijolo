@@ -60,6 +60,17 @@ class CodeEditor < GtkSource::View
     iter = buffer.buffer.iter_at_offset(buffer.cursor_position)
     {iter.line, iter.line_offset}
   end
+
+  def color_scheme=(scheme : Adw::ColorScheme)
+    gsv_buffer = buffer.buffer
+    style_manager = GtkSource::StyleSchemeManager.default
+
+    if scheme.force_dark?
+      gsv_buffer.style_scheme = style_manager.scheme("Adwaita-dark")
+    else
+      gsv_buffer.style_scheme = style_manager.scheme("Adwaita")
+    end
+  end
 end
 
 def init_gtk_source_view

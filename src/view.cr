@@ -141,6 +141,9 @@ abstract class View < Gtk::Box
     end
   end
 
+  def color_scheme=(scheme : Adw::ColorScheme)
+  end
+
   def to_s(io : IO)
     io << label
   end

@@ -53,6 +53,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     {% end %}
   end
 
+  delegate focus_upper_split, to: view_manager
+  delegate focus_right_split, to: view_manager
+  delegate focus_lower_split, to: view_manager
+  delegate focus_left_split, to: view_manager
+  delegate maximize_view, to: view_manager
+
   private def bind_settings(settings : Gio::Settings)
     settings.bind("window-width", self, "default-width", :default)
     settings.bind("window-height", self, "default-height", :default)
@@ -62,12 +68,6 @@ class ApplicationWindow < Adw::ApplicationWindow
   def application : Application
     super.not_nil!.as(Application)
   end
-
-  delegate focus_upper_split, to: view_manager
-  delegate focus_right_split, to: view_manager
-  delegate focus_lower_split, to: view_manager
-  delegate focus_left_split, to: view_manager
-  delegate maximize_view, to: view_manager
 
   def open_project(project_path : String)
     open_project(Path.new(project_path))
@@ -315,5 +315,9 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view do |view|
       view.paste_text_from_clipboard if view.is_a?(TerminalView)
     end
+  end
+
+  def color_scheme=(scheme)
+    @view_manager.try(&.color_scheme=(scheme))
   end
 end

@@ -60,6 +60,9 @@ class Application < Adw::Application
                      @system_color_scheme
                    end
     style_manager.color_scheme = color_scheme
+    @windows.each do |window|
+      window.color_scheme = color_scheme
+    end
   end
 
   def open(files : Enumerable(Gio::File), _hint : String)

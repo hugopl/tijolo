@@ -33,7 +33,7 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [ ] Show project files on sidebar.
 - [ ] Show current git branch somewhere (header bar?).
 - [ ] Add menu to change branches.
-- [ ] Change GSV style when changing dark/light themes.
+- [x] Change GSV style when changing dark/light themes.
 - [ ] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
 - [ ] Remove trailing whitespaces on save.
