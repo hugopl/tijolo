@@ -58,7 +58,12 @@
             <property name='action'>action(view.focus_left)</property>
           </object>
         </child>
-
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Ctrl&gt;D</property>
+            <property name='action'>action(view.dump_tree)</property>
+          </object>
+        </child>
       </object>
     </child>
   </template>

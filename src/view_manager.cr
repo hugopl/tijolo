@@ -37,6 +37,11 @@ class ViewManager < Gtk::Widget
     @root
   end
 
+  # This exists only for debug, will be removed at some time
+  {% if flag?(:debug) %}
+    @@dump_tree_count = 0
+  {% end %}
+
   private def setup_actions
     group = Gio::SimpleActionGroup.new
     {% for direction in %w(top right bottom left) %}
@@ -46,6 +51,16 @@ class ViewManager < Gtk::Widget
       group.add_action(action)
       {% end %}
     {% end %}
+
+    {% if flag?(:debug) %}
+      action = Gio::SimpleAction.new("dump_tree", nil)
+      action.activate_signal.connect do
+        @@dump_tree_count += 1
+        @root.try(&.save_png(@@dump_tree_count))
+      end
+      group.add_action(action)
+    {% end %}
+
     insert_action_group("view", group)
   end
 
