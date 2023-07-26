@@ -41,15 +41,17 @@ class ViewManagerViewNode < ViewManagerNode
     moved_view = remove_visible_view
 
     if old_parent && old_parent.orientation == orientation
-      old_parent.add_child(position, ViewManagerViewNode.new(moved_view))
+      idx = old_parent.index(self).not_nil!
+      idx += 1 if position.end?
+      old_parent.add_child(idx, ViewManagerViewNode.new(moved_view))
     else
       new_parent = ViewManagerSplitNode.new(orientation)
       if old_parent
         old_parent.remove_child(self)
-        old_parent.add_child(:start, new_parent)
+        old_parent.add_child(0, new_parent)
       end
       new_parent.parent = old_parent
-      new_parent.add_child(:start, self)
+      new_parent.add_child(0, self)
       new_parent.add_child(position, ViewManagerViewNode.new(moved_view))
     end
   end

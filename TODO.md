@@ -25,7 +25,7 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
 - [x] Remove default key bindings from GSV.
 - [x] Create a layout manager to let views be split in stacks again.
-- [ ] Polish view split code.
+- [x] Polish view split code.
 - [x] Polish view navigation code.
 - [ ] Move view from one stack to another.
 - [ ] Port Tijolo 0.7 key bindings.

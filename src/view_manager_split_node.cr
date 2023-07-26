@@ -5,6 +5,8 @@ class ViewManagerSplitNode < ViewManagerNode
   def initialize(@orientation : SplitOrientation)
   end
 
+  delegate index, to: @children
+
   def add_child(position : SplitPosition, node : ViewManagerNode)
     node.parent = self
     if position.start?
@@ -12,6 +14,11 @@ class ViewManagerSplitNode < ViewManagerNode
     else
       @children.push(node)
     end
+  end
+
+  def add_child(index : Int32, node : ViewManagerNode)
+    node.parent = self
+    @children.insert(index, node)
   end
 
   def remove_child(child : ViewManagerNode) : Nil
