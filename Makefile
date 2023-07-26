@@ -1,10 +1,16 @@
-.PHONY: all debug test install install-fonts uninstall uninstall-fonts
+.PHONY: all configure test install install-fonts uninstall uninstall-fonts
 PREFIX ?= /usr
 
-all:
+all: .WAIT configure
+	shards build --release -s
+
+experimental: .WAIT configure
+	shards build -Dexperimental --release -s
+
+
+configure:
 	shards install
 	./bin/gi-crystal
-	shards build --release -s
 
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
