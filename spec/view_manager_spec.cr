@@ -10,7 +10,7 @@ describe ViewManager do
     vm.add_view(view)
     view.ref_count.should be > 1
 
-    vm.close_current_view
+    vm.remove_current_view
     view.ref_count.should eq(1)
   end
 end

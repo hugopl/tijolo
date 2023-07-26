@@ -27,6 +27,7 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Create a layout manager to let views be split in stacks again.
 - [ ] Polish view split code.
 - [x] Polish view navigation code.
+- [ ] Move view from one stack to another.
 - [ ] Port Tijolo 0.7 key bindings.
 - [ ] Enclose selection with parentesis when typing `(`.
 - [ ] Show project files on sidebar.
