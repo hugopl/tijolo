@@ -29,6 +29,9 @@ class CodeEditor < Gtk::Widget
   @[GObject::Property]
   property editable = true
 
+  @[GObject::Property]
+  property search_occurences : String = ""
+
   # FIXME: Fix this bug in gi-crystal, property declared with property? macro doesn't compile
   # @[GObject::Property]
   property? draw_grid = true
@@ -248,4 +251,14 @@ class CodeEditor < Gtk::Widget
       snapshot.translate(0.0_f32, -y_offset)
     end
   end
+
+  def search_changed(text : String)
+    Log.warn { "#{{{ @def.name.stringify }}} not implemented" }
+  end
+
+  {% for search_action in %w(search_started search_replace_started search_next search_previous search_stopped) %}
+  def {{ search_action.id }}
+    Log.warn { {{ search_action + " not implemented" }} }
+  end
+  {% end %}
 end

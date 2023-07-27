@@ -4,8 +4,10 @@ require "./view"
 {% else %}
   require "./gsv/code_editor"
 {% end %}
+require "./searchable"
 
 class TextView < View
+  include Searchable
   Log = ::Log.for("TextView")
 
   @@untitled_count = 0
@@ -13,15 +15,19 @@ class TextView < View
   @editor : CodeEditor
 
   def initialize(resource : Path? = nil, project : Project? = nil)
+    box = Gtk::Box.new(orientation: :vertical, hexpand: true, vexpand: true, spacing: 0)
+
     source = File.open(resource) if resource
     @editor = CodeEditor.new(source, detect_language(resource))
     super(@editor, resource, project)
-    update_label
+
+    setup_search_bar
 
     @editor.buffer.bind_property("modified", self, "modified", :default)
     connect(@editor.cursor_changed_signal) do
       set_cursor_label(*@editor.cursor_line_col)
     end
+    update_title
     set_cursor_label(*@editor.cursor_line_col)
 
     setup_editor_preferences
@@ -56,7 +62,7 @@ class TextView < View
     @editor.cursor_line_col[1]
   end
 
-  private def update_label
+  private def update_title
     resource = self.resource
     project = self.project
     label = if project && resource
@@ -82,6 +88,13 @@ class TextView < View
       @editor.buffer.save(file)
     end
   end
+
+  delegate search_started, to: @editor
+  delegate search_replace_started, to: @editor
+  delegate search_changed, to: @editor
+  delegate search_next, to: @editor
+  delegate search_previous, to: @editor
+  delegate search_stopped, to: @editor
 
   private def detect_language(resource : Path?) : String?
     return if resource.nil?

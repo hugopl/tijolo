@@ -67,7 +67,13 @@ abstract class View < Gtk::Box
       action_group.add_action(action)
       @line_based_actions << action
     {% end %}
+    setup_actions(action_group)
+
     insert_action_group("view", action_group)
+  end
+
+  # Subclasses implement this and call previous_def
+  def setup_actions(action_group : Gio::SimpleActionGroup)
   end
 
   # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`

@@ -21,7 +21,6 @@ view:focus-within {
   color: @accent_color;
 }
 
-
 view .view-header button {
   border-radius: 0;
 }

@@ -30,6 +30,7 @@ install:
 	install -D -m644 data/gschema.xml $(DESTDIR)$(PREFIX)share/glib-2.0/schemas/io.github.hugopl.Tijolo.gschema.xml
 	# Data
 	install -D -m0644 data/styles/default.yaml $(DESTDIR)$(PREFIX)/share/tijolo/styles/default.yaml
+	install -D -m0644 data/styles/monokai.xml $(DESTDIR)$(PREFIX)/share/tijolo/styles/monokai.xml
 	cp -r data/icons $(DESTDIR)$(PREFIX)/share/tijolo/
 
 	# License

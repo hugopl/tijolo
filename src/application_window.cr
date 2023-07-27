@@ -192,24 +192,24 @@ class ApplicationWindow < Adw::ApplicationWindow
   def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
     if modifier.control_mask? && key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
       view_manager = @view_manager
-      return false if view_manager.nil?
+      return Gdk::EVENT_PROPAGATE if view_manager.nil?
 
       view_manager.rotate_views(reverse: key_val == Gdk::KEY_dead_grave)
-      return true
+      return Gdk::EVENT_STOP
     end
-    false
+    Gdk::EVENT_PROPAGATE
   end
 
   def key_released(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
     view_manager = @view_manager
-    return false if view_manager.nil?
+    return Gdk::EVENT_PROPAGATE if view_manager.nil?
 
     if modifier.control_mask?
-      return true if key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
+      return Gdk::EVENT_STOP if key_val.in?({Gdk::KEY_Tab, Gdk::KEY_dead_grave})
 
       view_manager.stop_rotate
     end
-    false
+    Gdk::EVENT_PROPAGATE
   end
 
   def with_current_view

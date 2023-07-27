@@ -6,6 +6,20 @@ module Gtk
       size_allocate(Gdk::Rectangle.new(x, y, width, height), baseline)
     end
   end
+
+  class TextBuffer
+    def selection_bounds : {Gtk::TextIter, Gtk::TextIter}
+      # gtk_text_buffer_get_selection_bounds: (Method)
+      # @start: (out) (caller-allocates)
+      # @end: (out) (caller-allocates)
+      # Returns: (transfer none)
+
+      start = Gtk::TextIter.new
+      _end = Gtk::TextIter.new
+      _retval = LibGtk.gtk_text_buffer_get_selection_bounds(to_unsafe, start, _end)
+      {start, _end}
+    end
+  end
 end
 
 module Pango
@@ -24,6 +38,41 @@ module Pango
     def <<(attr : Pango::Attribute) : self
       insert(attr)
       self
+    end
+  end
+end
+
+module GtkSource
+  class SearchContext < GObject::Object
+    def forward(iter : Gtk::TextIter) : {Bool, Gtk::TextIter, Gtk::TextIter, Bool}
+      # gtk_source_search_context_forward: (Method)
+      # @iter:
+      # @match_start: (out) (caller-allocates) (optional)
+      # @match_end: (out) (caller-allocates) (optional)
+      # @has_wrapped_around: (out) (transfer full) (optional)
+      # Returns: (transfer none)
+
+      match_start = Gtk::TextIter.new
+      match_end = Gtk::TextIter.new
+      # C call
+      ok = LibGtkSource.gtk_source_search_context_forward(to_unsafe, iter, match_start, match_end, out has_wrapped_around)
+      {GICrystal.to_bool(ok), match_start, match_end, GICrystal.to_bool(has_wrapped_around)}
+    end
+
+    def backward(iter : Gtk::TextIter) : {Bool, Gtk::TextIter, Gtk::TextIter, Bool}
+      # gtk_source_search_context_backward: (Method)
+      # @iter:
+      # @match_start: (out) (caller-allocates) (optional)
+      # @match_end: (out) (caller-allocates) (optional)
+      # @has_wrapped_around: (out) (transfer full) (optional)
+      # Returns: (transfer none)
+
+      match_start = Gtk::TextIter.new # Generator::OutArgUsedInReturnPlan
+      match_end = Gtk::TextIter.new   # Generator::OutArgUsedInReturnPlan
+      # C call
+      ok = LibGtkSource.gtk_source_search_context_backward(to_unsafe, iter, match_start, match_end, out has_wrapped_around)
+
+      {GICrystal.to_bool(ok), match_start, match_end, GICrystal.to_bool(has_wrapped_around)}
     end
   end
 end

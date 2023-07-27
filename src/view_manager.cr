@@ -245,6 +245,8 @@ class ViewManager < Gtk::Widget
   end
 
   def stop_rotate : Nil
+    return unless rotating_views?
+
     @view_switcher.visible = false
     if @views.size > 1
       @views.unshift(@views.delete_at(@selected_view_index))

@@ -26,6 +26,25 @@
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
+      <!-- TODO: Move this to Crystal, so shortcuts can be configurable -->
+      <object class='GtkShortcutController'>
+        <property name='scope'>local</property>
+        <property name='propagation-phase'>capture</property>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Ctrl&gt;F</property>
+            <property name='action'>action(view.search_start)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Ctrl&gt;H</property>
+            <property name='action'>action(view.search_replace_start)</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
       <object class="GtkCenterBox" id="header">
         <style>
           <class name="view-header"/>
