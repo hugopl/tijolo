@@ -25,19 +25,19 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
 - [x] Remove default key bindings from GSV.
 - [x] Create a layout manager to let views be split in stacks again.
-- [x] Polish view split code.
+- [ ] Polish view split code.
 - [x] Polish view navigation code.
-- [ ] Move view from one stack to another.
+- [x] Move view from one stack to another.
 - [ ] Port Tijolo 0.7 key bindings.
 - [ ] Enclose selection with parentesis when typing `(`.
-- [ ] Show project files on sidebar.
+- [ ] Implement text search.
 - [ ] Show current git branch somewhere (header bar?).
+- [ ] Show project files on sidebar.
 - [ ] Add menu to change branches.
 - [x] Change GSV style when changing dark/light themes.
 - [ ] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
 - [ ] Remove trailing whitespaces on save.
-- [ ] Implement text search.
 
 ## Tasks needed for a code editor widget
 

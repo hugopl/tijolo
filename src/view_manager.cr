@@ -105,61 +105,82 @@ class ViewManager < Gtk::Widget
     focus_view(view)
   end
 
+  {% for dir in %w(top right bottom left) %}
+  private def move_{{ dir.id }} : Bool
+    current_node = current_node?
+    return false if current_node.nil?
+
+    node = find_{{ dir.id }}
+    if node && node != current_node
+      view = current_node.remove_visible_view
+      node.add_view(view)
+      return true
+    end
+    false
+  end
+
+  private def focus_{{ dir.id }}
+    node = find_{{ dir.id }}
+    focus_view(node.visible_view) if node
+  end
+  {% end %}
+
   private def split_top
-    split(:start, :vertical)
+    move_top || split(:start, :vertical)
   end
 
   private def split_right
-    split(:end, :horizontal)
+    move_right || split(:end, :horizontal)
   end
 
   private def split_bottom
-    split(:end, :vertical)
+    move_bottom || split(:end, :vertical)
   end
 
   private def split_left
-    split(:start, :horizontal)
+    move_left || split(:start, :horizontal)
   end
 
   private def split(position : ViewManagerSplitNode::SplitPosition,
-                    orientation : ViewManagerSplitNode::SplitOrientation)
+                    orientation : ViewManagerSplitNode::SplitOrientation) : Bool
     node = current_node?
-    return if node.nil? || !node.enough_views_to_split?
+    return false if node.nil? || !node.enough_views_to_split?
 
     replace_root = (node == @root)
     node.split(position, orientation)
     @root = node.parent if replace_root
+    true
   end
 
-  private def focus_top
-    focus_by_min_distance do |current_node, view_node|
-      dist = current_node.y - (view_node.y + view_node.height)
+  private def find_top : ViewManagerViewNode?
+    find_by_min do |node1, node2|
+      dist = node1.y - (node2.y + node2.height)
       dist < 0 ? Int32::MAX : dist
     end
   end
 
-  private def focus_right
-    focus_by_min_distance do |current_node, view_node|
-      dist = current_node.x + current_node.width - view_node.x
+  private def find_right
+    find_by_min do |node1, node2|
+      dist = node1.x + node1.width - node2.x
       dist < 0 ? Int32::MAX : dist
     end
   end
 
-  private def focus_bottom
-    focus_by_min_distance do |current_node, view_node|
-      dist = current_node.y + current_node.height - view_node.y
+  private def find_bottom
+    find_by_min do |node1, node2|
+      dist = node1.y + node1.height - node2.y
       dist < 0 ? Int32::MAX : dist
     end
   end
 
-  private def focus_left
-    focus_by_min_distance do |current_node, view_node|
-      dist = current_node.x - (view_node.x + view_node.width)
+  private def find_left
+    find_by_min do |node1, node2|
+      dist = node1.x - (node2.x + node2.width)
       dist < 0 ? Int32::MAX : dist
     end
   end
 
-  private def focus_by_min_distance(&block : Proc(ViewManagerViewNode, ViewManagerViewNode, Int32))
+  private def find_by_min(&block : Proc(ViewManagerViewNode, ViewManagerViewNode, Int32)) : ViewManagerViewNode?
     root = @root
     return unless root.is_a?(ViewManagerSplitNode)
 
@@ -172,11 +193,9 @@ class ViewManager < Gtk::Widget
         min_distance = distance
         node_found = view_node
       end
+      node_found
     end
-
-    # FIXME: Compiler bug here
-    # focus_view(node_found.visible_view) if node_found
-    focus_view(node_found.not_nil!.visible_view) if node_found
+    node_found
   end
 
   def find_view_by_resource(resource : Path) : View?
