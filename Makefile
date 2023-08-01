@@ -1,4 +1,4 @@
-.PHONY: all configure test install install-fonts uninstall uninstall-fonts
+.PHONY: all configure test install post-install install-fonts uninstall uninstall-fonts
 PREFIX ?= /usr
 
 all: .WAIT configure
@@ -30,6 +30,8 @@ install:
 	install -D -m644 data/gschema.xml $(DESTDIR)$(PREFIX)share/glib-2.0/schemas/io.github.hugopl.Tijolo.gschema.xml
 	# Data
 	install -D -m0644 data/styles/default.yaml $(DESTDIR)$(PREFIX)/share/tijolo/styles/default.yaml
+	cp -r data/icons $(DESTDIR)$(PREFIX)/share/tijolo/
+
 	# License
 	install -D -m0644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/tijolo/LICENSE
 	# Changelog
@@ -40,6 +42,10 @@ install:
 	install -D -m0644 data/language-specs/ruby.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/ruby.lang
 	install -D -m0644 data/language-specs/haml.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/haml.lang
 	install -D -m0644 data/language-specs/gitlog.lang $(DESTDIR)$(PREFIX)/share/tijolo/language-specs/gitlog.lang
+
+post-install:
+	gtk4-update-icon-cache --ignore-theme-index $(DESTDIR)$(PREFIX)/share/icons/hicolor
+	glib-compile-schemas $(DESTDIR)$(PREFIX)/share/glib-2.0/schemas
 
 install-fonts:
 	install -d $(DESTDIR)$(PREFIX)/share/fonts/jetbrains-mono

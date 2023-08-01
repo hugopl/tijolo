@@ -3,7 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.0"/>
 
-  <menu id="primary_menu">
+  <menu id="primary_menu_model">
     <section>
       <item>
         <attribute name="custom">theme</attribute>
@@ -25,6 +25,9 @@
         <attribute name="action">app.about</attribute>
       </item>
     </section>
+  </menu>
+
+  <menu id="git_branches_menu">
   </menu>
 
   <template class="ApplicationWindow" parent="AdwApplicationWindow">
@@ -74,8 +77,29 @@
                 <child>
                   <object class="GtkMenuButton" id="primary_menu">
                     <property name="tooltip-text" translatable="yes">Main Menu</property>
-                    <property name="menu-model">primary_menu</property>
+                    <property name="menu-model">primary_menu_model</property>
                     <property name="icon-name">open-menu-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton" id="git_branch_btn">
+                <property name="visible">0</property>
+                <property name="menu-model">git_branches_menu</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">3</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">tijolo-vcs-branch-symbolic</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel"  id="git_branch_label">
+                        <property name="label">?</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

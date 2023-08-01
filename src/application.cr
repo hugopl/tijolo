@@ -10,6 +10,8 @@ class Application < Adw::Application
   getter settings : Gio::Settings
   @system_color_scheme : Adw::ColorScheme
 
+  @icon_path_setup_done = false
+
   def initialize
     super(application_id: "io.github.hugopl.Tijolo", flags: Gio::ApplicationFlags::HandlesOpen)
 
@@ -26,11 +28,7 @@ class Application < Adw::Application
 
     setup_actions
 
-    # FIXME: Remove this once virtual functions get supported in gi-crystal
-    activate_signal.connect(->self.activate)
-    handle_local_options_signal.connect(->self.handle_local_options(GLib::VariantDict))
     open_signal.connect(->self.open(Enumerable(Gio::File), String))
-    self
   end
 
   private def setup_actions
@@ -44,10 +42,24 @@ class Application < Adw::Application
     set_accels_for_action("app.activate", {"<Control><Alt>o"})
   end
 
+  @[GObject::Virtual]
   def activate
+    setup_icon_path
     window = create_project_window(Project.new)
     @windows << window
     window.present
+  end
+
+  private def setup_icon_path
+    return if @icon_path_setup_done
+
+    # Probably there's a better way to tell GTK where to find my icons...
+    icon_theme = Gtk::IconTheme.for_display(Gdk::Display.default.not_nil!)
+    path = Path.new("#{Path.new(Process.executable_path || "/usr/bin/tijolo").dirname}/../share/tijolo/icons").expand.to_s
+    icon_theme.add_search_path(path)
+    icon_theme.add_search_path("/usr/share/tijolo/icons") if path != "/usr/share/tijolo/icons"
+    Log.info { "Looking for icons at: #{icon_theme.search_path.not_nil!.join(", ")}." }
+    @icon_path_setup_done = true
   end
 
   private def theme_changed(_unused : String = "")
@@ -66,6 +78,8 @@ class Application < Adw::Application
   end
 
   def open(files : Enumerable(Gio::File), _hint : String)
+    setup_icon_path
+
     files.each do |file|
       file_path = file.path
       next if file_path.nil?
@@ -90,6 +104,7 @@ class Application < Adw::Application
     window
   end
 
+  @[GObject::Virtual]
   def handle_local_options(options : GLib::VariantDict) : Int32
     if options.remove("version")
       puts "Tijolo version #{VERSION} build with Crystal #{Crystal::VERSION}."

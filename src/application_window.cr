@@ -4,16 +4,18 @@ require "./welcome_widget"
 require "./view_manager"
 require "./view_factory"
 require "./terminal_view"
+require "./git_branch_model"
 require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title sidebar primary_menu))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title sidebar primary_menu git_branches_menu git_branch_label git_branch_btn))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
   getter project : Project
   @project_monitor : ProjectMonitor
+  @git_model : GitBranchModel
   @sidebar : Adw::Flap
   @view_manager : ViewManager?
   private getter locator : Locator
@@ -21,6 +23,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   def initialize(application : Application, @project : Project)
     super()
 
+    @git_model = GitBranchModel.new
     @project_monitor = ProjectMonitor.new(@project)
     @sidebar = Adw::Flap.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
@@ -120,7 +123,20 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   def project_load_finished
     @project_monitor.project_load_finished
+    setup_git_menu if @git_model.start_monitoring(@project.root)
     enable_project_related_actions(true)
+  end
+
+  private def setup_git_menu
+    change_action_state("change_git_branch", @git_model.current_branch)
+    git_branches_menu = Gio::Menu.cast(template_child("git_branches_menu"))
+    @git_model.menu_model = git_branches_menu
+
+    git_branch_label = Gtk::Label.cast(template_child("git_branch_label"))
+    @git_model.bind_property("current_branch", git_branch_label, "label", :none)
+    git_branch_label.label = @git_model.current_branch
+
+    Gtk::Widget.cast(template_child("git_branch_btn")).visible = true
   end
 
   private def welcome
@@ -157,6 +173,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     action = Gio::SimpleAction.new("focus_editor", nil)
     action.activate_signal.connect { with_current_view(&.grab_focus) }
+    add_action(action)
+
+    action = Gio::SimpleAction.new_stateful("change_git_branch", GLib::VariantType.new("s"), "HEAD")
+    action.activate_signal.connect(->change_git_branch(GLib::Variant))
     add_action(action)
 
     group = Gio::SimpleActionGroup.new
@@ -315,6 +335,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view do |view|
       view.paste_text_from_clipboard if view.is_a?(TerminalView)
     end
+  end
+
+  def change_git_branch(variant : GLib::Variant)
+    branch_name = variant.as_s
+    system("git checkout #{branch_name}")
+    change_action_state("change_git_branch", variant)
   end
 
   def color_scheme=(scheme)
