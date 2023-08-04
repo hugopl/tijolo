@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
 
-  <menu id="view_menu">
+  <menu id="copy_menu">
     <section>
       <item>
         <attribute name="label" translatable="yes">Copy full path</attribute>
@@ -27,18 +27,29 @@
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkCenterBox" id="header">
+        <style>
+          <class name="view-header"/>
+        </style>
         <child type="center">
           <object class="GtkBox">
+            <child>
+              <object class="GtkLabel" id="modified">
+                <property name="visible">0</property>
+                <property name="label">🞶</property>
+              </object>
+            </child>
             <child>
               <object class="GtkLabel" id="label">
                 <style><class name="heading"/></style>
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="modified">
-                <property name="visible">0</property>
-                <property name="label">•</property>
-                <property name="margin-start">12</property>
+              <object class="GtkMenuButton">
+                <property name="focus-on-click">0</property>
+                <property name="menu-model">copy_menu</property>
+                <property name="icon-name">edit-copy-symbolic</property>
+                <property name="margin-start">3</property>
+                <style><class name="flat"/></style>
               </object>
             </child>
           </object>
@@ -56,13 +67,6 @@
                 <style><class name="flat"/></style>
               </object>
             </child>
-          </object>
-        </child>
-        <child type="start">
-          <object class="GtkMenuButton">
-            <property name="focus-on-click">0</property>
-            <property name="menu-model">view_menu</property>
-            <style><class name="flat"/></style>
           </object>
         </child>
       </object>
