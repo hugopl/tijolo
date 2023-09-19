@@ -5,9 +5,9 @@ shards:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.5
 
-  gi-crystal: # Overridden
+  gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.17.0+git.commit.2b4d4af5be66c06d92cfb729156608ad0b4de26a
+    version: 0.18.0
 
   gio:
     git: https://github.com/hugopl/gio.cr.git
@@ -23,7 +23,7 @@ shards:
 
   libadwaita:
     git: https://github.com/geopjr/libadwaita.cr.git
-    version: 1.0.0+git.commit.23ce21d6400af7563ede0b53deea6d1f77436985
+    version: 1.0.0+git.commit.cffabb56e911d2a90c53c2fd14d6bd08bf5ac446
 
   pango:
     git: https://github.com/hugopl/pango.cr.git

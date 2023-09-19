@@ -23,6 +23,6 @@ dependencies:
   vte:
     github: hugopl/vte.cr
 
-crystal: ">= 1.0.0"
+crystal: ">= 1.9.2"
 
 license: MIT
