@@ -8,8 +8,11 @@ class ViewSwitcher < Adw::Bin
     @list_view.parent = self
 
     factory = Gtk::SignalListItemFactory.new
-    factory.setup_signal.connect(->setup_item(GObject::Object))
-    factory.bind_signal.connect(->bind_item(GObject::Object))
+    # FIXME: It's crashing on this, not sure if a GC stuff, some ref I forgot to increase
+    # or some bad stuff being done during casts.
+    #
+    # factory.setup_signal.connect(->setup_item(GObject::Object))
+    # factory.bind_signal.connect(->bind_item(GObject::Object))
     @list_view.factory = factory
   end
 
