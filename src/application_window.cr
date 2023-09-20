@@ -148,17 +148,17 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions(settings : Gio::Settings)
     config = Config.instance
-    actions = {show_locator:      ->show_locator,
-               close_view:        ->close_current_view,
-               close_all_views:   ->close_all_views,
-               new_file:          ->new_file,
-               new_terminal:      ->new_terminal,
-               open_file:         ->show_open_file_dialog,
-               save_view:         ->save_current_view,
-               save_view_as:      ->save_current_view_as,
-               show_hide_sidebar: ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
-               copy:              ->copy_to_clipboard,
-               paste:             ->paste_from_clipboard,
+    actions = {show_locator:       ->show_locator,
+               close_view:         ->close_current_view,
+               close_all_views:    ->close_all_views,
+               new_file:           ->new_file,
+               new_terminal:       ->new_terminal,
+               open_file:          ->show_open_file_dialog,
+               save_view:          ->save_current_view,
+               save_view_as:       ->save_current_view_as,
+               show_hide_sidebar:  ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
+               copy_from_terminal: ->copy_to_clipboard,
+               paste_in_terminal:  ->paste_from_clipboard,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
