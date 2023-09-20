@@ -1,3 +1,5 @@
+{% skip_file if flag?(:no_terminal) %}
+
 require "vte"
 
 class TerminalView < View
@@ -35,11 +37,11 @@ class TerminalView < View
     @@default_shell ||= ENV["SHELL"]? || "/usr/bin/sh"
   end
 
-  def copy_text_to_clipboard
+  def copy_to_clipboard : Nil
     @term.copy_clipboard_format(:text)
   end
 
-  def paste_text_from_clipboard
+  def paste_from_clipboard : Nil
     @term.paste_primary
   end
 

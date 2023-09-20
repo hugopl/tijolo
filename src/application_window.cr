@@ -148,17 +148,17 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions(settings : Gio::Settings)
     config = Config.instance
-    actions = {show_locator:       ->show_locator,
-               close_view:         ->close_current_view,
-               close_all_views:    ->close_all_views,
-               new_file:           ->new_file,
-               new_terminal:       ->new_terminal,
-               open_file:          ->show_open_file_dialog,
-               save_view:          ->save_current_view,
-               save_view_as:       ->save_current_view_as,
-               show_hide_sidebar:  ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
-               copy_from_terminal: ->copy_terminal_text,
-               paste_in_terminal:  ->paste_terminal_text,
+    actions = {show_locator:      ->show_locator,
+               close_view:        ->close_current_view,
+               close_all_views:   ->close_all_views,
+               new_file:          ->new_file,
+               new_terminal:      ->new_terminal,
+               open_file:         ->show_open_file_dialog,
+               save_view:         ->save_current_view,
+               save_view_as:      ->save_current_view_as,
+               show_hide_sidebar: ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
+               copy:              ->copy_to_clipboard,
+               paste:             ->paste_from_clipboard,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -294,7 +294,9 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def new_terminal
-    view_manager.add_view(TerminalView.new)
+    {% unless flag?(:no_terminal) %}
+      view_manager.add_view(TerminalView.new)
+    {% end %}
   end
 
   def open(resource : String) : Nil
@@ -325,16 +327,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     locator.show(select_text: true, view: view_manager.current_view?)
   end
 
-  private def copy_terminal_text
-    with_current_view do |view|
-      view.copy_text_to_clipboard if view.is_a?(TerminalView)
-    end
+  private def copy_to_clipboard
+    with_current_view(&.copy_to_clipboard)
   end
 
-  private def paste_terminal_text
-    with_current_view do |view|
-      view.paste_text_from_clipboard if view.is_a?(TerminalView)
-    end
+  private def paste_from_clipboard
+    with_current_view(&.paste_from_clipboard)
   end
 
   def change_git_branch(variant : GLib::Variant)

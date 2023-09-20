@@ -96,6 +96,14 @@ abstract class View < Gtk::Box
   abstract def grab_focus
   abstract def save : Nil
 
+  # This is triggered on Ctrl+Shift+C, used to copy from terminal views.
+  def copy_to_clipboard
+  end
+
+  # This is triggered on Ctrl+Shift+V, used to paste on terminal views.
+  def paste_from_clipboard
+  end
+
   def save_as(resource : Path) : Nil
     self.resource = resource
     save

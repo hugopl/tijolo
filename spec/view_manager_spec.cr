@@ -5,7 +5,7 @@ require "../src/terminal_view"
 describe ViewManager do
   it "does not leak views references" do
     vm = ViewManager.new
-    view = TerminalView.new
+    view = TextView.new
     view.ref_count.should eq(1)
     vm.add_view(view)
     view.ref_count.should be > 1
