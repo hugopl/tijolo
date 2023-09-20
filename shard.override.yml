@@ -2,3 +2,6 @@ dependencies:
   gtk4:
     github: hugopl/gtk4.cr
     version: ">= 0.15.0"
+  gi-crystal:
+    github: hugopl/gi-crystal
+    commit: a224cdb707a7c659c47a5582a098d8a1d3c02844
