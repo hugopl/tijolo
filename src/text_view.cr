@@ -89,6 +89,11 @@ class TextView < View
     end
   end
 
+  def sort_lines
+    editor = @editor
+    editor.sort_lines if editor.responds_to?(:sort_lines)
+  end
+
   delegate search_started, to: @editor
   delegate search_replace_started, to: @editor
   delegate search_changed, to: @editor

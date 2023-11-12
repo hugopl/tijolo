@@ -159,6 +159,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                show_hide_sidebar:  ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
                copy_from_terminal: ->copy_to_clipboard,
                paste_in_terminal:  ->paste_from_clipboard,
+               sort_lines:         ->sort_lines,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -333,6 +334,12 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def paste_from_clipboard
     with_current_view(&.paste_from_clipboard)
+  end
+
+  private def sort_lines
+    with_current_view do |view|
+      view.sort_lines if view.responds_to?(:sort_lines)
+    end
   end
 
   def change_git_branch(variant : GLib::Variant)

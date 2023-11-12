@@ -1,2 +1,5 @@
 namespace: GtkSource
 version: "5"
+
+require_after:
+- buffer.cr

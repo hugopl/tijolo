@@ -81,6 +81,17 @@ class CodeEditor < GtkSource::View
     buffer.iter_at_offset(pos)
   end
 
+  def sort_lines
+    buffer = source_buffer
+    start_iter, end_iter = buffer.selection_bounds
+    # TODO: Present a focused popup, so th euser can choose to
+    # - just sort
+    # - remove duplicates
+    # - reverse sort
+    # - case sensitiviness
+    buffer.sort_lines(start_iter, end_iter, :none, 0)
+  end
+
   def search_replace_started
     Log.warn { "Not implemented yet" }
   end

@@ -29,6 +29,8 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Polish view navigation code.
 - [x] Move view from one stack to another.
 - [ ] Port Tijolo 0.7 key bindings.
+  - [x] Sort lines on F9
+  - [ ] Comment code on `Ctrl+/`
 - [ ] Enclose selection with parentesis when typing `(`.
 - [ ] Implement text search.
 - [x] Show current git branch somewhere (header bar?).
