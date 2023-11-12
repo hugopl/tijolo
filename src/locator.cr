@@ -8,13 +8,6 @@ require "./line_locator"
 
 # require "./git_locator"
 
-module LocatorListener
-  abstract def locator_open_file(file : String, split_view : Bool)
-  abstract def locator_goto_line_col(line : Int32, column : Int32)
-  abstract def locator_show_special_file(contents : String, label : String, line : Int32, col : Int32, syntax : String?)
-  abstract def locator_hidden
-end
-
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(locator_results locator_entry))]
 class Locator < Adw::Window
   include Gtk::WidgetTemplate

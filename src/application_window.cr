@@ -30,6 +30,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     self.application = application
     @locator.open_file_signal.connect(->open(String))
+    @locator.goto_line_signal.connect(->goto_line(Int32, Int32))
     @locator.transient_for = self
     @locator.application = application
 
@@ -149,6 +150,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def setup_actions(settings : Gio::Settings)
     config = Config.instance
     actions = {show_locator:       ->show_locator,
+               goto_line:          ->show_goto_line_locator,
                close_view:         ->close_current_view,
                close_all_views:    ->close_all_views,
                new_file:           ->new_file,
@@ -326,6 +328,19 @@ class ApplicationWindow < Adw::ApplicationWindow
     return if @locator.nil? || @view_manager.nil?
 
     locator.show(select_text: true, view: view_manager.current_view?)
+  end
+
+  private def show_goto_line_locator
+    return if @locator.nil? || @view_manager.nil?
+
+    locator.text = "l "
+    locator.show(select_text: false, view: view_manager.current_view?)
+  end
+
+  private def goto_line(line : Int32, col : Int32)
+    with_current_view do |view|
+      view.goto_line(line, col) if view.line_based_content? && view.responds_to?(:goto_line)
+    end
   end
 
   private def copy_to_clipboard

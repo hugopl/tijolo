@@ -98,6 +98,13 @@ class CodeEditor < GtkSource::View
     buffer.sort_lines(start_iter, end_iter, :none, 0)
   end
 
+  def goto_line(line : Int32, col : Int32)
+    buffer = source_buffer
+    iter = buffer.iter_at_line_offset(line, col)
+    buffer.place_cursor(iter)
+    scroll_to_iter(iter, 0.1, true, 0.0, 0.5)
+  end
+
   def search_replace_started
     Log.warn { "Not implemented yet" }
   end

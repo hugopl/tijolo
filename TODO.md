@@ -30,14 +30,17 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Move view from one stack to another.
 - [ ] Port Tijolo 0.7 key bindings.
   - [x] Sort lines on F9
+  - [x] Goto line locator
+  - [ ] Git locator
+  - [ ] Move lines
   - [ ] Comment code on `Ctrl+/`
 - [ ] Enclose selection with parentesis when typing `(`.
-- [ ] Implement text search.
+- [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
 - [ ] Show project files on sidebar.
 - [x] Add menu to change branches.
 - [x] Change GSV style when changing dark/light themes.
-- [ ] Create better color themes.
+- [x] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
 - [ ] Remove trailing whitespaces on save.
 
