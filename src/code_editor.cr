@@ -256,7 +256,11 @@ class CodeEditor < Gtk::Widget
     Log.warn { "#{{{ @def.name.stringify }}} not implemented" }
   end
 
-  {% for search_action in %w(search_started search_replace_started search_next search_previous search_stopped) %}
+  def search_started
+    ""
+  end
+
+  {% for search_action in %w(search_replace_started search_next search_previous search_stopped) %}
   def {{ search_action.id }}
     Log.warn { {{ search_action + " not implemented" }} }
   end
