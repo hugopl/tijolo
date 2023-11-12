@@ -5,6 +5,7 @@ require "./view"
   require "./gsv/code_editor"
 {% end %}
 require "./searchable"
+require "./code_language"
 
 class TextView < View
   include Searchable
@@ -18,7 +19,7 @@ class TextView < View
     box = Gtk::Box.new(orientation: :vertical, hexpand: true, vexpand: true, spacing: 0)
 
     source = File.open(resource) if resource
-    @editor = CodeEditor.new(source, detect_language(resource))
+    @editor = CodeEditor.new(source, CodeLanguage.detect(resource))
     super(@editor, resource, project)
 
     setup_search_bar
@@ -100,21 +101,4 @@ class TextView < View
   delegate search_next, to: @editor
   delegate search_previous, to: @editor
   delegate search_stopped, to: @editor
-
-  private def detect_language(resource : Path?) : String?
-    return if resource.nil?
-
-    {% if flag?(:experimental) %}
-      # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard
-      #        Meanwhile just JSON and C for testing 😅️
-      case resource.extension
-      when ".json" then "json"
-      when ".c"    then "c"
-      end
-    {% else %}
-      lm = GtkSource::LanguageManager.default
-      lang = lm.guess_language(resource.to_s, nil)
-      lang.id if lang
-    {% end %}
-  end
 end

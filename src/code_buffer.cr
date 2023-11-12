@@ -24,15 +24,15 @@ class CodeBuffer < GObject::Object
     initialize(io, language)
   end
 
-  def initialize(source : IO?, language : String?)
+  def initialize(source : IO?, language : CodeLanguage)
     super()
 
     contents = source ? source.gets_to_end : ""
     @lines = contents.lines(chomp: false)
     @lines << "" if @lines.empty?
 
-    if language
-      @parser = parser = TreeSitter::Parser.new(language)
+    if !language.none?
+      @parser = parser = TreeSitter::Parser.new(language.id)
       @tree = tree = parser.parse(nil, contents)
       @tree_editor = TreeSitter::TreeEditor.new(tree, ->point_to_offset(Int32, Int32), ->offset_to_point(UInt32))
     end

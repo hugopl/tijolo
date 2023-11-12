@@ -35,6 +35,7 @@ class CodeEditor < Gtk::Widget
   # FIXME: Fix this bug in gi-crystal, property declared with property? macro doesn't compile
   # @[GObject::Property]
   property? draw_grid = true
+  getter language : CodeLanguage
 
   signal cursor_changed(line : Int32, col : Int32)
 
@@ -52,7 +53,7 @@ class CodeEditor < Gtk::Widget
   @width = 0_f32
   @height = 0_f32
 
-  def initialize(source : IO?, language : String?)
+  def initialize(source : IO?, @language : CodeLanguage)
     super(focusable: true, cursor: Gdk::Cursor.new_from_name("text", nil), css_name: "codeeditor")
 
     @buffer = CodeBuffer.new(source, language)

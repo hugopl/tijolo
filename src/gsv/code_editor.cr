@@ -1,5 +1,6 @@
 GICrystal.require("GtkSource", "5")
 require "./code_buffer"
+require "./code_language"
 
 class CodeEditor < GtkSource::View
   @search_context : GtkSource::SearchContext
@@ -8,8 +9,9 @@ class CodeEditor < GtkSource::View
 
   @[GObject::Property]
   property search_occurences : String = ""
+  getter language : CodeLanguage
 
-  def initialize(source : IO?, language : String?)
+  def initialize(source : IO?, @language : CodeLanguage)
     super(css_name: "codeeditor",
       show_line_numbers: true,
       monospace: true,
@@ -22,7 +24,7 @@ class CodeEditor < GtkSource::View
     @search_context.notify_signal["occurrences-count"].connect { update_label_occurrences }
 
     supress_source_view_key_bindings
-    setup(source, language)
+    setup(source)
   end
 
   private def supress_source_view_key_bindings
@@ -36,10 +38,14 @@ class CodeEditor < GtkSource::View
     add_controller(sc_controller)
   end
 
-  private def setup(source, language)
+  private def setup(source)
+    pp! @language
     gsv_buffer = source_buffer
     gsv_buffer.text = source.gets_to_end if source
-    gsv_buffer.language = GtkSource::LanguageManager.default.language(language) if language
+    unless @language.none?
+      gsv_buffer.language = GtkSource::LanguageManager.default.language(@language.id)
+      pp! gsv_buffer.language
+    end
 
     self.color_scheme = Adw::StyleManager.default.color_scheme
 
