@@ -13,7 +13,11 @@ class Application < Adw::Application
   @icon_path_setup_done = false
 
   def initialize
-    super(application_id: "io.github.hugopl.Tijolo", flags: Gio::ApplicationFlags::HandlesOpen)
+    flags = Gio::ApplicationFlags::HandlesOpen
+    {% unless flag?(:release) %}
+      flags |= Gio::ApplicationFlags::NonUnique
+    {% end %}
+    super(application_id: "io.github.hugopl.Tijolo", flags: flags)
 
     @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
     style_manager = Adw::StyleManager.default
