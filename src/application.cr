@@ -36,6 +36,8 @@ class Application < Adw::Application
   end
 
   private def setup_actions
+    config = Config.instance
+
     action = Gio::SimpleAction.new("about", nil)
     action.activate_signal.connect { show_about_dlg }
     add_action(action)
@@ -43,7 +45,7 @@ class Application < Adw::Application
     action = Gio::SimpleAction.new("activate", nil)
     action.activate_signal.connect { activate }
     add_action(action)
-    set_accels_for_action("app.activate", {"<Control><Alt>o"})
+    set_accels_for_action("app.activate", {config.shortcuts["open_project"]})
   end
 
   @[GObject::Virtual]
