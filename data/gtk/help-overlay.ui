@@ -109,14 +109,13 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Undo previous command</property>
-                <property name="action-name">win.undo</property>
+                <property name="accelerator">&lt;ctrl&gt;z</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;ctrl&gt;&lt;shift&gt;z</property>
                 <property name="title" translatable="yes" context="shortcut window">Redo previous command</property>
-                <property name="action-name">win.redo</property>
               </object>
             </child>
           </object>
