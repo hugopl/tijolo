@@ -168,6 +168,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                move_viewport_line_down: ->move_viewport_line_down,
                move_viewport_page_up:   ->move_viewport_page_up,
                move_viewport_page_down: ->move_viewport_page_down,
+               fullscreen:              ->toggle_fullscreen,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -370,6 +371,10 @@ class ApplicationWindow < Adw::ApplicationWindow
     branch_name = variant.as_s
     system("git checkout #{branch_name}")
     change_action_state("change_git_branch", variant)
+  end
+
+  private def toggle_fullscreen
+    fullscreened? ? unfullscreen : fullscreen
   end
 
   def color_scheme=(scheme)

@@ -33,11 +33,11 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
   - [x] Goto line locator
   - [ ] Git locator
   - [x] Move lines
-  - [ ] Move viewport
+  - [x] Move viewport
   - [ ] Increase/Decrease font size
   - [ ] Comment code on `Ctrl+/`
   - [ ] Maximinize view
-  - [ ] Fullscreen
+  - [x] Fullscreen
 - [ ] Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
