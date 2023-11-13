@@ -263,7 +263,7 @@ class CodeEditor < Gtk::Widget
 
   {% for action in %w(goto_line
                      move_lines_down move_lines_up
-                     move_viewport_up move_viewport_down
+                     move_viewport_line_up move_viewport_line_down
                      move_viewport_page_up move_viewport_page_down
                      search_changed
                      search_next
