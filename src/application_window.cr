@@ -93,7 +93,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     Adw::WindowTitle.cast(template_child("title")).subtitle = @project.root.relative_to(Path.home).to_s
 
     @sidebar.locked = false
-    @sidebar.reveal_flap = true
+    # FIXME: Don't reveal flap while we have nothing to show there.
+    # @sidebar.reveal_flap = true
     @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
     @sidebar.content = @view_manager = view_manager = ViewManager.new
 
