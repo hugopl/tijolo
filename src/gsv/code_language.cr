@@ -16,8 +16,6 @@ struct CodeLanguage
 
   def self.detect(resource : Path) : CodeLanguage
     lang = GtkSource::LanguageManager.default.guess_language(resource.to_s, nil)
-    pp! lang
-
     lang_id = lang ? lang.id : ""
     CodeLanguage.new(lang_id, lang)
   end

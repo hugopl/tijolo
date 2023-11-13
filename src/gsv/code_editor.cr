@@ -39,12 +39,10 @@ class CodeEditor < GtkSource::View
   end
 
   private def setup(source)
-    pp! @language
     gsv_buffer = source_buffer
     gsv_buffer.text = source.gets_to_end if source
     unless @language.none?
       gsv_buffer.language = GtkSource::LanguageManager.default.language(@language.id)
-      pp! gsv_buffer.language
     end
 
     self.color_scheme = Adw::StyleManager.default.color_scheme
