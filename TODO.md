@@ -3,8 +3,8 @@
 # Tijolo Tasks
 
 The rewrite isn't not just a plain GTK4 port but the implementation of the code widget with syntax highlighting, etc. So
-it can take some time to finish... It will be release once I start using it to write itself, nowadays 0.8.0 is written
-using version v0.7.x.
+it can take some time to finish... I already started using Tijolo from HEAD to write Tijolo 0.8.0, however it
+is not something that I would recommend to any other developer meanwhile due to the lack of basic features.
 
 My original plan was to only release it with this new code widget ready, however this is too much work for the not much free
 time I have to work on this, so I put the project manager hat on and decided to get it working first with GtkSourceView5,
@@ -21,6 +21,8 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 
 ## Tasks needed for a GtkSourceView5 based editor
 
+I plan to release something when the blocker items, tagged with ‼️, get done.
+
 - [x] Create GtkSourceView5 (GSV) bindings.
 - [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
 - [x] Remove default key bindings from GSV.
@@ -28,6 +30,9 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [ ] Polish view split code.
 - [x] Polish view navigation code.
 - [x] Move view from one stack to another.
+- [ ] ‼️Handle external file changes
+  - [ ] Auto update view if it wasn't modified.
+  - [ ] Ask to reload view on app re-focused or some modified view focused
 - [ ] Port Tijolo 0.7 key bindings.
   - [x] Sort lines on F9
   - [x] Goto line locator
@@ -35,10 +40,10 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
   - [x] Move lines
   - [x] Move viewport
   - [ ] Increase/Decrease font size
-  - [ ] Comment code on `Ctrl+/`
-  - [ ] Maximinize view
+  - [ ] ‼️Comment code on `Ctrl+/`
+  - [ ] ‼️Maximinize view
   - [x] Fullscreen
-- [ ] Enclose selection with parentesis when typing `(`.
+- [ ] ‼️Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
 - [ ] Show project files on sidebar.
@@ -84,12 +89,15 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [ ] Support auto-completion
 - [ ] Let piece table inform modified lines.
 - [ ] Support custom editor gutter, so we can show a Kdevelop-like in-editor git blame.
+- [ ] Implement cursor position history.
+- [ ] Word wrap.
+
+## Other stuff that I must do, but isn't a priority
+
 - [ ] Add "Clone Repository" dialog.
 - [ ] Add "New Project" dialog.
 - [ ] Add settings dialog, or maybe just continue with the file based approach.
-- [ ] Implement cursor position history.
 - [ ] Save sessions.
-- [ ] Word wrap.
 
 ## GI-Crystal improvements needed by Tijolo
 
