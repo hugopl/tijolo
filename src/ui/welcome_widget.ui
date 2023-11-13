@@ -6,103 +6,77 @@
   <template class="WelcomeWidget" parent="GtkBox">
     <property name="name">welcome-window</property>
     <property name="orientation">vertical</property>
+    <property name="margin-top">120</property>
+    <property name="margin-bottom">120</property>
     <child>
-      <object class="GtkBox" id="contents">
+      <object class="GtkBox">
+        <property name="vexpand">1</property>
         <property name="halign">center</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkPicture">
-            <property name="margin-top">40</property>
-            <property name="margin-bottom">20</property>
-            <property name="file">resource:///io/github/hugopl/Tijolo/tijolo-banner.svg</property>
-            <property name="height-request">50</property>
-            <property name="can-shrink">1</property>
-            <property name="keep-aspect-ratio">1</property>
-          </object>
-        </child>
+        <property name="spacing">40</property>
         <child>
           <object class="GtkBox">
-            <property name="vexpand">1</property>
-            <property name="halign">center</property>
-            <property name="spacing">40</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <property name="spacing">6</property>
-                <child>
-                  <object class="GtkSearchEntry" id="search_entry">
-                    <property name="hexpand">1</property>
-                    <property name="margin-top">6</property>
-                    <property name="margin-bottom">6</property>
-                    <property name="margin-start">6</property>
-                    <property name="margin-end">6</property>
+              <object class="GtkSearchEntry" id="search_entry">
+                <property name="placeholder-text">Search all projects</property>
+                <property name="hexpand">1</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkOverlay" id="overlay">
+                <property name="vexpand">1</property>
+                <child type="overlay">
+                  <object class="GtkSpinner" id="spinner">
+                    <property name="can-focus">0</property>
+                    <property name="spinning">1</property>
+                    <property name="visible">0</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkOverlay" id="overlay">
+                  <object class="GtkScrolledWindow">
+                    <property name="width-request">450</property>
                     <property name="vexpand">1</property>
-                    <child type="overlay">
-                      <object class="GtkSpinner" id="spinner">
-                        <property name="can-focus">0</property>
-                        <property name="spinning">1</property>
-                        <property name="visible">0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <property name="width-request">350</property>
-                        <property name="margin-bottom">40</property>
-                        <property name="vexpand">1</property>
-                        <property name="child">
-                          <object class="GtkListView" id="listview">
-                            <style><class name="navigation-sidebar" /></style>
+                    <property name="child">
+                      <object class="GtkListView" id="listview">
+                        <style><class name="navigation-sidebar" /></style>
 
-                <property name="factory">
-                  <object class="GtkBuilderListItemFactory">
-                    <property name="bytes"><![CDATA[
-                      <interface>
-                          <template class="GtkListItem">
-                            <property name="child">
+            <property name="factory">
+              <object class="GtkBuilderListItemFactory">
+                <property name="bytes"><![CDATA[
+                  <interface>
+                      <template class="GtkListItem">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="margin-top">3</property>
+                            <property name="margin-bottom">3</property>
+                            <child>
                               <object class="GtkBox">
-                                <property name="orientation">vertical</property>
-                                <property name="margin-top">3</property>
-                                <property name="margin-bottom">3</property>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="hexpand">1</property>
-                                    <child>
-                                      <object class="GtkLabel">
-                                        <property name="xalign">0</property>
-                                        <property name="ellipsize">1</property>
-                                        <binding name="label">
-                                          <lookup name="name" type="WelcomeProject">
-                                            <lookup name="item">GtkListItem</lookup>
-                                          </lookup>
-                                        </binding>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel">
-                                        <property name="xalign">0</property>
-                                        <property name="halign">end</property>
-                                        <property name="use-markup">1</property>
-                                        <property name="hexpand">1</property>
-                                        <binding name="label">
-                                          <lookup name="last_used" type="WelcomeProject">
-                                            <lookup name="item">GtkListItem</lookup>
-                                          </lookup>
-                                        </binding>
-                                        <style><class name="dim-label"/><class name="caption"/></style>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
+                                <property name="hexpand">1</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="xalign">0</property>
                                     <property name="ellipsize">1</property>
                                     <binding name="label">
-                                      <lookup name="path" type="WelcomeProject">
+                                      <lookup name="name" type="WelcomeProject">
+                                        <lookup name="item">GtkListItem</lookup>
+                                      </lookup>
+                                    </binding>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="xalign">0</property>
+                                    <property name="halign">end</property>
+                                    <property name="use-markup">1</property>
+                                    <property name="hexpand">1</property>
+                                    <binding name="label">
+                                      <lookup name="last_used" type="WelcomeProject">
                                         <lookup name="item">GtkListItem</lookup>
                                       </lookup>
                                     </binding>
@@ -110,39 +84,60 @@
                                   </object>
                                 </child>
                               </object>
-                            </property>
-                          </template>
-                        </interface>
-                    ]]></property>
-                  </object>
-                </property>
-
-
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="xalign">0</property>
+                                <property name="ellipsize">1</property>
+                                <binding name="label">
+                                  <lookup name="path" type="WelcomeProject">
+                                    <lookup name="item">GtkListItem</lookup>
+                                  </lookup>
+                                </binding>
+                                <style><class name="dim-label"/><class name="caption"/></style>
+                              </object>
+                            </child>
                           </object>
                         </property>
+                      </template>
+                    </interface>
+                ]]></property>
+              </object>
+            </property>
                       </object>
-                    </child>
+                    </property>
                   </object>
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <property name="spacing">8</property>
-                <child>
-                  <object class="GtkButton" id="clone_btn">
-                    <property name="label" translatable="1">Clone Repository...</property>
-                    <property name="sensitive">0</property>
-                    <property name="receives-default">1</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="rescan_btn">
-                    <property name="label" translatable="1">Rescan Projects</property>
-                    <property name="receives-default">1</property>
-                  </object>
-                </child>
+              <object class="GtkImage">
+                <property name="icon-name">io.github.hugopl.Tijolo</property>
+                <property name="pixel-size">128</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="1">New Project</property>
+                <property name="receives-default">1</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="clone_btn">
+                <property name="label" translatable="1">Clone Repository</property>
+                <property name="receives-default">1</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="rescan_btn">
+                <property name="label" translatable="1">Rescan Projects</property>
+                <property name="receives-default">1</property>
               </object>
             </child>
           </object>

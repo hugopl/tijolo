@@ -1,4 +1,4 @@
-<img align="left" src="./icons/tijolo.svg" width="100" height="100" />
+<img align="left" src="./data/io.github.hugopl.Tijolo.svg" width="100" height="100" />
 
 # Tijolo
 
@@ -11,21 +11,22 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 Basic stuff still missing, use it at your own risk 🔥️.
 
+- [ ] Write a good keyboard only search/replace UI.
 - [ ] Build locator (Ctrl+B) build os targets no shards.yml.
 - [ ] Reintroduce LSP support.
+- [ ] Improve Ctrl+Tab coloring document stacks.
 - [ ] Add animations to view moves.
 - [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
-- [ ] Git locator
-- [ ] Increase/Decrease font size
-- [ ] Remove deprecated GTK stuff from Welcome widget.
+- [ ] Git locator.
+- [ ] Increase/Decrease font size.
 - [ ] Save sessions.
 - [ ] Add "Clone Repository" dialog.
 - [ ] Add "New Project" dialog.
-- [ ] Add settings dialog, or maybe just continue with the file based approach.
+- [ ] Add settings dialog, or maybe just continue with the TOML file based approach.
 
 ## How it looks like?
 
-<img align="left" src="./screenshots/0.1.0-code.png" />
+<img align="left" src="./screenshots/code.png" />
 
 See more [screenshots](https://github.com/hugopl/tijolo/tree/master/screenshots).
 
@@ -63,37 +64,12 @@ approach to build a deb package but works on non-deb machines.
 
 You will need:
 
- - Crystal compiler version >= 1.0.0.
- - GTK3.
- - GTKSourceView4.
- - [Vte](https://gitlab.gnome.org/GNOME/vte).
+ - Crystal compiler version >= 1.10.0.
+ - GTK4 >= 4.8.
+ - LibAdwaita >= 1.4.
+ - GTKSourceView5.
+ - [Vte4](https://gitlab.gnome.org/GNOME/vte).
  - GIR packages for these GTK libraries.
- - [libGit2](https://libgit2.org/).
- - [editorconfig-core](https://github.com/editorconfig/editorconfig-core-c).
-
-### via apt
-
-```shell
-$ sudo apt-get install -y \
-    git make crystal libeditorconfig-dev \
-    libgirepository1.0-dev libgit2-dev \
-    libgtksourceview-4-dev libvte-2.91-dev libyaml-dev
-```
-
-Names and versions may differ depending on distro and version
-
-### via Homebrew/Linuxbrew
-
-```shell
-$ brew install crystal gtk+3 gobject-introspection gtksourceview4 vte3 \
-               libgit2 editorconfig
-```
-
-### Other package managers
-
-Check your distro's package managers for the equivalent package names. You will
-need the install the `-dev` or `-devel` equivalent packages, in addition to the
-runtime packages.
 
 ## Compiling from Source
 
@@ -113,6 +89,12 @@ To uninstall:
 
 ```
 $ sudo make uninstall uninstall-fonts
+```
+
+To update GTK4 icon cache and compile gschema files run:
+
+```
+$ make post-install
 ```
 
 ## Usage
