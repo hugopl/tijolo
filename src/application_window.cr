@@ -162,6 +162,8 @@ class ApplicationWindow < Adw::ApplicationWindow
                copy_from_terminal: ->copy_to_clipboard,
                paste_in_terminal:  ->paste_from_clipboard,
                sort_lines:         ->sort_lines,
+               move_lines_up:      ->move_lines_up,
+               move_lines_down:    ->move_lines_down,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -351,11 +353,13 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view(&.paste_from_clipboard)
   end
 
-  private def sort_lines
+  {% for action in %w(sort_lines move_lines_up move_lines_down) %}
+  private def {{ action.id }}
     with_current_view do |view|
-      view.sort_lines if view.responds_to?(:sort_lines)
+      view.{{ action.id }} if view.responds_to?({{ action.id.symbolize }})
     end
   end
+  {% end %}
 
   def change_git_branch(variant : GLib::Variant)
     branch_name = variant.as_s

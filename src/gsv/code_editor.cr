@@ -105,6 +105,14 @@ class CodeEditor < GtkSource::View
     scroll_to_iter(iter, 0.1, true, 0.0, 0.5)
   end
 
+  def move_lines_up
+    move_lines_signal.emit(false)
+  end
+
+  def move_lines_down
+    move_lines_signal.emit(true)
+  end
+
   def search_replace_started
     Log.warn { "Not implemented yet" }
   end

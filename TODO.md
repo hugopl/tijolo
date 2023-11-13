@@ -32,8 +32,12 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
   - [x] Sort lines on F9
   - [x] Goto line locator
   - [ ] Git locator
-  - [ ] Move lines
+  - [x] Move lines
+  - [ ] Move viewport
+  - [ ] Increase/Decrease font size
   - [ ] Comment code on `Ctrl+/`
+  - [ ] Maximinize view
+  - [ ] Fullscreen
 - [ ] Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
@@ -43,6 +47,7 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
 - [ ] Remove trailing whitespaces on save.
+- [ ] Port sidebar to GTK4 (depends on fixing bug in gi-crystal)
 
 ## Tasks needed for a code editor widget
 

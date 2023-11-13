@@ -261,9 +261,19 @@ class CodeEditor < Gtk::Widget
     ""
   end
 
-  {% for search_action in %w(search_replace_started search_next search_previous search_stopped) %}
-  def {{ search_action.id }}
-    Log.warn { {{ search_action + " not implemented" }} }
+  {% for action in %w(goto_line
+                     move_lines_down
+                     move_lines_up
+                     search_changed
+                     search_next
+                     search_previous
+                     search_replace_started
+                     search_started
+                     search_stopped
+                     sort_lines
+                   ) %}
+  def {{ action.id }}(*args, **options)
+    Log.warn { {{ action + " not implemented" }} }
   end
   {% end %}
 end
