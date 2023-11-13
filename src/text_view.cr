@@ -93,6 +93,10 @@ class TextView < View
   delegate sort_lines, to: @editor
   delegate move_lines_up, to: @editor
   delegate move_lines_down, to: @editor
+  delegate move_viewport_line_up, to: @editor
+  delegate move_viewport_line_down, to: @editor
+  delegate move_viewport_page_up, to: @editor
+  delegate move_viewport_page_down, to: @editor
   delegate goto_line, to: @editor
   delegate search_started, to: @editor
   delegate search_replace_started, to: @editor

@@ -149,21 +149,25 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def setup_actions(settings : Gio::Settings)
     config = Config.instance
-    actions = {show_locator:       ->show_locator,
-               goto_line:          ->show_goto_line_locator,
-               close_view:         ->close_current_view,
-               close_all_views:    ->close_all_views,
-               new_file:           ->new_file,
-               new_terminal:       ->new_terminal,
-               open_file:          ->show_open_file_dialog,
-               save_view:          ->save_current_view,
-               save_view_as:       ->save_current_view_as,
-               show_hide_sidebar:  ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
-               copy_from_terminal: ->copy_to_clipboard,
-               paste_in_terminal:  ->paste_from_clipboard,
-               sort_lines:         ->sort_lines,
-               move_lines_up:      ->move_lines_up,
-               move_lines_down:    ->move_lines_down,
+    actions = {show_locator:            ->show_locator,
+               goto_line:               ->show_goto_line_locator,
+               close_view:              ->close_current_view,
+               close_all_views:         ->close_all_views,
+               new_file:                ->new_file,
+               new_terminal:            ->new_terminal,
+               open_file:               ->show_open_file_dialog,
+               save_view:               ->save_current_view,
+               save_view_as:            ->save_current_view_as,
+               show_hide_sidebar:       ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
+               copy_from_terminal:      ->copy_to_clipboard,
+               paste_in_terminal:       ->paste_from_clipboard,
+               sort_lines:              ->sort_lines,
+               move_lines_up:           ->move_lines_up,
+               move_lines_down:         ->move_lines_down,
+               move_viewport_line_up:   ->move_viewport_line_up,
+               move_viewport_line_down: ->move_viewport_line_down,
+               move_viewport_page_up:   ->move_viewport_page_up,
+               move_viewport_page_down: ->move_viewport_page_down,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -353,7 +357,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view(&.paste_from_clipboard)
   end
 
-  {% for action in %w(sort_lines move_lines_up move_lines_down) %}
+  {% for action in %w(sort_lines move_lines_up move_lines_down move_viewport_line_up move_viewport_line_down
+                     move_viewport_page_up move_viewport_page_down) %}
   private def {{ action.id }}
     with_current_view do |view|
       view.{{ action.id }} if view.responds_to?({{ action.id.symbolize }})

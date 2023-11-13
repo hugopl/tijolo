@@ -111,6 +111,22 @@ class CodeEditor < GtkSource::View
     move_lines_signal.emit(true)
   end
 
+  def move_viewport_line_up
+    move_viewport_signal.emit(:steps, -1)
+  end
+
+  def move_viewport_line_down
+    move_viewport_signal.emit(:steps, 1)
+  end
+
+  def move_viewport_page_up
+    move_viewport_signal.emit(:pages, -1)
+  end
+
+  def move_viewport_page_down
+    move_viewport_signal.emit(:pages, 1)
+  end
+
   def search_replace_started
     Log.warn { "Not implemented yet" }
   end
