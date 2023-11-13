@@ -13,13 +13,13 @@
   <color name="green"   value="#A1D82B"/>
   <color name="white"   value="#EBEBE5" />
 
-  <color name="bg-shadow"     value="#F8F8F8"/>
+  <color name="bg-shadow"     value="#252525"/>
   <color name="bg"            value="#282923"/>
   <color name="comment"       value="#6D6855" />
   <color name="current-line" value="#3A392F" />
 
   <color name="line-number" value="#848782" />
-  <color name="bg-pattern" value="#303029"/>
+  <color name="bg-pattern" value="#252525"/>
 
   <!-- Global Settings -->
   <style name="text"                        foreground="white" background="bg"/>

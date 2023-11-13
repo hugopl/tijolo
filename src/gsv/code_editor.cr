@@ -17,6 +17,7 @@ class CodeEditor < GtkSource::View
       monospace: true,
       auto_indent: true,
       smart_backspace: true,
+      background_pattern: :grid,
       smart_home_end: :before)
     @search_settings = GtkSource::SearchSettings.new(wrap_around: true)
     @search_context = GtkSource::SearchContext.new(source_buffer, @search_settings)
