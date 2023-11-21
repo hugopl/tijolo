@@ -101,7 +101,7 @@ class ViewManager < Gtk::Widget
       node.add_view(view)
     end
     @views.unshift(view)
-    items_changed_signal.emit(0, 0, 1)
+    items_changed(0, 0, 1)
     focus_view(view)
   end
 
@@ -266,7 +266,7 @@ class ViewManager < Gtk::Widget
     removed_view_index = @views.index(view)
     if removed_view_index
       @views.delete_at(removed_view_index)
-      items_changed_signal.emit(removed_view_index.to_u32, 1_u32, 0_u32)
+      items_changed(removed_view_index.to_u32, 1_u32, 0_u32)
     else
       raise IndexError.new
     end

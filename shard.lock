@@ -5,9 +5,9 @@ shards:
     git: https://github.com/hugopl/fzy.git
     version: 0.5.5
 
-  gi-crystal:
+  gi-crystal: # Overridden
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.18.0
+    version: 0.19.0+git.commit.da061f7caacc86d0f900d06a3f9b3b150ade05a7
 
   gio:
     git: https://github.com/hugopl/gio.cr.git
