@@ -233,16 +233,20 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   def save_current_view
     with_current_view do |view|
-      if view.resource?
-        view.save if view.modified?
-      else
+      return unless view.is_a?(DocumentView)
+
+      if view.resource.nil?
         save_current_view_as
+      else
+        view.save if view.modified?
       end
     end
   end
 
   def save_current_view_as
     with_current_view do |view|
+      next unless view.is_a?(DocumentView)
+
       dialog = Gtk::FileChooserNative.new("Save File", self, :save, "_Spen", "_Cancel")
       dialog.response_signal.connect do |response|
         if Gtk::ResponseType.from_value(response).accept?
@@ -258,7 +262,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def close_current_view : Nil
     with_current_view do |view|
-      if view.modified?
+      if view.is_a?(DocumentView) && view.modified?
         dlg = SaveModifiedViewsDialog.new(self, [view])
         dlg.present do
           view_manager.remove_current_view
@@ -341,13 +345,17 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def show_goto_line_locator
     return if @locator.nil? || @view_manager.nil?
 
-    locator.text = "l "
-    locator.show(select_text: false, view: view_manager.current_view?)
+    with_current_view do |view|
+      if view.is_a?(DocumentView)
+        locator.text = "l "
+        locator.show(select_text: false, view: view)
+      end
+    end
   end
 
   private def goto_line(line : Int32, col : Int32)
     with_current_view do |view|
-      view.goto_line(line, col) if view.line_based_content? && view.responds_to?(:goto_line)
+      view.goto_line(line, col) if view.is_a?(DocumentView)
     end
   end
 

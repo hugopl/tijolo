@@ -1,4 +1,5 @@
-require "./view"
+require "./document_view"
+
 {% if flag?(:experimental) %}
   require "./code_editor"
 {% else %}
@@ -7,20 +8,22 @@ require "./view"
 require "./searchable"
 require "./code_language"
 
-class TextView < View
+class TextView < DocumentView
   include Searchable
   Log = ::Log.for("TextView")
 
   @@untitled_count = 0
 
   @editor : CodeEditor
+  @line_column : Gtk::Label
 
   def initialize(resource : Path? = nil, project : Project? = nil)
-    box = Gtk::Box.new(orientation: :vertical, hexpand: true, vexpand: true, spacing: 0)
-
     source = File.open(resource) if resource
     @editor = CodeEditor.new(source, CodeLanguage.detect(resource))
     super(@editor, resource, project)
+
+    @line_column = Gtk::Label.new
+    @header_end_box.prepend(@line_column)
 
     setup_search_bar
 
@@ -51,8 +54,9 @@ class TextView < View
     {% end %}
   end
 
-  def line_based_content?
-    true
+  # Line and col starts at zero in code, but at 1 in UI
+  private def set_cursor_label(line : Int32, col : Int32)
+    @line_column.label = line.negative? ? "?" : "#{line + 1}:#{col + 1}"
   end
 
   def current_line : Int32
@@ -61,26 +65,6 @@ class TextView < View
 
   def current_column : Int32
     @editor.cursor_line_col[1]
-  end
-
-  private def update_title
-    resource = self.resource
-    project = self.project
-    label = if project && resource
-              resource.relative_to(project.root).to_s
-            elsif resource
-              resource.to_s
-            else
-              untitled_label
-            end
-    self.label = label
-  end
-
-  private def untitled_label : String
-    @@untitled_count += 1
-    return "Untitled" if @@untitled_count == 1
-
-    "Untitled #{@@untitled_count}"
   end
 
   def save : Nil

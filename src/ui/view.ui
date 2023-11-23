@@ -2,27 +2,6 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
 
-  <menu id="copy_menu">
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">Copy full path</attribute>
-        <attribute name="action">view.copy_full_path</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy full path and line</attribute>
-        <attribute name="action">view.copy_full_path_and_line</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy relative path</attribute>
-        <attribute name="action">view.copy_relative_path</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Copy relative path and line</attribute>
-        <attribute name="action">view.copy_relative_path_and_line</attribute>
-      </item>
-    </section>
-  </menu>
-
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
@@ -45,39 +24,25 @@
       </object>
     </child>
     <child>
-      <object class="GtkCenterBox" id="header">
+      <object class="GtkCenterBox">
         <style>
           <class name="view-header"/>
         </style>
         <child type="center">
-          <object class="GtkBox">
-            <child>
-              <object class="GtkLabel" id="modified">
-                <property name="visible">0</property>
-                <property name="label">🞶</property>
-              </object>
-            </child>
+          <object class="GtkBox" id="header_start_box">
+          </object>
+        </child>
+        <child type="center">
+          <object class="GtkBox" id="header_center_box">
             <child>
               <object class="GtkLabel" id="label">
                 <style><class name="heading"/></style>
               </object>
             </child>
-            <child>
-              <object class="GtkMenuButton">
-                <property name="focus-on-click">0</property>
-                <property name="menu-model">copy_menu</property>
-                <property name="icon-name">edit-copy-symbolic</property>
-                <property name="margin-start">3</property>
-                <style><class name="flat"/></style>
-              </object>
-            </child>
           </object>
         </child>
         <child type="end">
-          <object class="GtkBox">
-            <child>
-              <object class="GtkLabel" id="line_column" />
-            </child>
+          <object class="GtkBox" id="header_end_box">
             <child>
               <object class="GtkButton" id="close_btn">
                 <property name="icon-name">window-close-symbolic</property>

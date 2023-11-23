@@ -199,7 +199,9 @@ class ViewManager < Gtk::Widget
   end
 
   def find_view_by_resource(resource : Path) : View?
-    @views.find { |view| view.resource == resource }
+    @views.find do |view|
+      view.is_a?(DocumentView) && view.resource == resource
+    end
   end
 
   def find_view_by_id(id)
@@ -300,7 +302,9 @@ class ViewManager < Gtk::Widget
   end
 
   def modified_views : Array(View)
-    @views.select(&.modified?)
+    @views.select do |view|
+      view.is_a?(DocumentView) && view.modified?
+    end
   end
 
   private def save_png(suffix = nil)

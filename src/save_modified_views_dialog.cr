@@ -1,5 +1,5 @@
 class SaveModifiedViewsDialog < Adw::MessageDialog
-  @checkboxes = Hash(Gtk::CheckButton, View).new
+  @checkboxes = Hash(Gtk::CheckButton, DocumentView).new
 
   def initialize(parent : Gtk::Window, views : Array(View))
     super(transient_for: parent,
@@ -16,7 +16,7 @@ class SaveModifiedViewsDialog < Adw::MessageDialog
 
     group = Adw::PreferencesGroup.new
     views.each do |view|
-      group.add(create_action_row(view))
+      group.add(create_action_row(view)) if view.is_a?(DocumentView)
     end
     self.extra_child = group
   end
@@ -41,7 +41,7 @@ class SaveModifiedViewsDialog < Adw::MessageDialog
     end
   end
 
-  private def create_action_row(view : View) : Adw::ActionRow
+  private def create_action_row(view : DocumentView) : Adw::ActionRow
     resource = view.resource_hint
     row = Adw::ActionRow.new(title: resource.basename.to_s, subtitle: resource.dirname.to_s)
     checkbox = Gtk::CheckButton.new(active: true)
