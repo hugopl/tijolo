@@ -41,7 +41,7 @@ I plan to release something when the blocker items, tagged with ‼️, get done
 - [ ] ‼️Comment code on `Ctrl+/`
 - [ ] ‼️Maximinize view
 - [x] Fullscreen
-- [ ] ‼️Enclose selection with parentesis when typing `(`.
+- [x] Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
 - [ ] ‼️Show project files on sidebar.
@@ -49,7 +49,7 @@ I plan to release something when the blocker items, tagged with ‼️, get done
 - [x] Change GSV style when changing dark/light themes.
 - [x] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
-- [ ] ‼️Remove trailing whitespaces on save.
+- [ ] Remove trailing whitespaces on save.
 - [ ] Add animations to view moves.
 
 ## Tasks needed for a code editor widget

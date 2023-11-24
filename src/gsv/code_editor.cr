@@ -25,12 +25,47 @@ class CodeEditor < GtkSource::View
     @search_mark = source_buffer.insert
     @search_context.notify_signal["occurrences-count"].connect { update_label_occurrences }
 
+    key = Gtk::EventControllerKey.new(propagation_phase: :target)
+    key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
+    add_controller(key)
+
     supress_source_view_key_bindings
     setup(source)
   end
 
   def reload(source : IO)
     setup(source)
+  end
+
+  private def on_key_press(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
+    if keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
+      return insert_char_around_selection(keyval)
+    end
+    false
+  end
+
+  def insert_char_around_selection(keyval : UInt32) : Bool
+    gsv_buffer = source_buffer
+    return false unless gsv_buffer.has_selection?
+
+    start_chr, end_chr = case (keyval)
+                         when Gdk::KEY_bracketleft then {"[", "]"}
+                         when Gdk::KEY_parenleft   then {"(", ")"}
+                         when Gdk::KEY_braceleft   then {"{", "}"}
+                         else
+                           return false
+                         end
+
+    start_iter, end_iter = gsv_buffer.selection_bounds
+    end_offset = end_iter.offset
+    gsv_buffer.user_action do
+      gsv_buffer.insert(start_iter, start_chr)
+      start_iter.offset = end_offset + 1
+      gsv_buffer.insert(start_iter, end_chr)
+      start_iter.backward_char
+      gsv_buffer.move_mark_by_name("selection_bound", start_iter)
+    end
+    true
   end
 
   private def supress_source_view_key_bindings
