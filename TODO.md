@@ -30,29 +30,27 @@ I plan to release something when the blocker items, tagged with ‼️, get done
 - [ ] Polish view split code.
 - [x] Polish view navigation code.
 - [x] Move view from one stack to another.
-- [ ] ‼️Handle external file changes
-  - [ ] Auto update view if it wasn't modified.
-  - [ ] Ask to reload view on app re-focused or some modified view focused
-- [ ] Port Tijolo 0.7 key bindings.
-  - [x] Sort lines on F9
-  - [x] Goto line locator
-  - [ ] Git locator
-  - [x] Move lines
-  - [x] Move viewport
-  - [ ] Increase/Decrease font size
-  - [ ] ‼️Comment code on `Ctrl+/`
-  - [ ] ‼️Maximinize view
-  - [x] Fullscreen
+- [x] Auto update view if it wasn't modified.
+- [ ] Ask to reload view on app re-focused or some modified view focused
+- [x] Sort lines on F9
+- [x] Goto line locator
+- [ ] Git locator
+- [x] Move lines
+- [x] Move viewport
+- [ ] ‼️Increase/Decrease font size
+- [ ] ‼️Comment code on `Ctrl+/`
+- [ ] ‼️Maximinize view
+- [x] Fullscreen
 - [ ] ‼️Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
-- [ ] Show project files on sidebar.
+- [ ] ‼️Show project files on sidebar.
 - [x] Add menu to change branches.
 - [x] Change GSV style when changing dark/light themes.
 - [x] Create better color themes.
 - [ ] Remove deprecated GTK stuff from Welcome widget.
-- [ ] Remove trailing whitespaces on save.
-- [ ] Port sidebar to GTK4 (depends on fixing bug in gi-crystal)
+- [ ] ‼️Remove trailing whitespaces on save.
+- [ ] Add animations to view moves.
 
 ## Tasks needed for a code editor widget
 
