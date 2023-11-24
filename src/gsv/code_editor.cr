@@ -28,6 +28,10 @@ class CodeEditor < GtkSource::View
     setup(source)
   end
 
+  def reload(source : IO)
+    setup(source)
+  end
+
   private def supress_source_view_key_bindings
     sc_controller = Gtk::ShortcutController.new(propagation_phase: :capture)
     action = Gtk::CallbackAction.new(->(w : Gtk::Widget, v : GLib::Variant?) { true })

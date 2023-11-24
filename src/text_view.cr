@@ -40,6 +40,13 @@ class TextView < DocumentView
   delegate grab_focus, to: @editor
   delegate :color_scheme=, to: @editor
 
+  def reload_contents : Nil
+    resource = @resource
+    return if resource.nil?
+
+    @editor.reload(File.open(resource))
+  end
+
   private def setup_editor_preferences
     config = Config.instance
     resource = self.resource

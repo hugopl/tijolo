@@ -88,6 +88,10 @@ class CodeEditor < Gtk::Widget
     add_controller(gesture_controller)
   end
 
+  def reload(source : IO)
+    Log.warn { "reload not implemented :-)" }
+  end
+
   def color_scheme=(scheme : Adw::ColorScheme)
   end
 

@@ -6,27 +6,38 @@ abstract class DocumentView < View
   property? readonly = false
   @[GObject::Property]
   property modified = false
+  @[GObject::Property]
+  property externally_modified = false
 
   @resource_actions = [] of Gio::SimpleAction
 
-  def initialize(contents : Gtk::Widget, @resource : Path?, @project : Project?)
+  def initialize(contents : Gtk::Widget, resource : Path?, @project : Project?)
     super(contents)
+    @resource = resource
 
-    modified_label = Gtk::Label.new(visible: false, label: "🞶")
+    modified_label = Gtk::Label.new(visible: false, label: "🞶", margin_end: 3)
     header_center_box.insert_child_after(modified_label, header_label)
     bind_property("modified", modified_label, "visible", :default)
 
+    warning_icon = Gtk::Image.new(icon_name: "dialog-warning-symbolic", margin_end: 3, visible: false)
+    header_center_box.insert_child_after(warning_icon, modified_label)
+    bind_property("externally_modified", warning_icon, "visible", :default)
+
     copy_path_btn = Gtk::MenuButton.new(icon_name: "edit-copy-symbolic",
       focus_on_click: false,
-      margin_start: 3,
       menu_model: copy_path_menu_model)
     copy_path_btn.add_css_class("flat")
     header_center_box.prepend(copy_path_btn)
 
-    setup_actions(!@resource.nil?)
+    if resource
+      monitor = Gio::File.new_for_path(resource.to_s).monitor_file(:none, nil)
+      monitor.changed_signal.connect(->on_file_changed(Gio::File, Gio::File, Gio::FileMonitorEvent))
+    end
+    setup_actions
   end
 
   abstract def save : Nil
+  abstract def reload_contents : Nil
 
   # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`
   def modified?
@@ -62,6 +73,26 @@ abstract class DocumentView < View
     menu
   end
 
+  private def on_file_changed(file : Gio::File, other_file : Gio::File, event_type : Gio::FileMonitorEvent)
+    case event_type
+    when .renamed?
+      self.resource = other_file.path
+    when .deleted?
+      self.externally_modified = true
+    when .changed?
+      if @modified
+        self.externally_modified = true
+      else
+        reload_contents
+      end
+    when .attribute_changed?
+      path = file.path
+      @readonly = File.readable?(path) if path
+    else
+      return
+    end
+  end
+
   private def update_title
     resource = self.resource
     project = self.project
@@ -82,7 +113,9 @@ abstract class DocumentView < View
     "Untitled #{@@untitled_count}"
   end
 
-  private def setup_actions(has_resource : Bool)
+  private def setup_actions
+    has_resource = !@resource.nil?
+
     action_group = Gio::SimpleActionGroup.new
     {% for action in %w(copy_full_path copy_file_name copy_relative_path) %}
       action = Gio::SimpleAction.new({{ action }}, nil)
