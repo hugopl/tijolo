@@ -14,7 +14,9 @@ class ViewManager < Gtk::Widget
   @views = [] of View
 
   # Current selected view in Ctrl+Tab menu
-  @selected_view_index = 0
+  @[GObject::Property]
+  property selected = 0
+
   private getter! root : ViewManagerNode?
   getter place_holder = ViewPlaceHolder.new
   getter view_switcher = ViewSwitcher.new
@@ -27,6 +29,8 @@ class ViewManager < Gtk::Widget
     @view_switcher.parent = self
     @view_switcher.model = self
     self.layout_manager = @layout
+
+    bind_property("selected", @view_switcher.selection_model, "selected", :default)
 
     setup_actions
   end
@@ -233,17 +237,20 @@ class ViewManager < Gtk::Widget
     views_count = @views.size
     return if views_count < 2
 
-    @selected_view_index = 0 if !rotating_views?
+    new_selected = @selected
+
+    new_selected = 0 if !rotating_views?
     @view_switcher.visible = true
 
-    @selected_view_index += reverse ? -1 : 1
+    new_selected += reverse ? -1 : 1
     max_index = views_count - 1
-    if @selected_view_index < 0
-      @selected_view_index = max_index
-    elsif @selected_view_index > max_index
-      @selected_view_index = 0
+    if new_selected < 0
+      new_selected = max_index
+    elsif new_selected > max_index
+      new_selected = 0
     end
-    show_view(@views[@selected_view_index])
+    self.selected = new_selected
+    show_view(@views[new_selected])
   end
 
   def stop_rotate : Nil
@@ -251,7 +258,7 @@ class ViewManager < Gtk::Widget
 
     @view_switcher.visible = false
     if @views.size > 1
-      @views.unshift(@views.delete_at(@selected_view_index))
+      @views.unshift(@views.delete_at(@selected))
       @views.first.grab_focus
     end
   end

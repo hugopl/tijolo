@@ -1,10 +1,12 @@
 class ViewSwitcher < Adw::Bin
   @list_view : Gtk::ListView
+  getter selection_model : Gtk::SingleSelection
 
   def initialize
     super(css_name: "view_switcher", visible: false)
 
-    @list_view = Gtk::ListView.new
+    @selection_model = Gtk::SingleSelection.new(autoselect: false)
+    @list_view = Gtk::ListView.new(model: @selection_model)
     @list_view.parent = self
 
     factory = Gtk::SignalListItemFactory.new
@@ -14,9 +16,7 @@ class ViewSwitcher < Adw::Bin
   end
 
   def model=(model : Gio::ListModel)
-    selection_model = Gtk::SingleSelection.new(model)
-    selection_model.autoselect = false
-    @list_view.model = Gtk::SingleSelection.new(selection_model)
+    @selection_model.model = model
   end
 
   private def setup_item(obj : GObject::Object) : Nil
