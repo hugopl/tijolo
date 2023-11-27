@@ -4,6 +4,7 @@ require "./code_layout"
 require "./code_line_number_gutter"
 require "./code_snapshot"
 require "./code_theme"
+require "./code_language"
 
 # Current state of text widget: Far from done.
 #
@@ -266,6 +267,7 @@ class CodeEditor < Gtk::Widget
   end
 
   {% for action in %w(goto_line
+                     comment_code
                      move_lines_down move_lines_up
                      move_viewport_line_up move_viewport_line_down
                      move_viewport_page_up move_viewport_page_down

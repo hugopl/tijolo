@@ -19,6 +19,35 @@ module Gtk
       _retval = LibGtk.gtk_text_buffer_get_selection_bounds(to_unsafe, start, _end)
       {start, _end}
     end
+
+    def user_action
+      begin_user_action
+      yield
+    ensure
+      end_user_action
+    end
+  end
+
+  class TextIter
+    # Forward whitespaces characters
+    # Returns false if reach end of file, true otherwise
+    def forward_whitespaces : Bool
+      while char.whitespace?
+        return false if ends_line || !forward_char
+      end
+      true
+    end
+
+    # Forward while characters matches *text*.
+    # return true on 100% match, false otherwise.
+    def find_text_forward(text : String) : Bool
+      text.each_char do |chr|
+        return false if char != chr
+
+        forward_char
+      end
+      true
+    end
   end
 end
 

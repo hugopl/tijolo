@@ -19,5 +19,10 @@ struct CodeBuffer
     io.write(@buffer.text.to_slice)
   end
 
+  def language : CodeLanguage
+    lang = @buffer.language.try(&.id) || ""
+    CodeLanguage.new(lang)
+  end
+
   delegate cursor_position, to: @buffer
 end

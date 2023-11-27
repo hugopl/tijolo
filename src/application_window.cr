@@ -163,6 +163,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                copy_from_terminal:      ->copy_to_clipboard,
                paste_in_terminal:       ->paste_from_clipboard,
                sort_lines:              ->sort_lines,
+               comment_code:            ->comment_code,
                move_lines_up:           ->move_lines_up,
                move_lines_down:         ->move_lines_down,
                move_viewport_line_up:   ->move_viewport_line_up,
@@ -367,7 +368,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view(&.paste_from_clipboard)
   end
 
-  {% for action in %w(sort_lines move_lines_up move_lines_down move_viewport_line_up move_viewport_line_down
+  {% for action in %w(sort_lines comment_code move_lines_up move_lines_down move_viewport_line_up move_viewport_line_down
                      move_viewport_page_up move_viewport_page_down) %}
   private def {{ action.id }}
     with_current_view do |view|

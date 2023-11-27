@@ -38,7 +38,7 @@ I plan to release something when the blocker items, tagged with ‼️, get done
 - [x] Move lines
 - [x] Move viewport
 - [ ] ‼️Increase/Decrease font size
-- [ ] ‼️Comment code on `Ctrl+/`
+- [x] Comment code on `Ctrl+/`
 - [ ] ‼️Maximinize view
 - [x] Fullscreen
 - [x] Enclose selection with parentesis when typing `(`.

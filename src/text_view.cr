@@ -6,7 +6,6 @@ require "./document_view"
   require "./gsv/code_editor"
 {% end %}
 require "./searchable"
-require "./code_language"
 
 class TextView < DocumentView
   include Searchable
@@ -82,6 +81,7 @@ class TextView < DocumentView
   end
 
   delegate sort_lines, to: @editor
+  delegate comment_code, to: @editor
   delegate move_lines_up, to: @editor
   delegate move_lines_down, to: @editor
   delegate move_viewport_line_up, to: @editor

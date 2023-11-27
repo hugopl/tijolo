@@ -10,9 +10,9 @@ struct CodeLanguage
     @id.empty?
   end
 
-  def line_comment : Bytes
+  def line_comment : String
     # FIXME: Get this from language.
-    "#".to_slice
+    "#"
   end
 
   def self.detect(_nil : Nil) : CodeLanguage

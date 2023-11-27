@@ -1,9 +1,12 @@
 GICrystal.require("GtkSource", "5")
 require "./code_buffer"
 require "./code_language"
+require "./code_commenter"
 require "./init"
 
 class CodeEditor < GtkSource::View
+  include CodeCommenter
+
   @search_context : GtkSource::SearchContext
   @search_settings : GtkSource::SearchSettings
   @search_mark : Gtk::TextMark
@@ -261,4 +264,3 @@ class CodeEditor < GtkSource::View
     end
   end
 end
-

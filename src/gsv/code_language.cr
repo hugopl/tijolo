@@ -1,17 +1,22 @@
 struct CodeLanguage
-  @lang : GtkSource::Language?
+  NONE = CodeLanguage.new("")
 
-  def initialize(@id, @lang : GtkSource::Language?)
+  @lang : GtkSource::Language?
+  getter id : String
+
+  def initialize(@id, @lang : GtkSource::Language? = nil)
   end
 
-  def line_comment : Bytes
-    lang = @lang
-    return Bytes.new if lang.nil?
+  def none?
+    @id.empty?
+  end
 
-    line_comment = lang.metadata("line-comment-start")
-    return Bytes.new if line_comment
+  def self.detect(_nil : Nil) : CodeLanguage
+    CodeLanguage::NONE
+  end
 
-    line_comment.to_slice
+  def line_comment : String
+    @lang.try(&.metadata("line-comment-start")) || ""
   end
 
   def self.detect(file : Path) : CodeLanguage
