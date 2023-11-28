@@ -10,7 +10,7 @@ shards:
 
   gio:
     git: https://github.com/hugopl/gio.cr.git
-    version: 0.2.0
+    version: 0.2.1
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
