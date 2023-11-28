@@ -90,7 +90,9 @@ class ApplicationWindow < Adw::ApplicationWindow
   private def open_project
     raise ArgumentError.new unless @view_manager.nil?
 
-    Adw::WindowTitle.cast(template_child("title")).subtitle = @project.root.relative_to(Path.home).to_s
+    title = Adw::WindowTitle.cast(template_child("title"))
+    title.title = @project.name
+    title.subtitle = @project.root.relative_to(Path.home).to_s
 
     @sidebar.locked = false
     # FIXME: Don't reveal flap while we have nothing to show there.
