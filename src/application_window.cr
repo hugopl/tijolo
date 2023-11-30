@@ -8,6 +8,7 @@ require "./git_branch_model"
 require "./locator"
 require "./theme_selector"
 require "./save_modified_views_dialog"
+require "./sidebar"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title sidebar primary_menu git_branches_menu git_branch_label git_branch_btn))]
 class ApplicationWindow < Adw::ApplicationWindow
@@ -16,7 +17,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   getter project : Project
   @project_monitor : ProjectMonitor
   @git_model : GitBranchModel
-  @sidebar : Adw::Flap
+  @sidebar : Adw::OverlaySplitView
   @view_manager : ViewManager?
   private getter locator : Locator
 
@@ -25,7 +26,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     @git_model = GitBranchModel.new
     @project_monitor = ProjectMonitor.new(@project)
-    @sidebar = Adw::Flap.cast(template_child("sidebar"))
+    @sidebar = Adw::OverlaySplitView.cast(template_child("sidebar"))
     @locator = Locator.new(@project)
 
     self.application = application
@@ -94,11 +95,11 @@ class ApplicationWindow < Adw::ApplicationWindow
     title.title = @project.name
     title.subtitle = @project.root.relative_to(Path.home).to_s
 
-    @sidebar.locked = false
-    # FIXME: Don't reveal flap while we have nothing to show there.
-    # @sidebar.reveal_flap = true
+    @sidebar.pin_sidebar = false
+    @sidebar.show_sidebar = true
     @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
     @sidebar.content = @view_manager = view_manager = ViewManager.new
+    @sidebar.sidebar = Sidebar.new(@project.root)
 
     @project.scan_files(on_finish: ->project_load_finished)
 
@@ -144,7 +145,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def welcome
-    flap = Adw::Flap.cast(template_child("sidebar"))
+    flap = Adw::OverlaySplitView.cast(template_child("sidebar"))
     welcome = WelcomeWidget.new
     flap.content = welcome
     self.focus_widget = welcome.entry
@@ -161,7 +162,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                open_file:               ->show_open_file_dialog,
                save_view:               ->save_current_view,
                save_view_as:            ->save_current_view_as,
-               show_hide_sidebar:       ->{ @sidebar.reveal_flap = !@sidebar.reveal_flap },
+               show_hide_sidebar:       ->{ @sidebar.show_sidebar = !@sidebar.show_sidebar? },
                copy_from_terminal:      ->copy_to_clipboard,
                paste_in_terminal:       ->paste_from_clipboard,
                sort_lines:              ->sort_lines,

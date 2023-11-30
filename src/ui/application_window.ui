@@ -49,7 +49,7 @@
                   <object class="GtkToggleButton">
                     <property name="icon-name">sidebar-show-symbolic</property>
                     <property name="action-name">win.show_hide_sidebar</property>
-                    <property name="active" bind-source="sidebar" bind-property="reveal-flap" bind-flags="sync-create|bidirectional"/>
+                    <property name="active" bind-source="sidebar" bind-property="show-sidebar" bind-flags="sync-create|bidirectional"/>
                     <property name="tooltip-text" translatable="yes">Show/Hide sidebar (Alt+O)</property>
                   </object>
                 </child>
@@ -107,49 +107,10 @@
           </object>
         </child>
         <child>
-          <object class="AdwFlap" id="sidebar">
+          <object class="AdwOverlaySplitView" id="sidebar">
             <property name="vexpand">true</property>
-            <property name="reveal-flap">false</property>
-            <property name="locked">true</property>
+            <property name="show-sidebar">false</property>
             <child type="separator"><object class="GtkSeparator"/></child>
-            <child type="flap">
-              <object class="GtkBox">
-                <property name="name">sidebar</property>
-                <property name="orientation">vertical</property>
-                <property name="width-request">200</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">😅️</property>
-                    <property name="margin-top">18</property>
-                    <style><class name="title-1"/></style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">&lt;i>The sidebar was not yet ported
-to GTK4 due to some bugs in
-Crystal bindings.&lt;/i></property>
-                    <property name="use_markup">1</property>
-                    <property name="justify">center</property>
-                    <property name="margin-top">18</property>
-                    <style><class name="dimmer"/></style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow">
-                    <property name="vexpand">1</property>
-                    <property name="width-request">250</property>
-                    <property name="focusable">1</property>
-                    <child>
-                      <object class="GtkListView" id="project_tree">
-                        <property name="width-request">200</property>
-                        <property name="focusable">0</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
           </object>
         </child>
       </object>
