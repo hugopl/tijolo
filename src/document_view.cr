@@ -9,6 +9,7 @@ abstract class DocumentView < View
   @[GObject::Property]
   property externally_modified = false
 
+  @last_saved_at = Time.monotonic
   @resource_actions = [] of Gio::SimpleAction
 
   def initialize(contents : Gtk::Widget, resource : Path?, @project : Project?)
@@ -36,8 +37,22 @@ abstract class DocumentView < View
     setup_actions
   end
 
-  abstract def save : Nil
-  abstract def reload_contents : Nil
+  def save : Nil
+    return if readonly?
+
+    @last_saved_at = Time.monotonic
+    do_save
+    self.externally_modified = false
+  end
+
+  def reload_contents
+    @last_saved_at = Time.monotonic
+    do_reload_contents
+    self.externally_modified = false
+  end
+
+  abstract def do_save : Nil
+  abstract def do_reload_contents : Nil
 
   # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`
   def modified?
@@ -80,7 +95,11 @@ abstract class DocumentView < View
     when .deleted?
       self.externally_modified = true
     when .changed?
-      if @modified
+      # The SO may send multiple change events for a single file save operation, so we just ignore file changes in the
+      # next 1 second after a save operation.
+      if Time.monotonic - @last_saved_at < 1.seconds
+        return
+      elsif @modified
         self.externally_modified = true
       else
         reload_contents

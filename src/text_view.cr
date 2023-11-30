@@ -39,7 +39,7 @@ class TextView < DocumentView
   delegate grab_focus, to: @editor
   delegate :color_scheme=, to: @editor
 
-  def reload_contents : Nil
+  def do_reload_contents : Nil
     resource = @resource
     return if resource.nil?
 
@@ -73,7 +73,7 @@ class TextView < DocumentView
     @editor.cursor_line_col[1]
   end
 
-  def save : Nil
+  def do_save : Nil
     Log.info { "Saving buffer to #{resource_hint}" }
     File.open(resource_hint, "w") do |file|
       @editor.buffer.save(file)
