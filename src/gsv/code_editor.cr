@@ -225,7 +225,7 @@ class CodeEditor < GtkSource::View
     buffer = source_buffer
     buffer.move_mark(@search_mark, end_iter)
     buffer.select_range(start_iter, end_iter)
-    scroll_to_iter(end_iter, 0.1, true, 0.0, 0.5)
+    scroll_to_iter(end_iter, 0.2, false, 0.0, 0.5)
   end
 
   def search_stopped
