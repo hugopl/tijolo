@@ -132,8 +132,14 @@ class Application < Adw::Application
   private def setup_logger(log_level : String?)
     level = log_level ? Log::Severity.parse(log_level) : Log::Severity::Info
 
-    log_file = File.open(File.join(Dir.tempdir, "tijolo.log"), "a")
-    backend = Log::IOBackend.new(io: log_file, formatter: TijoloLogFormat, dispatcher: Log::DispatchMode::Direct)
+    log_io = begin
+      {% if flag?(:release) %}
+        File.open(File.join(Dir.tempdir, "tijolo.log"), "a")
+      {% else %}
+        STDOUT
+      {% end %}
+    end
+    backend = Log::IOBackend.new(io: log_io, formatter: TijoloLogFormat, dispatcher: Log::DispatchMode::Direct)
     Log.setup(level, backend)
     Log.info { "Tijolo v#{VERSION} started at #{Time.local}, pid: #{Process.pid}, log level: #{level}" }
   end
