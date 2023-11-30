@@ -24,8 +24,11 @@ Gio.register_resource("data/resources.xml", source_dir: "data")
 
 begin
   app = Application.new
-  exit(app.run)
+  code = app.run
+  Log.info { "Tijolo quiting with exit code #{code}." }
+  exit(code)
 rescue ex
   Log.error(exception: ex) { ex.message }
+  Log.info { "Tijolo quiting due to #{ex.class.name} exception." }
   abort
 end

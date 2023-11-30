@@ -22,7 +22,7 @@ struct TijoloLogFormat
               Colorize::ColorANSI::Default
             end
     entry.severity.label.colorize(color).to_s(io)
-    io << ' ' << entry.source unless entry.source.empty?
+    io << ' ' << entry.source.colorize.cyan unless entry.source.empty?
     # Message
     io << ": " << entry.message
   end
