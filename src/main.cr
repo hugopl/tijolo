@@ -22,5 +22,10 @@ require "./monkey_patches"
 
 Gio.register_resource("data/resources.xml", source_dir: "data")
 
-app = Application.new
-exit(app.run)
+begin
+  app = Application.new
+  exit(app.run)
+rescue ex
+  Log.error(exception: ex) { ex.message }
+  abort
+end
