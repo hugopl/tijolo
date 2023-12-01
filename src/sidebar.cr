@@ -17,6 +17,15 @@ class Sidebar < Adw::Bin
     scrolled_window = Gtk::ScrolledWindow.new(vexpand: true, width_request: 250)
     scrolled_window.child = @list_view
     self.child = scrolled_window
+
+    @list_view.activate_signal.connect(->activate(UInt32))
+  end
+
+  private def activate(position : UInt32) : Nil
+    item = @model.item(position)
+    return unless item.is_a?(Gio::FileInfo)
+
+    activate_action("win.open_file", item.name.to_s)
   end
 
   private def setup_item(obj : GObject::Object)

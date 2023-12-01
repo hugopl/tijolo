@@ -160,9 +160,9 @@ class ApplicationWindow < Adw::ApplicationWindow
                close_all_views:         ->close_all_views,
                new_file:                ->new_file,
                new_terminal:            ->new_terminal,
-               open_file:               ->show_open_file_dialog,
-               save_view:               ->save_current_view,
-               save_view_as:            ->save_current_view_as,
+               open:                    ->show_open_file_dialog,
+               save:                    ->save_current_view,
+               save_as:                 ->save_current_view_as,
                show_hide_sidebar:       ->{ @sidebar.show_sidebar = !@sidebar.show_sidebar? },
                copy_from_terminal:      ->copy_to_clipboard,
                paste_in_terminal:       ->paste_from_clipboard,
@@ -189,6 +189,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     action = Gio::SimpleAction.new("focus_editor", nil)
     action.activate_signal.connect { with_current_view(&.grab_focus) }
+    add_action(action)
+
+    action = Gio::SimpleAction.new_stateful("open_file", GLib::VariantType.new("s"), "HEAD")
+    action.activate_signal.connect(->open(GLib::Variant))
     add_action(action)
 
     action = Gio::SimpleAction.new_stateful("change_git_branch", GLib::VariantType.new("s"), "HEAD")
@@ -317,6 +321,11 @@ class ApplicationWindow < Adw::ApplicationWindow
     {% unless flag?(:no_terminal) %}
       view_manager.add_view(TerminalView.new)
     {% end %}
+  end
+
+  def open(variant : GLib::Variant)
+    file = @project.root.join(variant.as_s)
+    open(file)
   end
 
   def open(resource : String) : Nil
