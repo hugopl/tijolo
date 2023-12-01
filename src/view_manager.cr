@@ -74,7 +74,10 @@ class ViewManager < Gtk::Widget
     return unless view.as?(View)
 
     idx = @views.index(view)
-    @views.swap(0, idx) if idx
+    if idx
+      @views.swap(0, idx)
+      reset_model_because_I_am_lazy
+    end
   end
 
   private def current_node? : ViewManagerNode?
@@ -260,7 +263,12 @@ class ViewManager < Gtk::Widget
     if @views.size > 1
       @views.unshift(@views.delete_at(@selected))
       @views.first.grab_focus
+      reset_model_because_I_am_lazy
     end
+  end
+
+  private def reset_model_because_I_am_lazy
+    items_changed(0, @views.size, @views.size)
   end
 
   private def rotating_views? : Bool
@@ -302,7 +310,7 @@ class ViewManager < Gtk::Widget
     end
     old_views_size = @views.size
     @views.clear
-    items_changed_signal.emit(0_u32, old_views_size.to_u32, 0_u32)
+    items_changed(0, old_views_size, 0)
 
     @root = nil
     @place_holder.visible = true
