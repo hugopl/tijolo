@@ -22,7 +22,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   private getter locator : Locator
 
   def initialize(application : Application, @project : Project)
-    super()
+    super(title: "No Project")
 
     @git_model = GitBranchModel.new
     @project_monitor = ProjectMonitor.new(@project)
@@ -130,6 +130,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_monitor.project_load_finished
     setup_git_menu if @git_model.start_monitoring(@project.root)
     enable_project_related_actions(true)
+    self.title = @project.name
   end
 
   private def setup_git_menu
