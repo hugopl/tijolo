@@ -324,8 +324,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def open(variant : GLib::Variant)
-    file = @project.root.join(variant.as_s)
-    open(file)
+    open(variant.as_s)
   end
 
   def open(resource : String) : Nil

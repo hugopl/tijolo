@@ -22,10 +22,12 @@ class Sidebar < Adw::Bin
   end
 
   private def activate(position : UInt32) : Nil
-    item = @model.item(position)
-    return unless item.is_a?(Gio::FileInfo)
+    file_info = @model.item(position)
+    return unless file_info.is_a?(Gio::FileInfo)
+    return if file_info.file_type.directory?
 
-    activate_action("win.open_file", item.name.to_s)
+    gfile = Gio::File.cast(file_info.attribute_object("standard::file"))
+    activate_action("win.open_file", gfile.path.to_s)
   end
 
   private def setup_item(obj : GObject::Object)
