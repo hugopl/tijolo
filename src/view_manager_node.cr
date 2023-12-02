@@ -16,7 +16,8 @@ abstract class ViewManagerNode
   end
 
   abstract def find_node?(view : View) : ViewManagerViewNode?
-  abstract def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32) : Nil
+  # return the x,y of the selected view
+  abstract def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32, selected_view : View?) : {Int32, Int32}
   abstract def each_view_node(&block : Proc(ViewManagerViewNode, Nil)) : Nil
 
   def save_png(suffix = nil) : Nil

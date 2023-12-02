@@ -17,7 +17,14 @@ class ViewManagerLayout < Gtk::LayoutManager
     end
 
     root = view_manager.root?
-    root.size_allocate(0, 0, width, height) if root
+    if root
+      x, y = root.size_allocate(0, 0, width, height, view_manager.glow_view)
+
+      if view_manager.focus_glow.should_layout
+        view = view_manager.current_view?
+        view_manager.focus_glow.size_allocate(x, y, view.width, view.height, -1) if view
+      end
+    end
   end
 
   # Code above is to implement measure virtual function

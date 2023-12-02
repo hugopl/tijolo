@@ -7,6 +7,7 @@ class ViewManagerViewNode < ViewManagerNode
   getter visible_view : View
 
   def initialize(@visible_view : View)
+    super()
     @views << @visible_view
   end
 
@@ -18,6 +19,9 @@ class ViewManagerViewNode < ViewManagerNode
 
   def remove_view(view : View) : View
     removed_view = @visible_view
+    removed_view_idx = @views.index(removed_view)
+    raise ArgumentError.new("Tried to remove a unexisting view") if removed_view_idx.nil?
+
     @views.delete(removed_view)
     if @views.empty?
       @parent.try(&.remove_child(self))
@@ -25,6 +29,7 @@ class ViewManagerViewNode < ViewManagerNode
       @visible_view = @views.first
       @visible_view.visible = true
     end
+
     removed_view
   end
 
@@ -36,14 +41,15 @@ class ViewManagerViewNode < ViewManagerNode
     block.call(self)
   end
 
-  def split(position : SplitPosition, orientation : SplitOrientation) : Nil
+  def split(position : SplitPosition, orientation : SplitOrientation) : ViewManagerViewNode
     old_parent = @parent
     moved_view = remove_visible_view
 
     if old_parent && old_parent.orientation == orientation
       idx = old_parent.index(self).not_nil!
       idx += 1 if position.end?
-      old_parent.add_child(idx, ViewManagerViewNode.new(moved_view))
+      new_node = ViewManagerViewNode.new(moved_view)
+      old_parent.add_child(idx, new_node)
     else
       new_parent = ViewManagerSplitNode.new(orientation)
       if old_parent
@@ -52,8 +58,10 @@ class ViewManagerViewNode < ViewManagerNode
       end
       new_parent.parent = old_parent
       new_parent.add_child(0, self)
-      new_parent.add_child(position, ViewManagerViewNode.new(moved_view))
+      new_node = ViewManagerViewNode.new(moved_view)
+      new_parent.add_child(position, new_node)
     end
+    new_node
   end
 
   def views_count : Int32
@@ -75,8 +83,9 @@ class ViewManagerViewNode < ViewManagerNode
     @visible_view = view
   end
 
-  def size_allocate(@x : Int32, @y : Int32, @width : Int32, @height : Int32) : Nil
+  def size_allocate(@x : Int32, @y : Int32, @width : Int32, @height : Int32, selected_view : View?) : {Int32, Int32}
     @visible_view.size_allocate(x, y, width, height, -1)
+    @visible_view == selected_view ? {x, y} : {-1, -1}
   end
 
   def dump_tree(io : IO)

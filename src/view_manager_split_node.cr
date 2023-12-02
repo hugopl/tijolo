@@ -3,6 +3,7 @@ class ViewManagerSplitNode < ViewManagerNode
   @children = [] of ViewManagerNode
 
   def initialize(@orientation : SplitOrientation)
+    super()
   end
 
   delegate index, to: @children
@@ -42,7 +43,7 @@ class ViewManagerSplitNode < ViewManagerNode
     end
   end
 
-  def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32) : Nil
+  def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32, selected_view : View?) : {Int32, Int32}
     child_x = x
     child_y = y
     if orientation.horizontal?
@@ -52,11 +53,17 @@ class ViewManagerSplitNode < ViewManagerNode
       child_width = width
       child_height = height // @children.size
     end
+    current_view_x = -1
+    current_view_y = -1
+
     @children.each do |child|
-      child.size_allocate(child_x, child_y, child_width, child_height)
+      child_coords = child.size_allocate(child_x, child_y, child_width, child_height, selected_view)
+      current_view_x, current_view_y = child_coords if child_coords != {-1, -1}
+
       child_x += child_width if orientation.horizontal?
       child_y += child_height if orientation.vertical?
     end
+    {current_view_x, current_view_y}
   end
 
   def dump_tree(io : IO)

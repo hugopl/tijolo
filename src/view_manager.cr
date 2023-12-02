@@ -5,6 +5,7 @@ require "./view_manager_view_node"
 require "./view_manager_split_node"
 require "./view_place_holder"
 require "./view_switcher"
+require "./focus_glow"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w())]
 class ViewManager < Gtk::Widget
@@ -19,6 +20,8 @@ class ViewManager < Gtk::Widget
 
   private getter! root : ViewManagerNode?
   getter place_holder = ViewPlaceHolder.new
+  getter focus_glow = FocusGlow.new
+  getter glow_view : View?
   getter view_switcher = ViewSwitcher.new
 
   @layout = ViewManagerLayout.new
@@ -28,10 +31,10 @@ class ViewManager < Gtk::Widget
     @place_holder.parent = self
     @view_switcher.parent = self
     @view_switcher.model = self
+    @focus_glow.parent = self
     self.layout_manager = @layout
 
     bind_property("selected", @view_switcher.selection_model, "selected", :default)
-
     setup_actions
   end
 
@@ -71,7 +74,8 @@ class ViewManager < Gtk::Widget
 
   def focus_changed
     view = focus_child
-    return unless view.as?(View)
+    return unless view.is_a?(View)
+    return if rotating_views?
 
     idx = @views.index(view)
     if idx
@@ -121,6 +125,7 @@ class ViewManager < Gtk::Widget
     if node && node != current_node
       view = current_node.remove_visible_view
       node.add_view(view)
+      glow_view(view)
       return true
     end
     false
@@ -128,7 +133,11 @@ class ViewManager < Gtk::Widget
 
   private def focus_{{ dir.id }}
     node = find_{{ dir.id }}
-    focus_view(node.visible_view) if node
+    if node
+      view = node.visible_view
+      focus_view(view)
+      glow_view(view)
+    end
   end
   {% end %}
 
@@ -154,8 +163,9 @@ class ViewManager < Gtk::Widget
     return false if node.nil? || !node.enough_views_to_split?
 
     replace_root = (node == @root)
-    node.split(position, orientation)
+    new_node = node.split(position, orientation)
     @root = node.parent if replace_root
+    glow_view(new_node.visible_view)
     true
   end
 
@@ -223,17 +233,18 @@ class ViewManager < Gtk::Widget
     @views.first?
   end
 
-  def show_view(view : View)
+  def focus_view(view : View)
     root = @root
     return if root.nil?
 
     node = root.find_node(view)
     node.show_view(view)
+    view.grab_focus
   end
 
-  def focus_view(view : View)
-    show_view(view)
-    view.grab_focus
+  def glow_view(view : View)
+    @focus_glow.glow
+    @glow_view = view
   end
 
   def rotate_views(reverse : Bool) : Nil
@@ -253,7 +264,9 @@ class ViewManager < Gtk::Widget
       new_selected = 0
     end
     self.selected = new_selected
-    show_view(@views[new_selected])
+    view = @views[new_selected]
+    focus_view(view)
+    glow_view(view)
   end
 
   def stop_rotate : Nil
@@ -296,10 +309,10 @@ class ViewManager < Gtk::Widget
       @root = nil
     elsif node.views_count > 0
       # Keep user on same node
-      show_view(node.visible_view)
+      focus_view(node.visible_view)
     else
       # fallback to last used view
-      show_view(@views.first)
+      focus_view(@views.first)
     end
   end
 

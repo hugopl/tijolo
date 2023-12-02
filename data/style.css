@@ -13,6 +13,10 @@ view_manager {
   background-color: darker(@window_bg_color);
 }
 
+focusglow {
+  border: 1px solid @accent_bg_color;
+}
+
 view {
   background-color: @window_bg_color;
 }
