@@ -56,7 +56,7 @@
                 <child>
                   <object class="GtkButton">
                     <property name="tooltip-text" translatable="yes">Open document (Ctrl+O)</property>
-                    <property name="action-name">win.open_file</property>
+                    <property name="action-name">win.open</property>
                     <property name="icon-name">document-open-symbolic</property>
                   </object>
                 </child>
@@ -110,7 +110,6 @@
           <object class="AdwOverlaySplitView" id="sidebar">
             <property name="vexpand">true</property>
             <property name="show-sidebar">false</property>
-            <child type="separator"><object class="GtkSeparator"/></child>
           </object>
         </child>
       </object>
