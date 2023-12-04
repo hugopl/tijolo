@@ -21,36 +21,34 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 
 ## Tasks needed for a GtkSourceView5 based editor
 
-I plan to release something when the blocker items, tagged with ‼️, get done.
-
 - [x] Create GtkSourceView5 (GSV) bindings.
 - [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
 - [x] Remove default key bindings from GSV.
 - [x] Create a layout manager to let views be split in stacks again.
-- [ ] Polish view split code.
 - [x] Polish view navigation code.
 - [x] Move view from one stack to another.
 - [x] Auto update view if it wasn't modified.
-- [ ] Ask to reload view on app re-focused or some modified view focused
 - [x] Sort lines on F9
 - [x] Goto line locator
-- [ ] Git locator
 - [x] Move lines
 - [x] Move viewport
-- [ ] ‼️Increase/Decrease font size
 - [x] Comment code on `Ctrl+/`
-- [ ] ‼️Maximinize view
 - [x] Fullscreen
 - [x] Enclose selection with parentesis when typing `(`.
 - [x] Implement text find.
 - [x] Show current git branch somewhere (header bar?).
-- [ ] ‼️Show project files on sidebar.
+- [x] Show project files on sidebar (just initial dir, waiting for fixes on gi-crystal).
 - [x] Add menu to change branches.
 - [x] Change GSV style when changing dark/light themes.
 - [x] Create better color themes.
-- [ ] Remove deprecated GTK stuff from Welcome widget.
-- [ ] Remove trailing whitespaces on save.
+- [x] Remove trailing whitespaces on save.
+- [ ] Polish view split code.
+- [ ] Increase/Decrease font size
+- [ ] Maximinize view
+- [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
 - [ ] Add animations to view moves.
+- [ ] Git locator
+- [ ] Remove deprecated GTK stuff from Welcome widget.
 
 ## Tasks needed for a code editor widget
 
