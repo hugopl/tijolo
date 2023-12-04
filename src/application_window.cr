@@ -62,7 +62,6 @@ class ApplicationWindow < Adw::ApplicationWindow
   delegate focus_right_split, to: view_manager
   delegate focus_lower_split, to: view_manager
   delegate focus_left_split, to: view_manager
-  delegate maximize_view, to: view_manager
 
   private def bind_settings(settings : Gio::Settings)
     settings.bind("window-width", self, "default-width", :default)
@@ -153,6 +152,7 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def setup_actions(settings : Gio::Settings)
+    app = application.not_nil!
     config = Config.instance
     actions = {show_locator:            ->show_locator,
                goto_line:               ->show_goto_line_locator,
@@ -163,6 +163,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                open:                    ->show_open_file_dialog,
                save:                    ->save_current_view,
                save_as:                 ->save_current_view_as,
+               maximize_view:           ->maximize_view,
                show_hide_sidebar:       ->{ @sidebar.show_sidebar = !@sidebar.show_sidebar? },
                copy_from_terminal:      ->copy_to_clipboard,
                paste_in_terminal:       ->paste_from_clipboard,
@@ -182,7 +183,7 @@ class ApplicationWindow < Adw::ApplicationWindow
       add_action(action)
 
       shortcut = config.shortcuts[name.to_s]
-      application.not_nil!.set_accels_for_action("win.#{name}", {shortcut})
+      app.set_accels_for_action("win.#{name}", {shortcut})
     end
 
     enable_project_related_actions(false)
@@ -202,6 +203,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     group = Gio::SimpleActionGroup.new
     action = settings.create_action("style-variant")
     group.add_action(action)
+
     insert_action_group("settings", group)
   end
 
@@ -388,6 +390,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     end
   end
   {% end %}
+
+  def maximize_view
+    with_current_view do |view|
+      view_manager.maximize_view(view)
+    end
+  end
 
   def change_git_branch(variant : GLib::Variant)
     branch_name = variant.as_s

@@ -42,9 +42,9 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [x] Change GSV style when changing dark/light themes.
 - [x] Create better color themes.
 - [x] Remove trailing whitespaces on save.
+- [x] Maximinize view
 - [ ] Polish view split code.
 - [ ] Increase/Decrease font size
-- [ ] Maximinize view
 - [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
 - [ ] Add animations to view moves.
 - [ ] Git locator

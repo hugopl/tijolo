@@ -13,6 +13,7 @@ class ViewManager < Gtk::Widget
   include Gio::ListModel
   # List of view in Ctrl+Tab menu
   @views = [] of View
+  getter maximized_view : View?
 
   # Current selected view in Ctrl+Tab menu
   @[GObject::Property]
@@ -72,6 +73,39 @@ class ViewManager < Gtk::Widget
     insert_action_group("view", group)
   end
 
+  def maximized? : Bool
+    !@maximized_view.nil?
+  end
+
+  def maximize_view(view : View)
+    return if @views.size < 2
+    return if unmaximize
+
+    root = @root
+    return if root.nil?
+
+    @maximized_view = view
+    root.each_view_node do |node|
+      node.visible_view.visible = node.visible_view == view
+    end
+    glow_view(view)
+    @layout.layout_changed
+  end
+
+  # Returns true if was able to unmaximize, false it it was already unmaximized
+  private def unmaximize : Bool
+    root = @root
+    return false if root.nil? || @maximized_view.nil?
+
+    @maximized_view = nil
+    root.each_view_node do |node|
+      node.visible_view.visible = true
+    end
+    glow_view(current_view)
+    @layout.layout_changed
+    true
+  end
+
   def focus_changed
     view = focus_child
     return unless view.is_a?(View)
@@ -97,7 +131,7 @@ class ViewManager < Gtk::Widget
     node
   end
 
-  private def current_node! : ViewManagerNode
+  def current_node! : ViewManagerNode
     current_node?.not_nil!
   end
 
@@ -118,6 +152,8 @@ class ViewManager < Gtk::Widget
 
   {% for dir in %w(top right bottom left) %}
   private def move_{{ dir.id }} : Bool
+    return false if unmaximize
+
     current_node = current_node?
     return false if current_node.nil?
 
@@ -132,6 +168,8 @@ class ViewManager < Gtk::Widget
   end
 
   private def focus_{{ dir.id }}
+    return if unmaximize
+
     node = find_{{ dir.id }}
     if node
       view = node.visible_view
@@ -291,6 +329,8 @@ class ViewManager < Gtk::Widget
   def remove_current_view
     node = current_node?
     return if node.nil?
+
+    unmaximize
 
     view = node.remove_visible_view
     removed_view_index = @views.index(view)
