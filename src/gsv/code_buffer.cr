@@ -15,7 +15,9 @@ struct CodeBuffer
   end
 
   def save(io : IO)
+    remove_trailing_spaces!
     @buffer.modified = false
+    # TODO: Use a file GtkSource::FileSaver here to speed up things
     io.write(@buffer.text.to_slice)
   end
 
@@ -25,4 +27,21 @@ struct CodeBuffer
   end
 
   delegate cursor_position, to: @buffer
+
+  private def remove_trailing_spaces!
+    @buffer.user_action do
+      iter = @buffer.start_iter
+      loop do
+        iter.forward_to_line_end
+        end_line = iter.copy
+        while iter.backward_char
+          break unless iter.char.in?(' ', '\t')
+        end
+        iter.forward_char
+
+        @buffer.delete(iter, end_line)
+        break unless iter.forward_line
+      end
+    end
+  end
 end
