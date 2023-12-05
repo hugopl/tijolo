@@ -32,10 +32,6 @@ shards:
     git: https://github.com/crystal-community/toml.cr.git
     version: 0.7.0
 
-  tree_sitter:
-    git: https://github.com/hugopl/crystal-tree-sitter.git
-    version: 0.1.0+git.commit.1ae02f26a2601570472c89135380696f73085cbd
-
   vte:
     git: https://github.com/hugopl/vte.cr.git
     version: 0.1.0

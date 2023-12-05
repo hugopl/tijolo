@@ -1,10 +1,6 @@
 require "./document_view"
 
-{% if flag?(:experimental) %}
-  require "./code_editor"
-{% else %}
-  require "./gsv/code_editor"
-{% end %}
+require "./code_editor"
 require "./searchable"
 
 class TextView < DocumentView
@@ -51,13 +47,11 @@ class TextView < DocumentView
     resource = self.resource
     is_make_file = resource.try(&.basename) == "Makefile"
 
-    {% unless flag?(:experimental) %}
-      @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
-      @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
-      @editor.show_right_margin = config.editor_show_right_margin
-      @editor.right_margin_position = config.editor_right_margin_position
-      @editor.highlight_current_line = config.editor_highlight_current_line
-    {% end %}
+    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
+    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
+    @editor.show_right_margin = config.editor_show_right_margin
+    @editor.right_margin_position = config.editor_right_margin_position
+    @editor.highlight_current_line = config.editor_highlight_current_line
   end
 
   # Line and col starts at zero in code, but at 1 in UI

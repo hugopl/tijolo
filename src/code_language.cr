@@ -1,35 +1,31 @@
 struct CodeLanguage
   NONE = CodeLanguage.new("")
 
+  @lang : GtkSource::Language?
   getter id : String
 
-  def initialize(@id)
+  def initialize(@id, @lang : GtkSource::Language? = nil)
   end
 
   def none?
     @id.empty?
   end
 
-  def line_comment : String
-    # FIXME: Get this from language.
-    "#"
-  end
-
   def self.detect(_nil : Nil) : CodeLanguage
     CodeLanguage::NONE
   end
 
-  {% if flag?(:experimental) %}
-    def self.detect(resource : Path) : CodeLanguage
-      # FIXME: Replace this scafold with a real implementation in crystal-tree-sitter shard
-      #        Meanwhile just JSON and C for testing 😅️
-      lang = case resource.extension
-             when ".json" then "json"
-             when ".c"    then "c"
-             else
-               return CodeLanguage::NONE
-             end
-      CodeLanguage.new(lang)
-    end
-  {% end %}
+  def line_comment : String
+    @lang.try(&.metadata("line-comment-start")) || ""
+  end
+
+  def self.detect(file : Path) : CodeLanguage
+    lang_manager = GtkSource::LanguageManager.default
+    lang = lang_manager.guess_language(file.to_s, nil)
+    # FIXME: Remove this Ugly workaround
+    lang = lang_manager.language("docker") if lang.nil? && file.basename == "Dockerfile"
+
+    lang_id = lang ? lang.id : ""
+    CodeLanguage.new(lang_id, lang)
+  end
 end

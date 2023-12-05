@@ -18,8 +18,6 @@ dependencies:
   toml:
     github: crystal-community/toml.cr
     version: ~> 0.7.0
-  tree_sitter:
-    github: hugopl/crystal-tree-sitter
   vte:
     github: hugopl/vte.cr
 

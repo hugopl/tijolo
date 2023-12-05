@@ -1,5 +1,3 @@
-{% skip_file if flag?(:experimental) %}
-
 require "./spec_helper"
 
 describe CodeBuffer do

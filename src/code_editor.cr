@@ -1,286 +1,278 @@
+GICrystal.require("GtkSource", "5")
 require "./code_buffer"
-require "./code_cursor"
-require "./code_layout"
-require "./code_line_number_gutter"
-require "./code_snapshot"
-require "./code_theme"
 require "./code_language"
+require "./code_commenter"
+require "./init_source_view"
 
-# Current state of text widget: Far from done.
-#
-# All code here still a proof of concept, things are done just the enough to be able to advance to the next step and
-# check if I did the right choices. When I see that the things I want are possible with the current code then I stop and
-# fill the (many) missing bits.
-class CodeEditor < Gtk::Widget
-  include Gtk::Scrollable
+class CodeEditor < GtkSource::View
+  include CodeCommenter
 
-  MARGIN        = 4.0_f32
-  DOUBLE_MARGIN = 8.0_f32
-
-  @[GObject::Property]
-  property hadjustment : Gtk::Adjustment?
-  @[GObject::Property]
-  property vadjustment : Gtk::Adjustment?
-  @[GObject::Property]
-  getter vscroll_policy : Gtk::ScrollablePolicy
-  @[GObject::Property]
-  getter hscroll_policy : Gtk::ScrollablePolicy
-  @[GObject::Property]
-  getter buffer : CodeBuffer
-  @[GObject::Property]
-  property editable = true
+  @search_context : GtkSource::SearchContext
+  @search_settings : GtkSource::SearchSettings
+  @search_mark : Gtk::TextMark
 
   @[GObject::Property]
   property search_occurences : String = ""
-
-  # FIXME: Fix this bug in gi-crystal, property declared with property? macro doesn't compile
-  # @[GObject::Property]
-  property? draw_grid = true
   getter language : CodeLanguage
 
-  signal cursor_changed(line : Int32, col : Int32)
-
-  # Text rendering
-  @code_layout : CodeLayout
-  @code_gutters : Array(CodeGutter)
-  @code_gutters_width : Float32
-  @code_width : Float32
-  @line_height : Float32
-  @font_width : Float32
-
-  @cursors : CodeCursors
-
-  # Widget width/height
-  @width = 0_f32
-  @height = 0_f32
-
   def initialize(source : IO?, @language : CodeLanguage)
-    super(focusable: true, cursor: Gdk::Cursor.new_from_name("text", nil), css_name: "codeeditor")
+    super(css_name: "codeeditor",
+      show_line_numbers: true,
+      monospace: true,
+      auto_indent: true,
+      smart_backspace: true,
+      background_pattern: :grid,
+      smart_home_end: :before)
+    @search_settings = GtkSource::SearchSettings.new(wrap_around: true)
+    @search_context = GtkSource::SearchContext.new(source_buffer, @search_settings)
+    @search_mark = source_buffer.insert
+    @search_context.notify_signal["occurrences-count"].connect { update_label_occurrences }
 
-    @buffer = CodeBuffer.new(source, language)
-    pango_ctx = pango_context
+    key = Gtk::EventControllerKey.new(propagation_phase: :target)
+    key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
+    add_controller(key)
 
-    metric = pango_ctx.metrics(nil, nil)
-    @line_height = (metric.height / Pango::SCALE).ceil.to_f32
-    @font_width = (metric.approximate_char_width / Pango::SCALE).to_f32
-
-    @code_layout = CodeLayout.new(pango_ctx, @buffer)
-    @code_gutters = [CodeLineNumberGutter.new(pango_ctx)] of CodeGutter
-    @code_gutters_width = 0.0
-    @code_width = 0.0
-
-    @cursors = CodeCursors.new(@buffer)
-    @cursors.on_cursor_change do |line, col|
-      cursor_changed_signal.emit(line, col)
-      queue_draw
-    end
-
-    @vscroll_policy = @hscroll_policy = Gtk::ScrollablePolicy::Natural
-
-    im_context = Gtk::IMMulticontext.new
-    im_context.commit_signal.connect(&->commit_text(String))
-    key_controller = Gtk::EventControllerKey.new(propagation_phase: :target)
-    key_controller.im_context = im_context
-    add_controller(key_controller)
-    key_controller.key_pressed_signal.connect(&->key_pressed(UInt32, UInt32, Gdk::ModifierType))
-
-    gesture_controller = Gtk::GestureClick.new
-    gesture_controller.pressed_signal.connect(&->clicked(Int32, Float64, Float64))
-    add_controller(gesture_controller)
+    supress_source_view_key_bindings
+    setup(source)
   end
 
   def reload(source : IO)
-    Log.warn { "reload not implemented :-)" }
+    setup(source)
   end
 
-  def color_scheme=(scheme : Adw::ColorScheme)
-  end
-
-  def vadjustment=(vadjustment : Gtk::Adjustment?)
-    Log.error { "vadjustment for code editor double initiated, a gobject will leak." } unless @vadjustment.nil?
-    previous_def
-
-    # FIXME: Disconnect value_changed_signal from old @vadjustment
-    vadjustment.value_changed_signal.connect(&->queue_draw) if vadjustment
-  end
-
-  def cursor_line_col
-    cursor = @cursors.first
-    {cursor.line, cursor.column}
-  end
-
-  private def commit_text(text : String)
-    return unless @editable
-
-    @cursors.commit_text(text)
-    queue_draw
-  end
-
-  private def key_pressed(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
-    return false unless state.none?
-
-    case keyval
-    when Gdk::KEY_Up, Gdk::KEY_KP_Up                            then @cursors.move(:display_lines, -1)
-    when Gdk::KEY_Down, Gdk::KEY_KP_Down                        then @cursors.move(:display_lines, 1)
-    when Gdk::KEY_Right, Gdk::KEY_KP_Right                      then @cursors.move(:visual_positions, 1)
-    when Gdk::KEY_Left, Gdk::KEY_KP_Left                        then @cursors.move(:visual_positions, -1)
-    when Gdk::KEY_Home                                          then @cursors.move(:paragraph_ends, -1)
-    when Gdk::KEY_End                                           then @cursors.move(:paragraph_ends, 1)
-    when Gdk::KEY_Page_Up, Gdk::KEY_KP_Page_Up                  then @cursors.move(:display_lines, -page_size // 2)
-    when Gdk::KEY_Page_Down, Gdk::KEY_KP_Page_Down              then @cursors.move(:display_lines, page_size // 2)
-    when Gdk::KEY_Return, Gdk::KEY_ISO_Enter, Gdk::KEY_KP_Enter then commit_text("\n")
-    when Gdk::KEY_BackSpace                                     then @cursors.backspace
-    when Gdk::KEY_Delete, Gdk::KEY_KP_Delete                    then @cursors.delete_chars(1)
-    when Gdk::KEY_Tab, Gdk::KEY_KP_Tab, Gdk::KEY_ISO_Left_Tab
-      Log.error { "Tab insertion not implemented yet" }
-    else
-      return false
+  private def on_key_press(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
+    if keyval.in?(Gdk::KEY_bracketleft, Gdk::KEY_parenleft, Gdk::KEY_braceleft)
+      return insert_char_around_selection(keyval)
     end
+    false
+  end
 
-    queue_draw
+  def insert_char_around_selection(keyval : UInt32) : Bool
+    gsv_buffer = source_buffer
+    return false unless gsv_buffer.has_selection?
+
+    start_chr, end_chr = case (keyval)
+                         when Gdk::KEY_bracketleft then {"[", "]"}
+                         when Gdk::KEY_parenleft   then {"(", ")"}
+                         when Gdk::KEY_braceleft   then {"{", "}"}
+                         else
+                           return false
+                         end
+
+    start_iter, end_iter = gsv_buffer.selection_bounds
+    end_offset = end_iter.offset
+    gsv_buffer.user_action do
+      gsv_buffer.insert(start_iter, start_chr)
+      start_iter.offset = end_offset + 1
+      gsv_buffer.insert(start_iter, end_chr)
+      start_iter.backward_char
+      gsv_buffer.move_mark_by_name("selection_bound", start_iter)
+    end
     true
   end
 
-  private def clicked(n_press : Int32, x : Float64, y : Float64)
-    line, column = x_y_to_line_column(x, y)
-    @cursors.keep_just_one_cursor_at(line, column)
+  private def supress_source_view_key_bindings
+    sc_controller = Gtk::ShortcutController.new(propagation_phase: :capture)
+    action = Gtk::CallbackAction.new(->(w : Gtk::Widget, v : GLib::Variant?) { true })
+    # Remore shortcuts that clash with Tijolo shortcuts
+    # move-words, move-lines and move-viewport
+    trigger = Gtk::ShortcutTrigger.parse_string("<Alt>Up|<Alt>Right|<Alt>Down|<Alt>Left|<Alt><Shift>Up|<Alt><Shift>Down")
+    shortcut = Gtk::Shortcut.new(action: action, trigger: trigger)
+    sc_controller.add_shortcut(shortcut)
+    add_controller(sc_controller)
   end
 
-  private def x_y_to_line_column(x : Float64, y : Float64) : {Int32, Int32}
-    line = (y / @line_height).floor.to_i + line_offset
-    code_line = @code_layout[line]?
-
-    # Probably clicking bellow last line
-    return {line, 0} if code_line.nil?
-
-    byteindex = code_line.byte_at(x)
-    column = @buffer.line_byte_index_to_char_index(line, byteindex)
-    {line, column}
-  end
-
-  # Page size in lines
-  private def page_size : Int32
-    (@height / @line_height).to_i
-  end
-
-  @[GObject::Virtual]
-  def snapshot(snapshot : Gtk::Snapshot)
-    snapshot = CodeSnapshot.new(snapshot, @width, @height, @font_width, @line_height)
-    render_time = Time.measure do
-      snapshot.append_color(CodeTheme.instance.background_color, 0.0_f32, 0.0_f32, @width, @height)
-
-      render_code_gutters(snapshot)
-      render_grid(snapshot) if draw_grid?
-      render_current_line_background(snapshot)
-
-      snapshot.translate(MARGIN, 0.0_f32)
-      render_selections(snapshot)
-      render_text(snapshot)
-      render_cursors(snapshot)
+  private def setup(source)
+    gsv_buffer = source_buffer
+    gsv_buffer.text = source.gets_to_end if source
+    unless @language.none?
+      gsv_buffer.language = GtkSource::LanguageManager.default.language(@language.id)
     end
-    Log.notice { "render time: #{render_time}" }
+
+    self.color_scheme = Adw::StyleManager.default.color_scheme
+
+    iter = gsv_buffer.iter_at_offset(0)
+    gsv_buffer.place_cursor(iter)
   end
 
-  @[GObject::Virtual]
-  def size_allocate(width : Int32, height : Int32, baseline : Int32)
-    vadjustment = @vadjustment
-    return if vadjustment.nil?
-
-    @width = width.to_f32
-    @height = height.to_f32
-
-    upper = @buffer.line_count + page_size / 2
-    vadjustment.configure(line_offset.to_f64, 0.0, upper, 1.0, 0.0, page_size)
-  end
-
-  private def line_offset : Int32
-    vadjustment = @vadjustment
-    return 0 if vadjustment.nil?
-
-    vadjustment.value.to_i
-  end
-
-  private def render_code_gutters(snapshot : CodeSnapshot)
-    @code_gutters_width = 0.0
-    @code_gutters.each do |gutter|
-      gutter.render(snapshot, @buffer, line_offset)
-      @code_gutters_width += gutter.width
-      snapshot.translate(gutter.width, 0.0_f32)
-    end
-    @code_width = snapshot.viewport_width - @code_gutters_width - DOUBLE_MARGIN
-  end
-
-  private def render_grid(snapshot : CodeSnapshot)
-    grid_width = @code_width + DOUBLE_MARGIN
-    grid_height = @line_height / 2.0_f32
-    grid_color = CodeTheme.instance.grid_color
-
-    snapshot.save do
-      snapshot.push_repeat(0.0_f32, 0.0_f32, grid_width, @height, 0.0_f32, 0.0_f32, grid_width, grid_height)
-      snapshot.append_color(grid_color, 0.0_f32, 0.0_f32, grid_width, 1_f32)
-      snapshot.pop
-      snapshot.push_repeat(0.0_f32, 0.0_f32, grid_width, @height, 0.0_f32, 0.0_f32, grid_height, @height)
-      snapshot.append_color(grid_color, 0.0_f32, 0.0_f32, 1_f32, @height)
-      snapshot.pop
-    end
-  end
-
-  private def render_current_line_background(snapshot : CodeSnapshot)
-    color = CodeTheme.instance.current_line_color
-    @cursors.each do |cursor|
-      next unless @code_layout.line_visible?(cursor.line)
-
-      y_offset = snapshot.line_height * (cursor.line - line_offset)
-      snapshot.append_color(color, 0.0_f32, y_offset, @width, snapshot.line_height)
-    end
-  end
-
-  private def render_selections(snapshot : CodeSnapshot)
-  end
-
-  private def render_text(snapshot : CodeSnapshot)
-    snapshot.save do
-      @code_layout.render(snapshot, line_offset, @code_width)
-    end
-  end
-
-  private def render_cursors(snapshot : CodeSnapshot)
-    @cursors.each do |cursor|
-      next unless @code_layout.line_visible?(cursor.line)
-
-      layout = @code_layout.line_layout(cursor.line)
-      next if layout.nil?
-
-      y_offset = snapshot.line_height * (cursor.line - line_offset)
-      snapshot.translate(0.0_f32, y_offset)
-      snapshot.render_insertion_cursor(style_context, 0.0, 0.0, layout, cursor.column_byte_index, Pango::Direction::Ltr)
-      snapshot.translate(0.0_f32, -y_offset)
-    end
-  end
-
-  def search_changed(text : String)
-    Log.warn { "#{{{ @def.name.stringify }}} not implemented" }
-  end
-
-  def search_started
-    ""
-  end
-
-  {% for action in %w(goto_line
-                     comment_code
-                     move_lines_down move_lines_up
-                     move_viewport_line_up move_viewport_line_down
-                     move_viewport_page_up move_viewport_page_down
-                     search_changed
-                     search_next
-                     search_previous
-                     search_replace_started
-                     search_started
-                     search_stopped
-                     sort_lines
-                   ) %}
-  def {{ action.id }}(*args, **options)
-    Log.warn { {{ action + " not implemented" }} }
+  # For compatibility with non-gsv CodeEditor
+  {% for attr in %w(tab_width right_margin_position) %}
+  def {{ attr.id }}=(value : Int32)
+    self.{{ attr.id }} = value.to_u32
   end
   {% end %}
+
+  def buffer : CodeBuffer
+    buffer = super
+    CodeBuffer.new(GtkSource::Buffer.cast(buffer))
+  end
+
+  private def source_buffer : GtkSource::Buffer
+    buffer.buffer
+  end
+
+  def cursor_changed_signal
+    source_buffer.notify_signal["cursor-position"]
+  end
+
+  def cursor_line_col
+    buffer = self.buffer
+    return {0, 0} if buffer.nil?
+
+    iter = source_buffer.iter_at_offset(buffer.cursor_position)
+    {iter.line, iter.line_offset}
+  end
+
+  private def current_iter : Gtk::TextIter
+    buffer = source_buffer
+    pos = buffer.cursor_position
+    buffer.iter_at_offset(pos)
+  end
+
+  def sort_lines
+    buffer = source_buffer
+    start_iter, end_iter = buffer.selection_bounds
+    # TODO: Present a focused popup, so th euser can choose to
+    # - just sort
+    # - remove duplicates
+    # - reverse sort
+    # - case sensitiviness
+    buffer.sort_lines(start_iter, end_iter, :none, 0)
+  end
+
+  def goto_line(line : Int32, col : Int32)
+    buffer = source_buffer
+    iter = buffer.iter_at_line_offset(line, col)
+    buffer.place_cursor(iter)
+    scroll_to_iter(iter, 0.1, true, 0.0, 0.5)
+  end
+
+  def move_lines_up
+    move_lines_signal.emit(false)
+  end
+
+  def move_lines_down
+    move_lines_signal.emit(true)
+  end
+
+  def move_viewport_line_up
+    move_viewport_signal.emit(:steps, -1)
+  end
+
+  def move_viewport_line_down
+    move_viewport_signal.emit(:steps, 1)
+  end
+
+  def move_viewport_page_up
+    move_viewport_signal.emit(:pages, -1)
+  end
+
+  def move_viewport_page_down
+    move_viewport_signal.emit(:pages, 1)
+  end
+
+  def search_replace_started
+    Log.warn { "Not implemented yet" }
+  end
+
+  private def word_at_cursor : String
+    buffer = source_buffer
+    start_iter = buffer.iter_at_mark(buffer.insert)
+    return "" unless start_iter.inside_word
+
+    start_iter.backward_word_start unless start_iter.starts_word
+    end_iter = current_iter
+    end_iter.forward_word_end
+    buffer.select_range(start_iter, end_iter)
+    buffer.text(start_iter, end_iter, false)
+  end
+
+  def search_started : String
+    buffer = source_buffer
+    text = if buffer.has_selection?
+             buffer.text(*buffer.selection_bounds, false)
+           else
+             word_at_cursor
+           end
+    search_changed(text)
+    text
+  end
+
+  def search_changed(text : String) : Nil
+    text = GtkSource.utils_unescape_search_text(text)
+    @search_settings.search_text = text
+    @search_mark = source_buffer.insert
+  end
+
+  def search_next : Nil
+    buffer = source_buffer
+    search_iter = buffer.iter_at_mark(@search_mark)
+    search_iter.forward_char
+    valid, start_iter, end_iter = @search_context.forward(search_iter)
+    search_found(start_iter, end_iter) if valid
+    update_label_occurrences_async
+  end
+
+  def search_previous : Nil
+    buffer = source_buffer
+    search_iter = buffer.iter_at_mark(@search_mark)
+    valid, start_iter, end_iter = @search_context.backward(search_iter)
+    search_found(start_iter, end_iter) if valid
+    update_label_occurrences_async
+  end
+
+  private def search_found(start_iter, end_iter)
+    buffer = source_buffer
+    buffer.move_mark(@search_mark, end_iter)
+    buffer.select_range(start_iter, end_iter)
+    scroll_to_iter(end_iter, 0.2, false, 0.0, 0.5)
+  end
+
+  def search_stopped
+    @search_context.highlight = false
+  end
+
+  def update_label_occurrences_async
+    GLib.idle_add do
+      update_label_occurrences
+      false
+    end
+  end
+
+  private def update_label_occurrences
+    occurrences_count = @search_context.occurrences_count
+    select_start, select_end = source_buffer.selection_bounds
+    occurrence_pos = @search_context.occurrence_position(select_start, select_end)
+    text = if occurrences_count == -1
+             ""
+           elsif occurrence_pos == -1
+             "#{occurrences_count} occurrences"
+           else
+             "#{occurrence_pos} of #{occurrences_count}"
+           end
+    self.search_occurences = text
+  end
+
+  def setup_editor_preferences(path)
+    config = Config.instance
+    resource = self.resource
+    is_make_file = resource.try(&.basename) == "Makefile"
+
+    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
+    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
+    @editor.show_right_margin = config.editor_show_right_margin
+    @editor.right_margin_position = config.editor_right_margin_position
+    @editor.highlight_current_line = config.editor_highlight_current_line
+  end
+
+  def color_scheme=(scheme : Adw::ColorScheme)
+    gsv_buffer = source_buffer
+    style_manager = GtkSource::StyleSchemeManager.default
+
+    if scheme.force_dark?
+      gsv_buffer.style_scheme = style_manager.scheme("monokai")
+    else
+      gsv_buffer.style_scheme = style_manager.scheme("Adwaita")
+    end
+  end
 end

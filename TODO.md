@@ -2,25 +2,16 @@
 
 # Tijolo Tasks
 
-The rewrite isn't not just a plain GTK4 port but the implementation of the code widget with syntax highlighting, etc. So
-it can take some time to finish... I already started using Tijolo from HEAD to write Tijolo 0.8.0, however it
-is not something that I would recommend to any other developer meanwhile due to the lack of basic features.
+The re-write wasn't a simple rewrite, but the creation of GObject binding generator for Crystal and also the GTK4 bindings.
+I also started to write an code editor widget but it was too much work to my limited time to work on this.
 
-My original plan was to only release it with this new code widget ready, however this is too much work for the not much free
-time I have to work on this, so I put the project manager hat on and decided to get it working first with GtkSourceView5,
-then later replace GtkSourceView5 with my code widget, in the mean time it must compile with both widgets, this will force
-me to add few abstractions to not depend on GtkSourceView5 API.
+Tasks
 
-To compile it using the experimental/incomplete code widget use the `-Dexperimental` compiler flag.
-
-## Pre re-write tasks
+## Tasks before release 0.8.0
 
 - [x] Create a [binding generator for GTK4](https://github.com/hugopl/gi-crystal).
 - [x] Create a [GTK4 bidings](https://github.com/hugopl/gtk4.cr).
 - [x] Create bindings for [tree-sitter](https://tree-sitter.github.io/).
-
-## Tasks needed for a GtkSourceView5 based editor
-
 - [x] Create GtkSourceView5 (GSV) bindings.
 - [x] Add GSV to Tijolo and keep it compiling with both editor widgets (-Dexperimental).
 - [x] Remove default key bindings from GSV.
@@ -49,51 +40,13 @@ To compile it using the experimental/incomplete code widget use the `-Dexperimen
 - [ ] Add animations to view moves.
 - [ ] Git locator
 - [ ] Remove deprecated GTK stuff from Welcome widget.
-
-## Tasks needed for a code editor widget
-
-- [x] Draw editor background grid.
-- [x] Draw cursors.
-- [x] Move cursors.
-- [x] Implement Scrollable interface.
-- [x] Study tree-sitter.
-- [x] Handle text input (just really basic stuff to be able to test few things).
-- [x] Fix gi-crystal structs, so Pango can be used..
-- [x] Create a CodeLayout object to cache line render nodes
-- [x] Implement piecetable `#save`.
-- [x] Implement piecetable `#insert`.
-- [x] Implement piecetable `#delete`.
-- [x] Let piecetable line aware.
-- [ ] Implement piecetable `#line_col_to_pos`.
-- [ ] Implement piecetable `#pos_line_col`.
-- [ ] Implement piecetable `#line_size`.
-- [ ] Balance tree used on piecetable (redblack or splay tree 🤔️).
-- [ ] Publish piece table shard.
-- [ ] Use Piece Table shard in Tijolo.
-- [ ] Keep tree-sitter code model up to date with piece table buffer.
-- [ ] Use a splay tree with list behavior for code line cache of render nodes.
-- [ ] Fix Pango bindings for `Pango::AttrList` class and `Pango::Attribute`.
-- [ ] Render highlighted text with tree-sitter using `Pango::AttrList` instead of slow format strings.
-- [ ] Implement text (multiple) selection model.
-- [ ] Implement undo/redo for piece table.
-- [ ] Have tree-sitter highlight queries for Crystal.
-- [ ] Make cursors blink.
-- [ ] Hide mouse when typing.
-- [ ] Add [power mode](https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode) for fun.
-- [ ] Multiple cursors.
-- [ ] Render tree-sitter errors.
-- [ ] Support auto-completion
-- [ ] Let piece table inform modified lines.
-- [ ] Support custom editor gutter, so we can show a Kdevelop-like in-editor git blame.
-- [ ] Implement cursor position history.
-- [ ] Word wrap.
+- [ ] Save sessions.
 
 ## Other stuff that I must do, but isn't a priority
 
 - [ ] Add "Clone Repository" dialog.
 - [ ] Add "New Project" dialog.
 - [ ] Add settings dialog, or maybe just continue with the file based approach.
-- [ ] Save sessions.
 
 ## GI-Crystal improvements needed by Tijolo
 
