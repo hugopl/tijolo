@@ -163,6 +163,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                open:                    ->show_open_file_dialog,
                save:                    ->save_current_view,
                save_as:                 ->save_current_view_as,
+               reload:                  ->reload_current_view,
                maximize_view:           ->maximize_view,
                show_hide_sidebar:       ->{ @sidebar.show_sidebar = !@sidebar.show_sidebar? },
                copy_from_terminal:      ->copy_to_clipboard,
@@ -268,6 +269,12 @@ class ApplicationWindow < Adw::ApplicationWindow
       end
 
       dialog.show
+    end
+  end
+
+  private def reload_current_view
+    with_current_view do |view|
+      view.reload_contents if view.is_a?(DocumentView)
     end
   end
 

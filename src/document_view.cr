@@ -9,7 +9,6 @@ abstract class DocumentView < View
   @[GObject::Property]
   property externally_modified = false
 
-  @last_saved_at = Time.monotonic
   @resource_actions = [] of Gio::SimpleAction
 
   def initialize(contents : Gtk::Widget, resource : Path?, @project : Project?)
@@ -30,23 +29,17 @@ abstract class DocumentView < View
     copy_path_btn.add_css_class("flat")
     header_center_box.prepend(copy_path_btn)
 
-    if resource
-      monitor = Gio::File.new_for_path(resource.to_s).monitor_file(:none, nil)
-      monitor.changed_signal.connect(->on_file_changed(Gio::File, Gio::File, Gio::FileMonitorEvent))
-    end
     setup_actions
   end
 
   def save : Nil
     return if readonly?
 
-    @last_saved_at = Time.monotonic
     do_save
     self.externally_modified = false
   end
 
   def reload_contents
-    @last_saved_at = Time.monotonic
     do_reload_contents
     self.externally_modified = false
   end
@@ -86,30 +79,6 @@ abstract class DocumentView < View
     menu.append_item(Gio::MenuItem.new("Copy relative path", "view.copy_relative_path"))
     menu.append_item(Gio::MenuItem.new("Copy relative path and line", "view.copy_relative_path_and_line"))
     menu
-  end
-
-  private def on_file_changed(file : Gio::File, other_file : Gio::File, event_type : Gio::FileMonitorEvent)
-    case event_type
-    when .renamed?
-      self.resource = other_file.path
-    when .deleted?
-      self.externally_modified = true
-    when .changed?
-      # The SO may send multiple change events for a single file save operation, so we just ignore file changes in the
-      # next 1 second after a save operation.
-      if Time.monotonic - @last_saved_at < 1.seconds
-        return
-      elsif @modified
-        self.externally_modified = true
-      else
-        reload_contents
-      end
-    when .attribute_changed?
-      path = file.path
-      @readonly = File.readable?(path) if path
-    else
-      return
-    end
   end
 
   private def update_title
