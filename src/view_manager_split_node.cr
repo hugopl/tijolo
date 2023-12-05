@@ -8,6 +8,18 @@ class ViewManagerSplitNode < ViewManagerNode
 
   delegate index, to: @children
 
+  def child_count : Int32
+    @children.size
+  end
+
+  def child(pos : Int32)
+    @children[pos]
+  end
+
+  def child_index(node : ViewManagerNode) : Int32
+    @children.index(node) || raise ArgumentError.new("Bad child.")
+  end
+
   def add_child(position : SplitPosition, node : ViewManagerNode)
     node.parent = self
     if position.start?
@@ -28,6 +40,10 @@ class ViewManagerSplitNode < ViewManagerNode
     if @children.empty?
       @parent.try(&.remove_child(self))
     end
+  end
+
+  def first_view_node : ViewManagerViewNode
+    @children.first.first_view_node
   end
 
   def find_node?(view : View) : ViewManagerViewNode?
@@ -66,12 +82,24 @@ class ViewManagerSplitNode < ViewManagerNode
     {current_view_x, current_view_y}
   end
 
-  def dump_tree(io : IO)
+  def color_scheme=(scheme : Adw::ColorScheme) : Nil
+    @children.each(&.color_scheme=(scheme))
+  end
+
+  def dump_dot(io : IO)
     io << '"' << self << "\" [label=\"" << orientation << "\" shape=box]\n"
 
     @children.each do |child|
-      child.dump_tree(io)
+      child.dump_dot(io)
       io << '"' << self << "\" -> \"" << child << "\"\n"
     end
+  end
+
+  def dump(io : IO, current_node : ViewManagerNode? = nil)
+    io << @orientation << '{'
+    @children.each do |child|
+      child.dump(io, current_node)
+    end
+    io << '}'
   end
 end

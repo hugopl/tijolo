@@ -5,27 +5,26 @@ require "./view_manager_view_node"
 require "./view_manager_split_node"
 require "./view_place_holder"
 require "./view_switcher"
+require "./view_iterator"
 require "./focus_glow"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/view_manager.ui", children: %w())]
 class ViewManager < Gtk::Widget
   include Gtk::WidgetTemplate
   include Gio::ListModel
-  # List of view in Ctrl+Tab menu
-  @views = [] of View
-  getter maximized_view : View?
-
-  # Current selected view in Ctrl+Tab menu
-  @[GObject::Property]
-  property selected = 0
 
   private getter! root : ViewManagerNode?
+  getter current_node : ViewManagerViewNode?
+  getter views_count : Int32 = 0
+  getter maximized_view : View?
+
   getter place_holder = ViewPlaceHolder.new
   getter focus_glow = FocusGlow.new
   getter glow_view : View?
   getter view_switcher = ViewSwitcher.new
 
   @layout = ViewManagerLayout.new
+  @ordered_view_nodes = [] of ViewManagerViewNode
 
   def initialize
     super(css_name: "view_manager")
@@ -35,15 +34,23 @@ class ViewManager < Gtk::Widget
     @focus_glow.parent = self
     self.layout_manager = @layout
 
-    bind_property("selected", @view_switcher.selection_model, "selected", :default)
     setup_actions
   end
 
-  delegate empty?, to: @views
-  delegate any?, to: @views
+  def empty?
+    @views_count.zero?
+  end
+
+  def any?
+    @views_count > 0
+  end
 
   def root?
     @root
+  end
+
+  def views
+    ViewIterator.new(@root)
   end
 
   # This exists only for debug, will be removed at some time
@@ -54,7 +61,7 @@ class ViewManager < Gtk::Widget
   private def setup_actions
     group = Gio::SimpleActionGroup.new
     {% for direction in %w(top right bottom left) %}
-      {% for action in %w(split_ focus_) %}
+      {% for action in %w(move_ focus_) %}
       action = Gio::SimpleAction.new({{ action + direction }}, nil)
       action.activate_signal.connect { {{ (action + direction).id }} }
       group.add_action(action)
@@ -78,7 +85,7 @@ class ViewManager < Gtk::Widget
   end
 
   def maximize_view(view : View)
-    return if @views.size < 2
+    return if @views_count < 2
     return if unmaximize
 
     root = @root
@@ -111,56 +118,36 @@ class ViewManager < Gtk::Widget
     return unless view.is_a?(View)
     return if rotating_views?
 
-    idx = @views.index(view)
-    if idx
-      @views.swap(0, idx)
-      reset_model_because_I_am_lazy
-    end
-  end
-
-  private def current_node? : ViewManagerNode?
-    return if @views.empty?
-    root = @root
-    return if root.nil?
-
-    view = current_view
-    raise TijoloError.new("current_view empty with a root node!?") if view.nil?
-
-    node = root.find_node(view)
-    raise TijoloError.new("Failed to find current node for view #{view}") if node.nil?
-    node
-  end
-
-  def current_node! : ViewManagerNode
-    current_node?.not_nil!
+    @current_node = @root.try(&.find_node(view))
   end
 
   def add_view(view : View) : Nil
     @place_holder.visible = false
     view.insert_before(self, @view_switcher)
 
-    node = current_node?
+    node = @current_node
     if node.nil?
-      @root = ViewManagerViewNode.new(view)
+      @current_node = @root = ViewManagerViewNode.new(view)
     else
       node.add_view(view)
     end
-    @views.unshift(view)
-    items_changed(0, 0, 1)
-    focus_view(view)
+    @views_count += 1
+    show_view(view, reorder: false, focus: true)
   end
 
   {% for dir in %w(top right bottom left) %}
-  private def move_{{ dir.id }} : Bool
+  def move_{{ dir.id }} : Bool
     return false if unmaximize
 
-    current_node = current_node?
+    current_node = @current_node
     return false if current_node.nil?
+    return split_{{ dir.id }}(current_node) if current_node.enough_views_to_split?
 
     node = find_{{ dir.id }}
     if node && node != current_node
       view = current_node.remove_visible_view
       node.add_view(view)
+      show_node(node, focus: true)
       glow_view(view)
       return true
     end
@@ -173,36 +160,35 @@ class ViewManager < Gtk::Widget
     node = find_{{ dir.id }}
     if node
       view = node.visible_view
-      focus_view(view)
+      show_view(view, reorder: true, focus: true)
       glow_view(view)
     end
   end
   {% end %}
 
-  private def split_top
-    move_top || split(:start, :vertical)
+  private def split_top(node)
+    split(node, :start, :vertical)
   end
 
-  private def split_right
-    move_right || split(:end, :horizontal)
+  private def split_right(node)
+    split(node, :end, :horizontal)
   end
 
-  private def split_bottom
-    move_bottom || split(:end, :vertical)
+  private def split_bottom(node)
+    split(node, :end, :vertical)
   end
 
-  private def split_left
-    move_left || split(:start, :horizontal)
+  private def split_left(node)
+    split(node, :start, :horizontal)
   end
 
-  private def split(position : ViewManagerSplitNode::SplitPosition,
+  private def split(node : ViewManagerViewNode, position : ViewManagerSplitNode::SplitPosition,
                     orientation : ViewManagerSplitNode::SplitOrientation) : Bool
-    node = current_node?
-    return false if node.nil? || !node.enough_views_to_split?
-
     replace_root = (node == @root)
     new_node = node.split(position, orientation)
     @root = node.parent if replace_root
+
+    show_node(new_node, focus: true)
     glow_view(new_node.visible_view)
     true
   end
@@ -239,7 +225,7 @@ class ViewManager < Gtk::Widget
     root = @root
     return unless root.is_a?(ViewManagerSplitNode)
 
-    current_node = current_node!
+    current_node = @current_node.not_nil!
     min_distance = Int32::MAX
     node_found : ViewManagerViewNode? = nil
     root.each_view_node do |view_node|
@@ -254,30 +240,40 @@ class ViewManager < Gtk::Widget
   end
 
   def find_view_by_resource(resource : Path) : View?
-    @views.find do |view|
+    root = @root
+    return if root.nil?
+
+    views.each.find do |view|
       view.is_a?(DocumentView) && view.resource == resource
     end
   end
 
-  def find_view_by_id(id)
-    @views.find { |view| view.object_id == id }
-  end
-
   private def current_view : View
-    @views.first
+    current_view?.not_nil!
   end
 
   def current_view? : View?
-    @views.first?
+    @current_node.try(&.visible_view)
   end
 
-  def focus_view(view : View)
+  def show_node(node : ViewManagerViewNode, focus : Bool)
+    node.show_view(node.visible_view, reorder: false)
+    if focus
+      node.visible_view.grab_focus
+      @current_node = node
+    end
+  end
+
+  def show_view(view : View, *, reorder : Bool, focus : Bool)
     root = @root
     return if root.nil?
 
     node = root.find_node(view)
-    node.show_view(view)
-    view.grab_focus
+    node.show_view(view, reorder)
+    if focus
+      view.grab_focus
+      @current_node = node if reorder
+    end
   end
 
   def glow_view(view : View)
@@ -286,115 +282,119 @@ class ViewManager < Gtk::Widget
   end
 
   def rotate_views(reverse : Bool) : Nil
-    views_count = @views.size
-    return if views_count < 2
+    return if @views_count < 2
 
-    new_selected = @selected
-
-    new_selected = 0 if !rotating_views?
-    @view_switcher.visible = true
-
-    new_selected += reverse ? -1 : 1
-    max_index = views_count - 1
-    if new_selected < 0
-      new_selected = max_index
-    elsif new_selected > max_index
-      new_selected = 0
+    if !rotating_views?
+      reorder_and_reset_model
+      @view_switcher.visible = true
+      @view_switcher.reset
     end
-    self.selected = new_selected
-    view = @views[new_selected]
-    focus_view(view)
-    glow_view(view)
+
+    @view_switcher.rotate(reverse)
+    show_view(@view_switcher.selected_view, reorder: false, focus: false)
   end
 
   def stop_rotate : Nil
     return unless rotating_views?
 
     @view_switcher.visible = false
-    if @views.size > 1
-      @views.unshift(@views.delete_at(@selected))
-      @views.first.grab_focus
-      reset_model_because_I_am_lazy
-    end
+    show_view(@view_switcher.selected_view, reorder: true, focus: true)
   end
 
-  private def reset_model_because_I_am_lazy
-    items_changed(0, @views.size, @views.size)
+  private def reorder_and_reset_model
+    root = @root
+    return if root.nil?
+
+    old_size = @ordered_view_nodes.size
+    @ordered_view_nodes.clear
+    root.each_view_node do |node|
+      @ordered_view_nodes << node
+    end
+    @ordered_view_nodes.sort! { |a, b| b.last_used <=> a.last_used }
+
+    items_changed(0, old_size, @ordered_view_nodes.size)
   end
 
   private def rotating_views? : Bool
-    @views.size > 1 && @view_switcher.visible?
+    @views_count > 1 && @view_switcher.visible?
   end
 
   def remove_current_view
-    node = current_node?
+    node = @current_node
     return if node.nil?
 
     unmaximize
 
     view = node.remove_visible_view
-    removed_view_index = @views.index(view)
-    if removed_view_index
-      @views.delete_at(removed_view_index)
-      items_changed(removed_view_index.to_u32, 1_u32, 0_u32)
-    else
-      raise IndexError.new
-    end
-
     view.disconnect_signals
     view.unparent
 
-    if @views.empty?
+    @views_count -= 1
+
+    if @views_count.zero?
       @place_holder.visible = true
       @root = nil
     elsif node.views_count > 0
       # Keep user on same node
-      focus_view(node.visible_view)
+      show_node(node, focus: true)
     else
-      # fallback to last used view
-      focus_view(@views.first)
+      # fallback to any node
+      # TODO: focus last used node instead of anyone
+      show_node(root.first_view_node, focus: true)
     end
   end
 
   def remove_all_views
-    @views.each do |view|
-      view.disconnect_signals
-      view.unparent
+    while @views_count > 0
+      remove_current_view
     end
-    old_views_size = @views.size
-    @views.clear
-    items_changed(0, old_views_size, 0)
-
-    @root = nil
-    @place_holder.visible = true
   end
 
   def modified_views : Array(View)
-    @views.select do |view|
-      view.is_a?(DocumentView) && view.modified?
-    end
-  end
-
-  private def save_png(suffix = nil)
-    @root.try(&.save_png(suffix))
+    # FIXME: Let this return an Iterator
+    # @views.select do |view|
+    #  view.is_a?(DocumentView) && view.modified?
+    # end
+    [] of View
   end
 
   @[GObject::Virtual]
   def get_n_items : UInt32
-    @views.size.to_u32
+    @ordered_view_nodes.size.to_u32
   end
 
   @[GObject::Virtual]
   def get_item(pos : UInt32) : GObject::Object?
-    @views[pos]?
+    @ordered_view_nodes[pos]?
   end
 
   @[GObject::Virtual]
   def get_item_type : UInt64
-    View.g_type
+    ViewManagerViewNode.g_type
   end
 
   def color_scheme=(scheme : Adw::ColorScheme)
-    @views.each(&.color_scheme=(scheme))
+    root = @root
+    root.color_scheme = scheme if root
   end
+
+  {% unless flag?(:release) %}
+    def save_png(suffix = nil)
+      @root.try(&.save_png(suffix))
+    end
+
+    def dump : String
+      @root.try(&.dump(@current_node)) || "∅"
+    end
+
+    # This need to be called on tests to force a relayout, btu only on tests!! Since GTK does that
+    # for us when the application is running.
+    def relayout(width = 1000, height = 1000)
+      @layout.allocate(self, width, height, -1)
+    end
+
+    def current_view=(view : View)
+      show_view(view, reorder: true, focus: true)
+    end
+  {% end %}
 end

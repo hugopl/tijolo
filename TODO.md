@@ -34,7 +34,7 @@ Tasks
 - [x] Create better color themes.
 - [x] Remove trailing whitespaces on save.
 - [x] Maximinize view
-- [ ] Polish view split code.
+- [x] Polish view split code.
 - [ ] Increase/Decrease font size
 - [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
 - [ ] Add animations to view moves.

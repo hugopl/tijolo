@@ -1,6 +1,6 @@
 class ViewSwitcher < Adw::Bin
   @list_view : Gtk::ListView
-  getter selection_model : Gtk::SingleSelection
+  @selection_model : Gtk::SingleSelection
 
   def initialize
     super(css_name: "view_switcher", visible: false)
@@ -16,7 +16,30 @@ class ViewSwitcher < Adw::Bin
   end
 
   def model=(model : Gio::ListModel)
-    @selection_model.model = model
+    flat_model = Gtk::FlattenListModel.new(model)
+    @selection_model.model = flat_model
+  end
+
+  def reset
+    @selection_model.selected = 0
+  end
+
+  def rotate(reverse : Bool)
+    n_items = @selection_model.n_items
+    return if n_items.zero?
+
+    max_pos = n_items - 1
+    pos = @selection_model.selected
+    if reverse
+      pos = pos.zero? ? max_pos : pos - 1
+    else
+      pos = pos == max_pos ? 0 : pos + 1
+    end
+    @selection_model.selected = pos.to_u32
+  end
+
+  def selected_view
+    @selection_model.selected_item.as(View)
   end
 
   private def setup_item(obj : GObject::Object) : Nil

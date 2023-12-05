@@ -58,11 +58,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     {% end %}
   end
 
-  delegate focus_upper_split, to: view_manager
-  delegate focus_right_split, to: view_manager
-  delegate focus_lower_split, to: view_manager
-  delegate focus_left_split, to: view_manager
-
   private def bind_settings(settings : Gio::Settings)
     settings.bind("window-width", self, "default-width", :default)
     settings.bind("window-height", self, "default-height", :default)
@@ -352,7 +347,7 @@ class ApplicationWindow < Adw::ApplicationWindow
       view = ViewFactory.build(resource, @project)
       view_manager.add_view(view)
     else
-      view_manager.focus_view(view)
+      view_manager.show_view(view, reorder: true, focus: true)
     end
   rescue e : IO::Error
     application.error(e)

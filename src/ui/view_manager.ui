@@ -12,25 +12,25 @@
         <child>
           <object class='GtkShortcut'>
             <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Up</property>
-            <property name='action'>action(view.split_top)</property>
+            <property name='action'>action(view.move_top)</property>
           </object>
         </child>
         <child>
           <object class='GtkShortcut'>
             <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Right</property>
-            <property name='action'>action(view.split_right)</property>
+            <property name='action'>action(view.move_right)</property>
           </object>
         </child>
         <child>
           <object class='GtkShortcut'>
             <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Down</property>
-            <property name='action'>action(view.split_bottom)</property>
+            <property name='action'>action(view.move_bottom)</property>
           </object>
         </child>
         <child>
           <object class='GtkShortcut'>
             <property name='trigger'>&lt;Alt&gt;&lt;Shift&gt;Left</property>
-            <property name='action'>action(view.split_left)</property>
+            <property name='action'>action(view.move_left)</property>
           </object>
         </child>
 

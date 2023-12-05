@@ -12,9 +12,13 @@
   end
 {% end %}
 
-require "libadwaita"
 require "log"
 
+macro not_implemented!
+  Log.warn { {{ "#{@type.name}.#{@def.name} method not implemented!" }} }
+end
+
+require "libadwaita"
 require "./application"
 require "./monkey_patches"
 

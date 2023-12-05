@@ -1,36 +1,40 @@
 class ViewManagerViewNode < ViewManagerNode
-  @views = [] of View
   getter x : Int32 = 0
   getter y : Int32 = 0
   getter width : Int32 = 0
   getter height : Int32 = 0
   getter visible_view : View
 
-  def initialize(@visible_view : View)
+  @views = [] of View
+  getter last_used : Time::Span
+
+  def initialize(view : View)
     super()
-    @views << @visible_view
+    @visible_view = view
+    @last_used = Time.monotonic
+    add_view(view)
   end
 
   def add_view(view : View)
-    @views.each(&.visible=(false))
-    @views << view
-    @visible_view = view
+    @views.unshift(view)
+    items_changed(0, 0, 1)
+    set_visible_view(view)
+    @last_used = Time.monotonic
   end
 
   def remove_view(view : View) : View
-    removed_view = @visible_view
-    removed_view_idx = @views.index(removed_view)
+    removed_view_idx = @views.index(view)
     raise ArgumentError.new("Tried to remove a unexisting view") if removed_view_idx.nil?
 
-    @views.delete(removed_view)
+    @views.delete(view)
+    items_changed(removed_view_idx, 1, 0)
     if @views.empty?
       @parent.try(&.remove_child(self))
-    else
-      @visible_view = @views.first
-      @visible_view.visible = true
+    elsif view == @visible_view
+      show_view(@views.first, true)
     end
 
-    removed_view
+    view
   end
 
   def remove_visible_view : View
@@ -68,15 +72,35 @@ class ViewManagerViewNode < ViewManagerNode
     @views.size
   end
 
+  def view(pos) : View
+    @views[pos]
+  end
+
   def enough_views_to_split? : Bool
     @views.size > 1
+  end
+
+  def first_view_node : ViewManagerViewNode
+    self
   end
 
   def find_node?(view : View) : ViewManagerViewNode?
     return self if @views.includes?(view)
   end
 
-  def show_view(view : View)
+  def show_view(view : View, reorder : Bool) : Nil
+    set_visible_view(view)
+    return unless reorder
+
+    @last_used = Time.monotonic
+    view_index = @views.index(view)
+    if view_index
+      @views.unshift(@views.delete_at(view_index))
+      items_changed(0, view_index + 1, view_index + 1)
+    end
+  end
+
+  private def set_visible_view(view)
     old_view = @visible_view
     old_view.visible = false if old_view
     view.visible = true
@@ -88,9 +112,35 @@ class ViewManagerViewNode < ViewManagerNode
     @visible_view == selected_view ? {x, y} : {-1, -1}
   end
 
-  def dump_tree(io : IO)
+  @[GObject::Virtual]
+  def get_n_items : UInt32
+    @views.size.to_u32
+  end
+
+  @[GObject::Virtual]
+  def get_item(pos : UInt32) : GObject::Object?
+    @views[pos]?
+  end
+
+  @[GObject::Virtual]
+  def get_item_type : UInt64
+    View.g_type
+  end
+
+  def color_scheme=(scheme : Adw::ColorScheme) : Nil
+    @views.each(&.color_scheme=(scheme))
+  end
+
+  def dump_dot(io : IO)
     io << '"' << self << "\" [label=\""
     @views.map(&.label).join(io, "\n")
     io << "\" shape=box3d]\n"
+  end
+
+  def dump(io : IO, current_node : ViewManagerNode? = nil)
+    io << '*' if current_node == self
+    io << '('
+    @views.map(&.label).join(io, ", ")
+    io << ')'
   end
 end

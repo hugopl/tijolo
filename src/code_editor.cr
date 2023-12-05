@@ -172,7 +172,7 @@ class CodeEditor < GtkSource::View
   end
 
   def search_replace_started
-    Log.warn { "Not implemented yet" }
+    not_implemented!
   end
 
   private def word_at_cursor : String
