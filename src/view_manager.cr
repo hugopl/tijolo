@@ -333,7 +333,7 @@ class ViewManager < Gtk::Widget
 
     if @views_count.zero?
       @place_holder.visible = true
-      @root = nil
+      @current_node = @root = nil
     elsif node.views_count > 0
       # Keep user on same node
       show_node(node, focus: true)
