@@ -2,66 +2,85 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
 
-  <template class="Locator" parent="AdwWindow">
+  <template class="Locator" parent="GtkPopover">
     <property name="name">locator</property>
-    <property name="width-request">450</property>
-    <property name="modal">1</property>
-    <property name="hide-on-close">1</property>
-    <property name="destroy-with-parent">1</property>
     <property name="halign">center</property>
     <property name="valign">center</property>
+    <property name="width-request">500</property>
+    <property name="height-request">400</property>
+
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="margin-top">12</property>
-        <property name="margin-bottom">12</property>
-        <property name="margin-start">12</property>
-        <property name="margin-end">12</property>
         <child>
-          <object class="GtkLabel">
-            <property name="label">Type a file name or a command letter plus space.</property>
-            <property name="margin-bottom">12</property>
-            <style>
-              <class name="heading" />
-            </style>
-          </object>
-        </child>
-        <child>
-          <object class="GtkSearchEntry" id="locator_entry">
+          <object class="GtkSearchEntry" id="entry">
             <property name="valign">center</property>
             <property name="focusable">1</property>
+            <property name="placeholder-text">Type a file name or a command letter plus space.</property>
             <property name="search-delay">0</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
           </object>
         </child>
         <child>
-          <object class="GtkViewport">
-            <property name="height-request">300</property>
-            <property name="width-request">450</property>
+          <object class="GtkScrolledWindow">
+            <property name="vexpand">1</property>
             <property name="child">
-              <object class="GtkScrolledWindow">
-                <property name="focusable">1</property>
-                <property name="child">
-                  <object class="GtkTreeView" id="locator_results">
-                    <property name="headers-visible">0</property>
-                    <property name="enable-search">0</property>
-                    <property name="show-expanders">0</property>
-                    <property name="activate-on-single-click">1</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection">
-                        <property name="mode">browse</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn">
-                        <property name="sizing">fixed</property>
-                        <child>
-                          <object class="GtkCellRendererText"/>
-                          <attributes>
-                            <attribute name="markup">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
+              <object class="GtkListView" id="results_view">
+                <style><class name="navigation-sidebar" /></style>
+                <property name="factory">
+                  <object class="GtkBuilderListItemFactory">
+                    <property name="bytes"><![CDATA[
+                      <interface>
+                          <template class="GtkListItem">
+                            <property name="child">
+                              <object class="GtkBox">
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="margin-end">6</property>
+                                    <property name="icon-size">large</property>
+                                    <binding name="icon-name">
+                                      <lookup name="icon_name" type="LocatorItem">
+                                        <lookup name="item">GtkListItem</lookup>
+                                      </lookup>
+                                    </binding>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="xalign">0</property>
+                                        <property name="ellipsize">1</property>
+                                        <binding name="label">
+                                          <lookup name="name" type="LocatorItem">
+                                            <lookup name="item">GtkListItem</lookup>
+                                          </lookup>
+                                        </binding>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="xalign">0</property>
+                                        <property name="ellipsize">1</property>
+                                        <binding name="label">
+                                          <lookup name="description" type="LocatorItem">
+                                            <lookup name="item">GtkListItem</lookup>
+                                          </lookup>
+                                        </binding>
+                                        <style><class name="dim-label"/><class name="caption"/></style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </property>
+                          </template>
+                        </interface>
+                    ]]></property>
                   </object>
                 </property>
               </object>

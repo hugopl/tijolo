@@ -1,20 +1,22 @@
 class LineLocator < LocatorProvider
   @line : Int32 = 0
   @col : Int32 = 0
+  @text : String = ""
 
-  DEFAULT_TEXT = "Type the line number and column separated by \":\""
+  DEFAULT_TEXT = "Type the line number and column separated by anything"
 
   def initialize
     super
-    @model.append({LABEL_COLUMN}, {DEFAULT_TEXT})
   end
 
-  def activate(locator, index) : Bool
+  def activate(locator : Locator, pos : UInt32) : Bool
     return false if @line <= 0
-
+    line = @line - 1
     col = @col - 1
     col = 0 if col < 0
-    locator.goto_line_signal.emit(@line - 1, col)
+
+    # FIXME: Change this to a tuple when GICrystal support tuples in GVariants
+    locator.activate_action("win.goto_line", "#{line}:#{col}")
     true
   end
 
@@ -30,18 +32,25 @@ class LineLocator < LocatorProvider
     "Line in Current Document"
   end
 
-  def search_changed(search_text : String) : Nil
-    line_col = search_text.split(":")
-    @line = line_col[0]?.try(&.to_i?) || 0
-    @col = line_col[1]?.try(&.to_i?) || 0
+  def search_changed(search_text : String) : Int32
+    match = search_text.match(/[^\d]*(\d+)(?:[^\d]+(\d+))?/)
+    if match.nil?
+      @col = @line = -1
+      @text = DEFAULT_TEXT
+    else
+      @line = match[1].to_i
+      @col = match[2]?.try(&.to_i) || -1
+      @text = String.build do |str|
+        str << "Go to line #{@line}"
+        str << ", column #{@col}" if @col >= 0
+      end
+    end
+    1
+  end
 
-    text = if @line > 0 && @col > 0
-             "Line #{@line}, Column #{@col}"
-           elsif @line > 0
-             "Line #{@line}"
-           else
-             DEFAULT_TEXT
-           end
-    @model.set(0, {LABEL_COLUMN}, {text})
+  def bind(item : LocatorItem, _pos : Int32) : Nil
+    item.name = @text
+    item.description = ""
+    item.icon_name = "edit-find-symbolic"
   end
 end

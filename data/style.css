@@ -1,12 +1,6 @@
-/* TODO: Repalce this by a listview */
-#locator treeview {
-  background-color: inherit;
-}
-
-#locator treeview:selected {
-  background-color: @accent_bg_color;
+#locator listview row:selected {
   color: @accent_fg_color;
-  border-radius: 3px;
+  background-color: @accent_bg_color;
 }
 
 view_manager {

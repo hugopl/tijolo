@@ -3,9 +3,6 @@ require "./project"
 
 class FileLocator < FuzzyLocator
   def initialize(@project : Project)
-    place_holder = @project.valid? ? "Waiting project load to finish..." : "There's no project open."
-    super(place_holder)
-
     @project.files_changed_signal.connect do
       update_haystack(Fzy::PreparedHaystack.new(@project.files.map(&.to_s)))
     end
@@ -19,8 +16,16 @@ class FileLocator < FuzzyLocator
     "" # not used, this is the default locator provider.
   end
 
-  def activate(locator : Locator, match : Fzy::Match)
+  def activate(locator : Locator, match : Fzy::Match) : Bool
     file = match.value
-    locator.open_file_signal.emit(@project.root.join(file).to_s)
+    locator.activate_action("win.open_file", @project.root.join(file).to_s)
+    true
+  end
+
+  def bind(item : LocatorItem, pos : Int32) : Nil
+    match = self.match(pos)
+    item.name = match.value
+    item.description = "Open file"
+    item.icon_name = "text-x-generic-symbolic"
   end
 end

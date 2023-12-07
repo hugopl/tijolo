@@ -29,4 +29,3 @@ def init_gtk_source_view
   setup_language_manager_paths(usr_path)
   setup_style_scheme_manager_paths(usr_path)
 end
-

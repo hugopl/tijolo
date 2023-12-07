@@ -30,10 +30,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     @locator = Locator.new(@project)
 
     self.application = application
-    @locator.open_file_signal.connect(->open(String))
-    @locator.goto_line_signal.connect(->goto_line(Int32, Int32))
-    @locator.transient_for = self
-    @locator.application = application
 
     primary_menu = Gtk::MenuButton.cast(template_child("primary_menu"))
     popover_primary_menu = Gtk::PopoverMenu.cast(primary_menu.popover.not_nil!)
@@ -93,6 +89,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar.show_sidebar = true
     @sidebar.content.as?(WelcomeWidget).try(&.disconnect_all_signals)
     @sidebar.content = @view_manager = view_manager = ViewManager.new
+    @locator.parent = title
+    @locator.set_offset(0, 100)
     @sidebar.sidebar = Sidebar.new(@project.root)
 
     @project.scan_files(on_finish: ->project_load_finished)
@@ -111,7 +109,10 @@ class ApplicationWindow < Adw::ApplicationWindow
   @[GObject::Virtual]
   def close_request : Bool
     views = @view_manager.try(&.modified_views)
-    return false if views.nil? || views.empty?
+    if views.nil? || views.empty?
+      @locator.unparent # locator is child of Adw::WindowTitle 😅️, so we need to unparent before quit to avoid a warning
+      return false
+    end
 
     dlg = SaveModifiedViewsDialog.new(self, views)
     dlg.present do
@@ -150,7 +151,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     app = application.not_nil!
     config = Config.instance
     actions = {show_locator:            ->show_locator,
-               goto_line:               ->show_goto_line_locator,
                close_view:              ->close_current_view,
                close_all_views:         ->close_all_views,
                new_file:                ->new_file,
@@ -188,8 +188,17 @@ class ApplicationWindow < Adw::ApplicationWindow
     action.activate_signal.connect { with_current_view(&.grab_focus) }
     add_action(action)
 
-    action = Gio::SimpleAction.new_stateful("open_file", GLib::VariantType.new("s"), "HEAD")
+    action = Gio::SimpleAction.new("open_file", GLib::VariantType.new("s"))
     action.activate_signal.connect(->open(GLib::Variant))
+    add_action(action)
+
+    action = Gio::SimpleAction.new("show_goto", nil)
+    action.activate_signal.connect { show_goto_line_locator }
+    add_action(action)
+    app.set_accels_for_action("win.show_goto", {config.shortcuts["goto_line"]})
+
+    action = Gio::SimpleAction.new("goto_line", GLib::VariantType.new("s"))
+    action.activate_signal.connect(->goto_line(GLib::Variant))
     add_action(action)
 
     action = Gio::SimpleAction.new_stateful("change_git_branch", GLib::VariantType.new("s"), "HEAD")
@@ -354,25 +363,31 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def show_locator
-    return if @locator.nil? || @view_manager.nil?
+    return if @view_manager.nil?
 
-    locator.show(select_text: true, view: view_manager.current_view?)
+    @locator.show(select_text: true, view: view_manager.current_view?)
   end
 
   private def show_goto_line_locator
-    return if @locator.nil? || @view_manager.nil?
+    return if @view_manager.nil?
 
     with_current_view do |view|
       if view.is_a?(DocumentView)
-        locator.text = "l "
-        locator.show(select_text: false, view: view)
+        @locator.text = "l "
+        @locator.show(select_text: false, view: view)
       end
     end
+  end
+
+  private def goto_line(variant : GLib::Variant?)
+    line, col = variant.as_s.split(":")
+    goto_line(line.to_i, col.to_i)
   end
 
   private def goto_line(line : Int32, col : Int32)
     with_current_view do |view|
       view.goto_line(line, col) if view.is_a?(DocumentView)
+      view.grab_focus
     end
   end
 
