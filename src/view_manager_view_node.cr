@@ -127,10 +127,6 @@ class ViewManagerViewNode < ViewManagerNode
     View.g_type
   end
 
-  def color_scheme=(scheme : Adw::ColorScheme) : Nil
-    @views.each(&.color_scheme=(scheme))
-  end
-
   def dump_dot(io : IO)
     io << '"' << self << "\" [label=\""
     @views.map(&.label).join(io, "\n")

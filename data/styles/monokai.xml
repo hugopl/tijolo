@@ -32,7 +32,6 @@
   <!-- Search Matching -->
   <style name="search-match"                underline-color="yellow" underline="double"/>
 
-
   <!-- Bracket Matching -->
   <style name="bracket-match"               bold="true" underline-color="green" underline="low"/>
   <style name="bracket-mismatch"            bold="true" underline-color="red" underline="low"/>
@@ -51,7 +50,7 @@
   <style name="def:special-constant"        foreground="magenta"/>
 
   <!-- Identifiers -->
-  <style name="def:identifier"              foreground="orange" italit="true" />
+  <style name="def:identifier"              foreground="orange" italic="true" />
 
   <!-- Statements -->
   <style name="def:statement"               foreground="orange"/>

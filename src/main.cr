@@ -28,6 +28,7 @@ require "./monkey_patches"
 Gio.register_resource("data/resources.xml", source_dir: "data")
 
 begin
+  init_gtk_source_view
   app = Application.new
   code = app.run
   Log.info { "Tijolo quiting with exit code #{code}." }

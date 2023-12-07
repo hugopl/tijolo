@@ -17,7 +17,7 @@ focusglow {
   border: 1px solid @accent_bg_color;
 }
 
-view {
+view .view-header {
   background-color: @window_bg_color;
 }
 
@@ -35,7 +35,7 @@ view_switcher listview {
   padding: 6px;
 }
 
-codeeditor {
+textview {
   font: 10pt "JetBrainsMono Nerd Font";
 }
 

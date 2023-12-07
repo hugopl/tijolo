@@ -82,10 +82,6 @@ class ViewManagerSplitNode < ViewManagerNode
     {current_view_x, current_view_y}
   end
 
-  def color_scheme=(scheme : Adw::ColorScheme) : Nil
-    @children.each(&.color_scheme=(scheme))
-  end
-
   def dump_dot(io : IO)
     io << '"' << self << "\" [label=\"" << orientation << "\" shape=box]\n"
 

@@ -8,7 +8,6 @@ LICENSE = {{ run("./macros/license.cr").stringify }}
 class Application < Adw::Application
   @windows = [] of ApplicationWindow
   getter settings : Gio::Settings
-  @system_color_scheme : Adw::ColorScheme
 
   @icon_path_setup_done = false
 
@@ -21,7 +20,6 @@ class Application < Adw::Application
 
     @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
     style_manager = Adw::StyleManager.default
-    @system_color_scheme = style_manager.color_scheme
     @settings.changed_signal["style-variant"].connect(->theme_changed(String))
     theme_changed
 
@@ -75,7 +73,7 @@ class Application < Adw::Application
                    when "light" then Adw::ColorScheme::ForceLight
                    when "dark"  then Adw::ColorScheme::ForceDark
                    else
-                     @system_color_scheme
+                     Adw::ColorScheme::PreferLight
                    end
     style_manager.color_scheme = color_scheme
     @windows.each do |window|

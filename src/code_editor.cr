@@ -16,8 +16,7 @@ class CodeEditor < GtkSource::View
   getter language : CodeLanguage
 
   def initialize(source : IO?, @language : CodeLanguage)
-    super(css_name: "codeeditor",
-      show_line_numbers: true,
+    super(show_line_numbers: true,
       monospace: true,
       auto_indent: true,
       smart_backspace: true,

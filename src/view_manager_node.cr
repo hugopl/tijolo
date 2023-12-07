@@ -27,7 +27,6 @@ abstract class ViewManagerNode < GObject::Object
   abstract def size_allocate(x : Int32, y : Int32, width : Int32, height : Int32, selected_view : View?) : {Int32, Int32}
   # FIXME: Replace this by a ViewNodeIterator
   abstract def each_view_node(&block : Proc(ViewManagerViewNode, Nil)) : Nil
-  abstract def color_scheme=(scheme : Adw::ColorScheme) : Nil
 
   def save_png(suffix = nil) : Nil
     File.open("/tmp/tree#{suffix}.dot", "w") do |io|

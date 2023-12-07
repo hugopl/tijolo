@@ -374,8 +374,9 @@ class ViewManager < Gtk::Widget
   end
 
   def color_scheme=(scheme : Adw::ColorScheme)
-    root = @root
-    root.color_scheme = scheme if root
+    views.each do |view|
+      view.color_scheme = scheme
+    end
   end
 
   {% unless flag?(:release) %}
