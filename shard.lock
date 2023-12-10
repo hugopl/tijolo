@@ -6,11 +6,7 @@ shards:
 
   gi-crystal:
     git: https://github.com/hugopl/gi-crystal.git
-    version: 0.20.1
-
-  gio:
-    git: https://github.com/hugopl/gio.cr.git
-    version: 0.2.2
+    version: 0.21.0
 
   gtk4:
     git: https://github.com/hugopl/gtk4.cr.git
@@ -26,7 +22,7 @@ shards:
 
   pango:
     git: https://github.com/hugopl/pango.cr.git
-    version: 0.3.0
+    version: 0.3.1
 
   toml:
     git: https://github.com/crystal-community/toml.cr.git
