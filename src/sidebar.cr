@@ -5,7 +5,10 @@ class Sidebar < Adw::Bin
   def initialize(project_root : Path)
     super()
 
-    @model = Gtk::DirectoryList.new(attributes: Gio::FILE_ATTRIBUTE_STANDARD_SYMBOLIC_ICON,
+    attrs = "#{Gio::FILE_ATTRIBUTE_STANDARD_NAME}," \
+            "#{Gio::FILE_ATTRIBUTE_STANDARD_SYMBOLIC_ICON}," \
+            "#{Gio::FILE_ATTRIBUTE_STANDARD_SORT_ORDER}"
+    @model = Gtk::DirectoryList.new(attributes: attrs,
       file: Gio::File.new_for_path(project_root.to_s),
       monitored: true)
     @list_view.model = Gtk::SingleSelection.new(@model)
