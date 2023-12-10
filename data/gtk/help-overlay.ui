@@ -30,13 +30,13 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Save</property>
-                <property name="action-name">win.save_view</property>
+                <property name="action-name">win.save</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Save As</property>
-                <property name="action-name">win.save_view_as</property>
+                <property name="action-name">win.save_as</property>
               </object>
             </child>
             <child>
@@ -47,8 +47,8 @@
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Browse to open document</property>
-                <property name="action-name">win.open_file</property>
+                <property name="title" translatable="yes" context="shortcut window">Open out of project document</property>
+                <property name="action-name">win.open</property>
               </object>
             </child>
           </object>
