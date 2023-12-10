@@ -5,10 +5,6 @@ class LineLocator < LocatorProvider
 
   DEFAULT_TEXT = "Type the line number and column separated by anything"
 
-  def initialize
-    super
-  end
-
   def activate(locator : Locator, pos : UInt32) : Bool
     return false if @line <= 0
     line = @line - 1
@@ -18,10 +14,6 @@ class LineLocator < LocatorProvider
     # FIXME: Change this to a tuple when GICrystal support tuples in GVariants
     locator.activate_action("win.goto_line", "#{line}:#{col}")
     true
-  end
-
-  def results_size : Int32
-    1
   end
 
   def shortcut : Char
