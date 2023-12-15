@@ -15,6 +15,7 @@ class ViewManager < Gtk::Widget
 
   private getter! root : ViewManagerNode?
   getter current_node : ViewManagerViewNode?
+  getter? current_view : View?
   getter views_count : Int32 = 0
   getter maximized_view : View?
 
@@ -118,7 +119,7 @@ class ViewManager < Gtk::Widget
     return unless view.is_a?(View)
     return if rotating_views?
 
-    @current_node = @root.try(&.find_node(view))
+    set_current_node(@root.try(&.find_node(view)))
   end
 
   def add_view(view : View) : Nil
@@ -127,7 +128,8 @@ class ViewManager < Gtk::Widget
 
     node = @current_node
     if node.nil?
-      @current_node = @root = ViewManagerViewNode.new(view)
+      @root = root = ViewManagerViewNode.new(view)
+      set_current_node(root)
     else
       node.add_view(view)
     end
@@ -252,15 +254,11 @@ class ViewManager < Gtk::Widget
     current_view?.not_nil!
   end
 
-  def current_view? : View?
-    @current_node.try(&.visible_view)
-  end
-
   def show_node(node : ViewManagerViewNode, focus : Bool)
     node.show_view(node.visible_view, reorder: false)
     if focus
       node.visible_view.grab_focus
-      @current_node = node
+      set_current_node(node)
     end
   end
 
@@ -272,8 +270,24 @@ class ViewManager < Gtk::Widget
     node.show_view(view, reorder)
     if focus
       view.grab_focus
-      @current_node = node if reorder
+      set_current_node(node) if reorder
     end
+  end
+
+  def on_view_changed(&@on_view_changed : Proc(View?, Nil))
+  end
+
+  private def set_current_node(node : ViewManagerViewNode?)
+    @current_node = node
+
+    on_view_changed = @on_view_changed
+    return if on_view_changed.nil?
+
+    new_view = node.visible_view if node
+    return if @current_view == new_view
+
+    @current_view = new_view
+    on_view_changed.call(new_view)
   end
 
   def glow_view(view : View)
@@ -333,7 +347,8 @@ class ViewManager < Gtk::Widget
 
     if @views_count.zero?
       @place_holder.visible = true
-      @current_node = @root = nil
+      @root = nil
+      set_current_node(nil)
     elsif node.views_count > 0
       # Keep user on same node
       show_node(node, focus: true)

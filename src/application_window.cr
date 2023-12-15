@@ -91,10 +91,14 @@ class ApplicationWindow < Adw::ApplicationWindow
     @sidebar.content = @view_manager = view_manager = ViewManager.new
     @locator.parent = title
     @locator.set_offset(0, 100)
-    @sidebar.sidebar = Sidebar.new(@project.root)
+    @sidebar.sidebar = sidebar = Sidebar.new(@project.root.to_s)
 
     @project.scan_files(on_finish: ->project_load_finished)
 
+    # FIXME: Replace this once User objects work in signals.
+    view_manager.on_view_changed do |view|
+      sidebar.view_changed(view)
+    end
     notify_signal["focus-widget"].connect { view_manager.focus_changed }
   end
 
