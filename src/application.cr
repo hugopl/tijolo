@@ -40,6 +40,10 @@ class Application < Adw::Application
     action.activate_signal.connect { show_about_dlg }
     add_action(action)
 
+    action = Gio::SimpleAction.new("open_project", GLib::VariantType.new("s"))
+    action.activate_signal.connect(->open_project(GLib::Variant?))
+    add_action(action)
+
     action = Gio::SimpleAction.new("activate", nil)
     action.activate_signal.connect { activate }
     add_action(action)
@@ -81,6 +85,18 @@ class Application < Adw::Application
     end
   end
 
+  private def open_project(project_path : GLib::Variant?)
+    return if project_path.nil?
+
+    path = Path.new(project_path.as_s)
+    if Project.valid?(path)
+      create_project_window(Project.new(path))
+    else
+      # FIXME: Tell this to the user.
+      Log.error { "Invalid project: #{path}" }
+    end
+  end
+
   def open(files : Enumerable(Gio::File), _hint : String)
     setup_icon_path
 
@@ -103,6 +119,7 @@ class Application < Adw::Application
   end
 
   private def create_project_window(project : Project) : ApplicationWindow
+    Log.info { "Opening project #{project.root}." }
     window = ApplicationWindow.new(self, project)
     window.present
     window

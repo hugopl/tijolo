@@ -30,6 +30,26 @@ module RCData
       ::Project.name_from_path(@path)
     end
 
+    def humanized_last_used : String
+      last_used = @last_used
+      return "" if last_used.nil?
+
+      ago = Time.local - last_used
+      if ago.total_weeks > 1.0
+        "#{ago.total_weeks.to_i} weeks ago"
+      elsif ago.days > 1
+        "#{ago.days} days ago"
+      elsif ago.hours > 1
+        "#{ago.hours} hours ago"
+      elsif ago.minutes > 1
+        "#{ago.minutes} minutes ago"
+      elsif ago.seconds > 1
+        "#{ago.seconds} seconds ago"
+      else
+        "just now"
+      end
+    end
+
     def <=>(other)
       if @last_used == other.last_used
         name_sort = name <=> other.name
@@ -157,8 +177,6 @@ class TijoloRC
   end
 
   def save
-    # FIXME: This should load the file and save only the differences to avoid override values written by another
-    # Tijolo instance.
     path = TijoloRC.path
     Log.info { "Saving runtime config to #{path}" }
     if !File.exists?(path)

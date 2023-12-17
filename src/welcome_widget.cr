@@ -1,30 +1,51 @@
 require "fzy"
 require "./tijolo_rc"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/welcome_widget.ui", children: %w(projects_model rescan_btn search_entry spinner tree_view))]
+private class WelcomeProject < GObject::Object
+  @[GObject::Property]
+  getter name : String = ""
+  @[GObject::Property]
+  getter path : String = ""
+  @[GObject::Property]
+  getter last_used : String = ""
+
+  getter full_path : String
+
+  def initialize(project : RCData::Project)
+    super()
+    @name = project.name
+    @full_path = project.path.to_s
+    @last_used = "<i>#{project.humanized_last_used}</i>"
+
+    home = Path.home
+    relative_path = project.path.relative_to(home).to_s
+    @path = relative_path.starts_with?(".") ? project.path.to_s : "~/#{relative_path}"
+  end
+end
+
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/welcome_widget.ui", children: %w(rescan_btn search_entry spinner listview))]
 class WelcomeWidget < Gtk::Box
   include Gtk::WidgetTemplate
+  include Gio::ListModel
 
-  getter entry : Gtk::SearchEntry
-  @projects_model : Gtk::ListStore
-  @rescan_btn : Gtk::Button
-  @projects_view : Gtk::TreeView
-  @haystack : Fzy::PreparedHaystack?
-  @available_projects = Array(RCData::Project).new
-  private getter project_results_cursor = 0
   private getter? scanning_projects = false
+  getter entry : Gtk::SearchEntry
+
+  @list_view : Gtk::ListView
+  @rescan_btn : Gtk::Button
   @spinner : Gtk::Spinner
+
+  @haystack : Fzy::PreparedHaystack?
+  @fzy_results = [] of Fzy::Match
+  @available_projects = [] of WelcomeProject
+  @selection_model : Gtk::SingleSelection
 
   @signal_connections = [] of GObject::SignalConnection
 
   def initialize
-    super()
+    super(css_name: "welcome")
 
     @spinner = Gtk::Spinner.cast(template_child("spinner"))
-    @projects_model = Gtk::ListStore.cast(template_child("projects_model"))
-
-    @projects_view = Gtk::TreeView.cast(template_child("tree_view"))
-    @signal_connections << @projects_view.row_activated_signal.connect(&->project_activated(Gtk::TreePath, Gtk::TreeViewColumn?))
 
     @entry = Gtk::SearchEntry.cast(template_child("search_entry"))
     @signal_connections << @entry.activate_signal.connect(&->entry_activated)
@@ -35,6 +56,12 @@ class WelcomeWidget < Gtk::Box
 
     @rescan_btn = Gtk::Button.cast(template_child("rescan_btn"))
     @signal_connections << @rescan_btn.clicked_signal.connect(&->scan_projects)
+
+    @selection_model = Gtk::SingleSelection.new
+    @list_view = Gtk::ListView.cast(template_child("listview"))
+    @signal_connections << @list_view.activate_signal.connect(->row_activated(UInt32))
+    @selection_model.model = self
+    @list_view.model = @selection_model
 
     if TijoloRC.instance.scan_projects?
       scan_projects
@@ -49,9 +76,15 @@ class WelcomeWidget < Gtk::Box
 
   private def entry_key_pressed(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
     if keyval == Gdk::KEY_Up
-      self.project_results_cursor -= 1
+      selected = @selection_model.selected
+      return false if selected.zero?
+
+      @selection_model.selected = selected - 1
     elsif keyval == Gdk::KEY_Down
-      self.project_results_cursor += 1 if @projects_model.iter_n_children(nil) >= 2
+      return true if @fzy_results.size < 2 # First item is already selected...
+
+      selected = @selection_model.selected + 1
+      @selection_model.selected = selected if selected < @fzy_results.size
     elsif keyval == Gdk::KEY_F5 # This should be a GTK action, but who cares...
       scan_projects
     else
@@ -61,62 +94,19 @@ class WelcomeWidget < Gtk::Box
   end
 
   private def entry_activated : Nil
-    return if @projects_model.iter_n_children(nil).zero?
-
-    iter = @projects_view.selection.selected
-    open_project(@projects_model.value(iter, 1).as_s)
+    row_activated(@selection_model.selected)
   end
 
   private def entry_text_changed(_param : GObject::ParamSpec? = nil)
     haystack = @haystack
     return if haystack.nil? || haystack.empty?
 
-    @projects_model.clear
-    results = Fzy.search(@entry.text, haystack)
+    old_size = @fzy_results.size
+    @fzy_results = Fzy.search(@entry.text, haystack)
+    items_changed(0, old_size, @fzy_results.size)
 
-    results.each do |match|
-      project = @available_projects[match.index]
-      iter = @projects_model.append
-      @projects_model.set(iter, {0, 1}, {markup(project), project.path.to_s})
-    end
-    self.project_results_cursor = 0
-  end
-
-  def project_results_cursor=(row : Int32)
-    row = row.clamp(0, @projects_model.iter_n_children(nil) - 1)
-    @project_results_cursor = row
-
-    @projects_view.set_cursor(row)
-  end
-
-  private def markup(project : RCData::Project) : String
-    home = Path.home.to_s
-
-    project_path = project.path.to_s
-    project_path_label = project_path.starts_with?(home) ? project_path.sub(home, "~") : project_path
-    last_used = format_last_used(project)
-    "<b>#{project.name}</b>\n<i><small>#{project_path_label}#{last_used}</small></i>"
-  end
-
-  private def format_last_used(project) : String
-    last_used = project.last_used
-    return "" if last_used.nil?
-
-    ago = Time.local - last_used
-    ago_str = if ago.total_weeks > 1.0
-                "#{ago.total_weeks.to_i} weeks ago"
-              elsif ago.days > 1
-                "#{ago.days} days ago"
-              elsif ago.hours > 1
-                "#{ago.hours} hours ago"
-              elsif ago.minutes > 1
-                "#{ago.minutes} minutes ago"
-              elsif ago.seconds > 1
-                "#{ago.seconds} seconds ago"
-              else
-                "just now"
-              end
-    " - opened #{ago_str}."
+    @selection_model.selected = 0
+    @list_view.scroll_to(0, :select, nil)
   end
 
   private def scan_projects : Nil
@@ -124,7 +114,6 @@ class WelcomeWidget < Gtk::Box
 
     @scanning_projects = true
     @rescan_btn.sensitive = false
-    @projects_view.sensitive = false
     @spinner.visible = true
     Thread.new do
       rc = TijoloRC.instance
@@ -144,29 +133,43 @@ class WelcomeWidget < Gtk::Box
   end
 
   private def scan_projects_finished : Bool
-    @projects_model.clear
-    @available_projects = TijoloRC.instance.projects
-    @haystack = Fzy::PreparedHaystack.new(@available_projects.map(&.path.to_s))
+    projects = TijoloRC.instance.projects
+    @available_projects = projects.map { |project| WelcomeProject.new(project) }
+    @haystack = Fzy::PreparedHaystack.new(projects.map(&.path.to_s))
+
     entry_text_changed
 
     @rescan_btn.sensitive = true
-    @projects_view.sensitive = true
     @spinner.visible = false
     @entry.grab_focus
     @scanning_projects = false
 
-    inform_about_lack_of_projects if @available_projects.empty?
+    inform_about_lack_of_projects if projects.empty?
     false
   end
 
-  private def project_activated(path, _column) : Nil
-    open_project(@projects_view.value(path, 1).as_s)
+  private def row_activated(pos : UInt32) : Nil
+    match = @fzy_results[pos]
+    project_path = @available_projects[match.index].full_path
+    activate_action("app.open_project", project_path)
   end
 
-  delegate open_project, to: window
+  @[GObject::Virtual]
+  def get_n_items : UInt32
+    @fzy_results.size.to_u32
+  end
 
-  private def window : ApplicationWindow
-    ApplicationWindow.cast(root.not_nil!)
+  @[GObject::Virtual]
+  def get_item(pos : UInt32) : GObject::Object?
+    return if pos >= @fzy_results.size
+
+    match = @fzy_results[pos]
+    @available_projects[match.index]
+  end
+
+  @[GObject::Virtual]
+  def get_item_type : UInt64
+    WelcomeProject.g_type
   end
 
   private def inform_about_lack_of_projects
@@ -175,7 +178,7 @@ class WelcomeWidget < Gtk::Box
               "Create a git project somewhere and ask Tijolo to rescan projects."
     dialog = Gtk::MessageDialog.ok(message_type: :info,
       text: "No Git projects were found", secondary_text: message,
-      secondary_use_markup: true, transient_for: window) do
+      secondary_use_markup: true, transient_for: ApplicationWindow.cast(root.not_nil!)) do
     end
   end
 end

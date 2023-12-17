@@ -3,14 +3,6 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.0"/>
 
-
-  <object class="GtkListStore" id="projects_model">
-    <columns>
-      <column type="gchararray"/>
-      <column type="gchararray"/>
-    </columns>
-  </object>
-
   <template class="WelcomeWidget" parent="GtkBox">
     <property name="name">welcome-window</property>
     <property name="orientation">vertical</property>
@@ -40,6 +32,10 @@
                 <child>
                   <object class="GtkSearchEntry" id="search_entry">
                     <property name="hexpand">1</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
                 <child>
@@ -58,29 +54,70 @@
                         <property name="margin-bottom">40</property>
                         <property name="vexpand">1</property>
                         <property name="child">
-                          <object class="GtkTreeView" id="tree_view">
-                            <property name="can-focus">0</property>
-                            <property name="model">projects_model</property>
-                            <property name="headers-visible">0</property>
-                            <property name="enable-search">0</property>
-                            <property name="search-column">0</property>
-                            <property name="show-expanders">0</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection">
-                                <property name="mode">browse</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn">
-                                <property name="title" translatable="1">Existing Projects</property>
+                          <object class="GtkListView" id="listview">
+                            <style><class name="navigation-sidebar" /></style>
+
+                <property name="factory">
+                  <object class="GtkBuilderListItemFactory">
+                    <property name="bytes"><![CDATA[
+                      <interface>
+                          <template class="GtkListItem">
+                            <property name="child">
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="margin-top">3</property>
+                                <property name="margin-bottom">3</property>
                                 <child>
-                                  <object class="GtkCellRendererText"/>
-                                  <attributes>
-                                    <attribute name="markup">0</attribute>
-                                  </attributes>
+                                  <object class="GtkBox">
+                                    <property name="hexpand">1</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="xalign">0</property>
+                                        <property name="ellipsize">1</property>
+                                        <binding name="label">
+                                          <lookup name="name" type="WelcomeProject">
+                                            <lookup name="item">GtkListItem</lookup>
+                                          </lookup>
+                                        </binding>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="xalign">0</property>
+                                        <property name="halign">end</property>
+                                        <property name="use-markup">1</property>
+                                        <property name="hexpand">1</property>
+                                        <binding name="label">
+                                          <lookup name="last_used" type="WelcomeProject">
+                                            <lookup name="item">GtkListItem</lookup>
+                                          </lookup>
+                                        </binding>
+                                        <style><class name="dim-label"/><class name="caption"/></style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="xalign">0</property>
+                                    <property name="ellipsize">1</property>
+                                    <binding name="label">
+                                      <lookup name="path" type="WelcomeProject">
+                                        <lookup name="item">GtkListItem</lookup>
+                                      </lookup>
+                                    </binding>
+                                    <style><class name="dim-label"/><class name="caption"/></style>
+                                  </object>
                                 </child>
                               </object>
-                            </child>
+                            </property>
+                          </template>
+                        </interface>
+                    ]]></property>
+                  </object>
+                </property>
+
+
                           </object>
                         </property>
                       </object>

@@ -1,4 +1,4 @@
-#locator listview row:selected {
+welcome listview row:selected, #locator listview row:selected {
   color: @accent_fg_color;
   background-color: @accent_bg_color;
 }
