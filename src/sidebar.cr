@@ -10,7 +10,7 @@ class Sidebar < Adw::Bin
   def initialize(@project_root : String)
     super()
 
-    @selection_model = Gtk::SingleSelection.new
+    @selection_model = Gtk::NoSelection.new
     change_model(project_root.to_s)
     list_view = Gtk::ListView.new(model: @selection_model)
     factory = Gtk::SignalListItemFactory.new
