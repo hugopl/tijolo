@@ -1,7 +1,7 @@
 class Sidebar < Adw::Bin
   @project_root : String
   @dir_models = Hash(String, Gtk::DirectoryList).new
-  @selection_model : Gtk::SingleSelection
+  @selection_model : Gtk::NoSelection
 
   private DIR_MODEL_ATTRS = "#{Gio::FILE_ATTRIBUTE_STANDARD_NAME}," \
                             "#{Gio::FILE_ATTRIBUTE_STANDARD_SYMBOLIC_ICON}," \
