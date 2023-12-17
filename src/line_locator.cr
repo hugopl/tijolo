@@ -40,7 +40,7 @@ class LineLocator < LocatorProvider
     1
   end
 
-  def bind(item : LocatorItem, _pos : Int32) : Nil
+  def bind(item : LocatorItem, pos : Int32) : Nil
     item.name = @text
     item.description = ""
     item.icon_name = "edit-find-symbolic"
