@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0-alpha] - 2023-12-18
+### Changed
+ Everything, this is a rewrite using new GTK4 bindings I wrote (0.7.x uses GTK3 and other bindings).
+
+ So the UI changed a bit and is now using libAdwaita, some new features added and some old features
+ were not yet ported. So you will probably suffer to use it now unless you are the guy that wrote it.
+
+### Added
+ - You can move views from/to different stacks.
+
+### Known issues
+ - Current find/replace feature is horrible.
+ - Git locator (used to git blame, git log, etc) not yet ported.
+ - LSP support not yet ported.
+ - It doesn't warn you about file external modifications.
+ - Increase/decrease editor font size not yet ported.
+
 ## [0.7.1] - 2022-01-24
 ### Fixed
  - Explicit destroy GTK windows to reduce the memory leak mess.
