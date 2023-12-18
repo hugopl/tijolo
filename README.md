@@ -9,11 +9,19 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 ## Project status
 
-Current stable (pre-alpha) version is 0.7.x, I'm rewriting all this using new [GTK4 bindings](https://github.com/hugopl/gtk4.cr)
-and [LibAdwaita](https://github.com/GeopJr/libadwaita.cr), the re-write isn't done yet but if you want to check the old version check some v0.7.x tag.
+Basic stuff still missing, use it at your own risk 🔥️.
 
-The [TODO](./TODO.md) works like a roadmap and also list things I'm working on, it can give you a better idea of the project
-status.
+- [ ] Build locator (Ctrl+B) build os targets no shards.yml.
+- [ ] Reintroduce LSP support.
+- [ ] Add animations to view moves.
+- [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
+- [ ] Git locator
+- [ ] Increase/Decrease font size
+- [ ] Remove deprecated GTK stuff from Welcome widget.
+- [ ] Save sessions.
+- [ ] Add "Clone Repository" dialog.
+- [ ] Add "New Project" dialog.
+- [ ] Add settings dialog, or maybe just continue with the file based approach.
 
 ## How it looks like?
 
