@@ -120,6 +120,7 @@ class Application < Adw::Application
 
   private def create_project_window(project : Project) : ApplicationWindow
     Log.info { "Opening project #{project.root}." }
+    TijoloRC.instance.touch_project(project.root)
     window = ApplicationWindow.new(self, project)
     window.present
     window
