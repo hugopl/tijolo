@@ -7,12 +7,6 @@ require "./init_source_view"
 class CodeEditor < GtkSource::View
   include CodeCommenter
 
-  @search_context : GtkSource::SearchContext
-  @search_settings : GtkSource::SearchSettings
-  @search_mark : Gtk::TextMark
-
-  @[GObject::Property]
-  property search_occurences : String = ""
   getter language : CodeLanguage
 
   def initialize(source : IO?, @language : CodeLanguage)
@@ -23,11 +17,6 @@ class CodeEditor < GtkSource::View
       background_pattern: :grid,
       smart_home_end: :before,
       buffer: CodeBuffer.new)
-    @search_settings = GtkSource::SearchSettings.new(wrap_around: true)
-    @search_context = GtkSource::SearchContext.new(buffer, @search_settings)
-    @search_mark = buffer.insert
-    @search_context.notify_signal["occurrences-count"].connect { update_label_occurrences }
-
     key = Gtk::EventControllerKey.new(propagation_phase: :target)
     key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key)
@@ -102,7 +91,7 @@ class CodeEditor < GtkSource::View
   {% end %}
 
   def buffer : CodeBuffer
-    super.as?(CodeBuffer).not_nil!
+    super.as(CodeBuffer)
   end
 
   def cursor_changed_signal
@@ -131,7 +120,15 @@ class CodeEditor < GtkSource::View
 
   def goto_line(line : Int32, col : Int32)
     iter = buffer.iter_at_line_offset(line, col)
+    goto(iter)
+  end
+
+  def goto(iter)
     buffer.place_cursor(iter)
+    scroll_to_iter(iter)
+  end
+
+  def scroll_to_iter(iter)
     scroll_to_iter(iter, 0.1, true, 0.0, 0.5)
   end
 
@@ -170,62 +167,25 @@ class CodeEditor < GtkSource::View
     buffer.text(start_iter, end_iter, false)
   end
 
-  def search_started : String
+  def selection_or_word_at_cursor : String
     text = if buffer.has_selection?
              buffer.text(*buffer.selection_bounds, false)
            else
              word_at_cursor
            end
-    search_changed(text)
     text
   end
 
-  def search_changed(text : String) : Nil
-    text = GtkSource.utils_unescape_search_text(text)
-    @search_settings.search_text = text
-    @search_mark = buffer.insert
-  end
+  def setup_editor_preferences(path)
+    config = Config.instance
+    resource = self.resource
+    is_make_file = resource.try(&.basename) == "Makefile"
 
-  def search_next : Nil
-    search_iter = buffer.iter_at_mark(@search_mark)
-    search_iter.forward_char
-    valid, start_iter, end_iter = @search_context.forward(search_iter)
-    search_found(start_iter, end_iter) if valid
-    update_label_occurrences_async
-  end
-
-  def search_previous : Nil
-    search_iter = buffer.iter_at_mark(@search_mark)
-    valid, start_iter, end_iter = @search_context.backward(search_iter)
-    search_found(start_iter, end_iter) if valid
-    update_label_occurrences_async
-  end
-
-  private def search_found(start_iter, end_iter)
-    buffer.move_mark(@search_mark, end_iter)
-    buffer.select_range(start_iter, end_iter)
-    scroll_to_iter(end_iter, 0.2, false, 0.0, 0.5)
-  end
-
-  def update_label_occurrences_async
-    GLib.idle_add do
-      update_label_occurrences
-      false
-    end
-  end
-
-  private def update_label_occurrences
-    occurrences_count = @search_context.occurrences_count
-    select_start, select_end = buffer.selection_bounds
-    occurrence_pos = @search_context.occurrence_position(select_start, select_end)
-    text = if occurrences_count == -1
-             ""
-           elsif occurrence_pos == -1
-             "#{occurrences_count} occurrences"
-           else
-             "#{occurrence_pos} of #{occurrences_count}"
-           end
-    self.search_occurences = text
+    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
+    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
+    @editor.show_right_margin = config.editor_show_right_margin
+    @editor.right_margin_position = config.editor_right_margin_position
+    @editor.highlight_current_line = config.editor_highlight_current_line
   end
 
   def color_scheme=(scheme : Adw::ColorScheme)

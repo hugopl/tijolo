@@ -3,5 +3,7 @@
   <gresource prefix="/io/github/hugopl/Tijolo">
     <file>style.css</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
+    <file preprocess="xml-stripblanks">icons/hicolor/scalable/actions/tijolo-regex-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/hicolor/scalable/actions/tijolo-case-sensitive-symbolic.svg</file>
   </gresource>
 </gresources>

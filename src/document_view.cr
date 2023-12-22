@@ -28,8 +28,6 @@ abstract class DocumentView < View
       menu_model: copy_path_menu_model)
     copy_path_btn.add_css_class("flat")
     header_center_box.prepend(copy_path_btn)
-
-    setup_actions
   end
 
   def save : Nil
@@ -120,7 +118,6 @@ abstract class DocumentView < View
       action_group.add_action(action)
       @resource_actions << action
     {% end %}
-    setup_actions(action_group)
 
     insert_action_group("view", action_group)
   end

@@ -178,6 +178,9 @@ class ApplicationWindow < Adw::ApplicationWindow
                move_viewport_page_up:   ->move_viewport_page_up,
                move_viewport_page_down: ->move_viewport_page_down,
                fullscreen:              ->toggle_fullscreen,
+               find:                    ->find,
+               find_next:               ->find_next,
+               find_prev:               ->find_prev,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -409,8 +412,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view(&.paste_from_clipboard)
   end
 
-  {% for action in %w(sort_lines comment_code move_lines_up move_lines_down move_viewport_line_up move_viewport_line_down
-                     move_viewport_page_up move_viewport_page_down) %}
+  {% for action in %w(sort_lines
+                     comment_code
+                     move_lines_up move_lines_down
+                     move_viewport_line_up move_viewport_line_down
+                     move_viewport_page_up move_viewport_page_down
+                     find find_next find_prev) %}
   private def {{ action.id }}
     with_current_view do |view|
       view.{{ action.id }} if view.responds_to?({{ action.id.symbolize }})

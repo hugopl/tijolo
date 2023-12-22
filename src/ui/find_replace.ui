@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+
+  <template class="FindReplace" parent="GtkBox">
+    <property name="hexpand">1</property>
+    <property name="spacing">3</property>
+    <property name="margin-top">3</property>
+    <property name="margin-bottom">3</property>
+    <property name="margin-start">3</property>
+    <property name="margin-end">3</property>
+    <style><class name="opaque" /></style>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <style><class name="linked" /></style>
+        <child>
+          <object class="GtkEntry" id="entry">
+            <property name="primary-icon-name">edit-find-symbolic</property>
+            <property name="max-width-chars">120</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkToggleButton" id="regex_btn">
+            <property name="icon-name">tijolo-regex-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkToggleButton" id="case_btn">
+            <property name="icon-name">tijolo-case-sensitive-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="icon-name">go-up-symbolic</property>
+            <property name="action-name">view.find_previous</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="icon-name">go-down-symbolic</property>
+            <property name="action-name">view.search_next</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">end</property>
+        <property name="hexpand">1</property>
+        <property name="label">F1 for help</property>
+        <style><class name="dim-label"/></style>
+      </object>
+    </child>
+  </template>
+</interface>

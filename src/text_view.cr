@@ -1,26 +1,25 @@
 require "./document_view"
-
 require "./code_editor"
-require "./searchable"
+require "./find_replace"
 
 class TextView < DocumentView
-  include Searchable
   Log = ::Log.for("TextView")
 
   @@untitled_count = 0
-
   @editor : CodeEditor
-  @line_column : Gtk::Label
+  @line_column = Gtk::Label.new
+  @find_replace : FindReplace
 
   def initialize(resource : Path? = nil, project : Project? = nil)
     source = File.open(resource) if resource
     @editor = CodeEditor.new(source, CodeLanguage.detect(resource))
     super(@editor, resource, project)
 
-    @line_column = Gtk::Label.new
-    @header_end_box.prepend(@line_column)
+    @find_replace = FindReplace.new(@editor)
+    @find_replace.bind_property("active", bottom_revealer, "reveal_child", :none)
 
-    setup_search_bar
+    @header_end_box.prepend(@line_column)
+    bottom_revealer.child = @find_replace
 
     @editor.buffer.modified_changed_signal.connect do
       self.modified = @editor.buffer.modified
@@ -73,6 +72,21 @@ class TextView < DocumentView
     end
   end
 
+  def find
+    @find_replace.find(@editor.selection_or_word_at_cursor)
+    bottom_revealer.reveal_child = true
+  end
+
+  def find_next
+    @find_replace.find_next
+    bottom_revealer.reveal_child = true
+  end
+
+  def find_prev
+    @find_replace.find_prev
+    bottom_revealer.reveal_child = true
+  end
+
   delegate sort_lines, to: @editor
   delegate comment_code, to: @editor
   delegate move_lines_up, to: @editor
@@ -82,10 +96,4 @@ class TextView < DocumentView
   delegate move_viewport_page_up, to: @editor
   delegate move_viewport_page_down, to: @editor
   delegate goto_line, to: @editor
-  delegate search_started, to: @editor
-  delegate search_replace_started, to: @editor
-  delegate search_changed, to: @editor
-  delegate search_next, to: @editor
-  delegate search_previous, to: @editor
-  delegate search_stopped, to: @editor
 end
