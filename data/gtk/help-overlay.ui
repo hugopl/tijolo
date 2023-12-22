@@ -11,7 +11,7 @@
             <property name="title" translatable="yes" context="shortcut window">Documents</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">New file</property>
+                <property name="title" translatable="yes" context="shortcut window">New document</property>
                 <property name="action-name">win.new_file</property>
               </object>
             </child>
@@ -41,13 +41,25 @@
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Find project document by name</property>
+                <property name="title" translatable="yes" context="shortcut window">Reload document</property>
+                <property name="action-name">win.reload</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Show locator</property>
                 <property name="action-name">win.show_locator</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Open out of project document</property>
+                <property name="title" translatable="yes" context="shortcut window">Go to line</property>
+                <property name="action-name">win.show_goto</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Browse to open document</property>
                 <property name="action-name">win.open</property>
               </object>
             </child>
@@ -56,6 +68,24 @@
         <child>
           <object class="GtkShortcutsGroup">
             <property name="title" translatable="yes" context="shortcut window">Document stacks</property>
+            <child>
+              <object class="GtkShortcutsShortcut" id="alt_arrows">
+                <property name="accelerator">&lt;Alt&gt;Left Down Right Up</property>
+                <property name="title" translatable="yes">Focus document at ←↓→↑</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut" id="alt_arrows2">
+                <property name="accelerator">&lt;Alt&gt;&lt;Shift&gt;Left Down Right Up</property>
+                <property name="title" translatable="yes">Move document to stack at ←↓→↑</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Maximize document</property>
+                <property name="action-name">win.maximize_view</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
@@ -78,34 +108,30 @@
         <child>
           <object class="GtkShortcutsGroup">
             <property name="title" translatable="yes" context="shortcut window">Editing</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes" context="shortcut window">Zoom</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Zoom In</property>
-                <property name="action-name">win.zoom_in</property>
+                <property name="title" translatable="yes" context="shortcut window">Sort lines</property>
+                <property name="action-name">win.sort_lines</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Zoom Out</property>
-                <property name="action-name">win.zoom_out</property>
+                <property name="title" translatable="yes" context="shortcut window">(Un)Comment code</property>
+                <property name="action-name">win.comment_code</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Reset Zoom</property>
-                <property name="action-name">win.zoom_reset</property>
+                <property name="title" translatable="yes" context="shortcut window">Move line(s) up</property>
+                <property name="action-name">win.move_lines_up</property>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes" context="shortcut window">Undo and Redo</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Move line(s) down</property>
+                <property name="action-name">win.move_lines_down</property>
+              </object>
+            </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Undo previous command</property>
@@ -125,8 +151,14 @@
             <property name="title" translatable="yes" context="shortcut window">General</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Show/hide project tree</property>
+                <property name="title" translatable="yes" context="shortcut window">Show/hide sidebar</property>
                 <property name="action-name">win.show_hide_sidebar</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Fullscreen</property>
+                <property name="action-name">win.fullscreen</property>
               </object>
             </child>
             <child>
