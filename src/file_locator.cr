@@ -28,4 +28,8 @@ class FileLocator < FuzzyLocator
     item.description = "Open file"
     item.icon_name = "text-x-generic-symbolic"
   end
+
+  def remove_shortcut_from_input(text : String)
+    text
+  end
 end

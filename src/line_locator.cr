@@ -21,7 +21,7 @@ class LineLocator < LocatorProvider
   end
 
   def description : String
-    "Line in Current Document"
+    "Goto line/column of current document."
   end
 
   def search_changed(search_text : String) : Int32

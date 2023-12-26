@@ -4,6 +4,7 @@ require "./locator_item"
 require "./locator_provider"
 require "./file_locator"
 require "./line_locator"
+require "./help_locator"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(entry results_view))]
 class Locator < Gtk::Popover
@@ -13,6 +14,7 @@ class Locator < Gtk::Popover
   @locator_providers = Hash(Char, LocatorProvider).new
   @default_locator_provider : LocatorProvider
   @current_locator_provider : LocatorProvider
+  @help_locator = HelpLocator.new
 
   @entry : Gtk::SearchEntry
   @results_view : Gtk::ListView
@@ -46,6 +48,7 @@ class Locator < Gtk::Popover
   def init_locators
     [LineLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
+      @help_locator.add_locator(locator)
     end
   end
 
@@ -90,13 +93,8 @@ class Locator < Gtk::Popover
   private def search_changed
     text = @entry.text
 
-    # Due to https://gitlab.gnome.org/GNOME/gtk/-/issues/5340
-    # GTK emit search_changed signal for no reasons at begining, so we need this check here.
-    return if text.empty?
-
     @current_locator_provider = find_locator(text)
-
-    text = text[2..-1] if @current_locator_provider != @default_locator_provider
+    text = @current_locator_provider.remove_shortcut_from_input(text)
     old_size = @result_size
     @result_size = @current_locator_provider.search_changed(text)
     items_changed(0, old_size, @result_size)
@@ -104,6 +102,7 @@ class Locator < Gtk::Popover
   end
 
   private def find_locator(text)
+    return @help_locator if text.empty?
     return @default_locator_provider if text.size < 2 || !text[1].whitespace?
 
     @locator_providers[text[0]]? || @default_locator_provider

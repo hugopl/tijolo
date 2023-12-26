@@ -13,4 +13,8 @@ abstract class LocatorProvider
   abstract def bind(item : LocatorItem, pos : Int32) : Nil
   # Method called when a locator item is activated.
   abstract def activate(locator : Locator, pos : UInt32) : Bool
+
+  def remove_shortcut_from_input(text : String)
+    text[2..-1]
+  end
 end
