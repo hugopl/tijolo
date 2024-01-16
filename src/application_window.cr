@@ -64,10 +64,6 @@ class ApplicationWindow < Adw::ApplicationWindow
     super.not_nil!.as(Application)
   end
 
-  def open_project(project_path : String)
-    open_project(Path.new(project_path))
-  end
-
   def open_project(project_path : Path)
     raise ArgumentError.new if @project.valid?
 

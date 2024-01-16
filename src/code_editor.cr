@@ -170,10 +170,6 @@ class CodeEditor < GtkSource::View
     move_viewport_signal.emit(:pages, 1)
   end
 
-  def search_replace_started
-    not_implemented!
-  end
-
   private def word_at_cursor : String
     buffer = source_buffer
     start_iter = buffer.iter_at_mark(buffer.insert)
@@ -227,10 +223,6 @@ class CodeEditor < GtkSource::View
     scroll_to_iter(end_iter, 0.2, false, 0.0, 0.5)
   end
 
-  def search_stopped
-    @search_context.highlight = false
-  end
-
   def update_label_occurrences_async
     GLib.idle_add do
       update_label_occurrences
@@ -250,18 +242,6 @@ class CodeEditor < GtkSource::View
              "#{occurrence_pos} of #{occurrences_count}"
            end
     self.search_occurences = text
-  end
-
-  def setup_editor_preferences(path)
-    config = Config.instance
-    resource = self.resource
-    is_make_file = resource.try(&.basename) == "Makefile"
-
-    @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
-    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
-    @editor.show_right_margin = config.editor_show_right_margin
-    @editor.right_margin_position = config.editor_right_margin_position
-    @editor.highlight_current_line = config.editor_highlight_current_line
   end
 
   def color_scheme=(scheme : Adw::ColorScheme)

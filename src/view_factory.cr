@@ -11,8 +11,4 @@ class ViewFactory
       TextView.new(resource, project)
     end
   end
-
-  def self.label_for(resource : Path, project : Project) : String
-    resource.relative_to(project.root).to_s
-  end
 end

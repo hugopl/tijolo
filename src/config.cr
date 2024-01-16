@@ -76,14 +76,6 @@ class Config
     File.write(path, default_contents)
   end
 
-  def self.replace(other : Config)
-    @@instance = other
-  end
-
-  def self.restore_default
-    @@instance = Config.new(default_contents)
-  end
-
   def self.path
     Path.home.join(PATH)
   end

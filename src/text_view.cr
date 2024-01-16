@@ -63,10 +63,6 @@ class TextView < DocumentView
     @editor.cursor_line_col[0]
   end
 
-  def current_column : Int32
-    @editor.cursor_line_col[1]
-  end
-
   def do_save : Nil
     Log.info { "Saving buffer to #{resource_hint}" }
     File.open(resource_hint, "w") do |file|

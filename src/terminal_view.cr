@@ -44,8 +44,4 @@ class TerminalView < View
   def paste_from_clipboard : Nil
     @term.paste_primary
   end
-
-  def save : Nil
-    # Maybe save output to HTML!?
-  end
 end

@@ -83,8 +83,4 @@ module Searchable
     search_bar.search_mode = false
     activate_action("win.focus_editor", nil)
   end
-
-  def search_replace
-    Log.warn { "Search/replace not implementet yet." }
-  end
 end
