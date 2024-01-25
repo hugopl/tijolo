@@ -151,7 +151,7 @@ class WelcomeWidget < Gtk::Box
   private def row_activated(pos : UInt32) : Nil
     match = @fzy_results[pos]
     project_path = @available_projects[match.index].full_path
-    activate_action("app.open_project", project_path)
+    activate_action("win.open_project", project_path)
   end
 
   @[GObject::Virtual]

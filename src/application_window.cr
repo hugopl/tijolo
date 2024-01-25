@@ -74,6 +74,12 @@ class ApplicationWindow < Adw::ApplicationWindow
     Log.error { "Error loading project from #{project_path}: #{e.message}" }
   end
 
+  private def open_project(project_path : GLib::Variant?)
+    return if project_path.nil?
+
+    open_project(Path.new(project_path.as_s))
+  end
+
   private def open_project
     raise ArgumentError.new unless @view_manager.nil?
 
@@ -190,6 +196,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
     action = Gio::SimpleAction.new("open_file", GLib::VariantType.new("s"))
     action.activate_signal.connect(->open(GLib::Variant))
+    add_action(action)
+
+    action = Gio::SimpleAction.new("open_project", GLib::VariantType.new("s"))
+    action.activate_signal.connect(->open_project(GLib::Variant))
     add_action(action)
 
     action = Gio::SimpleAction.new("show_goto", nil)
