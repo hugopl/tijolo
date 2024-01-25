@@ -1,6 +1,5 @@
 module CodeCommenter
   def comment_code : Nil
-    buffer = source_buffer
     return unless editable?
 
     start_iter, end_iter = buffer.selection_bounds
@@ -45,7 +44,6 @@ module CodeCommenter
   private def comment_lines(iter : Gtk::TextIter, count : Int32)
     line_comment = language.line_comment
     indent = find_text_indent(iter.copy, count)
-    buffer = source_buffer
 
     buffer.user_action do
       count.times do
@@ -59,7 +57,6 @@ module CodeCommenter
   private def uncomment_lines(iter : Gtk::TextIter, count : Int32)
     line_comment = language.line_comment
     indent = find_text_indent(iter.copy, count)
-    buffer = source_buffer
 
     buffer.user_action do
       count.times do

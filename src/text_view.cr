@@ -22,7 +22,10 @@ class TextView < DocumentView
 
     setup_search_bar
 
-    @editor.buffer.bind_property("modified", self, "modified", :default)
+    @editor.buffer.modified_changed_signal.connect do
+      self.modified = @editor.buffer.modified
+    end
+
     connect(@editor.cursor_changed_signal) do
       set_cursor_label(*@editor.cursor_line_col)
     end
