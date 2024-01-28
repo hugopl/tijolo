@@ -394,7 +394,8 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def goto_line(variant : GLib::Variant?)
-    line, col = variant.as_s.split(":")
+    line, col, path = variant.as_s.split(":", 3)
+    open(path) unless path.blank?
     goto_line(line.to_i, col.to_i)
   end
 

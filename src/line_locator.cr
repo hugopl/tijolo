@@ -12,7 +12,7 @@ class LineLocator < LocatorProvider
     col = 0 if col < 0
 
     # FIXME: Change this to a tuple when GICrystal support tuples in GVariants
-    locator.activate_action("win.goto_line", "#{line}:#{col}")
+    locator.activate_action("win.goto_line", "#{line}:#{col}:")
     true
   end
 
@@ -24,7 +24,12 @@ class LineLocator < LocatorProvider
     "Goto line/column of current document."
   end
 
-  def search_changed(search_text : String) : Result
+  def search_changed(view : View?, search_text : String) : Result
+    if view.nil?
+      @text = "Open a file first."
+      return 1
+    end
+
     match = search_text.match(/[^\d]*(\d+)(?:[^\d]+(\d+))?/)
     if match.nil?
       @col = @line = -1

@@ -32,10 +32,30 @@ class TextView < DocumentView
     set_cursor_label(*@editor.cursor_line_col)
 
     setup_editor_preferences
+    code_model.file_opened(resource) if resource
+    @editor.buffer.insert_text_signal.connect do |iter, text, len|
+      if res = @resource
+        code_model.insert_text(res, text, iter.offset, len)
+      end
+    end
+    @editor.buffer.delete_range_signal.connect do |start_iter, end_iter|
+      if res = @resource
+        offset = start_iter.offset
+        code_model.delete_text(res, offset, end_iter.offset - offset)
+      end
+    end
   end
 
   delegate grab_focus, to: @editor
   delegate :color_scheme=, to: @editor
+  delegate :language, to: @editor
+  delegate :code_model, to: language
+
+  def close
+    super
+    resource = @resource
+    code_model.file_closed(resource) if resource
+  end
 
   def resource=(resource : Path?) : Nil
     super(resource)

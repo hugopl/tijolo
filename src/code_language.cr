@@ -1,10 +1,16 @@
-struct CodeLanguage
+require "./code_model_factory"
+
+class CodeLanguage
   NONE = CodeLanguage.new("")
 
   @lang : GtkSource::Language?
+  getter code_model : CodeModel
   getter id : String
 
+  @@languages = Hash(String, CodeLanguage).new
+
   def initialize(@id, @lang : GtkSource::Language? = nil)
+    @code_model = CodeModelFactory.build(@lang.try(&.id))
   end
 
   def none?
@@ -26,7 +32,7 @@ struct CodeLanguage
     lang ||= detect_by_content(file)
 
     lang_id = lang ? lang.id : ""
-    CodeLanguage.new(lang_id, lang)
+    @@languages[lang_id] ||= CodeLanguage.new(lang_id, lang)
   end
 
   def self.detect_by_content(file) : GtkSource::Language?

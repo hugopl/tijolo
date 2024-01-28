@@ -3,6 +3,7 @@ require "./code_buffer"
 require "./code_language"
 require "./code_commenter"
 require "./init_source_view"
+require "./code_model"
 
 class CodeEditor < GtkSource::View
   include CodeCommenter

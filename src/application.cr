@@ -61,6 +61,9 @@ class Application < Adw::Application
     icon_theme = Gtk::IconTheme.for_display(Gdk::Display.default.not_nil!)
     path = Path.new("#{Path.new(Process.executable_path || "/usr/bin/tijolo").dirname}/../share/tijolo/icons").expand.to_s
     icon_theme.add_search_path(path)
+    {% unless flag?(:release) %}
+      icon_theme.add_search_path("#{__DIR__}/../data/icons")
+    {% end %}
     icon_theme.add_search_path("/usr/share/tijolo/icons") if path != "/usr/share/tijolo/icons"
     Log.info { "Looking for icons at: #{icon_theme.search_path.not_nil!.join(", ")}." }
     @icon_path_setup_done = true

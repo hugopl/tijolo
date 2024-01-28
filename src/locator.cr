@@ -4,6 +4,7 @@ require "./locator_item"
 require "./locator_provider"
 require "./file_locator"
 require "./line_locator"
+require "./symbol_locator"
 require "./help_locator"
 
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/locator.ui", children: %w(entry results_view))]
@@ -54,7 +55,7 @@ class Locator < Gtk::Popover
   end
 
   def init_locators
-    [LineLocator.new].each do |locator|
+    [LineLocator.new, SymbolLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
       @help_locator.add_locator(locator)
     end
@@ -66,12 +67,14 @@ class Locator < Gtk::Popover
   end
 
   def show(*, select_text : Bool, view : View?)
+    @current_view = view
     @entry.grab_focus
     @entry.select_region(0, -1) if select_text
     popup
   end
 
   def hide
+    @current_view = nil
     popdown
   end
 
@@ -110,7 +113,7 @@ class Locator < Gtk::Popover
     end
 
     text = @current_locator_provider.remove_shortcut_from_input(text)
-    result = @current_locator_provider.search_changed(text)
+    result = @current_locator_provider.search_changed(@current_view, text)
 
     old_size = @result_size
     @result_size = result.as?(Int32) || 0
@@ -144,7 +147,7 @@ class Locator < Gtk::Popover
     end
   end
 
-  private def find_locator(text)
+  private def find_locator(text) : LocatorProvider
     return @help_locator if text.empty?
     return @default_locator_provider if text.size < 2 || !text[1].whitespace?
 
