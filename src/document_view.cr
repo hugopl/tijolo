@@ -28,6 +28,7 @@ abstract class DocumentView < View
       menu_model: copy_path_menu_model)
     copy_path_btn.add_css_class("flat")
     header_center_box.prepend(copy_path_btn)
+    setup_document_view_actions
   end
 
   def save : Nil
@@ -99,7 +100,7 @@ abstract class DocumentView < View
     "Untitled #{@@untitled_count}"
   end
 
-  private def setup_actions
+  private def setup_document_view_actions
     has_resource = !@resource.nil?
 
     action_group = Gio::SimpleActionGroup.new
