@@ -37,6 +37,20 @@ class TextView < DocumentView
   delegate grab_focus, to: @editor
   delegate :color_scheme=, to: @editor
 
+  def resource=(resource : Path?) : Nil
+    super(resource)
+
+    highlight
+  end
+
+  private def highlight
+    resource = @resource
+    if resource
+      lang = CodeLanguage.detect(resource)
+      @editor.language = lang
+    end
+  end
+
   def do_reload_contents : Nil
     resource = @resource
     return if resource.nil?

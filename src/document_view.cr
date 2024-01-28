@@ -56,7 +56,7 @@ abstract class DocumentView < View
     save
   end
 
-  def resource=(resource : Path?)
+  def resource=(resource : Path?) : Nil
     old_resource = @resource
     @resource = resource
     self.label = resource.nil? ? "" : File.basename(resource)
@@ -64,7 +64,7 @@ abstract class DocumentView < View
   end
 
   def resource_hint : Path
-    resource = self.resource
+    resource = @resource
     return resource if resource
 
     (GLib.user_special_dir(:directory_documents) || Path.home).join("#{@label}.txt")

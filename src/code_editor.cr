@@ -70,11 +70,17 @@ class CodeEditor < GtkSource::View
     add_controller(sc_controller)
   end
 
+  def language=(@language : CodeLanguage)
+    rehighlight
+  end
+
+  private def rehighlight
+    buffer.language = GtkSource::LanguageManager.default.language(@language.id)
+  end
+
   private def setup(source)
     buffer.text = source.gets_to_end if source
-    unless @language.none?
-      buffer.language = GtkSource::LanguageManager.default.language(@language.id)
-    end
+    rehighlight unless @language.none?
 
     self.color_scheme = Adw::StyleManager.default.color_scheme
 
