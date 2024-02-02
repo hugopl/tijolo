@@ -35,7 +35,7 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHeaderBar">
+          <object class="GtkHeaderBar" id="header">
             <child type="title">
               <object class="AdwWindowTitle" id="title">
                 <property name="title">Tijolo</property>

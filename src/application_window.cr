@@ -10,7 +10,7 @@ require "./theme_selector"
 require "./save_modified_views_dialog"
 require "./sidebar"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(title sidebar primary_menu git_branches_menu git_branch_label git_branch_btn))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/application_window.ui", children: %w(header title sidebar primary_menu git_branches_menu git_branch_label git_branch_btn))]
 class ApplicationWindow < Adw::ApplicationWindow
   include Gtk::WidgetTemplate
 
@@ -438,7 +438,14 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   private def toggle_fullscreen
-    fullscreened? ? unfullscreen : fullscreen
+    header = Gtk::Widget.cast(template_child("header"))
+    if fullscreened?
+      header.visible = true
+      unfullscreen
+    else
+      header.visible = false
+      fullscreen
+    end
   end
 
   def color_scheme=(scheme)
