@@ -17,4 +17,13 @@ abstract class LocatorProvider
   def remove_shortcut_from_input(text : String)
     text[2..-1]
   end
+
+  def project_load_finished(project : Project)
+  end
+
+  def unselected
+  end
+
+  def selected
+  end
 end

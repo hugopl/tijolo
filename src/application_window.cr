@@ -131,6 +131,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     @project_monitor.project_load_finished
     setup_git_menu if @git_model.start_monitoring(@project.root)
     enable_project_related_actions(true)
+    @locator.project_load_finished(@project)
     self.title = @project.name
   end
 

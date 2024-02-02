@@ -45,6 +45,11 @@ class Locator < Gtk::Popover
     init_locators
   end
 
+  def project_load_finished(project : Project)
+    @default_locator_provider.project_load_finished(project)
+    @locator_providers.each_value(&.project_load_finished(project))
+  end
+
   def init_locators
     [LineLocator.new].each do |locator|
       @locator_providers[locator.shortcut] = locator
@@ -93,7 +98,13 @@ class Locator < Gtk::Popover
   private def search_changed
     text = @entry.text
 
-    @current_locator_provider = find_locator(text)
+    new_locator = find_locator(text)
+    if @current_locator_provider != new_locator
+      @current_locator_provider.unselected
+      new_locator.selected
+      @current_locator_provider = new_locator
+    end
+
     text = @current_locator_provider.remove_shortcut_from_input(text)
     old_size = @result_size
     @result_size = @current_locator_provider.search_changed(text)
