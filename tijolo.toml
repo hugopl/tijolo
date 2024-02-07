@@ -43,7 +43,7 @@ font_size = 10
 # "word_char" - Wrap text, breaking lines in between words, or if that is not enough, also between graphemes
 #
 # Default: "word"
-wrap_mode = "word"
+wrap_mode = "word_char"
 # This is not valid for Makefiles
 insert_spaces_instead_of_tabs = true
 # This is not valid for Makefiles, they always use tab width of 4

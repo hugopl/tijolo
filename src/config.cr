@@ -39,6 +39,7 @@ class Config
   getter? terminal_login_shell : Bool
   getter? ignore_editor_config_files : Bool
   property? language_servers_enabled : Bool
+  getter wrap_mode : Gtk::WrapMode
 
   # editor
   getter editor_font_size : Int32
@@ -98,6 +99,7 @@ class Config
     @terminal_login_shell = terminal_entry["login_shell"].as(Bool)
 
     editor_entry = toml["editor"].as(Hash)
+    @wrap_mode = parse_enum(editor_entry, "wrap_mode", Gtk::WrapMode)
     @editor_font_size = editor_entry["font_size"].as(Int64).to_i32
     @editor_insert_spaces_instead_of_tabs = editor_entry["insert_spaces_instead_of_tabs"].as(Bool)
     @editor_tab_width = editor_entry["tab_width"].as(Int64).to_i32
