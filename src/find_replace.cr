@@ -78,7 +78,6 @@ class FindReplace < Gtk::Box
   end
 
   def restore_cursor
-    puts "restore cursor from #{@offset_when_show}"
     iter = @buffer.iter_at_offset(@offset_when_show)
     @editor.goto(iter)
   end

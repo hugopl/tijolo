@@ -6,7 +6,7 @@ class ProjectError < TijoloError
 end
 
 class Project < GObject::Object
-  Log          = ::Log.for("Project")
+  Log          = ::Log.for(self)
   IGNORED_DIRS = {".git", ".hg", ".svn", ".ccls-cache"}
 
   getter root : Path = Path.new

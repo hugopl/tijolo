@@ -3,7 +3,7 @@ require "./code_editor"
 require "./find_replace"
 
 class TextView < DocumentView
-  Log = ::Log.for("TextView")
+  Log = ::Log.for(self)
 
   @@untitled_count = 0
   @editor : CodeEditor

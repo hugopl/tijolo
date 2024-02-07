@@ -36,7 +36,7 @@ class SerializableCodeTheme
 end
 
 class CodeTheme
-  Log = ::Log.for("theme")
+  Log = ::Log.for(self)
 
   @theme : SerializableCodeTheme
   getter text_color = Gdk::RGBA.new

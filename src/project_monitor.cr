@@ -2,7 +2,7 @@ class ProjectMonitor
   @monitors = Hash(String, Gio::FileMonitor).new
   @project : Project
 
-  Log = ::Log.for("ProjectMonitor")
+  Log = ::Log.for(self)
 
   def initialize(@project)
   end
