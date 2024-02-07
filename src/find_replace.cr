@@ -3,6 +3,7 @@ require "./find_replace_options"
 @[Gtk::UiTemplate(file: "#{__DIR__}/ui/find_replace.ui", children: %w(entry case_btn regex_btn))]
 class FindReplace < Gtk::Box
   include Gtk::WidgetTemplate
+  Log = ::Log.for(FindReplace)
 
   @entry : Gtk::Entry
   @search_context : GtkSource::SearchContext
@@ -38,6 +39,7 @@ class FindReplace < Gtk::Box
   end
 
   def find(text : String) : Nil
+    Log.debug { "find(#{text.inspect})" }
     return if @entry.has_focus?
 
     @entry.text = text
@@ -47,11 +49,13 @@ class FindReplace < Gtk::Box
   end
 
   def find_prev
+    Log.debug { "find_prev" }
     @search_context.highlight = true
     not_implemented!
   end
 
   def find_next
+    Log.debug { "find_next" }
     @search_context.highlight = true
 
     start, end_ = @buffer.selection_bounds
@@ -65,10 +69,10 @@ class FindReplace < Gtk::Box
   end
 
   def activate
+    Log.debug { "activate" }
+
     if @replace_term.nil?
       @search_context.highlight = false
-      mark = @buffer.insert
-      @editor.goto(@buffer.iter_at_mark(mark))
       @editor.grab_focus
       self.active = false
     else
@@ -78,11 +82,13 @@ class FindReplace < Gtk::Box
   end
 
   def restore_cursor
+    Log.debug { "restore_cursor, offset: #{@offset_when_show}" }
     iter = @buffer.iter_at_offset(@offset_when_show)
     @editor.goto(iter)
   end
 
   private def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
+    Log.debug { "key pressed: #{key_val}" }
     if key_val == Gdk::KEY_Up
       find_prev
     elsif key_val == Gdk::KEY_Down
@@ -116,6 +122,7 @@ class FindReplace < Gtk::Box
 
   private def search_changed(text : String? = nil) : Nil
     text ||= @entry.text
+    Log.debug { "search_changed(#{text})" }
     options = FindReplaceOptions.parse(text)
     return if options.nil?
 
@@ -134,15 +141,6 @@ class FindReplace < Gtk::Box
 
   private def on_notify_occurences_count(_param_spec)
     occurrence_count = @search_context.occurrences_count
-    scroll_to_first_match if occurrence_count.positive?
-  end
-
-  private def scroll_to_first_match
-    iter = @buffer.iter_at_offset(@offset_when_show)
-    found, match_begin, match_end, _wrapper = @search_context.forward(iter)
-    @editor.scroll_to_iter(match_begin) if found
-  end
-
-  private def current_match_iter
+    Log.debug { "occurences: #{occurrence_count}" }
   end
 end
