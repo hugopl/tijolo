@@ -10,7 +10,7 @@ class HelpLocator < LocatorProvider
     ""
   end
 
-  def search_changed(search_text : String) : Int32
+  def search_changed(search_text : String) : Result
     1
   end
 

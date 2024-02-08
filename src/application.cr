@@ -139,7 +139,7 @@ class Application < Adw::Application
         STDOUT
       {% end %}
     end
-    backend = Log::IOBackend.new(io: log_io, formatter: TijoloLogFormat, dispatcher: Log::DispatchMode::Direct)
+    backend = Log::IOBackend.new(io: log_io, formatter: TijoloLogFormat)
     Log.setup(level, backend)
     Log.info { "Tijolo v#{VERSION} started at #{Time.local}, pid: #{Process.pid}, log level: #{level}" }
   end

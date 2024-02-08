@@ -11,10 +11,13 @@ class Locator < Gtk::Popover
   include Gtk::WidgetTemplate
   include Gio::ListModel
 
+  Log = ::Log.for(Locator)
+
   @locator_providers = Hash(Char, LocatorProvider).new
   @default_locator_provider : LocatorProvider
   @current_locator_provider : LocatorProvider
   @help_locator = HelpLocator.new
+  @current_channel : Channel(Int32)?
 
   @entry : Gtk::SearchEntry
   @results_view : Gtk::ListView
@@ -96,6 +99,7 @@ class Locator < Gtk::Popover
   end
 
   private def search_changed
+    @current_channel.try(&.close)
     text = @entry.text
 
     new_locator = find_locator(text)
@@ -106,10 +110,38 @@ class Locator < Gtk::Popover
     end
 
     text = @current_locator_provider.remove_shortcut_from_input(text)
+    result = @current_locator_provider.search_changed(text)
+
     old_size = @result_size
-    @result_size = @current_locator_provider.search_changed(text)
+    @result_size = result.as?(Int32) || 0
     items_changed(0, old_size, @result_size)
+
+    if result.is_a?(Channel)
+      @current_channel = result
+      read_provider_channel_async(result)
+    end
     @selection_model.selected = 0
+  end
+
+  private def read_provider_channel_async(channel : Channel) : Nil
+    spawn(name: "locator.update") do
+      old_size = 0
+      while !channel.closed?
+        value = channel.receive
+        break if value.zero?
+
+        GLib.idle_add do
+          unless channel.closed?
+            @result_size = old_size + value
+            items_changed(old_size, 0, value)
+            old_size += value
+          end
+          false
+        end
+      end
+    rescue e : Channel::ClosedError
+      nil
+    end
   end
 
   private def find_locator(text)

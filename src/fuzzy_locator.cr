@@ -21,7 +21,7 @@ abstract class FuzzyLocator < LocatorProvider
   def update_haystack(@haystack : Fzy::PreparedHaystack?)
   end
 
-  def search_changed(search_text : String) : Int32
+  def search_changed(search_text : String) : Result
     haystack = @haystack
     return 0 if haystack.nil? || haystack.empty?
 

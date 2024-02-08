@@ -1,8 +1,8 @@
-.PHONY: all configure test install post-install install-fonts uninstall uninstall-fonts
+.PHONY: all configure test debug install post-install install-fonts uninstall uninstall-fonts
 PREFIX ?= /usr
 
 all: .WAIT configure
-	shards build --release -s
+	shards build --release -Dpreview_mt -s
 
 configure:
 	shards install
@@ -11,10 +11,13 @@ configure:
 test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
 	@if [ "$$(uname -s)" == "Darwin" ]; then\
-	  crystal spec;\
+	  LC_ALL=en_US.UTF8 crystal spec -Dpreview_mt;\
 	else\
-	  LC_ALL=en_US.UTF8 xvfb-run crystal spec;\
+	  LC_ALL=en_US.UTF8 xvfb-run crystal spec -Dpreview_mt;\
 	fi
+
+debug:
+	shards build --debug -Dpreview_mt -s
 
 install:
 	install -D -m 0755 bin/tijolo $(DESTDIR)$(PREFIX)/bin/tijolo

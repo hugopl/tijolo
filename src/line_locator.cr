@@ -24,7 +24,7 @@ class LineLocator < LocatorProvider
     "Goto line/column of current document."
   end
 
-  def search_changed(search_text : String) : Int32
+  def search_changed(search_text : String) : Result
     match = search_text.match(/[^\d]*(\d+)(?:[^\d]+(\d+))?/)
     if match.nil?
       @col = @line = -1

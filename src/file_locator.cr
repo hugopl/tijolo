@@ -2,6 +2,8 @@ require "./fuzzy_locator"
 require "./project"
 
 class FileLocator < FuzzyLocator
+  Log = ::Log.for(FileLocator)
+
   def initialize(@project : Project)
     @project.files_changed_signal.connect do
       update_haystack(Fzy::PreparedHaystack.new(@project.files.map(&.to_s)))
