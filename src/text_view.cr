@@ -63,6 +63,7 @@ class TextView < DocumentView
     resource = self.resource
     is_make_file = resource.try(&.basename) == "Makefile"
 
+    @editor.wrap_mode = config.wrap_mode
     @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
     @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
     @editor.show_right_margin = config.editor_show_right_margin
