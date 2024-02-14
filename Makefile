@@ -4,10 +4,6 @@ PREFIX ?= /usr
 all: .WAIT configure
 	shards build --release -s
 
-experimental: .WAIT configure
-	shards build -Dexperimental --release -s
-
-
 configure:
 	shards install
 	./bin/gi-crystal
@@ -16,10 +12,8 @@ test:
 	# Some tests need en_US locale to pass on string to float convertions: "1.23" vs "1,23".
 	@if [ "$$(uname -s)" == "Darwin" ]; then\
 	  crystal spec;\
-	  crystal spec -Dexperimental;\
 	else\
 	  LC_ALL=en_US.UTF8 xvfb-run crystal spec;\
-	  LC_ALL=en_US.UTF8 xvfb-run crystal spec -Dexperimental;\
 	fi
 
 install:
