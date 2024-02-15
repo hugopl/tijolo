@@ -2,12 +2,14 @@ require "./fuzzy_locator"
 require "./project"
 
 class FileLocator < FuzzyLocator
-  Log = ::Log.for(FileLocator)
+  @root : Path?
 
-  def initialize(@project : Project)
-    @project.files_changed_signal.connect do
-      update_haystack(Fzy::PreparedHaystack.new(@project.files.map(&.to_s)))
-    end
+  def initialize
+  end
+
+  def project_load_finished(project : Project)
+    @root = project.root
+    update_haystack(Fzy::PreparedHaystack.new(project.files.map(&.to_s)))
   end
 
   def shortcut : Char
@@ -19,8 +21,11 @@ class FileLocator < FuzzyLocator
   end
 
   def activate(locator : Locator, match : Fzy::Match) : Bool
+    root = @root
+    return true if root.nil?
+
     file = match.value
-    locator.activate_action("win.open_file", @project.root.join(file).to_s)
+    locator.activate_action("win.open_file", root.join(file).to_s)
     true
   end
 

@@ -36,7 +36,7 @@ class Locator < Gtk::Popover
     @entry.activate_signal.connect(&->entry_activated)
     @entry.search_changed_signal.connect(&->search_changed)
 
-    @default_locator_provider = FileLocator.new(project)
+    @default_locator_provider = FileLocator.new
     @current_locator_provider = LineLocator.new
 
     key_ctl = Gtk::EventControllerKey.new
