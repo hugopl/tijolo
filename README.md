@@ -11,7 +11,7 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 Basic stuff still missing, use it at your own risk 🔥️.
 
-- [ ] Write a good keyboard only search/replace UI.
+- [x] Write a good keyboard only search/replace UI.
 - [ ] Build locator (Ctrl+B) build os targets no shards.yml.
 - [ ] Reintroduce LSP support.
 - [ ] Improve Ctrl+Tab coloring document stacks.
@@ -23,6 +23,7 @@ Basic stuff still missing, use it at your own risk 🔥️.
 - [ ] Add "Clone Repository" dialog.
 - [ ] Add "New Project" dialog.
 - [ ] Add settings dialog, or maybe just continue with the TOML file based approach.
+- [ ] Create a site with some documentation, otherwise I'll always be the only user for this.
 
 ## How it looks like?
 
