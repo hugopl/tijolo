@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-01-15
+### Added
+ - Added more shortcuts to help.
+ - Added help locator to help locator discovery (still horrible).
+ - Implement new find/replace dialog (better, but not there yet).
+ - Hide header bar on fullscreen mode.
+ - New icon and new welcome screen layout, thanks [Marília](https://www.behance.net/mriul) ❤️.
+ - Added support for asynchronous locator providers.
+ - Added local symbol locator using a very naive regex parser, supports Crystal and Ruby.
+
+### Changed
+ - Remove experimental code editor widget, I just don't have time for it, maybe in the future.
+
+### Fixed
+ - Fix install location of gschema file.
+ - Do not always create new windows when opening projects.
+ - Fix issue with GTK 4.12.5 that prevent buffer to be saved.
+ - Re-detect syntax highlight after saving file with a different name.
+ - Fix copy path actions beign disabled.
+ - Respect wrap_mode set in configuration.
+ - Remove debug messages left overs.
+ - Keep locator item on view when navigating through them.
+
 ## [0.8.0-alpha] - 2023-12-18
 ### Changed
  Everything, this is a rewrite using new GTK4 bindings I wrote (0.7.x uses GTK3 and other bindings).
