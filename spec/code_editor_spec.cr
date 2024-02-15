@@ -6,7 +6,8 @@ describe CodeBuffer do
            " ho\n" \
            "let's go \n\n"
 
-    buffer = CodeBuffer.new(GtkSource::Buffer.new(text: text))
+    buffer = CodeBuffer.new
+    buffer.text = text
     saved = IO::Memory.new
     buffer.save(saved)
     saved.to_s.should eq("hey\n ho\nlet's go\n\n")
