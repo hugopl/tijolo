@@ -71,13 +71,16 @@ class FindReplace < Gtk::Box
   def activate
     Log.debug { "activate" }
 
-    if @replace_term.nil?
+    replace_term = @replace_term
+    if replace_term.nil?
       @search_context.highlight = false
       @editor.grab_focus
       self.active = false
     else
       # Replace term
-      not_implemented!
+      match_start, match_end = @buffer.selection_bounds
+      @search_context.replace(match_start, match_end, replace_term, replace_term.bytesize)
+      find_next
     end
   end
 
