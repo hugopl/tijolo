@@ -22,7 +22,7 @@ require "libadwaita"
 require "./application"
 require "./monkey_patches"
 
-{% raise "Tijolo requires GTK >= 4.8, found: #{Gtk::MAJOR_VERSION}.#{Gtk::MINOR_VERSION}" if Gtk::MINOR_VERSION < 8 %}
+{% raise "Tijolo requires GTK >= 4.12, found: #{Gtk::MAJOR_VERSION}.#{Gtk::MINOR_VERSION}" if Gtk::MINOR_VERSION < 12 %}
 {% raise "Tijolo requires lib Adwaita >= 1.4, found: #{Adw::VERSION_S}" if compare_versions("1.4.0", Adw::VERSION_S) > 0 %}
 
 Gio.register_resource("data/resources.xml", source_dir: "data")

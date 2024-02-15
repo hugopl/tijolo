@@ -89,13 +89,14 @@ class Locator < Gtk::Popover
       selected = @selection_model.selected
       return false if selected.zero?
 
-      @selection_model.selected = selected - 1
+      @results_view.scroll_to(selected - 1, :select, nil)
       return true
     elsif key_val == Gdk::KEY_Down
       return true if @result_size < 2 # First item is already selected...
 
       selected = @selection_model.selected + 1
-      @selection_model.selected = selected if selected < @result_size
+      @results_view.scroll_to(selected, :select, nil) if selected < @result_size
+
       return true
     end
     false
@@ -123,7 +124,7 @@ class Locator < Gtk::Popover
       @current_channel = result
       read_provider_channel_async(result)
     end
-    @selection_model.selected = 0
+    @results_view.scroll_to(0, :select, nil)
   end
 
   private def read_provider_channel_async(channel : Channel) : Nil
