@@ -1,6 +1,6 @@
 require "./find_replace_options"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/find_replace.ui", children: %w(entry case_btn regex_btn))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/find_replace.ui", children: %w(entry case_btn regex_btn occurences))]
 class FindReplace < Gtk::Box
   include Gtk::WidgetTemplate
   Log = ::Log.for(FindReplace)
@@ -25,17 +25,13 @@ class FindReplace < Gtk::Box
     @search_context = GtkSource::SearchContext.new(@buffer, @search_settings)
     @regex_btn = Gtk::ToggleButton.cast(template_child("regex_btn"))
     @case_btn = Gtk::ToggleButton.cast(template_child("case_btn"))
-    @search_context.notify_signal["occurrences-count"].connect(->on_notify_occurences_count(GObject::ParamSpec))
+    @search_context.notify_signal["occurrences-count"].connect(->update_occurences_label(GObject::ParamSpec))
 
     @entry = Gtk::Entry.cast(template_child("entry"))
     @entry.changed_signal.connect(->search_changed)
     @entry.activate_signal.connect(->activate)
     @regex_btn.clicked_signal.connect(->regex_btn_clicked)
     @case_btn.clicked_signal.connect(->case_btn_clicked)
-
-    key_ctl = Gtk::EventControllerKey.new(propagation_phase: :capture)
-    key_ctl.key_pressed_signal.connect(->key_pressed(UInt32, UInt32, Gdk::ModifierType))
-    add_controller(key_ctl)
   end
 
   def find(text : String) : Nil
@@ -72,6 +68,7 @@ class FindReplace < Gtk::Box
     @buffer.select_range(start_iter, end_iter)
     mark = @buffer.insert
     @editor.scroll_mark_onscreen(mark)
+    update_occurences_label
   end
 
   def activate
@@ -91,22 +88,6 @@ class FindReplace < Gtk::Box
   def restore_cursor
     iter = @buffer.iter_at_offset(@offset_when_show)
     @editor.goto(iter)
-  end
-
-  private def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
-    Log.debug { "key pressed: #{key_val}" }
-    if key_val == Gdk::KEY_Up
-      find_prev
-    elsif key_val == Gdk::KEY_Down
-      find_next
-    elsif key_val == Gdk::KEY_Escape
-      restore_cursor
-      self.active = false
-      @editor.grab_focus
-    else
-      return false
-    end
-    true
   end
 
   private def regex_btn_clicked
@@ -144,8 +125,17 @@ class FindReplace < Gtk::Box
     find_next
   end
 
-  private def on_notify_occurences_count(_param_spec)
-    occurrence_count = @search_context.occurrences_count
-    Log.debug { "occurences: #{occurrence_count}" }
+  private def update_occurences_label(_param_spec = nil)
+    count = @search_context.occurrences_count
+    pos = @search_context.occurrence_position(*@buffer.selection_bounds)
+
+    label = if count == 0
+              ""
+            elsif pos == -1
+              "#{count} of ..."
+            else
+              "#{pos} of #{count}"
+            end
+    Gtk::Label.cast(template_child("occurences")).label = label
   end
 end

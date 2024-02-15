@@ -30,25 +30,11 @@
             <property name="icon-name">tijolo-case-sensitive-symbolic</property>
           </object>
         </child>
-        <child>
-          <object class="GtkButton">
-            <property name="icon-name">go-up-symbolic</property>
-            <property name="action-name">view.find_previous</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton">
-            <property name="icon-name">go-down-symbolic</property>
-            <property name="action-name">view.search_next</property>
-          </object>
-        </child>
       </object>
     </child>
     <child>
-      <object class="GtkLabel">
-        <property name="halign">end</property>
-        <property name="hexpand">1</property>
-        <property name="label">F1 for help</property>
+      <object class="GtkLabel" id="occurences">
+        <property name="width-chars">9</property>
         <style><class name="dim-label"/></style>
       </object>
     </child>
