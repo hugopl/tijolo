@@ -39,7 +39,6 @@ class FindReplace < Gtk::Box
   end
 
   def find(text : String) : Nil
-    Log.debug { "find(#{text.inspect})" }
     return if @entry.has_focus?
 
     @entry.text = text
@@ -49,13 +48,16 @@ class FindReplace < Gtk::Box
   end
 
   def find_prev
-    Log.debug { "find_prev" }
     @search_context.highlight = true
-    not_implemented!
+
+    start, end_ = @buffer.selection_bounds
+    found, start, end_, _wrap = @search_context.backward(start)
+    return unless found
+
+    select_search_occurence(start, end_)
   end
 
   def find_next
-    Log.debug { "find_next" }
     @search_context.highlight = true
 
     start, end_ = @buffer.selection_bounds
@@ -63,14 +65,16 @@ class FindReplace < Gtk::Box
     found, start, end_, _wrap = @search_context.forward(end_)
     return unless found
 
-    @buffer.select_range(start, end_)
+    select_search_occurence(start, end_)
+  end
+
+  private def select_search_occurence(start_iter, end_iter)
+    @buffer.select_range(start_iter, end_iter)
     mark = @buffer.insert
     @editor.scroll_mark_onscreen(mark)
   end
 
   def activate
-    Log.debug { "activate" }
-
     replace_term = @replace_term
     if replace_term.nil?
       @search_context.highlight = false
@@ -85,7 +89,6 @@ class FindReplace < Gtk::Box
   end
 
   def restore_cursor
-    Log.debug { "restore_cursor, offset: #{@offset_when_show}" }
     iter = @buffer.iter_at_offset(@offset_when_show)
     @editor.goto(iter)
   end
@@ -125,7 +128,6 @@ class FindReplace < Gtk::Box
 
   private def search_changed(text : String? = nil) : Nil
     text ||= @entry.text
-    Log.debug { "search_changed(#{text})" }
     options = FindReplaceOptions.parse(text)
     return if options.nil?
 
