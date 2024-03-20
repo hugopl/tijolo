@@ -19,8 +19,6 @@ class Project < GObject::Object
   @directories = Set(Path).new
   @files = Set(Path).new
 
-  signal file_added(path : Path)
-  signal file_removed(path : Path)
   # Emitted when a file was added or removed from project
   signal files_changed
   @files_changed = false
@@ -105,9 +103,11 @@ class Project < GObject::Object
     path = path.relative_to(@root)
     Log.debug { "add file: #{path}" }
 
+    added = false
     @files_mutex.synchronize do
-      file_added_signal.emit(path) if @files.add?(path)
+      added = @files.add?(path)
     end
+    files_changed! if added
   end
 
   private def add_dir(path : Path) : Nil
@@ -118,12 +118,14 @@ class Project < GObject::Object
     directories = Set(Path).new
     scan_dir(path, files, directories)
 
+    added = false
     @files_mutex.synchronize do
       files.each do |file|
-        file_added_signal.emit(file) if @files.add?(file)
+        added ||= @files.add?(file)
       end
       directories.each { |f| @directories.add(f) }
     end
+    files_changed! if added
   end
 
   private def remove_dir(path : Path) : Nil
@@ -137,16 +139,16 @@ class Project < GObject::Object
     end
     return if files_to_remove.nil?
 
-    files_to_remove.each do |file|
-      file_removed_signal.emit(file)
-    end
+    files_changed!
   end
 
   private def remove_file(path : Path) : Nil
     path = path.relative_to(@root)
+    removed = false
     @files_mutex.synchronize do
-      file_removed_signal.emit(path) if @files.delete(path)
+      removed = @files.delete(path)
     end
+    files_changed! if removed
   end
 
   def each_directory

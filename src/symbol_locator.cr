@@ -41,7 +41,7 @@ class SymbolLocator < FuzzyLocator
       symbols = code_model.resource_symbols(resource)
       next if channel.closed? # another search took place, so bail out.
 
-      haystack = Fzy::PreparedHaystack.new(symbols.map(&.name))
+      haystack = symbols.map(&.name)
       @symbols_mutex.synchronize do
         @symbols = symbols
         @last_resource = resource.to_s
