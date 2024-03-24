@@ -28,6 +28,9 @@ class ProjectMonitor
   end
 
   private def dir_changed(file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
+    # TODO: Handle changes_done_hint and just bufferize things on created events.
+    return if event.changed? || event.changes_done_hint?
+
     file_path = Path.new(file.parse_name)
     other_path = Path.new(other_file.parse_name) if other_file
 

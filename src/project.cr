@@ -103,11 +103,9 @@ class Project < GObject::Object
     path = path.relative_to(@root)
     Log.debug { "add file: #{path}" }
 
-    added = false
     @files_mutex.synchronize do
-      added = @files.add?(path)
+      @files.add?(path)
     end
-    files_changed! if added
   end
 
   private def add_dir(path : Path) : Nil
@@ -118,37 +116,29 @@ class Project < GObject::Object
     directories = Set(Path).new
     scan_dir(path, files, directories)
 
-    added = false
     @files_mutex.synchronize do
       files.each do |file|
-        added ||= @files.add?(file)
+        @files.add?(file)
       end
       directories.each { |f| @directories.add(f) }
     end
-    files_changed! if added
   end
 
   private def remove_dir(path : Path) : Nil
     path = path.relative_to(@root)
     # Remove all files under this dir.
     path_str = "#{path}/"
-    files_to_remove : Array(Path)? = nil
     @files_mutex.synchronize do
       files_to_remove = @files.select(&.to_s.starts_with?(path_str))
       @files.subtract(files_to_remove)
     end
-    return if files_to_remove.nil?
-
-    files_changed!
   end
 
   private def remove_file(path : Path) : Nil
     path = path.relative_to(@root)
-    removed = false
     @files_mutex.synchronize do
-      removed = @files.delete(path)
+      @files.delete(path)
     end
-    files_changed! if removed
   end
 
   def each_directory
@@ -210,7 +200,6 @@ class Project < GObject::Object
       Log.info { "#{files.size} project files found in #{Time.monotonic - start_t}" }
       GLib.idle_add do
         on_finish.call
-        files_changed!
         false
       end
     end

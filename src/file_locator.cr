@@ -9,6 +9,7 @@ class FileLocator < FuzzyLocator
 
   def project_load_finished(project : Project)
     @root = project.root
+    update_haystack(project.files.map(&.to_s))
 
     project.files_changed_signal.connect do
       update_haystack(project.files.map(&.to_s))
