@@ -1,3 +1,5 @@
+![Build Status](https://github.com/hugopl/tijolo/actions/workflows/ci.yml/badge.svg?branch=main)
+
 <img align="left" src="./data/io.github.hugopl.Tijolo.svg" width="100" height="100" />
 
 # Tijolo
