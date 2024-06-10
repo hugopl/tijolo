@@ -29,12 +29,8 @@ Gio.register_resource("data/resources.xml", source_dir: "data")
 
 begin
   init_gtk_source_view
-  channel = Channel(Int32).new
-  Thread.new do
-    app = Application.new
-    channel.send(app.run)
-  end
-  code = channel.receive
+  app = Application.new
+  code = app.run
   Log.info { "Tijolo quiting with exit code #{code}." }
   exit(code)
 rescue ex

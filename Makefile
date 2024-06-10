@@ -1,9 +1,9 @@
 .PHONY: all configure test debug install post-install install-fonts uninstall uninstall-fonts
 PREFIX ?= /usr
-CR_FLAGS ?= -Dpreview_mt -Dstrict_multi_assign -Duse_pcre2 -Dpreview_overload_order
+CR_FLAGS ?= -Dstrict_multi_assign -Duse_pcre2 -Dpreview_overload_order
 
 all: .WAIT configure
-	shards build --release -Dpreview_mt $(CR_FLAGS) -s --link-flags='-Wl,--as-needed'
+	shards build --release $(CR_FLAGS) -s --link-flags='-Wl,--as-needed'
 
 configure:
 	shards install

@@ -36,21 +36,15 @@ class SymbolLocator < FuzzyLocator
     return super(view, search_text) if resource.to_s == @last_resource
 
     code_model = view.code_model
-    channel = Channel(Int32).new
-    spawn do
-      symbols = code_model.resource_symbols(resource)
-      next if channel.closed? # another search took place, so bail out.
+    symbols = code_model.resource_symbols(resource)
 
-      haystack = symbols.map(&.name)
-      @symbols_mutex.synchronize do
-        @symbols = symbols
-        @last_resource = resource.to_s
-      end
-      update_haystack(haystack)
-      n = super(view, search_text)
-      channel.send(n)
+    haystack = symbols.map(&.name)
+    @symbols_mutex.synchronize do
+      @symbols = symbols
+      @last_resource = resource.to_s
     end
-    channel
+    update_haystack(haystack)
+    super(view, search_text)
   end
 
   def unselected
