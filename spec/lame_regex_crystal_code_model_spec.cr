@@ -16,7 +16,9 @@ end
 # End of test code 😎️
 
 private def filtered_symbols(filter : CodeSymbol::Kind)
-  LameRegexCrystalCodeModel.new.resource_symbols(Path.new(__FILE__)).select do |symbol|
+  code_model = LameRegexCrystalCodeModel.new
+  code_model.file_opened(Path.new(__FILE__))
+  code_model.resource_symbols(Path.new(__FILE__)).select do |symbol|
     symbol.kind == filter
   end
 end

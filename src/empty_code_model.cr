@@ -6,4 +6,8 @@ class EmptyCodeModel < CodeModel
   def resource_symbols(source : Path) : Array(CodeSymbol)
     @no_symbols
   end
+
+  def find_symbols(name : String) : Array(CodeSymbol)
+    @no_symbols
+  end
 end

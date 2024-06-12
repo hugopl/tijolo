@@ -182,6 +182,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                find:                    ->find,
                find_next:               ->find_next,
                find_prev:               ->find_prev,
+               goto_definition:         ->goto_definition,
     }
     actions.each do |name, closure|
       action = Gio::SimpleAction.new(name.to_s, nil)
@@ -419,7 +420,7 @@ class ApplicationWindow < Adw::ApplicationWindow
                      move_lines_up move_lines_down
                      move_viewport_line_up move_viewport_line_down
                      move_viewport_page_up move_viewport_page_down
-                     find find_next find_prev) %}
+                     find find_next find_prev goto_definition) %}
   private def {{ action.id }}
     with_current_view do |view|
       view.{{ action.id }} if view.responds_to?({{ action.id.symbolize }})

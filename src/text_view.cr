@@ -122,6 +122,23 @@ class TextView < DocumentView
     bottom_revealer.reveal_child = true
   end
 
+  def goto_definition
+    word = @editor.word_at_cursor
+    return if word.empty?
+
+    model = @editor.language.code_model
+    symbols = model.find_symbols(word)
+
+    if symbols.empty?
+      add_toast("Symbol \"#{word}\" not found.")
+    else
+      add_toast("More than one symbol found, going to first one found.") if symbols.size > 1
+
+      location = symbols.first.location
+      activate_action("win.goto_line", "#{location.line}:#{location.column}:#{location.source}")
+    end
+  end
+
   delegate sort_lines, to: @editor
   delegate comment_code, to: @editor
   delegate move_lines_up, to: @editor

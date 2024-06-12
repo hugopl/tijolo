@@ -163,7 +163,7 @@ class CodeEditor < GtkSource::View
     move_viewport_signal.emit(:pages, 1)
   end
 
-  private def word_at_cursor : String
+  def word_at_cursor : String
     start_iter = buffer.iter_at_mark(buffer.insert)
     return "" unless start_iter.inside_word
 

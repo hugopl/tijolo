@@ -1,6 +1,6 @@
 require "./signal_conector"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container label header_start_box header_center_box header_end_box bottom_revealer))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container label header_start_box header_center_box header_end_box bottom_revealer toast_overlay))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
   include SignalConnector
@@ -12,6 +12,7 @@ abstract class View < Gtk::Box
   getter header_center_box : Gtk::Box
   getter header_end_box : Gtk::Box
   getter bottom_revealer : Gtk::Revealer
+  @toast_overlay : Adw::ToastOverlay
 
   def initialize(contents : Gtk::Widget)
     super(css_name: "view")
@@ -20,6 +21,7 @@ abstract class View < Gtk::Box
     @header_center_box = Gtk::Box.cast(template_child(View.g_type, "header_center_box"))
     @header_end_box = Gtk::Box.cast(template_child(View.g_type, "header_end_box"))
     @bottom_revealer = Gtk::Revealer.cast(template_child(View.g_type, "bottom_revealer"))
+    @toast_overlay = Adw::ToastOverlay.cast(template_child(View.g_type, "toast_overlay"))
     bind_property("label", header_label, "label", :default)
 
     container = Gtk::ScrolledWindow.cast(template_child(View.g_type, "container"))
@@ -47,6 +49,10 @@ abstract class View < Gtk::Box
 
   def on_esc_key_pressed
     @bottom_revealer.reveal_child = false
+  end
+
+  def add_toast(message : String) : Nil
+    @toast_overlay.add_toast(Adw::Toast.new(message))
   end
 
   # This is triggered on Ctrl+Shift+C, used to copy from terminal views.

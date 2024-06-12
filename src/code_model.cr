@@ -28,4 +28,6 @@ abstract class CodeModel
   end
 
   abstract def resource_symbols(source : Path) : Array(CodeSymbol)
+
+  abstract def find_symbols(name : String) : Array(CodeSymbol)
 end

@@ -37,8 +37,12 @@
       </object>
     </child>
     <child>
-      <object class="GtkScrolledWindow" id="container">
-        <property name="vexpand">1</property>
+      <object class="AdwToastOverlay" id="toast_overlay">
+        <child>
+          <object class="GtkScrolledWindow" id="container">
+            <property name="vexpand">1</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>
