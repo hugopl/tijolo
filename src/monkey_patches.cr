@@ -72,6 +72,26 @@ module Pango
 end
 
 module GtkSource
+  class FileLoader
+    def load_async(io_priority : Int32, callback : Gio::AsyncReadyCallback? = nil) : Nil
+      c_callback = Pointer(Void).null
+      if callback
+        c_callback = ->(gobj : Void*, result : Void*, box : Void*) {
+          unboxed_callback = Box(Gio::AsyncReadyCallback).unbox(box)
+          unboxed_callback.call(GObject::Object.new(gobj, :none), Gio::AbstractAsyncResult.new(result, :none))
+
+          GICrystal::ClosureDataManager.deregister(box)
+          nil
+        }.pointer
+      end
+
+      # C call
+      box = Box.box(callback)
+      GICrystal::ClosureDataManager.register(box)
+      LibGtkSource.gtk_source_file_loader_load_async(to_unsafe, io_priority, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, c_callback, box)
+    end
+  end
+
   class SearchContext < GObject::Object
     def forward(iter : Gtk::TextIter) : {Bool, Gtk::TextIter, Gtk::TextIter, Bool}
       # gtk_source_search_context_forward: (Method)

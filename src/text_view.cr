@@ -11,8 +11,7 @@ class TextView < DocumentView
   @find_replace : FindReplace
 
   def initialize(resource : Path? = nil, project : Project? = nil)
-    source = File.open(resource) if resource
-    @editor = CodeEditor.new(source, CodeLanguage.detect(resource))
+    @editor = CodeEditor.new(resource)
     super(@editor, resource, project)
 
     @find_replace = FindReplace.new(@editor)
@@ -47,7 +46,7 @@ class TextView < DocumentView
   end
 
   delegate grab_focus, to: @editor
-  delegate :color_scheme=, to: @editor
+  delegate :color_scheme=, to: @editor.buffer
   delegate :language, to: @editor
   delegate :code_model, to: language
 
@@ -73,9 +72,7 @@ class TextView < DocumentView
 
   def do_reload_contents : Nil
     resource = @resource
-    return if resource.nil?
-
-    @editor.reload(File.open(resource))
+    @editor.reload(resource) if resource
   end
 
   private def setup_editor_preferences
@@ -101,10 +98,7 @@ class TextView < DocumentView
   end
 
   def do_save : Nil
-    Log.info { "Saving buffer to #{resource_hint}" }
-    File.open(resource_hint, "w") do |file|
-      @editor.buffer.save(file)
-    end
+    @editor.buffer.save(resource_hint)
   end
 
   def find

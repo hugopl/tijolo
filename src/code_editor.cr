@@ -10,7 +10,7 @@ class CodeEditor < GtkSource::View
 
   getter language : CodeLanguage
 
-  def initialize(source : IO?, @language : CodeLanguage)
+  def initialize(resource : Path?)
     super(show_line_numbers: true,
       monospace: true,
       auto_indent: true,
@@ -18,16 +18,21 @@ class CodeEditor < GtkSource::View
       background_pattern: :grid,
       smart_home_end: :before,
       buffer: CodeBuffer.new)
+    @language = CodeLanguage.detect(resource)
+
+    setup_key_controller
+    supress_source_view_key_bindings
+    load(resource) if resource
+  end
+
+  def setup_key_controller
     key = Gtk::EventControllerKey.new(propagation_phase: :target)
     key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key)
-
-    supress_source_view_key_bindings
-    setup(source)
   end
 
-  def reload(source : IO)
-    setup(source)
+  def reload(resource : Path)
+    load(resource)
   end
 
   private def on_key_press(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
@@ -79,15 +84,10 @@ class CodeEditor < GtkSource::View
     buffer.language = GtkSource::LanguageManager.default.language(@language.id)
   end
 
-  private def setup(source)
-    buffer.text = source.gets_to_end if source
+  private def load(resource : Path)
+    buffer.load(resource)
+
     rehighlight unless @language.none?
-
-    self.color_scheme = Adw::StyleManager.default.color_scheme
-
-    iter = buffer.iter_at_offset(0)
-    buffer.place_cursor(iter)
-    buffer.modified = false
   end
 
   # For compatibility with non-gsv CodeEditor
@@ -202,15 +202,5 @@ class CodeEditor < GtkSource::View
              identifier_at_cursor
            end
     text
-  end
-
-  def color_scheme=(scheme : Adw::ColorScheme)
-    style_manager = GtkSource::StyleSchemeManager.default
-
-    if scheme.force_dark?
-      buffer.style_scheme = style_manager.scheme("monokai")
-    else
-      buffer.style_scheme = style_manager.scheme("Adwaita")
-    end
   end
 end

@@ -8,8 +8,9 @@ describe CodeBuffer do
 
     buffer = CodeBuffer.new
     buffer.text = text
-    saved = IO::Memory.new
-    buffer.save(saved)
-    saved.to_s.should eq("hey\n ho\nlet's go\n\n")
+
+    tempfile = File.tempfile("foo")
+    buffer.save(Path[tempfile.path])
+    buffer.text.should eq("hey\n ho\nlet's go\n\n")
   end
 end
