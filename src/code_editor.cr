@@ -45,7 +45,7 @@ class CodeEditor < GtkSource::View
   def insert_char_around_selection(keyval : UInt32) : Bool
     return false unless buffer.has_selection?
 
-    start_chr, end_chr = case (keyval)
+    start_chr, end_chr = case keyval
                          when Gdk::KEY_bracketleft then {"[", "]"}
                          when Gdk::KEY_parenleft   then {"(", ")"}
                          when Gdk::KEY_braceleft   then {"{", "}"}

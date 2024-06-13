@@ -3,7 +3,6 @@ require "./spec_helper"
 describe ViewIterator do
   it "traverse views (1)" do
     vm = ViewManager.new
-    vm = ViewManager.new
     one = TestView.new("one")
     two = TestView.new("two")
     three = TestView.new("three")
@@ -15,7 +14,6 @@ describe ViewIterator do
   end
 
   it "traverse views (2)" do
-    vm = ViewManager.new
     vm = ViewManager.new
     one = TestView.new("one")
     two = TestView.new("two")

@@ -19,7 +19,6 @@ class Application < Adw::Application
     super(application_id: "io.github.hugopl.Tijolo", flags: flags)
 
     @settings = Gio::Settings.new("io.github.hugopl.Tijolo")
-    style_manager = Adw::StyleManager.default
     @settings.changed_signal["style-variant"].connect(->theme_changed(String))
     theme_changed
 

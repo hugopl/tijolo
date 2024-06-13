@@ -1,6 +1,15 @@
+Documentation/DocumentationAdmonition:
+  Enabled: false
+Lint/MissingBlockArgument:
+  Enabled: false
+Lint/NotNil:
+  Enabled: false
 Metrics/CyclomaticComplexity:
   MaxComplexity: 20
+Naming/AccessorMethodName:
+  Enabled: false
 Style/VerboseBlock:
   Enabled: false
 Performance/AnyInsteadOfEmpty:
   Enabled: false
+

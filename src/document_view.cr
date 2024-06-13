@@ -52,7 +52,6 @@ abstract class DocumentView < View
   end
 
   def save_as(resource : Path) : Nil
-    old_resource = @resource
     self.resource = resource
     save
   end
