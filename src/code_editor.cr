@@ -26,7 +26,7 @@ class CodeEditor < GtkSource::View
   end
 
   def setup_key_controller
-    key = Gtk::EventControllerKey.new(propagation_phase: :target)
+    key = Gtk::EventControllerKey.new(propagation_phase: :capture)
     key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key)
   end
