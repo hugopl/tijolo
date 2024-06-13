@@ -3,6 +3,7 @@
 /bin/
 /.shards/
 /.ccls-cache/
+TODO.md
 *~
 *.deb
 *.deb.sig
