@@ -1,5 +1,9 @@
 require "./code_model"
 
+# Missing things
+# - Update model when file gets updated.
+# - Parse entire project
+# - Thrown all this away and write a generic tree-sitter code model
 class LameRegexCrystalCodeModel < CodeModel
   Log = ::Log.for(LameRegexCrystalCodeModel)
 

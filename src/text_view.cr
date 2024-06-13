@@ -108,7 +108,7 @@ class TextView < DocumentView
   end
 
   def find
-    @find_replace.find(@editor.selection_or_word_at_cursor)
+    @find_replace.find(@editor.selection_or_identifier_at_cursor)
     bottom_revealer.reveal_child = true
   end
 
@@ -123,7 +123,7 @@ class TextView < DocumentView
   end
 
   def goto_definition
-    word = @editor.word_at_cursor
+    word = @editor.identifier_at_cursor
     return if word.empty?
 
     model = @editor.language.code_model

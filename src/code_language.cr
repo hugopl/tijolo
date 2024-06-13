@@ -17,6 +17,10 @@ class CodeLanguage
     @id.empty?
   end
 
+  def identifier_boundaries : String
+    " \n\r\t()[]{}.,;></\\+=#|`-"
+  end
+
   def self.detect(_nil : Nil) : CodeLanguage
     CodeLanguage::NONE
   end

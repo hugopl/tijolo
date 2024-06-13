@@ -163,22 +163,43 @@ class CodeEditor < GtkSource::View
     move_viewport_signal.emit(:pages, 1)
   end
 
-  def word_at_cursor : String
-    start_iter = buffer.iter_at_mark(buffer.insert)
-    return "" unless start_iter.inside_word
+  def identifier_at_cursor : String
+    iter = buffer.iter_at_mark(buffer.insert)
+    return "" if iter.char.in_set?(language.identifier_boundaries)
 
-    start_iter.backward_word_start unless start_iter.starts_word
-    end_iter = current_iter
-    end_iter.forward_word_end
+    start_iter = goto_start_of_identifier(iter)
+    end_iter = goto_end_of_identifier(iter)
+
     buffer.select_range(start_iter, end_iter)
     buffer.text(start_iter, end_iter, false)
   end
 
-  def selection_or_word_at_cursor : String
+  private def goto_end_of_identifier(iter : Gtk::TextIter)
+    boundaries = language.identifier_boundaries
+    iter = iter.copy
+    while iter.forward_char
+      break if iter.char.in_set?(boundaries)
+    end
+    iter
+  end
+
+  private def goto_start_of_identifier(iter : Gtk::TextIter)
+    boundaries = language.identifier_boundaries
+    iter = iter.copy
+    while iter.backward_char
+      if iter.char.in_set?(boundaries)
+        iter.forward_char
+        break
+      end
+    end
+    iter
+  end
+
+  def selection_or_identifier_at_cursor : String
     text = if buffer.has_selection?
              buffer.text(*buffer.selection_bounds, false)
            else
-             word_at_cursor
+             identifier_at_cursor
            end
     text
   end
