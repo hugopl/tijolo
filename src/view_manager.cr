@@ -115,11 +115,17 @@ class ViewManager < Gtk::Widget
   end
 
   def focus_changed
-    view = focus_child
-    return unless view.is_a?(View)
     return if rotating_views?
 
-    set_current_node(@root.try(&.find_node(view)))
+    child = focus_child
+    view : View? = nil
+    while child
+      view = child if child.is_a?(View)
+      child = child.parent
+    end
+
+    view.check_for_external_changes if view.is_a?(DocumentView)
+    set_current_node(@root.try(&.find_node(view))) if view
   end
 
   def add_view(view : View) : Nil

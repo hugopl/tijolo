@@ -1,4 +1,12 @@
 # Temporaty monkey patches to GTK4 shard will live her euntil they mature and get upstreammed to gtk4 shard.
+module Gio
+  module File
+    def self.new_for_path(path : ::Path) : Gio::File
+      new_for_path(path.to_s)
+    end
+  end
+end
+
 module Gtk
   class Widget
     # :ditto:
@@ -73,7 +81,7 @@ end
 
 module GtkSource
   class FileLoader
-    def load_async(io_priority : Int32, callback : Gio::AsyncReadyCallback? = nil) : Nil
+    def load_async(io_priority : GLib::Priority, cancellable : Gio::Cancellable? = nil, &callback : Gio::AsyncReadyCallback) : Nil
       c_callback = Pointer(Void).null
       if callback
         c_callback = ->(gobj : Void*, result : Void*, box : Void*) {
@@ -88,7 +96,27 @@ module GtkSource
       # C call
       box = Box.box(callback)
       GICrystal::ClosureDataManager.register(box)
-      LibGtkSource.gtk_source_file_loader_load_async(to_unsafe, io_priority, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, c_callback, box)
+      LibGtkSource.gtk_source_file_loader_load_async(to_unsafe, io_priority, cancellable, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, c_callback, box)
+    end
+  end
+
+  class FileSaver
+    def save_async(io_priority : GLib::Priority, cancellable : Gio::Cancellable? = nil, &callback : Gio::AsyncReadyCallback) : Nil
+      c_callback = Pointer(Void).null
+      if callback
+        c_callback = ->(gobj : Void*, result : Void*, box : Void*) {
+          unboxed_callback = Box(Gio::AsyncReadyCallback).unbox(box)
+          unboxed_callback.call(GObject::Object.new(gobj, :none), Gio::AbstractAsyncResult.new(result, :none))
+
+          GICrystal::ClosureDataManager.deregister(box)
+          nil
+        }.pointer
+      end
+
+      # C call
+      box = Box.box(callback)
+      GICrystal::ClosureDataManager.register(box)
+      LibGtkSource.gtk_source_file_saver_save_async(to_unsafe, io_priority, cancellable, Pointer(Void).null, Pointer(Void).null, Pointer(Void).null, c_callback, box)
     end
   end
 

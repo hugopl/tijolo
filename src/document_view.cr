@@ -8,6 +8,8 @@ abstract class DocumentView < View
   property modified = false
   @[GObject::Property]
   property externally_modified = false
+  @[GObject::Property]
+  property deleted = false
 
   @resource_actions = [] of Gio::SimpleAction
 
@@ -19,9 +21,10 @@ abstract class DocumentView < View
     header_center_box.insert_child_after(modified_label, header_label)
     bind_property("modified", modified_label, "visible", :default)
 
-    warning_icon = Gtk::Image.new(icon_name: "dialog-warning-symbolic", margin_end: 3, visible: false)
-    header_center_box.insert_child_after(warning_icon, modified_label)
-    bind_property("externally_modified", warning_icon, "visible", :default)
+    ext_modified_banner = Adw::Banner.cast(template_child(View.g_type, "file_externally_modified_banner"))
+    bind_property("externally_modified", ext_modified_banner, "revealed", :default)
+    ext_deleted_banner = Adw::Banner.cast(template_child(View.g_type, "file_deleted_banner"))
+    bind_property("deleted", ext_deleted_banner, "revealed", :default)
 
     copy_path_btn = Gtk::MenuButton.new(icon_name: "edit-copy-symbolic",
       focus_on_click: false,
@@ -43,8 +46,17 @@ abstract class DocumentView < View
     self.externally_modified = false
   end
 
+  def check_for_external_changes : Nil
+    do_check_for_external_changes
+    if @externally_modified && !@modified
+      reload_contents
+      self.externally_modified = false
+    end
+  end
+
   abstract def do_save : Nil
   abstract def do_reload_contents : Nil
+  abstract def do_check_for_external_changes : Nil
 
   # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`
   def modified?

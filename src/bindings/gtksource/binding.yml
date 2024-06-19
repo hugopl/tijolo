@@ -3,3 +3,7 @@ version: "5"
 
 require_after:
 - buffer.cr
+
+execute_callback:
+- gtk_source_file_loader_load_async
+- gtk_source_file_saver_save_async

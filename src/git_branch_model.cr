@@ -16,7 +16,7 @@ class GitBranchModel < GObject::Object
     path = project_root.join(".git/HEAD")
     return false unless File.exists?(path)
 
-    @head_monitor = monitor = Gio::File.new_for_path(path.to_s).monitor_file(:none, nil)
+    @head_monitor = monitor = Gio::File.new_for_path(path).monitor_file(:none, nil)
     monitor.changed_signal.connect do
       reload_head
     end

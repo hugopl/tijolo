@@ -1,6 +1,6 @@
 require "./signal_conector"
 
-@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container label header_start_box header_center_box header_end_box bottom_revealer toast_overlay))]
+@[Gtk::UiTemplate(file: "#{__DIR__}/ui/view.ui", children: %w(container label header_start_box header_center_box header_end_box bottom_revealer toast_overlay file_externally_modified_banner file_deleted_banner))]
 abstract class View < Gtk::Box
   include Gtk::WidgetTemplate
   include SignalConnector

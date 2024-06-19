@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
 
   <template class="View" parent="GtkBox">
     <property name="orientation">vertical</property>
@@ -39,8 +40,23 @@
     <child>
       <object class="AdwToastOverlay" id="toast_overlay">
         <child>
-          <object class="GtkScrolledWindow" id="container">
-            <property name="vexpand">1</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="AdwBanner" id="file_externally_modified_banner">
+                <property name="title">File has changed on disk, F5 to reload.</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwBanner" id="file_deleted_banner">
+                <property name="title">File was deleted on disk! Ctrl+S to save it.</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="container">
+                <property name="vexpand">1</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

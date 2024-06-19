@@ -71,8 +71,19 @@ class TextView < DocumentView
   end
 
   def do_reload_contents : Nil
-    resource = @resource
-    @editor.reload(resource) if resource
+    @editor.reload if @resource
+  end
+
+  def do_check_for_external_changes : Nil
+    source_file = @editor.source_file
+    return if !source_file.is_local || source_file.location.nil?
+
+    source_file.check_file_on_disk
+    self.deleted = source_file.is_deleted
+    unless @deleted
+      self.externally_modified = source_file.is_externally_modified
+      self.readonly = source_file.is_readonly
+    end
   end
 
   private def setup_editor_preferences
@@ -98,7 +109,7 @@ class TextView < DocumentView
   end
 
   def do_save : Nil
-    @editor.buffer.save(resource_hint)
+    @editor.save(resource_hint)
   end
 
   def find

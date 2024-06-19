@@ -40,6 +40,8 @@ class ApplicationWindow < Adw::ApplicationWindow
     key_ctl.key_released_signal.connect(->key_released(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key_ctl)
 
+    notify_signal["is-active"].connect(->on_window_active_changed(GObject::ParamSpec))
+
     if @project.valid?
       open_project
     else
@@ -448,6 +450,14 @@ class ApplicationWindow < Adw::ApplicationWindow
     else
       header.visible = false
       fullscreen
+    end
+  end
+
+  private def on_window_active_changed(_spec)
+    with_current_view do |view|
+      return unless view.is_a?(DocumentView)
+
+      view.check_for_external_changes
     end
   end
 
