@@ -8,6 +8,11 @@ end
 def method_for_testing!
 end
 
+private class Classs
+  def self.method_for_testing!
+  end
+end
+
 describe "Nop" do
   it "test" do
   end
@@ -28,12 +33,14 @@ describe LameRegexCrystalCodeModel do
     symbols = filtered_symbols(:method)
     symbols[0].name.should eq("method_for_testing!")
     symbols[0].location.line.should eq(7)
+    symbols[1].name.should eq("self.method_for_testing!")
+    symbols[1].location.line.should eq(11)
   end
 
   it "find test cases" do
     symbols = filtered_symbols(:test_case)
     symbols[0].name == "test"
-    symbols[0].location.line.should eq(11)
+    symbols[0].location.line.should eq(16)
   end
 
   it "find macros" do
