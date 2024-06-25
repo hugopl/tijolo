@@ -12,9 +12,6 @@ jobs:
   tests:
     strategy:
       fail-fast: true
-      matrix:
-        # Remove -Dno_terminal when libvte-2.91-gtk4-dev gets available on latest github actions ubuntu
-        flags: ["-Dno_terminal"]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +20,7 @@ jobs:
         with:
           crystal: latest
       - name: Install dependencies
-        run: sudo apt-get update -y && sudo apt-get install libgtk-4-dev libgtksourceview-5-dev libadwaita-1-dev gobject-introspection gir1.2-gtk-4.0 libgirepository1.0-dev
+        run: sudo apt-get update -y && sudo apt-get install libgtk-4-dev libgtksourceview-5-dev libadwaita-1-dev gobject-introspection gir1.2-gtk-4.0 libvte-2.91-gtk4-0 gir1.2-vte-3.91 libgirepository1.0-dev
       - name: Install crystal dependencies
         run: shards install
       - name: Linter
