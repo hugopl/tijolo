@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2024-06-27
+### Added
+ - Implement "goto definition" feature, meanwhile very limited... but it's something.
+ - Load/save file assyncronous without block UI.
+ - Detect when an open file was external modified.
+ - Detect when an open file was external deleted.
+
+### Fixed
+ - Fix auto parenthesis selection feature with newer GTK versions.
+ - Do not reset cursor on file refresh.
+ - Let `LameRegexCrystalCodeModel` identify class methods.
+ - Better handle project directory monitors on diretoties added/removed.
+
 ## [0.8.1] - 2024-01-15
 ### Fixed
  - Fixed compilation with GLib 2.80 and GTK 4.14 (#67).
