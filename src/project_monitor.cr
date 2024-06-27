@@ -23,8 +23,11 @@ class ProjectMonitor
   end
 
   private def destroy_monitor(dir : String)
-    @monitors[dir]?.try(&.cancel)
-    @monitors.delete(dir)
+    monitor = @monitors.delete(dir)
+    if monitor
+      Log.debug { "Destroying monitor #{dir}" }
+      monitor.cancel
+    end
   end
 
   private def dir_changed(file : Gio::File, other_file : Gio::File?, event : Gio::FileMonitorEvent)
@@ -34,11 +37,12 @@ class ProjectMonitor
     file_path = Path.new(file.parse_name)
     other_path = Path.new(other_file.parse_name) if other_file
 
-    Log.debug { "Got event! #{event}" }
     case event
     when .created?
       @project.add_path(file_path)
+      create_monitor(file_path.to_s) if File.info(file_path).directory?
     when .deleted?
+      destroy_monitor(file_path.to_s)
       @project.remove_path(file_path)
     when .renamed?
       @project.rename_path(file_path, other_path) if other_path
