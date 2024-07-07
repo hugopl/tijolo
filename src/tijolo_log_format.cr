@@ -24,6 +24,12 @@ struct TijoloLogFormat
     entry.severity.label.colorize(color).to_s(io)
     io << ' ' << entry.source.colorize.cyan unless entry.source.empty?
     # Message
-    io << ": " << entry.message
+    io << ": "
+    exception = entry.exception
+    if  exception && entry.severity > Log::Severity::Warn && entry.exception
+      exception.inspect_with_backtrace(io)
+    else
+      io << entry.message
+    end
   end
 end
