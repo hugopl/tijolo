@@ -86,6 +86,8 @@ class Project < GObject::Object
   def add_path(path : Path)
     Dir.exists?(path) ? add_dir(path) : add_file(path)
     files_changed!
+  rescue File::NotFoundError
+    Log.info { "File or directory not found: #{path}." }
   end
 
   def remove_path(path : Path)
