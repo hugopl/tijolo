@@ -26,7 +26,7 @@ struct TijoloLogFormat
     # Message
     io << ": "
     exception = entry.exception
-    if  exception && entry.severity > Log::Severity::Warn && entry.exception
+    if exception && entry.severity > Log::Severity::Warn && entry.exception
       exception.inspect_with_backtrace(io)
     else
       io << entry.message
