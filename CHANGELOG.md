@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2024-07-11
+### Fix
+ - Pass "-Wl,--as-needed" linker flags to prevent overlinking, thanks @micwoj92 (#20)
+ - Fixed some crashes intorduced in 0.9.0 (ff2648cd4eeb59b985333e9f13d8c4d7efeb32ca)
+ - Do not use -Dpreview_mt to avoid some freezes (b5b95e02cd55fba4ce3bd071b80bc1d8e03382c9)
+ - Log stacktrace on errors (46abc6c5fbe37371715fcdf1767dd7817602f85e)
+
 ## [0.9.0] - 2024-06-27
 ### Added
  - Implement "goto definition" feature, meanwhile very limited... but it's something.
