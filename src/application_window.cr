@@ -280,16 +280,15 @@ class ApplicationWindow < Adw::ApplicationWindow
     with_current_view do |view|
       next unless view.is_a?(DocumentView)
 
-      dialog = Gtk::FileChooserNative.new("Save File", self, :save, "_Spen", "_Cancel")
-      dialog.response_signal.connect do |response|
-        if Gtk::ResponseType.from_value(response).accept?
-          path = dialog.file.try(&.path)
-          view.save_as(path) if path
-        end
-        dialog.destroy
+      resource = view.resource
+      folder = resource ? resource.dirname : @project.root
+      dialog = Gtk::FileDialog.new(initial_folder: Gio::File.new_for_path(folder))
+      dialog.save(self, nil) do |_obj, result|
+        path = dialog.save_finish(result).try(&.path)
+        view.save_as(path) if path
+      rescue e : Gtk::DialogError::Dismissed
+        nil
       end
-
-      dialog.show
     end
   end
 
@@ -329,18 +328,13 @@ class ApplicationWindow < Adw::ApplicationWindow
   end
 
   def show_open_file_dialog
-    # FIXME: Something is storing `dialog` address and not letting it be garbage collected
-    dialog = Gtk::FileChooserNative.new("Open File", self, :open, "_Open", "_Cancel")
-
-    dialog.response_signal.connect do |response|
-      if Gtk::ResponseType.from_value(response).accept?
-        path = dialog.file.try(&.path)
-        open(path) if path
-      end
-      dialog.destroy
+    dialog = Gtk::FileDialog.new(initial_folder: Gio::File.new_for_path(@project.root.dirname))
+    dialog.open(self, nil) do |obj, result|
+      path = dialog.open_finish(result).try(&.path)
+      open(path) if path
+    rescue e : Gtk::DialogError::Dismissed
+      nil
     end
-
-    dialog.show
   end
 
   def new_file
