@@ -3,7 +3,7 @@ PREFIX ?= /usr
 CR_FLAGS ?= -Dstrict_multi_assign -Duse_pcre2 -Dpreview_overload_order
 
 all: .WAIT configure
-	shards build --release $(CR_FLAGS) -s --link-flags='-Wl,--as-needed'
+	shards build --release --debug $(CR_FLAGS) -s --link-flags='-Wl,--as-needed'
 
 configure:
 	shards install
