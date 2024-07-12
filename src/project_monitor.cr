@@ -47,5 +47,7 @@ class ProjectMonitor
     when .renamed?
       @project.rename_path(file_path, other_path) if other_path
     end
+  rescue e : File::NotFoundError
+    Log.warn { e.message }
   end
 end
