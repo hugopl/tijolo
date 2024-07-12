@@ -12,9 +12,6 @@ jobs:
   tests:
     strategy:
       fail-fast: true
-      matrix:
-        # Remove -Dno_terminal when libvte-2.91-gtk4-dev gets available on latest github actions ubuntu
-        flags: ["-Dno_terminal"]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +20,7 @@ jobs:
         with:
           crystal: latest
       - name: Install dependencies
-        run: sudo apt-get update -y && sudo apt-get install libgtk-4-dev libgtksourceview-5-dev libadwaita-1-dev gobject-introspection gir1.2-gtk-4.0 libgirepository1.0-dev libgtkhex-4-dev
+        run: sudo apt-get update -y && sudo apt-get install libgtk-4-dev libgtksourceview-5-dev libadwaita-1-dev gobject-introspection gir1.2-gtk-4.0 libgirepository1.0-dev libvte-2.91-gtk4-dev libgtkhex-4-dev
       - name: Install crystal dependencies
         run: shards install
       - name: Linter
@@ -31,8 +28,8 @@ jobs:
       - name: Generate bindings
         run: ./bin/gi-crystal
       - name: Compile
-        run: shards build ${{ matrix.flags }} -s -Dno_hexeditor
+        run: shards build -s -Dno_hexeditor
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: crystal spec ${{ matrix.flags }} -v -Dno_hexeditor
+          run: crystal spec -v -Dno_hexeditor
