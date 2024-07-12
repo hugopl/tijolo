@@ -8,7 +8,11 @@ class ViewFactory
     if image?(resource)
       raise TijoloError.new("Image files are not supported yet 😅.")
     elsif elf?(resource)
-      HexView.new(resource, project)
+      {% if flag?(:no_hexeditor) %}
+        raise TijoloError.new("Tijolo was compiled without support for an hexeditor 😢.")
+      {% else %}
+        HexView.new(resource, project)
+      {% end %}
     else
       TextView.new(resource, project)
     end

@@ -31,8 +31,8 @@ jobs:
       - name: Generate bindings
         run: ./bin/gi-crystal
       - name: Compile
-        run: shards build ${{ matrix.flags }} -s
+        run: shards build ${{ matrix.flags }} -s -Dno_hexeditor
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: crystal spec ${{ matrix.flags }} -v
+          run: crystal spec ${{ matrix.flags }} -v -Dno_hexeditor

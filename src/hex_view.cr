@@ -1,3 +1,5 @@
+{% skip_file if flag?(:no_hexeditor) %}
+
 GICrystal.require("Hex", "4")
 
 class HexView < DocumentView
