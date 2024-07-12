@@ -13,7 +13,6 @@
         <property name="max-height">12</property>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">Shortcuts you need to known before doing anything</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Ctrl&gt;P</property>
@@ -29,19 +28,19 @@
             <child>
               <object class="GtkShortcutsShortcut" id="alt_arrows">
                 <property name="accelerator">&lt;Alt&gt;Left Down Right Up</property>
-                <property name="title" translatable="yes">Focus editor at ←↓→↑</property>
+                <property name="title" translatable="yes">Focus document at ←↓→↑</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut" id="alt_arrows2">
                 <property name="accelerator">&lt;Alt&gt;&lt;Shift&gt;Left Down Right Up</property>
-                <property name="title" translatable="yes">Move/Split editor to ←↓→↑</property>
+                <property name="title" translatable="yes">Move document to stack at ←↓→↑</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Ctrl&gt;W</property>
-                <property name="title" translatable="yes">Close view</property>
+                <property name="title" translatable="yes">Close document</property>
               </object>
             </child>
             <child>
