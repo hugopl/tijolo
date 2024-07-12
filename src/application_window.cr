@@ -369,7 +369,7 @@ class ApplicationWindow < Adw::ApplicationWindow
     else
       view_manager.show_view(view, reorder: true, focus: true)
     end
-  rescue e : IO::Error
+  rescue e : IO::Error | TijoloError
     application.error(e)
   end
 
