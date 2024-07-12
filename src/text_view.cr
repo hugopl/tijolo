@@ -5,7 +5,6 @@ require "./find_replace"
 class TextView < DocumentView
   Log = ::Log.for(self)
 
-  @@untitled_count = 0
   @editor : CodeEditor
   @line_column = Gtk::Label.new
   @find_replace : FindReplace
@@ -45,7 +44,6 @@ class TextView < DocumentView
     end
   end
 
-  delegate grab_focus, to: @editor
   delegate :color_scheme=, to: @editor.buffer
   delegate :language, to: @editor
   delegate :code_model, to: language

@@ -13,8 +13,9 @@ abstract class View < Gtk::Box
   getter header_end_box : Gtk::Box
   getter bottom_revealer : Gtk::Revealer
   @toast_overlay : Adw::ToastOverlay
+  getter contents : Gtk::Widget
 
-  def initialize(contents : Gtk::Widget)
+  def initialize(@contents)
     super(css_name: "view")
 
     @header_start_box = Gtk::Box.cast(template_child(View.g_type, "header_start_box"))
@@ -36,7 +37,7 @@ abstract class View < Gtk::Box
     Gtk::Label.cast(template_child(View.g_type, "label"))
   end
 
-  abstract def grab_focus
+  delegate grab_focus, to: @contents
 
   private def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
     if key_val == Gdk::KEY_Escape

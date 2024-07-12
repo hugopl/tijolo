@@ -5,8 +5,6 @@ require "vte"
 class TerminalView < View
   @term = Vte::Terminal.new
 
-  delegate grab_focus, to: @term
-
   def initialize
     super(@term)
     self.label = "Terminal"

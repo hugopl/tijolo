@@ -11,6 +11,7 @@ abstract class DocumentView < View
   @[GObject::Property]
   property deleted = false
 
+  @@untitled_count = 0
   @resource_actions = [] of Gio::SimpleAction
 
   def initialize(contents : Gtk::Widget, resource : Path?, @project : Project?)
