@@ -35,17 +35,9 @@ abstract class DocumentView < View
     setup_document_view_actions
   end
 
-  def save : Nil
-    return if readonly?
-
-    do_save
-    self.externally_modified = false
-  end
-
-  def reload_contents
-    do_reload_contents
-    self.externally_modified = false
-  end
+  abstract def save : Nil
+  abstract def save_as(resource : Path) : Nil
+  abstract def reload_contents
 
   def check_for_external_changes : Nil
     do_check_for_external_changes
@@ -55,18 +47,11 @@ abstract class DocumentView < View
     end
   end
 
-  abstract def do_save : Nil
-  abstract def do_reload_contents : Nil
   abstract def do_check_for_external_changes : Nil
 
   # FIXME: gi-crystal isn't notifying the property change if modified is declared as `property?`
   def modified?
     @modified
-  end
-
-  def save_as(resource : Path) : Nil
-    self.resource = resource
-    save
   end
 
   def resource=(resource : Path?) : Nil

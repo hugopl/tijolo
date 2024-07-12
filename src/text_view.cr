@@ -5,13 +5,17 @@ require "./find_replace"
 class TextView < DocumentView
   Log = ::Log.for(self)
 
-  @editor : CodeEditor
+  getter editor : CodeEditor
   @line_column = Gtk::Label.new
   @find_replace : FindReplace
+  @source_file : GtkSource::File
 
   def initialize(resource : Path? = nil, project : Project? = nil)
     @editor = CodeEditor.new(resource)
     super(@editor, resource, project)
+
+    @source_file = GtkSource::File.new
+    @source_file.location = Gio::File.new_for_path(resource) if resource
 
     @find_replace = FindReplace.new(@editor)
     @find_replace.bind_property("active", bottom_revealer, "reveal_child", :none)
@@ -42,6 +46,8 @@ class TextView < DocumentView
         code_model.delete_text(res, offset, end_iter.offset - offset)
       end
     end
+
+    load(0) if resource
   end
 
   delegate :color_scheme=, to: @editor.buffer
@@ -54,12 +60,6 @@ class TextView < DocumentView
     code_model.file_closed(resource) if resource
   end
 
-  def resource=(resource : Path?) : Nil
-    super(resource)
-
-    highlight
-  end
-
   private def highlight
     resource = @resource
     if resource
@@ -68,19 +68,19 @@ class TextView < DocumentView
     end
   end
 
-  def do_reload_contents : Nil
-    @editor.reload if @resource
+  def reload_contents : Nil
+    load(@editor.buffer.cursor_position)
+    self.externally_modified = false
   end
 
   def do_check_for_external_changes : Nil
-    source_file = @editor.source_file
-    return if !source_file.is_local || source_file.location.nil?
+    return if !@source_file.is_local || @source_file.location.nil?
 
-    source_file.check_file_on_disk
-    self.deleted = source_file.is_deleted
+    @source_file.check_file_on_disk
+    self.deleted = @source_file.is_deleted
     unless @deleted
-      self.externally_modified = source_file.is_externally_modified
-      self.readonly = source_file.is_readonly
+      self.externally_modified = @source_file.is_externally_modified
+      self.readonly = @source_file.is_readonly
     end
   end
 
@@ -106,8 +106,48 @@ class TextView < DocumentView
     @editor.cursor_line_col[0]
   end
 
-  def do_save : Nil
-    @editor.save(resource_hint)
+  private def load(cursor_offset : Int32)
+    buffer = @editor.buffer
+    loader = GtkSource::FileLoader.new(buffer, @source_file)
+    loader.load_async(:default) do |_source, result|
+      loader.load_finish(result)
+      iter = buffer.iter_at_offset(cursor_offset)
+      buffer.place_cursor(iter)
+      highlight
+      nil
+    rescue ex
+      Log.error(exception: ex) { "Error loading file: #{ex.message}" }
+    end
+  end
+
+  def save : Nil
+    buffer = @editor.buffer
+    buffer.remove_trailing_spaces!
+
+    saver = GtkSource::FileSaver.new(buffer: buffer, file: @source_file, flags: :ignore_modification_time)
+    saver.save_async(:default) do |obj, result|
+      v = saver.save_finish(result)
+      buffer.modified = false
+      self.externally_modified = false
+    rescue ex
+      Log.error(exception: ex) { "Error saving file: #{ex.message}" }
+    end
+  end
+
+  def save_as(resource : Path) : Nil
+    buffer = @editor.buffer
+    buffer.remove_trailing_spaces!
+
+    saver = GtkSource::FileSaver.new_with_target(buffer: buffer, file: @source_file,
+      target_location: Gio::File.new_for_path(resource.to_s))
+    saver.flags = :ignore_modification_time
+    saver.save_async(:default) do |obj, result|
+      v = saver.save_finish(result)
+      buffer.modified = false
+      self.externally_modified = false
+    rescue ex
+      Log.error(exception: ex) { "Error saving file: #{ex.message}" }
+    end
   end
 
   def find

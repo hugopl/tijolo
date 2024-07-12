@@ -270,8 +270,10 @@ class ApplicationWindow < Adw::ApplicationWindow
 
       if view.resource.nil?
         save_current_view_as
+      elsif !view.readonly? && view.modified
+        view.save
       else
-        view.save if view.modified?
+        Log.info { "Skipping save for readonly and/or unmodified documents" }
       end
     end
   end
@@ -294,7 +296,9 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   private def reload_current_view
     with_current_view do |view|
-      view.reload_contents if view.is_a?(DocumentView)
+      if view.is_a?(DocumentView) && view.resource
+        view.reload_contents
+      end
     end
   end
 

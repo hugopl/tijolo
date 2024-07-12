@@ -9,7 +9,6 @@ class CodeEditor < GtkSource::View
   include CodeCommenter
 
   getter language : CodeLanguage
-  getter source_file : GtkSource::File
 
   def initialize(resource : Path?)
     super(show_line_numbers: true,
@@ -20,22 +19,15 @@ class CodeEditor < GtkSource::View
       smart_home_end: :before,
       buffer: CodeBuffer.new)
     @language = CodeLanguage.detect(resource)
-    @source_file = GtkSource::File.new
-    @source_file.location = Gio::File.new_for_path(resource) if resource
 
     setup_key_controller
     supress_source_view_key_bindings
-    load(0) if resource
   end
 
   def setup_key_controller
     key = Gtk::EventControllerKey.new(propagation_phase: :capture)
     key.key_pressed_signal.connect(->on_key_press(UInt32, UInt32, Gdk::ModifierType))
     add_controller(key)
-  end
-
-  def reload
-    load(buffer.cursor_position)
   end
 
   private def on_key_press(keyval : UInt32, keycode : UInt32, state : Gdk::ModifierType) : Bool
@@ -80,41 +72,7 @@ class CodeEditor < GtkSource::View
   end
 
   def language=(@language : CodeLanguage)
-    rehighlight
-  end
-
-  private def rehighlight
     buffer.language = GtkSource::LanguageManager.default.language(@language.id)
-  end
-
-  private def load(cursor_offset : Int32)
-    loader = GtkSource::FileLoader.new(buffer, @source_file)
-    loader.load_async(:default) do |_source, result|
-      loader.load_finish(result)
-      iter = buffer.iter_at_offset(cursor_offset)
-      buffer.place_cursor(iter)
-      rehighlight unless @language.none?
-      nil
-    rescue ex
-      Log.error(exception: ex) { "Error loading file: #{ex.message}" }
-    end
-  end
-
-  def save(target_location : Path?)
-    buffer.remove_trailing_spaces!
-
-    saver = if target_location
-              GtkSource::FileSaver.new_with_target(buffer, @source_file, Gio::File.new_for_path(target_location.to_s))
-            else
-              GtkSource::FileSaver.new(buffer, @source_file)
-            end
-    saver.flags = :ignore_modification_time
-    saver.save_async(:default) do |obj, result|
-      v = saver.save_finish(result)
-      buffer.modified = false
-    rescue ex
-      Log.error(exception: ex) { "Error saving file: #{ex.message}" }
-    end
   end
 
   # For compatibility with non-gsv CodeEditor
