@@ -2,12 +2,14 @@ require "./text_view"
 require "./hex_view"
 
 class ViewFactory
-  private ELF_SIGNATURE = 0x7f454c46 # In Big endian 0x7f, 'E', 'L', 'F'
+  @@buffer = Bytes.new(128)
 
   def self.build(resource : Path, project : Project) : View
     if image?(resource)
-      raise TijoloError.new("Image files are not supported yet 😅.")
-    elsif elf?(resource)
+      HexView.new(resource, project).tap do |view|
+        view.add_toast("Image files are not supported yet. Have fun with an hex editor 😅")
+      end
+    elsif binary?(resource)
       {% if flag?(:no_hexeditor) %}
         raise TijoloError.new("Tijolo was compiled without support for an hexeditor 😢.")
       {% else %}
@@ -22,11 +24,12 @@ class ViewFactory
     resource.extension.matches?(/\.(png|jpg|jpeg|bmp|heic|gif)/i)
   end
 
-  private def self.elf?(resource) : Bool
-    File.open(resource) do |f|
-      signature = f.read_bytes(Int32, IO::ByteFormat::BigEndian)
-      return signature == ELF_SIGNATURE
+  private def self.binary?(resource) : Bool
+    File.open(resource) do |file|
+      size = file.read(@@buffer)
+      index = @@buffer.index(0)
+      return false if index.nil? || index >= size
     end
-    false
+    true
   end
 end
