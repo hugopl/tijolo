@@ -7,7 +7,7 @@ require "./code_model"
 class LameRegexCrystalCodeModel < CodeModel
   Log = ::Log.for(LameRegexCrystalCodeModel)
 
-  METHOD_REGEX    = /\A\s*(?:abstract |private |protected )?\s*def\s+((?:self\.)?\w[\w+\d+]*[!\?]*)/
+  METHOD_REGEX    = /\A\s*(?:abstract |private |protected )?\s*def\s+((?:self\.)?\w[\w+\d+]*[!\?=]*)/
   MACRO_REGEX     = /\A\s*macro\s+(\w[\w+\d+]*[!\?]*)/
   SPEC_TEST_REGEX = /\A\s*it\s*(.*)do\s*\z/
 
