@@ -6,9 +6,13 @@ class ViewFactory
 
   def self.build(resource : Path, project : Project) : View
     if image?(resource)
-      HexView.new(resource, project).tap do |view|
-        view.add_toast("Image files are not supported yet. Have fun with an hex editor 😅")
-      end
+      {% if flag?(:no_hexeditor) %}
+        raise TijoloError.new("Image files not yet supported.")
+      {% else %}
+        HexView.new(resource, project).tap do |view|
+          view.add_toast("Image files are not supported yet. Have fun with an hex editor 😅")
+        end
+      {% end %}
     elsif binary?(resource)
       {% if flag?(:no_hexeditor) %}
         raise TijoloError.new("Tijolo was compiled without support for an hexeditor 😢.")
