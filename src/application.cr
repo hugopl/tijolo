@@ -2,7 +2,7 @@ require "./tijolo_error"
 require "./tijolo_log_format"
 require "./application_window"
 
-VERSION = {{ `shards version #{__DIR__}`.strip.stringify }}
+VERSION = {{ (`shards version #{__DIR__}`.strip + "+" + system("git rev-parse --short HEAD || echo unknown").stringify).stringify.strip }}
 LICENSE = {{ run("./macros/license.cr").stringify }}
 
 class Application < Adw::Application
@@ -115,7 +115,7 @@ class Application < Adw::Application
   @[GObject::Virtual]
   def handle_local_options(options : GLib::VariantDict) : Int32
     if options.remove("version")
-      puts "Tijolo version #{VERSION} build with Crystal #{Crystal::VERSION}."
+      puts "Tijolo version #{VERSION} built with Crystal #{Crystal::VERSION}."
       return 0
     elsif options.remove("license")
       puts LICENSE.gsub(/<\/?(big|tt)>/, "")
