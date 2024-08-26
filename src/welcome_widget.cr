@@ -155,6 +155,11 @@ class WelcomeWidget < Gtk::Box
   end
 
   @[GObject::Virtual]
+  def grab_focus : Bool
+    @entry.grab_focus
+  end
+
+  @[GObject::Virtual]
   def get_n_items : UInt32
     @fzy_results.size.to_u32
   end

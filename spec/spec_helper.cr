@@ -9,9 +9,6 @@ class TestView < View
     super(Adw::Bin.new)
     self.label = name
   end
-
-  def grab_focus
-  end
 end
 
 macro assert_visible(*views)

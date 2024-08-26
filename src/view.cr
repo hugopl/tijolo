@@ -37,7 +37,10 @@ abstract class View < Gtk::Box
     Gtk::Label.cast(template_child(View.g_type, "label"))
   end
 
-  delegate grab_focus, to: @contents
+  @[GObject::Virtual]
+  def grab_focus : Bool
+   @contents.grab_focus
+  end
 
   private def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool
     if key_val == Gdk::KEY_Escape

@@ -380,6 +380,12 @@ class ViewManager < Gtk::Widget
   end
 
   @[GObject::Virtual]
+  def grab_focus : Bool
+    view = current_view?
+    view ? view.grab_focus : false
+  end
+
+  @[GObject::Virtual]
   def get_n_items : UInt32
     @ordered_view_nodes.size.to_u32
   end
