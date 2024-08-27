@@ -9,15 +9,15 @@ def render_license(io : IO, title : String, license_file : Path | String)
   io << "</tt>\n\n"
 end
 
-license = String.build do |s|
+license = String.build do |str|
   if File.exists?("./LICENSE")
     title = Dir.current.split("/").last.capitalize
-    render_license(s, title, "./LICENSE")
+    render_license(str, title, "./LICENSE")
   end
 
   Dir.glob("./lib/*/LICENSE", "./lib/*/license").each do |path|
     title = path.match(/^\.\/lib\/([^\/]+)\//).try(&.[1]).to_s.capitalize
-    render_license(s, title, path)
+    render_license(str, title, path)
   end
 end
 

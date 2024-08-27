@@ -50,7 +50,7 @@ class ViewManagerViewNode < ViewManagerNode
     moved_view = remove_visible_view
 
     if old_parent && old_parent.orientation == orientation
-      idx = old_parent.index(self).not_nil!
+      idx = old_parent.index!(self)
       idx += 1 if position.end?
       new_node = ViewManagerViewNode.new(moved_view)
       old_parent.add_child(idx, new_node)

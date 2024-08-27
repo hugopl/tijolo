@@ -91,10 +91,10 @@ class TextView < DocumentView
 
     @editor.wrap_mode = config.wrap_mode
     @editor.tab_width = is_make_file ? 4 : config.editor_tab_width
-    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs
-    @editor.show_right_margin = config.editor_show_right_margin
+    @editor.insert_spaces_instead_of_tabs = is_make_file ? false : config.editor_insert_spaces_instead_of_tabs?
+    @editor.show_right_margin = config.editor_show_right_margin?
     @editor.right_margin_position = config.editor_right_margin_position
-    @editor.highlight_current_line = config.editor_highlight_current_line
+    @editor.highlight_current_line = config.editor_highlight_current_line?
   end
 
   # Line and col starts at zero in code, but at 1 in UI
@@ -125,8 +125,8 @@ class TextView < DocumentView
     buffer.remove_trailing_spaces!
 
     saver = GtkSource::FileSaver.new(buffer: buffer, file: @source_file, flags: :ignore_modification_time)
-    saver.save_async(:default) do |obj, result|
-      v = saver.save_finish(result)
+    saver.save_async(:default) do |_, result|
+      saver.save_finish(result)
       buffer.modified = false
       self.externally_modified = false
     rescue ex
@@ -141,8 +141,8 @@ class TextView < DocumentView
     saver = GtkSource::FileSaver.new_with_target(buffer: buffer, file: @source_file,
       target_location: Gio::File.new_for_path(resource.to_s))
     saver.flags = :ignore_modification_time
-    saver.save_async(:default) do |obj, result|
-      v = saver.save_finish(result)
+    saver.save_async(:default) do |_, result|
+      saver.save_finish(result)
       buffer.modified = false
       self.externally_modified = false
     rescue ex

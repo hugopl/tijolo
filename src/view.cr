@@ -39,7 +39,7 @@ abstract class View < Gtk::Box
 
   @[GObject::Virtual]
   def grab_focus : Bool
-   @contents.grab_focus
+    @contents.grab_focus
   end
 
   private def key_pressed(key_val : UInt32, key_code : UInt32, modifier : Gdk::ModifierType) : Bool

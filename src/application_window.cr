@@ -270,7 +270,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
       if view.resource.nil?
         save_current_view_as
-      elsif !view.readonly? && view.modified
+      elsif !view.readonly? && view.modified?
         view.save
       else
         Log.info { "Skipping save for readonly and/or unmodified documents" }
@@ -333,7 +333,7 @@ class ApplicationWindow < Adw::ApplicationWindow
 
   def show_open_file_dialog
     dialog = Gtk::FileDialog.new(initial_folder: Gio::File.new_for_path(@project.root.dirname))
-    dialog.open(self, nil) do |obj, result|
+    dialog.open(self, nil) do |_, result|
       path = dialog.open_finish(result).try(&.path)
       open(path) if path
     rescue e : Gtk::DialogError::Dismissed

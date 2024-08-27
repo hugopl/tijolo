@@ -43,11 +43,11 @@ class Config
 
   # editor
   getter editor_font_size : Int32
-  getter editor_insert_spaces_instead_of_tabs : Bool
+  getter? editor_insert_spaces_instead_of_tabs : Bool
   getter editor_tab_width : Int32
-  getter editor_show_right_margin : Bool
+  getter? editor_show_right_margin : Bool
   getter editor_right_margin_position : Int32
-  getter editor_highlight_current_line : Bool
+  getter? editor_highlight_current_line : Bool
 
   def self.instance
     @@instance ||= begin

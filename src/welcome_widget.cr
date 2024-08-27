@@ -181,7 +181,7 @@ class WelcomeWidget < Gtk::Box
     message = "Tijolo is meant to be used with git projects but no git projects were found under " \
               "<span allow_breaks=\"false\" font_family=\"monospace\">#{Path.home}</span>. " \
               "Create a git project somewhere and ask Tijolo to rescan projects."
-    dialog = Gtk::MessageDialog.ok(message_type: :info,
+    Gtk::MessageDialog.ok(message_type: :info,
       text: "No Git projects were found", secondary_text: message,
       secondary_use_markup: true, transient_for: ApplicationWindow.cast(root.not_nil!)) do
     end

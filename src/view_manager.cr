@@ -330,7 +330,7 @@ class ViewManager < Gtk::Widget
     root.each_view_node do |node|
       @ordered_view_nodes << node
     end
-    @ordered_view_nodes.sort! { |a, b| b.last_used <=> a.last_used }
+    @ordered_view_nodes.sort! { |view_a, view_b| view_b.last_used <=> view_a.last_used }
 
     items_changed(0, old_size, @ordered_view_nodes.size)
   end

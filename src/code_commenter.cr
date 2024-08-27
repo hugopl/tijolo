@@ -56,7 +56,7 @@ module CodeCommenter
 
   private def uncomment_lines(iter : Gtk::TextIter, count : Int32)
     line_comment = language.line_comment
-    indent = find_text_indent(iter.copy, count)
+    find_text_indent(iter.copy, count)
 
     buffer.user_action do
       count.times do
