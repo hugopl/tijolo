@@ -7,7 +7,6 @@ class ViewManagerSplitNode < ViewManagerNode
   end
 
   delegate index, to: @children
-  delegate index!, to: @children
 
   def child_count : Int32
     @children.size

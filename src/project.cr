@@ -120,7 +120,7 @@ class Project < GObject::Object
       files.each do |file|
         @files.add?(file)
       end
-      directories.each { |directory| @directories.add(directory) }
+      directories.each { |f| @directories.add(f) }
     end
   end
 

@@ -21,7 +21,7 @@ module LSP
     @[JSON::Field(key: "willSave")]
     getter? will_save : Bool = false
     @[JSON::Field(key: "willSaveWaitUntil")]
-    getter? will_save_wait_until : Bool = false
+    getter will_save_wait_until : Bool = false
     getter save : SaveOptions | Bool = false
   end
 

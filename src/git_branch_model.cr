@@ -27,7 +27,7 @@ class GitBranchModel < GObject::Object
   def menu_model=(menu_model : Gio::Menu)
     @menu_model = menu_model
     menu_model.remove_all
-    local_branches.each do |branch_name|
+    local_branches.each.with_index do |branch_name, index|
       variant = GLib::Variant.new(branch_name)
       menu_model.append(branch_name, "win.change_git_branch(#{variant})")
     end

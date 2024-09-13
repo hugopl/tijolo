@@ -15,7 +15,7 @@ class FindReplace < Gtk::Box
   @offset_when_show : Int32 = 0
 
   @[GObject::Property]
-  property? active : Bool = false
+  property active : Bool = false
 
   def initialize(@editor : CodeEditor)
     super()
@@ -46,7 +46,7 @@ class FindReplace < Gtk::Box
   def find_prev
     @search_context.highlight = true
 
-    start, _ = @buffer.selection_bounds
+    start, end_ = @buffer.selection_bounds
     found, start, end_, _wrap = @search_context.backward(start)
     return unless found
 

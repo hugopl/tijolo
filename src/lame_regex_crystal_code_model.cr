@@ -28,6 +28,7 @@ class LameRegexCrystalCodeModel < CodeModel
   private def scan_symbols(source : Path) : Array(CodeSymbol)
     symbols = [] of CodeSymbol
     line_number = -1
+    is_spec = source =~ /_spec\...\z/
 
     File.open(source).each_line do |line|
       line_number += 1

@@ -5,11 +5,11 @@ abstract class DocumentView < View
   property project : Project?
   property? readonly = false
   @[GObject::Property]
-  property? modified = false
+  property modified = false
   @[GObject::Property]
-  property? externally_modified = false
+  property externally_modified = false
   @[GObject::Property]
-  property? deleted = false
+  property deleted = false
 
   @@untitled_count = 0
   @resource_actions = [] of Gio::SimpleAction
