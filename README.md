@@ -11,19 +11,11 @@ Lightweight, keyboard-oriented IDE for the masses.
 
 Basic stuff still missing, use it at your own risk 🔥️.
 
-- [x] Write a good keyboard only search/replace UI.
-- [ ] Build locator (Ctrl+B) build os targets no shards.yml.
-- [ ] Reintroduce LSP support.
-- [ ] Improve Ctrl+Tab coloring document stacks.
-- [ ] Add animations to view moves.
-- [ ] Ask to reload view on app re-focused or some modified view focused (and remove file monitors)
-- [ ] Git locator.
-- [ ] Increase/Decrease font size.
-- [ ] Save sessions.
-- [ ] Add "Clone Repository" dialog.
-- [ ] Add "New Project" dialog.
-- [ ] Add settings dialog, or maybe just continue with the TOML file based approach.
-- [ ] Create a site with some documentation, otherwise I'll always be the only user for this.
+Currently it uses the GtkSourceView as code widget, but due to limitations
+of GtkSOurceView I plan to embed neovim in Tijolo, so Tijolo would only take care
+of the split panes and start a nvim instance with tijolo's own init files.
+
+I started to code a code widget... but it's too much work for my spare time.
 
 ## How it looks like?
 
