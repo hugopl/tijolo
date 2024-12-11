@@ -1,3 +1,7 @@
+# Archived
+
+I'm a nvim user nowadays, so farewell Tijolo, rest in piece.
+
 <img align="left" src="./data/io.github.hugopl.Tijolo.svg" width="100" height="100" />
 
 # Tijolo
